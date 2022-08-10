@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 
@@ -13,8 +14,10 @@ public class BaseEntity {
     private String id;
 
     @CreatedDate
+    @Field(name = "created_date")
     private LocalDateTime createdDate;
 
+    @Field(name = "schema_version")
     protected String schemaVersion = "1.0";
 
     public void setSchemaVersion(String schemaVersion) {
