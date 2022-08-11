@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.time.LocalDateTime;
 
 @Getter
-public class BaseTimeEntity extends BaseEntity{
+public abstract class BaseTimeEntity extends BaseEntity{
     @LastModifiedDate
     @Field(name = "modified_date")
     private LocalDateTime modifiedDate;

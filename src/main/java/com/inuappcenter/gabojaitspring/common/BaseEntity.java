@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.time.LocalDateTime;
 
 @Getter
-public class BaseEntity {
+public abstract class BaseEntity {
     @Id
     private String id;
 
