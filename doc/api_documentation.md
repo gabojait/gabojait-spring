@@ -182,7 +182,7 @@
 | LocalDateTime | modifiedDate  |
 | String        | schemaVersion |
 
-## User 로그인 📝
+## User 로그인 🛠
 ### 1️⃣ 요청
 
 | HTTP Method | URI          |
