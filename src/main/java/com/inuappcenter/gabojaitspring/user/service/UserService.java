@@ -1,6 +1,5 @@
 package com.inuappcenter.gabojaitspring.user.service;
 
-import com.inuappcenter.gabojaitspring.auth.CustomUserDetailService;
 import com.inuappcenter.gabojaitspring.exception.http.ConflictException;
 import com.inuappcenter.gabojaitspring.exception.http.ForbiddenException;
 import com.inuappcenter.gabojaitspring.exception.http.InternalServerErrorException;
