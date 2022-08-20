@@ -13,13 +13,9 @@ public class DefaultExceptionResponseDto {
 
     private final String responseMessage;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private final LocalDateTime timestamp;
-
     @Builder
-    public DefaultExceptionResponseDto(String responseCode, String responseMessage, LocalDateTime timestamp) {
+    public DefaultExceptionResponseDto(String responseCode, String responseMessage) {
         this.responseCode = responseCode;
         this.responseMessage = responseMessage;
-        this.timestamp = timestamp;
     }
 }
