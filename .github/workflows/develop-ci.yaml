@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ "develop", "master" ]
+    branches: [ "develop" ]
   pull_request:
-    branches: [ "develop", "master" ]
+    branches: [ "develop" ]
 
 jobs:
   build:
@@ -35,7 +35,7 @@ jobs:
         uses: mr-smithers-excellent/docker-build-push@v5
         with:
           image: gs97ahn/server
-          tags: gabojait-latest
+          tags: gabojait-develop-latest
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
