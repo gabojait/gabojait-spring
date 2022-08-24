@@ -23,13 +23,12 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew bootJar
+        run: ./gradlew build
         env:
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_PORT: ${{ secrets.DB_PORT }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          ACCESS_KEY: ${{ secrets.ACCESS_KEY }}
 
       - name: Build and push Docker image
         uses: mr-smithers-excellent/docker-build-push@v5
