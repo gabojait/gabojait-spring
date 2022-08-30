@@ -6,6 +6,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inuappcenter.gabojaitspring.exception.http.UnauthorizedException;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+@Api(tags = "Auth")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
@@ -34,6 +37,7 @@ public class AuthController {
 
     private final String tokenPrefix = "Bearer ";
 
+    @ApiOperation(value = "Auth 토큰 재발급")
     @PostMapping("/refresh")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
