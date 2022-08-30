@@ -1,10 +1,7 @@
 package com.inuappcenter.gabojaitspring.user.controller;
 
 import com.inuappcenter.gabojaitspring.common.DefaultResponseDto;
-import com.inuappcenter.gabojaitspring.user.dto.UserDefaultResponseDto;
-import com.inuappcenter.gabojaitspring.user.dto.UserDuplicateRequestDto;
-import com.inuappcenter.gabojaitspring.user.dto.UserSaveRequestDto;
-import com.inuappcenter.gabojaitspring.user.dto.UserSignInRequestDto;
+import com.inuappcenter.gabojaitspring.user.dto.*;
 import com.inuappcenter.gabojaitspring.user.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -12,10 +9,12 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @Api(tags = "User")
@@ -64,18 +63,18 @@ public class UserController {
                         .build());
     }
 
-    @ApiOperation(value = "User 로그인")
+    @ApiOperation(value = "User 정보 불러오기")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "User 로그인 성공"),
-            @ApiResponse(code = 401, message = "User 로그인 실패")
+            @ApiResponse(code = 200, message = "User 정보 불러오기 성공"),
+            @ApiResponse(code = 401, message = "User 정보 없음")
     })
-    @PatchMapping("/signIn")
-    public ResponseEntity<Object> signIn(@RequestBody @Valid UserSignInRequestDto request) {
-        UserDefaultResponseDto response = userService.signIn(request);
+    @GetMapping("")
+    public ResponseEntity<Object> findOneUser(@RequestBody UserFindOneUserRequestDto request) {
+        UserDefaultResponseDto response = userService.findOneUser(request);
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
-                        .responseMessage("로그인 성공")
+                        .responseMessage("User 정보 불러오기 성공")
                         .data(response)
                         .build());
     }
