@@ -1,14 +1,13 @@
 package com.inuappcenter.gabojaitspring.user.service;
 
+import com.inuappcenter.gabojaitspring.auth.CustomUserDetailService;
 import com.inuappcenter.gabojaitspring.exception.http.ConflictException;
 import com.inuappcenter.gabojaitspring.exception.http.ForbiddenException;
 import com.inuappcenter.gabojaitspring.exception.http.InternalServerErrorException;
+import com.inuappcenter.gabojaitspring.exception.http.UnauthorizedException;
 import com.inuappcenter.gabojaitspring.user.domain.Contact;
 import com.inuappcenter.gabojaitspring.user.domain.User;
-import com.inuappcenter.gabojaitspring.user.dto.UserDefaultResponseDto;
-import com.inuappcenter.gabojaitspring.user.dto.UserDuplicateRequestDto;
-import com.inuappcenter.gabojaitspring.user.dto.UserSaveRequestDto;
-import com.inuappcenter.gabojaitspring.user.dto.UserSignInRequestDto;
+import com.inuappcenter.gabojaitspring.user.dto.*;
 import com.inuappcenter.gabojaitspring.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +30,7 @@ public class UserService {
     private final ContactService contactService;
 
     private final PasswordEncoder passwordEncoder;
+
 
     /**
      * 중복 유저이름 존재 여부 확인 |
@@ -80,23 +80,15 @@ public class UserService {
         return user;
     }
 
-    /**
-     * User 로그인 |
-     * 아이디를 데이터베이스로 존재 여부를 확인하고 비밀번호가 일치하는지 확인한다. 아이디를 조회해서 없는 경우 또는 아이디는 존재하지만 비밀번호가 틀린
-     * 경우 403(Forbidden)을 던진다.
-     */
-    public UserDefaultResponseDto signIn(UserSignInRequestDto request) {
-        log.info("IN PROGRESS | User 로그인 At " + LocalDateTime.now() + " | " + request.toString());
-        Optional<User> foundUser = userRepository.findByUsername(request.getUsername());
-        if (foundUser.isEmpty()) {
-            throw new ForbiddenException("로그인 정보가 틀렸습니다");
-        } else
-            if (foundUser.get().getPassword().equals(passwordEncoder.encode(request.getPassword()))){
-            log.info("COMPLETE | User 로그인 At " + LocalDateTime.now() + " | " + foundUser);
-            return new UserDefaultResponseDto(foundUser.get());
+    public UserDefaultResponseDto findOneUser(UserFindOneUserRequestDto request) {
+        Optional<User> user = userRepository.findByUsername(request.getUsername());
+        if (user.isEmpty()) {
+            throw new UnauthorizedException("유저 정보가 존재하지 않습니다");
         } else {
-            throw new ForbiddenException("로그인 정보가 틀렸습니다");
+            return new UserDefaultResponseDto(user.get());
         }
+
+
     }
 
     /**
