@@ -87,8 +87,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         accessTokenCookie.setMaxAge(60);
         refreshTokenCookie.setMaxAge(60);
-//        accessTokenCookie.setSecure(true);
-//        refreshTokenCookie.setSecure(true);
+        accessTokenCookie.setSecure(true);
+        refreshTokenCookie.setSecure(true);
 
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
