@@ -64,11 +64,11 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(UnauthorizedException.class)
     @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
     protected ResponseEntity<Object> handleUnauthorizedException(UnauthorizedException exception) {
-        String responseMessage = exception.getMessage();
+        String responseMessage = "인증에 실패했습니다";
         String responseCode = "UNAUTHORIZED";
         LocalDateTime timestamp = LocalDateTime.now();
 
-        log.error("ERROR | " + responseMessage + " At " + timestamp + " | " + exception);
+        log.error("ERROR | " + exception.getMessage() + " At " + timestamp + " | " + exception);
 
         return ResponseEntity.status(401).body(
                 DefaultExceptionResponseDto.builder()
@@ -106,11 +106,11 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ForbiddenException.class)
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public ResponseEntity<Object> handleForbiddenException(ForbiddenException exception) {
-        String responseMessage = exception.getMessage();
+        String responseMessage = "권한이 없습니다";
         String responseCode = "FORBIDDEN";
         LocalDateTime timestamp = LocalDateTime.now();
 
-        log.error("ERROR | " + responseMessage + " At " + timestamp + " | " + exception);
+        log.error("ERROR | " + responseMessage + " At " + timestamp + " | ");
 
         return ResponseEntity.status(403).body(
                 DefaultExceptionResponseDto.builder()
