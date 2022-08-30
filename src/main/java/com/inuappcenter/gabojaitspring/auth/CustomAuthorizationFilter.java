@@ -80,7 +80,6 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                     response.setContentType("application/json; charset=UTF-8");
                     response.getWriter().println(objectMapper.writeValueAsString(body));
                     log.info("ERROR | 내부 필터 작동 At" + LocalDateTime.now() + " | " + body);
-//                    throw new ForbiddenException(e.getMessage());
                 }
             } else {
                 filterChain.doFilter(request, response);
