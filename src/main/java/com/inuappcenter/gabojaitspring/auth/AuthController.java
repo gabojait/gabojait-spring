@@ -9,7 +9,6 @@ import com.inuappcenter.gabojaitspring.exception.http.UnauthorizedException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,6 +31,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 public class AuthController {
 
     private final CustomUserDetailService customUserDetailService;
+
     @Value("secret")
     private String secret;
 
@@ -68,16 +68,8 @@ public class AuthController {
                         .withIssuer(request.getRequestURL().toString())
                         .sign(algorithm);
 
-                Cookie accessTokenCookie = new Cookie("ACCESS-TOKEN", newAccessToken);
-                Cookie refreshTokenCookie = new Cookie("REFRESH-TOKEN", newRefreshToken);
-
-                accessTokenCookie.setMaxAge(60);
-                refreshTokenCookie.setMaxAge(60);
-//                accessTokenCookie.setSecure(true);
-//                refreshTokenCookie.setSecure(true);
-
-                response.addCookie(accessTokenCookie);
-                response.addCookie(refreshTokenCookie);
+                response.addHeader("ACCESS-TOKEN", newAccessToken);
+                response.addHeader("REFRESH-TOKEN", newRefreshToken);
             } catch (Exception e) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 Map<String, String> body = new HashMap<>();

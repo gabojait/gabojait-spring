@@ -59,9 +59,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
                                             HttpServletResponse response,
                                             FilterChain chain,
                                             Authentication authentication) throws IOException, ServletException {
-        log.info("IN PROGRESS | 인증 성공 At " + LocalDateTime.now() +
-                " | request = " + request.toString() +
-                " response = " + response.toString());
+        log.info("IN PROGRESS | 인증 성공 At " + LocalDateTime.now() + " | request = " + request.toString());
         User user = (User) authentication.getPrincipal();
         Algorithm algorithm = Algorithm.HMAC256(secret.getBytes(StandardCharsets.UTF_8));
 
@@ -82,19 +80,10 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
                 .withIssuer(request.getRequestURL().toString())
                 .sign(algorithm);
 
-        Cookie accessTokenCookie = new Cookie("ACCESS-TOKEN", accessToken);
-        Cookie refreshTokenCookie = new Cookie("REFRESH-TOKEN", refreshToken);
+        response.addHeader("ACCESS-TOKEN", accessToken);
+        response.addHeader("REFRESH-TOKEN", refreshToken);
 
-        accessTokenCookie.setMaxAge(60);
-        refreshTokenCookie.setMaxAge(60);
-        accessTokenCookie.setSecure(true);
-        refreshTokenCookie.setSecure(true);
-
-        response.addCookie(accessTokenCookie);
-        response.addCookie(refreshTokenCookie);
-
-        log.info("COMPLETE | 인증 성공 At " + LocalDateTime.now() +
-                " | accessToken = " + accessToken + " refreshToken = " + refreshToken);
+        log.info("COMPLETE | 인증 성공 At " + LocalDateTime.now());
     }
 
     /**
@@ -114,8 +103,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         body.put("responseMessage", "인증에 실패했습니다");
 
         response.setStatus(401);
-        response.setCharacterEncoding("UTF-8");
-        response.setContentType("text/html; charset=UTF-8");
+        response.setContentType("application/json; charset=UTF-8");
         response.getWriter().println(objectMapper.writeValueAsString(body));
 
     }
