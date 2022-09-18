@@ -1,8 +1,6 @@
 package com.inuappcenter.gabojaitspring.user.service;
 
-import com.inuappcenter.gabojaitspring.auth.CustomUserDetailService;
 import com.inuappcenter.gabojaitspring.exception.http.ConflictException;
-import com.inuappcenter.gabojaitspring.exception.http.ForbiddenException;
 import com.inuappcenter.gabojaitspring.exception.http.InternalServerErrorException;
 import com.inuappcenter.gabojaitspring.exception.http.UnauthorizedException;
 import com.inuappcenter.gabojaitspring.user.domain.Contact;
@@ -11,7 +9,6 @@ import com.inuappcenter.gabojaitspring.user.dto.*;
 import com.inuappcenter.gabojaitspring.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +20,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
 
-    @Autowired
     private final UserRepository userRepository;
-
-    @Autowired
     private final ContactService contactService;
-
     private final PasswordEncoder passwordEncoder;
 
 

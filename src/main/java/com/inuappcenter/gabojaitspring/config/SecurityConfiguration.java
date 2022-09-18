@@ -1,9 +1,8 @@
 package com.inuappcenter.gabojaitspring.config;
 
-import com.inuappcenter.gabojaitspring.auth.CustomAuthenticationFilter;
 import com.inuappcenter.gabojaitspring.auth.CustomAuthorizationFilter;
+import com.inuappcenter.gabojaitspring.auth.JwtProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,9 +20,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    @Value("secret")
-    private String secret;
-
     private final UserDetailsService userDetailsService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -40,8 +36,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        CustomAuthenticationFilter authenticationFilter = new CustomAuthenticationFilter(authenticationManager(), secret);
-        authenticationFilter.setFilterProcessesUrl("/auth/signIn");
+        JwtProvider jwtProvider = new JwtProvider(userDetailsService);
+//        CustomAuthenticationFilter authenticationFilter =
+//                new CustomAuthenticationFilter(authenticationManager(), jwtProvider);
+//
+//        authenticationFilter.setFilterProcessesUrl("/auth/signIn");
 
         http
                 .csrf().disable()
@@ -51,8 +50,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers(
-                        "/auth/signIn/**",
-                        "/auth/refresh/**",
+                        "/swagger-ui/index.html/**",
+                        "/auth/**",
                         "/contact/**",
                         "/user/**"
                 )
@@ -60,7 +59,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .anyRequest()
                 .permitAll()
                 .and()
-                .addFilter(authenticationFilter)
-                .addFilterBefore(new CustomAuthorizationFilter(secret), UsernamePasswordAuthenticationFilter.class);
+//                .addFilter(authenticationFilter)
+                .addFilterBefore(new CustomAuthorizationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
     }
 }

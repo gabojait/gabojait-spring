@@ -1,21 +1,24 @@
 package com.inuappcenter.gabojaitspring.user.controller;
 
+import com.inuappcenter.gabojaitspring.auth.JwtProvider;
 import com.inuappcenter.gabojaitspring.common.DefaultResponseDto;
+import com.inuappcenter.gabojaitspring.exception.http.UnauthorizedException;
 import com.inuappcenter.gabojaitspring.user.dto.*;
 import com.inuappcenter.gabojaitspring.user.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "User")
 @RestController
@@ -23,8 +26,10 @@ import javax.validation.Valid;
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
     private final UserService userService;
+    private final JwtProvider jwtProvider;
+    private final AuthenticationManager authenticationManager;
+    private final String tokenPrefix = "Bearer ";
 
     @ApiOperation(value = "User 아이디 중복 여부 확인")
     @ApiResponses(value = {
@@ -33,7 +38,7 @@ public class UserController {
             @ApiResponse(code = 409, message = "User 아이디 중복 확인 실패"),
             @ApiResponse(code = 500, message = "User 아이디 중복 여부 확인 중 에러")
     })
-    @PostMapping("/duplicate")
+    @GetMapping("/duplicate")
     public ResponseEntity<Object> duplicateUsername(
             @RequestBody @Valid UserDuplicateRequestDto request) {
         userService.isExistingUsername(request);
@@ -68,7 +73,7 @@ public class UserController {
             @ApiResponse(code = 200, message = "User 정보 불러오기 성공"),
             @ApiResponse(code = 401, message = "User 정보 없음")
     })
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<Object> findOneUser(@RequestBody UserFindOneUserRequestDto request) {
         UserDefaultResponseDto response = userService.findOneUser(request);
         return ResponseEntity.status(200)
@@ -79,13 +84,74 @@ public class UserController {
                         .build());
     }
 
+    @ApiOperation(value = "User 로그인")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "User 로그인 성공"),
+            @ApiResponse(code = 401, message = "User 로그인 실패")
+    })
+    @PostMapping("/auth")
+    public ResponseEntity<Object> signIn(@RequestBody UserSignInRequestDto request) {
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
+        Authentication authentication = authenticationManager.authenticate(authenticationToken);
+        if (authentication.isAuthenticated()) {
+            User user = (User) authentication.getPrincipal();
+            String[] token = jwtProvider.generateJwt(user);
+            HttpHeaders responseHeader = new HttpHeaders();
+            responseHeader.add("ACCESS-TOKEN", token[0]);
+            responseHeader.add("REFRESH-TOKEN", token[1]);
+            return ResponseEntity.status(200)
+                    .headers(responseHeader)
+                    .body(DefaultResponseDto.builder()
+                            .responseCode("OK")
+                            .responseMessage("User 로그인 성공")
+                            .build());
+        } else {
+            throw new UnauthorizedException();
+        }
+    }
+
+    @ApiOperation(value = "User 토큰 재발급")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "User 토큰 재발급 성공"),
+            @ApiResponse(code = 401, message = "User 토큰 재발급 실패")
+    })
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization",
+                    value = "Refresh Token",
+                    required = true,
+                    paramType = "header",
+                    dataTypeClass = String.class,
+                    example = "Bearer access_token")
+    })
+    @GetMapping("/auth")
+    public ResponseEntity<Object> refreshToken(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+        if (authorizationHeader != null && authorizationHeader.startsWith(tokenPrefix)) {
+            String refreshToken = authorizationHeader.substring(tokenPrefix.length());
+            User user =  jwtProvider.verifyJwt(refreshToken);
+            String[] token = jwtProvider.generateJwt(user);
+            HttpHeaders responseHeader = new HttpHeaders();
+            responseHeader.add("ACCESS-TOKEN", token[0]);
+            responseHeader.add("REFRESH-TOKEN", token[1]);
+            return ResponseEntity.status(200)
+                    .headers(responseHeader)
+                    .body(DefaultResponseDto.builder()
+                            .responseCode("OK")
+                            .responseMessage("User 토큰 재발급 성공")
+                            .build());
+        } else {
+            throw new UnauthorizedException("Refresh 토큰이 없습니다");
+        }
+    }
+
     @ApiOperation(value = "User 전체 삭제")
     @ApiResponses(value = {
             @ApiResponse(code = 204, message = "User 전체 삭제 성공"),
             @ApiResponse(code = 500, message = "User 전체 삭제 중 에러")
     })
-    @DeleteMapping("/deleteAll")
-    public ResponseEntity<Object> deleteAll() throws NoHandlerFoundException {
+    @DeleteMapping
+    public ResponseEntity<Object> deleteAll() {
         userService.deleteAll();
         return ResponseEntity.status(204)
                 .body(DefaultResponseDto.builder()

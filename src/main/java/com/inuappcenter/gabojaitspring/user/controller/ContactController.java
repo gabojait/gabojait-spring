@@ -19,7 +19,6 @@ import javax.validation.Valid;
 @RequestMapping("/contact")
 public class ContactController {
 
-    @Autowired
     private final ContactService contactService;
 
     @ApiOperation(value = "Contact 생성")
@@ -47,7 +46,7 @@ public class ContactController {
             @ApiResponse(code = 401, message = "Contact 정보 존재 에러 || Contact 인증번호 불일치 에러"),
             @ApiResponse(code = 500, message = "Contact 인증번호 확인 중 서버 에러")
     })
-    @PatchMapping("/verification")
+    @PatchMapping
     public ResponseEntity<Object> verify(@RequestBody @Valid ContactVerificationRequestDto request) {
         ContactDefaultResponseDto response = contactService.update(request);
         return ResponseEntity.status(200)

@@ -33,9 +33,8 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @RequiredArgsConstructor
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
+    private final JwtProvider jwtProvider;
     private final String tokenPrefix = "Bearer ";
-
-    private final String secret;
 
     /**
      * 내부 필터 작동 |
@@ -45,7 +44,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         log.info("IN PROGRESS | 내부 필터 작동 At" + LocalDateTime.now() + " | request = " + request.toString());
-        if (request.getServletPath().equals("/auth/signIn") || request.getServletPath().equals("/auth/refresh")) {
+        if (request.getServletPath().equals("/user/signIn") || request.getServletPath().equals("/user/token")) {
             log.info("COMPLETE | 내부 필터 작동 At" + LocalDateTime.now() +
                     " | request servlet path = " + request.getServletPath());
             filterChain.doFilter(request, response);
@@ -53,34 +52,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             String authorizationHeader = request.getHeader(AUTHORIZATION);
             if (authorizationHeader != null && authorizationHeader.startsWith(tokenPrefix)) {
                 String token = authorizationHeader.substring(tokenPrefix.length());
-                try {
-                    Algorithm algorithm = Algorithm.HMAC256(secret.getBytes(StandardCharsets.UTF_8));
-                    JWTVerifier verifier = JWT.require(algorithm).build();
-                    DecodedJWT decodedJWT = verifier.verify(token);
-                    String username = decodedJWT.getSubject();
-                    String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
-
-                    Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                    stream(roles).forEach(role -> {
-                        authorities.add(new SimpleGrantedAuthority(role));
-                    });
-                    UsernamePasswordAuthenticationToken authenticationToken =
-                            new UsernamePasswordAuthenticationToken(username, null, authorities);
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    log.info("COMPLETE | 내부 필터 작동 At" + LocalDateTime.now() + " | username = " + username);
-                    filterChain.doFilter(request, response);
-                } catch (Exception e) {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    Map<String, String> body = new HashMap<>();
-
-                    body.put("responseCode", "UNAUTHORIZED");
-                    body.put("responseMessage", "인증에 실패했습니다");
-
-                    response.setStatus(401);
-                    response.setContentType("application/json; charset=UTF-8");
-                    response.getWriter().println(objectMapper.writeValueAsString(body));
-                    log.info("ERROR | 내부 필터 작동 At" + LocalDateTime.now() + " | " + body);
-                }
+                jwtProvider.verifyJwt(token);
             } else {
                 filterChain.doFilter(request, response);
             }
