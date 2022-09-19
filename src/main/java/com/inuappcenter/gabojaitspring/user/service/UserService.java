@@ -73,8 +73,8 @@ public class UserService {
         return user;
     }
 
-    public UserDefaultResponseDto findOneUser(UserFindOneUserRequestDto request) {
-        Optional<User> user = userRepository.findByUsername(request.getUsername());
+    public UserDefaultResponseDto findOneUser(String id) {
+        Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()) {
             throw new UnauthorizedException("유저 정보가 존재하지 않습니다");
         } else {

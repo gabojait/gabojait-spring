@@ -73,9 +73,9 @@ public class UserController {
             @ApiResponse(code = 200, message = "User 정보 불러오기 성공"),
             @ApiResponse(code = 401, message = "User 정보 없음")
     })
-    @GetMapping
-    public ResponseEntity<Object> findOneUser(@RequestBody UserFindOneUserRequestDto request) {
-        UserDefaultResponseDto response = userService.findOneUser(request);
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> findOneUser(@PathVariable String id) {
+        UserDefaultResponseDto response = userService.findOneUser(id);
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
