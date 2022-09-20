@@ -30,13 +30,13 @@ public class UserService {
      * 중복 유저이름 존재를 파악하고, 이미 사용중인 유저이름이면 409(Conflict)를 던진다. 만약 조회 중 에러가 발생하면 500(Internal Server
      * Error)를 던진다.
      */
-    public void isExistingUsername(UserDuplicateRequestDto request) {
-        log.info("IN PROGRESS | 중복 유저이름 존재 여부 확인 At " + LocalDateTime.now() + " | " + request.toString());
-        userRepository.findByUsername(request.getUsername())
+    public void isExistingUsername(String username) {
+        log.info("IN PROGRESS | 중복 유저이름 존재 여부 확인 At " + LocalDateTime.now() + " | " + username);
+        userRepository.findByUsername(username)
                 .ifPresent(u -> {
                     throw new ConflictException("이미 사용중인 아이디입니다");
                 });
-        log.info("COMPLETE | 중복 유저이름 존재 여부 확인 At " + LocalDateTime.now() + " | " + request);
+        log.info("COMPLETE | 중복 유저이름 존재 여부 확인 At " + LocalDateTime.now() + " | " + username);
     }
 
     /**

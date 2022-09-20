@@ -35,7 +35,7 @@ public class UserSaveRequestDto {
 
     @ApiModelProperty(position = 2, required = true, dataType = "String", value = "비밀번호", example = "password")
     @NotBlank(message = "모든 필수 정보를 입력해 주세요", groups = ValidationSequence.NotBlank.class)
-    @Size(min = 6, max = 30, message = "비밀번호는 6~30자만 가능합니다", groups = ValidationSequence.Size.class)
+    @Size(min = 8, max = 30, message = "비밀번호는 8~30자만 가능합니다", groups = ValidationSequence.Size.class)
     private String password;
 
     @ApiModelProperty(position = 3, required = true, dataType = "String", value = "실명", example = "실명")

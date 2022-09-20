@@ -38,10 +38,10 @@ public class UserController {
             @ApiResponse(code = 409, message = "User 아이디 중복 확인 실패"),
             @ApiResponse(code = 500, message = "User 아이디 중복 여부 확인 중 에러")
     })
-    @GetMapping("/duplicate")
+    @GetMapping("/duplicate/{username}")
     public ResponseEntity<Object> duplicateUsername(
-            @RequestBody @Valid UserDuplicateRequestDto request) {
-        userService.isExistingUsername(request);
+            @PathVariable String username) {
+        userService.isExistingUsername(username);
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")

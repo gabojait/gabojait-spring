@@ -7,7 +7,6 @@ import com.inuappcenter.gabojaitspring.user.dto.ContactVerificationRequestDto;
 import com.inuappcenter.gabojaitspring.user.service.ContactService;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,7 +61,7 @@ public class ContactController {
             @ApiResponse(code = 204, message = "Contact 전체 삭제 성공"),
             @ApiResponse(code = 500, message = "Contact 전체 삭제 중 서버 에러")
     })
-    @DeleteMapping("/deleteAll")
+    @DeleteMapping
     public ResponseEntity<Object> deleteAll() {
         contactService.deleteAll();
         return ResponseEntity.status(204)
