@@ -37,10 +37,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         JwtProvider jwtProvider = new JwtProvider(userDetailsService);
-//        CustomAuthenticationFilter authenticationFilter =
-//                new CustomAuthenticationFilter(authenticationManager(), jwtProvider);
-//
-//        authenticationFilter.setFilterProcessesUrl("/auth/signIn");
 
         http
                 .csrf().disable()
