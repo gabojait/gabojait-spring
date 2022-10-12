@@ -147,15 +147,32 @@ public class UserController {
 
     @ApiOperation(value = "User 아이디 찾기")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "User 아이디 찾기 성공")
+            @ApiResponse(code = 200, message = "User 아이디 찾기 성공"),
+            @ApiResponse(code = 401, message = "User 정보 존재하지 않음"),
+            @ApiResponse(code = 404, message = "User 정보 가입되지 않음")
     })
-    @GetMapping("/forgotid/{email}")
+    @GetMapping("/findId/{email}")
     public ResponseEntity<Object> forgotId(@PathVariable String email) {
-        userService.findUserByEmail(email);
+        userService.findForgotUsernameByEmail(email);
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
                         .responseMessage("User 아이디 찾기 성공")
+                        .build());
+    }
+
+    @ApiOperation(value = "User 비밀번호 찾기")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "User 비밀번호 찾기 성공"),
+            @ApiResponse(code = 401, message = "User 정보 존재하지 않음"),
+    })
+    @GetMapping("/findPw/{username}/{email}")
+    public ResponseEntity<Object> forgotPassword(@PathVariable String username, @PathVariable String email) {
+        userService.resetPasswordByEmailAndUsername(username, email);
+        return ResponseEntity.status(200)
+                .body(DefaultResponseDto.builder()
+                        .responseCode("OK")
+                        .responseMessage("User 비밀번호 찾기 성공")
                         .build());
     }
 
