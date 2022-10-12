@@ -7,6 +7,7 @@ import com.inuappcenter.gabojaitspring.user.dto.*;
 import com.inuappcenter.gabojaitspring.user.service.UserService;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -173,6 +174,21 @@ public class UserController {
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
                         .responseMessage("User 비밀번호 찾기 성공")
+                        .build());
+    }
+
+    @ApiOperation(value = "User 비밀번호 재설정")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "User 비밀번호 재설정 성공"),
+            @ApiResponse(code = 401, message = "User 비밀번호 재설정 실패")
+    })
+    @PatchMapping("/pw")
+    public ResponseEntity<Object> resetPassword(@RequestBody @Valid UserResetPasswordRequestDto request) {
+        userService.resetPassword(request);
+        return ResponseEntity.status(200)
+                .body(DefaultResponseDto.builder()
+                        .responseCode("OK")
+                        .responseMessage("user 비밀번호 재설정")
                         .build());
     }
 

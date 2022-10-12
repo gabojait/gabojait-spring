@@ -68,6 +68,10 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         String responseCode = "UNAUTHORIZED";
         LocalDateTime timestamp = LocalDateTime.now();
 
+        if (!exception.getMessage().isBlank()) {
+            responseMessage = exception.getMessage();
+        }
+
         log.error("ERROR | " + exception.getMessage() + " At " + timestamp + " | " + exception);
 
         return ResponseEntity.status(401).body(

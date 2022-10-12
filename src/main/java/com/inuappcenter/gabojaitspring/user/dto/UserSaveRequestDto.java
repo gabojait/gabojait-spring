@@ -74,6 +74,7 @@ public class UserSaveRequestDto {
                 .legalName(legalName)
                 .nickname(nickname)
                 .gender(gender)
+                .birthdate(birthdate)
                 .contact(contact)
                 .build();
     }
