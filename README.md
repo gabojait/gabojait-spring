@@ -17,7 +17,7 @@ Play Store:
 ![MongoDB](https://img.shields.io/badge/Mongodb-5.0.10-003545?logo=mongodb&style=flat)
 ![S3](https://img.shields.io/badge/S3--003545?logo=Amazon-S3&style=flat)
 
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 ![Develop-CI](https://img.shields.io/github/workflow/status/gabojait/gabojait-spring/Develop%20-%20CI?&logo=GitHub-Actions&label=alpha-ci&style=flat)
 ![Master-CI](https://img.shields.io/github/workflow/status/gabojait/gabojait-spring/Master%20-%20CI?&logo=GitHub-Actions&label=release-ci&style=flat)
 
