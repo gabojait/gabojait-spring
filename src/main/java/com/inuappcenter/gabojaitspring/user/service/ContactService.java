@@ -24,7 +24,6 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class ContactService {
 
-    @Autowired
     private final ContactRepository contactRepository;
 
     private final EmailService emailService;
@@ -158,6 +157,9 @@ public class ContactService {
         }
     }
 
+    /**
+     * 인증번호 이메일 내용
+     */
     private String verificationEmailContent(String verificationCode) {
         return "<!DOCTYPE html>\n" +
                 "<html>\n" +

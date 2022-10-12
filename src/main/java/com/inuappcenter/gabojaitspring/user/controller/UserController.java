@@ -145,6 +145,21 @@ public class UserController {
         }
     }
 
+    @ApiOperation(value = "User 아이디 찾기")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "User 아이디 찾기 성공")
+    })
+    @GetMapping("/forgotid/{email}")
+    public ResponseEntity<Object> forgotId(@PathVariable String email) {
+        userService.findUserByEmail(email);
+        return ResponseEntity.status(200)
+                .body(DefaultResponseDto.builder()
+                        .responseCode("OK")
+                        .responseMessage("User 아이디 찾기 성공")
+                        .build());
+    }
+
+
     @ApiOperation(value = "User 전체 삭제")
     @ApiResponses(value = {
             @ApiResponse(code = 204, message = "User 전체 삭제 성공"),
