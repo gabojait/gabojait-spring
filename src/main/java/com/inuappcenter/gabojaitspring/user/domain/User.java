@@ -37,6 +37,9 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     private LocalDate birthdate;
 
+    @Field(name = "is_deactivated")
+    private Boolean isDeactivated;
+
     private Collection<String> roles = new ArrayList<>();
 
     private Contact contact;
@@ -51,6 +54,7 @@ public class User extends BaseTimeEntity implements UserDetails {
                 String nickname,
                 Character gender,
                 LocalDate birthdate,
+                Boolean isDeactivated,
                 Contact contact) {
         this.username = username;
         this.password = password;
@@ -58,6 +62,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.nickname = nickname;
         this.gender = gender;
         this.birthdate = birthdate;
+        this.isDeactivated = isDeactivated;
         this.contact = contact;
     }
 
@@ -75,6 +80,10 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void setBirthdate(LocalDate birthdate) {
         this.birthdate = birthdate;
+    }
+
+    public void setIsDeactivated(Boolean isDeactivated) {
+        this.isDeactivated = isDeactivated;
     }
 
     public void addRole(String role) {

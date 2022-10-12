@@ -46,7 +46,7 @@ public class UserController {
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
-                        .responseMessage("아이디 중복 확인 완료")
+                        .responseMessage("User 아이디 중복 확인 완료")
                         .build());
     }
 
@@ -64,7 +64,7 @@ public class UserController {
         return ResponseEntity.status(201)
                 .body(DefaultResponseDto.builder()
                         .responseCode("CREATED")
-                        .responseMessage("회원가입 완료")
+                        .responseMessage("User 생성 완료")
                         .data(response)
                         .build());
     }
@@ -188,10 +188,25 @@ public class UserController {
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
-                        .responseMessage("user 비밀번호 재설정")
+                        .responseMessage("User 비밀번호 재설정 성공")
                         .build());
     }
 
+    @ApiOperation(value = "User 탈퇴")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "User 탈퇴 성공"),
+            @ApiResponse(code = 401, message = "User 탈퇴 실패"),
+            @ApiResponse(code = 500, message = "User 전체 삭제 중 에러")
+    })
+    @PatchMapping("/deactivate")
+    public ResponseEntity<Object> deactivate(@RequestBody @Valid UserDeactivateRequestDto request) {
+        userService.deactivateUser(request);
+        return ResponseEntity.status(200)
+                .body(DefaultResponseDto.builder()
+                        .responseCode("OK")
+                        .responseMessage("User 탈퇴 성공")
+                        .build());
+    }
 
     @ApiOperation(value = "User 전체 삭제")
     @ApiResponses(value = {

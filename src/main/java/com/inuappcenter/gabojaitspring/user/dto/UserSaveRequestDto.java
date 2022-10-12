@@ -76,6 +76,7 @@ public class UserSaveRequestDto {
                 .gender(gender)
                 .birthdate(birthdate)
                 .contact(contact)
+                .isDeactivated(false)
                 .build();
     }
 }

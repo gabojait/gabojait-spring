@@ -1,9 +1,6 @@
 package com.inuappcenter.gabojaitspring.user.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.inuappcenter.gabojaitspring.common.ValidationSequence;
-import com.inuappcenter.gabojaitspring.user.domain.Contact;
-import com.inuappcenter.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -11,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.*;
-import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
@@ -24,7 +20,7 @@ public class UserResetPasswordRequestDto {
 
     @ApiModelProperty(position = 1, required = true, dataType = "String", value = "식별자")
     @NotBlank(message = "모든 필수 정보를 입력해 주세요")
-    private String userId;
+    private String id;
 
     @ApiModelProperty(position = 2, required = true, dataType = "String", value = "현재 비밀번호", example = "password")
     @NotBlank(message = "모든 필수 정보를 입력해 주세요", groups = ValidationSequence.NotBlank.class)
@@ -39,7 +35,6 @@ public class UserResetPasswordRequestDto {
     @NotBlank(message = "모든 필수 정보를 입력해 주세요", groups = ValidationSequence.NotBlank.class)
     @Size(min = 8, max = 30, message = "비밀번호는 8~30자만 가능합니다", groups = ValidationSequence.Size.class)
     private String newPasswordReEntered;
-
 }
 
 
