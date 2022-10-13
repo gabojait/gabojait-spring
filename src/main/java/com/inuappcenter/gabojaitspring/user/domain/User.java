@@ -44,6 +44,9 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     private Contact contact;
 
+    @Field(name = "profile_id")
+    private Long profileId;
+
     @Transient
     private Double rating;
 
