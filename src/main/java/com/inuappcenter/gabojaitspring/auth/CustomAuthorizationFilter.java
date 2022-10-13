@@ -43,7 +43,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        log.info("IN PROGRESS | 내부 필터 작동 At" + LocalDateTime.now() + " | request = " + request.toString());
+        log.info("INITIALIZE | 내부 필터 작동 At" + LocalDateTime.now() + " | request = " + request.toString());
         if (request.getServletPath().equals("/user/signIn") || request.getServletPath().equals("/user/token")) {
             log.info("COMPLETE | 내부 필터 작동 At" + LocalDateTime.now() +
                     " | request servlet path = " + request.getServletPath());

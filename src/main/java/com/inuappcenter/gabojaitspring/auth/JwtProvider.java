@@ -43,7 +43,7 @@ public class JwtProvider {
      * Access 토큰과 refresh 토큰을 제작한다.
      */
     public String[] generateJwt(User user) {
-        log.info("IN PROGRESS | JWT 제작 At " + LocalDateTime.now());
+        log.info("INITIALIZE | JWT 제작 At " + LocalDateTime.now());
 
         Algorithm algorithm = Algorithm.HMAC256(secret.getBytes(StandardCharsets.UTF_8));
 

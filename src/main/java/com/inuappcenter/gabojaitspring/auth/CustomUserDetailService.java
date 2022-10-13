@@ -29,7 +29,7 @@ public class CustomUserDetailService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info("IN PROGRESS | 사용자 정보 존재 여부 확인 At" + LocalDateTime.now() + " | " + username);
+        log.info("INITIALIZE | 사용자 정보 존재 여부 확인 At" + LocalDateTime.now() + " | " + username);
         Optional<User> foundUser = userRepository.findByUsername(username);
         if (foundUser.isEmpty()) {
             throw new UsernameNotFoundException("사용자 정보가 없습니다");

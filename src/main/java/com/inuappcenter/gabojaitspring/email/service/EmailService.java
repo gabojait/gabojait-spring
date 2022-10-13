@@ -26,7 +26,7 @@ public class EmailService {
      */
     @Async
     public void sendEmail(String receiver, String title, String intro, String key) {
-        log.info("IN PROGRESS | 이메일 전송 At " + LocalDateTime.now() +
+        log.info("INITIALIZE | 이메일 전송 At " + LocalDateTime.now() +
                 " | receiver = " + receiver  + " title = " + title);
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();

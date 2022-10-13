@@ -27,13 +27,12 @@ public class ContactService {
     private final ContactRepository contactRepository;
     private final EmailService emailService;
 
-
     /**
      * 연락처 저장 |
      * 존재하는 이메일인지 확인후에 존재하지 않으면 이메일에 대한 정보를 저장한다. 저장 중 오류가 발생하면 500(Internal Server Error)을 던진다.
      */
     public ContactDefaultResponseDto save(ContactSaveRequestDto request) {
-        log.info("IN PROGRESS | 연락처 저장 At " + LocalDateTime.now() + " | " + request.toString());
+        log.info("INITIALIZE | 연락처 저장 At " + LocalDateTime.now() + " | " + request.getEmail());
         isExistingEmail(request.getEmail());
         try {
             Contact insertedContact = contactRepository.insert(request.toEntity(generateVerificationCode()));
@@ -43,7 +42,7 @@ public class ContactService {
                     "회원님 안녕하세요!🙇🏻<br>가입 절차를 계속하기 위해 아래의 번호를 이메일 인증번호란에 입력해주세요.🙏🏻",
                     insertedContact.getVerificationCode()
             );
-            log.info("COMPLETE | 중복 이메일 존재 여부 확인 At " + LocalDateTime.now() + " | " + insertedContact);
+            log.info("COMPLETE | 연락처 저장 At " + LocalDateTime.now() + " | " + insertedContact.getEmail());
             return new ContactDefaultResponseDto(insertedContact);
         } catch (Exception e) {
             throw new InternalServerErrorException("연락처 저장 중 에러", e);
@@ -56,7 +55,7 @@ public class ContactService {
      * Server Error)를 던진다.
      */
     private void isExistingEmail(String email) {
-        log.info("IN PROGRESS | 중복 이메일 존재 여부 확인 At " + LocalDateTime.now() + " | " + email);
+        log.info("INITIALIZE | 중복 이메일 존재 여부 확인 At " + LocalDateTime.now() + " | " + email);
         Optional<Contact> existingContact = contactRepository.findByEmail(email);
         if (existingContact.isPresent()) {
             if (existingContact.get().getIsRegistered()) {
@@ -76,14 +75,14 @@ public class ContactService {
      * 숫자, 대문자 영문, 소문자 영문의 6가지 조합을 생성해 반환한다.
      */
     private String generateVerificationCode() {
-        log.info("IN PROGRESS | 인증번호 생성 At " + LocalDateTime.now());
+        log.info("INITIALIZE | 인증번호 생성 At " + LocalDateTime.now());
         String chars = "0123456789" + "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz";
         Random random = new Random();
         random.setSeed(System.currentTimeMillis());
         StringBuilder sb = new StringBuilder(6);
         for (int i = 0; i < 6; i++)
             sb.append(chars.charAt(random.nextInt(chars.length())));
-        log.info("COMPLETE | 인증번호 생성 At " + LocalDateTime.now() + " | " + sb);
+        log.info("COMPLETE | 인증번호 생성 At " + LocalDateTime.now());
         return sb.toString();
     }
 
@@ -92,7 +91,7 @@ public class ContactService {
      * 인증 요청이 안된 이메일이면 401(Unauthorized)를 던진다. 인증번호 확인 후에 불일치하다면 401(Unauthorized)를 던진다.
      */
     public ContactDefaultResponseDto update(ContactVerificationRequestDto request) {
-        log.info("IN PROGRESS | 인증번호 확인 후 연락처 업데이트 At " + LocalDateTime.now() + " | " + request.toString());
+        log.info("INITIALIZE | 인증번호 확인 후 연락처 업데이트 At " + LocalDateTime.now() + " | " + request.getEmail());
         Optional<Contact> foundContact = contactRepository.findByEmail(request.getEmail());
         if (foundContact.isEmpty()) {
             throw new UnauthorizedException("인증되지 않은 이메일입니다");
@@ -102,7 +101,8 @@ public class ContactService {
             try {
                 foundContact.get().setIsVerified(true);
                 Contact savedContact = contactRepository.save(foundContact.get());
-                log.info("COMPLETE | 인증번호 확인 완료 연락처 업데이트 At " + LocalDateTime.now() + " | " + savedContact);
+                log.info("COMPLETE | 인증번호 확인 완료 연락처 업데이트 At " + LocalDateTime.now() + " | "
+                        + savedContact.getEmail());
                 return new ContactDefaultResponseDto(savedContact);
             } catch (Exception e) {
                 throw new InternalServerErrorException("인증번호 확인 후 연락처 업데이트 중 에러", e);
@@ -118,12 +118,12 @@ public class ContactService {
      * 중 에러가 발생하면 500(Internal Server Error)를 던진다.
      */
     public Contact findOneContact(String email) {
-        log.info("IN PROGRESS | 연락처 단건 조회 At " + LocalDateTime.now() + " | " + email);
+        log.info("INITIALIZE | 연락처 단건 조회 At " + LocalDateTime.now() + " | " + email);
         Optional<Contact> contact = contactRepository.findByEmail(email);
         if (contact.isEmpty()) {
             throw new NotFoundException("인증되지 않은 이메일입니다");
         } else {
-            log.info("COMPLETE | 연락처 단건 조회 At " + LocalDateTime.now() + " | " + contact);
+            log.info("COMPLETE | 연락처 단건 조회 At " + LocalDateTime.now() + " | " + contact.get().getEmail());
             return contact.get();
         }
     }
@@ -133,11 +133,11 @@ public class ContactService {
      * User의 Contact에 가입여부를 true로 바꾸고 저장한다. 저장 중 에러가 발생하면 500(Internal Server Error)를 던진다.
      */
     public void register(Contact contact) {
-        log.info("IN PROGRESS | 유저 가입 완료 At " + LocalDateTime.now() + " | " + contact.toString());
+        log.info("INITIALIZE | 유저 가입 완료 At " + LocalDateTime.now() + " | " + contact.getEmail());
         contact.setIsRegistered(true);
         try {
             contactRepository.save(contact);
-            log.info("COMPLETE | 유저 가입 완료 At " + LocalDateTime.now() + " | " + contact);
+            log.info("COMPLETE | 유저 가입 완료 At " + LocalDateTime.now() + " | " + contact.getEmail());
         } catch (Exception e) {
             throw new InternalServerErrorException("유저 가입 완료 중 에러", e);
         }
@@ -148,7 +148,7 @@ public class ContactService {
      * Contact에 가입여부를 false로 바꾸고 저장한다. 저장 중 에러가 발생하면 500(Internal Server Error)를 던진다.
      */
     public void deactivateContact(Contact contact) {
-        log.info("IN PROGRESS | 연락처 탈퇴 At " + LocalDateTime.now() + " | " + contact.getEmail());
+        log.info("INITIALIZE | 연락처 탈퇴 At " + LocalDateTime.now() + " | " + contact.getEmail());
         contact.setIsRegistered(false);
         try {
             contactRepository.save(contact);
@@ -163,7 +163,7 @@ public class ContactService {
      * 배포 단계에서 삭제
      */
     public void deleteAll() {
-        log.info("IN PROGRESS | Contact 전체 삭제 At " + LocalDateTime.now());
+        log.info("INITIALIZE | Contact 전체 삭제 At " + LocalDateTime.now());
         try {
             contactRepository.deleteAll();
             log.info("COMPLETE | Contact 전체 삭제 At " + LocalDateTime.now());
@@ -171,5 +171,4 @@ public class ContactService {
             throw new InternalServerErrorException("Contact 전체 삭제 중 에러", e);
         }
     }
-
 }
