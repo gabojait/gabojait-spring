@@ -45,7 +45,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     private Contact contact;
 
     @Field(name = "profile_id")
-    private Long profileId;
+    private String profileId;
 
     @Transient
     private Double rating;
@@ -91,6 +91,10 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void addRole(String role) {
         this.roles.add(role);
+    }
+
+    public void setProfileId(String profileId) {
+        this.profileId = profileId;
     }
 
     @Override
