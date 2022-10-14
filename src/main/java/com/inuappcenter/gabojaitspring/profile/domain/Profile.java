@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +15,12 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Profile extends BaseTimeEntity {
 
+    @Field(name = "user_id")
+    private String userId;
+
     private String about;
 
-    private Integer position;
+    private Character position;
 
     private List<Education> education = new ArrayList<>();
 
