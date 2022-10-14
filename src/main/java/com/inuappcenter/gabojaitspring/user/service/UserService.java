@@ -29,8 +29,7 @@ public class UserService {
 
     /**
      * 중복 유저이름 존재 여부 확인 |
-     * 중복 유저이름 존재를 파악하고, 이미 사용중인 유저이름이면 409(Conflict)를 던진다. 만약 조회 중 에러가 발생하면 500(Internal Server
-     * Error)를 던진다.
+     * 중복 유저이름 존재를 파악하고, 이미 사용중인 유저이름이면 409(Conflict)를 던진다.
      */
     public void isExistingUsername(String username) {
         log.info("INITIALIZE | 중복 유저이름 존재 여부 확인 At " + LocalDateTime.now() + " | " + username);
@@ -41,6 +40,21 @@ public class UserService {
                     }
                 });
         log.info("COMPLETE | 중복 유저이름 존재 여부 확인 At " + LocalDateTime.now() + " | " + username);
+    }
+
+    /**
+     * 중복 닉네임 존재 여부 확인 |
+     * 중복 닉네임 존재를 파악하고, 이미 사용중인 닉네임이면 409(Conflict)를 던진다.
+     */
+    public void isExistingNickname(String nickname) {
+        log. info("INITIALIZE | 중복 닉네임 존재 여부 확인 At " + LocalDateTime.now() + " | " + nickname);
+        userRepository.findByNickname(nickname)
+                .ifPresent(user -> {
+                    if (!user.getIsDeactivated()) {
+                        throw new ConflictException("이미 사용중인 닉네임입니다");
+                    }
+                });
+        log. info("COMPLETE | 중복 닉네임 존재 여부 확인 At " + LocalDateTime.now() + " | " + nickname);
     }
 
     /**
@@ -55,6 +69,7 @@ public class UserService {
             throw new ConflictException("이메일 인증을 해주세요");
         }
         isExistingUsername(request.getUsername());
+        isExistingNickname(request.getNickname());
         contactService.register(foundContact);
         try {
             User roleAssignedUser = assignAsUser(request.toEntity(foundContact));

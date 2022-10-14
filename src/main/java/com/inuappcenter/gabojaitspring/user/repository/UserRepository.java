@@ -13,6 +13,8 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     Optional<User> findByUsername(String username);
 
+    Optional<User> findByNickname(String nickname);
+
     @Query(value = "{ 'contact.email':  ?0 }")
     Optional<User> findByContact(String email);
 }
