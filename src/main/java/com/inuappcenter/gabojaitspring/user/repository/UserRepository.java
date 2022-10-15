@@ -1,6 +1,5 @@
 package com.inuappcenter.gabojaitspring.user.repository;
 
-import com.inuappcenter.gabojaitspring.user.domain.Contact;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;

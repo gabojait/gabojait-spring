@@ -1,9 +1,7 @@
 package com.inuappcenter.gabojaitspring.user.service;
 
 import com.inuappcenter.gabojaitspring.email.service.EmailService;
-import com.inuappcenter.gabojaitspring.exception.http.ConflictException;
-import com.inuappcenter.gabojaitspring.exception.http.InternalServerErrorException;
-import com.inuappcenter.gabojaitspring.exception.http.UnauthorizedException;
+import com.inuappcenter.gabojaitspring.exception.http.*;
 import com.inuappcenter.gabojaitspring.user.domain.Contact;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import com.inuappcenter.gabojaitspring.user.dto.*;
@@ -59,32 +57,32 @@ public class UserService {
 
     /**
      * 유저 저장 |
-     * User의 Contact를 조회한다. 조회되는 Contact의 이메일이 인증이 안됐을 경우 409(Conflict)를 던진다. 이메일 인증을 했을 경우 회원가입을
-     * 진행하고 비밀번호는 인코드한다. 만약 User 정보 저장 중 에러가 발생하면 500(Internal Server Error)를 던진다.
+     * 유저의 정보를 저장한다. 해당 유저가 이메일 인증을 하지 않았을 경우 401(Unauthorized)를 던지고, 서버 에러가 발생하면
+     * 500(Internal Server Error)을 던진다.
      */
     public UserDefaultResponseDto save(UserSaveRequestDto request) {
         log.info("INITIALIZE | 유저 저장 At " + LocalDateTime.now() + " | " + request.getUsername());
-        Contact foundContact = contactService.findOneContact(request.getEmail());
-        if (!foundContact.getIsVerified()) {
-            throw new ConflictException("이메일 인증을 해주세요");
+        Contact contact = contactService.findOneContact(request.getEmail());
+        if (!contact.getIsVerified()) {
+            throw new UnauthorizedException("이메일 인증을 해주세요");
         }
         isExistingUsername(request.getUsername());
         isExistingNickname(request.getNickname());
-        contactService.register(foundContact);
+        contactService.register(contact);
+        User roleAssignedUser = assignAsUser(request.toEntity(contact));
+        roleAssignedUser.setPassword(passwordEncoder.encode(roleAssignedUser.getPassword()));
         try {
-            User roleAssignedUser = assignAsUser(request.toEntity(foundContact));
-            roleAssignedUser.setPassword(passwordEncoder.encode(roleAssignedUser.getPassword()));
-            User insertedUser = userRepository.insert(roleAssignedUser);
-            log.info("COMPLETE | 유저 저장 At " + LocalDateTime.now() + " | " + insertedUser.getUsername());
-            return new UserDefaultResponseDto(insertedUser);
+            User user = userRepository.save(roleAssignedUser);
+            log.info("COMPLETE | 유저 저장 At " + LocalDateTime.now() + " | " + user.getUsername());
+            return new UserDefaultResponseDto(user);
         } catch (Exception e) {
-            throw new InternalServerErrorException("유저 저장 중 에러 발생", e);
+            throw new InternalServerErrorException("유저 저장 중 에러", e);
         }
     }
 
     /**
      * 유저 역할 부여 |
-     * User에게 사용자 역할을 부여한다.
+     * 유저에게 사용자 역할을 부여한다.
      */
     public User assignAsUser(User user) {
         log.info("INITIALIZE | 유저 역할 부여 At " + LocalDateTime.now() + " | " + user.getUsername());
@@ -95,29 +93,29 @@ public class UserService {
 
     /**
      * 유저 조회 |
-     * User를 조회 한다. 조회가 되지 않거나 탈퇴한 User일 경우 401(Unauthorized)를 던진다.
+     * 유저를 조회 한다. 조회가 되지 않거나 탈퇴한 유저일 경우 404(NotFound)를 던진다.
      */
     public UserDefaultResponseDto findOneUser(String id) {
         log.info("INITIALIZE | 유저 조회 At " + LocalDateTime.now() + " | " + id);
-        Optional<User> foundUser = userRepository.findById(id);
-        if ((foundUser.isPresent() && foundUser.get().getIsDeactivated()) || foundUser.isEmpty()) {
-            throw new UnauthorizedException("유저 정보가 존재하지 않습니다");
+        Optional<User> user = userRepository.findById(id);
+        if ((user.isPresent() && user.get().getIsDeactivated()) || user.isEmpty()) {
+            throw new NotFoundException("존재하지 않는 유저입니다");
         }
-        log.info("COMPLETE | 유저 조회 At " + LocalDateTime.now() + " | " + id);
-        return new UserDefaultResponseDto(foundUser.get());
+        log.info("COMPLETE | 유저 조회 At " + LocalDateTime.now() + " | " + user.get().getUsername());
+        return new UserDefaultResponseDto(user.get());
     }
 
     /**
-     * 유저 이메일로 조회 |
-     * User를 이메일로 조회하여 해당 이메일에 아이디 정보를 보낸다. 조회가 되지 않거나 탈퇴한 User일 경우 401(Unauthorized)를 던진다.
+     * 이메일로 아이디 찾기 |
+     * 이메일로 유저를 조회하여 해당 이메일로 아이디를 보낸다. 조회가 되지 않거나 탈퇴한 유저일 경우 404(NotFound)를 던진다.
      */
     public void findForgotUsernameByEmail(String email) {
-        log.info("INITIALIZE | 유저 이메일로 조회 At " + LocalDateTime.now() + " | " + email);
+        log.info("INITIALIZE | 이메일로 아이디 찾기 At " + LocalDateTime.now() + " | " + email);
         Contact contact = contactService.findOneContact(email);
         userRepository.findByContact(contact.getEmail())
-                .ifPresentOrElse((user) -> {
+                .ifPresentOrElse(user -> {
                     if (user.getIsDeactivated()) {
-                        throw new UnauthorizedException("유저 정보가 존재하지 않습니다");
+                        throw new NotFoundException("존재하지 않는 유저입니다");
                     }
                     emailService.sendEmail(
                             email,
@@ -125,23 +123,24 @@ public class UserService {
                             user.getLegalName() + "님 안녕하세요!🙇🏻<br>해당 이메일로 가입된 아이디 정보입니다.",
                             user.getUsername()
                     );
-                    log.info("COMPLETE | 유저 이메일로 조회 At " + LocalDateTime.now() + " | " + user.getUsername());
+                    log.info("COMPLETE | 이메일로 아이디 찾기 At " + LocalDateTime.now() + " | " + user.getUsername());
                 }, () -> {
-                    throw new UnauthorizedException("유저 정보가 존재하지 않습니다");
+                    throw new NotFoundException("존재하지 않는 유저입니다");
                 });
     }
 
     /**
-     * 유저 이메일과 아이디로 비밀번호 초기화 |
-     * User 이메일과 아이디를 받아 해당 User의 비밀번호를 초기화하여 관련 정보를 보낸다. 조회가 되지 않은 User일 경우 401(Unauthorized)를 던진다.
+     * 이메일과 아이디로 비밀번호 초기화 |
+     * 유저 이메일과 아이디를 받아 해당 유저의 비밀번호를 초기화한다. 존재하지 않거나 탈퇴했거나 유저 아이디와 이메일이 동일하지 않을 경우 404(NotFound)를
+     * 던지고, 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
      */
     public void resetPasswordByEmailAndUsername(String username, String email) {
-        log.info("INITIALIZE | User 이메일과 아이디로 비밀번호 초기화 At "  + LocalDateTime.now() +
+        log.info("INITIALIZE | 이메일과 아이디로 비밀번호 초기화 At "  + LocalDateTime.now() +
                 " | email = " + email + ", username = " + username);
         userRepository.findByUsername(username)
-                .ifPresentOrElse((user) -> {
+                .ifPresentOrElse(user -> {
                     if (user.getIsDeactivated()) {
-                        throw new UnauthorizedException("유저 정보가 전조하지 않습니다");
+                        throw new NotFoundException("존재하지 않는 유저입니다");
                     }
                     if (user.getContact().getEmail().equals(email)) {
                         String temporaryPassword = generateTemporaryPassword();
@@ -158,13 +157,13 @@ public class UserService {
                                         "님 안녕하세요!🙇🏻<br>임시 비밀번호를 제공해 드립니다.<br>접속 후 비밀번호를 변경 해주세요.",
                                 temporaryPassword
                         );
-                        log.info("COMPLETE | User 이메일과 아이디로 비밀번호 초기화 At "  + LocalDateTime.now() +
-                                " | email = " + email + ", username = " + username);
+                        log.info("COMPLETE | 이메일과 아이디로 비밀번호 초기화 At "  + LocalDateTime.now() +
+                                " | email = " + user.getContact().getEmail() + ", username = " + user.getUsername());
                     } else {
-                        throw new UnauthorizedException("유저 정보가 존재하지 않습니다");
+                        throw new NotFoundException("존재하지 않는 유저입니다");
                     }
                 }, () -> {
-                    throw new UnauthorizedException("유저 정보가 존재하지 않습니다");
+                    throw new NotFoundException("존재하지 않는 유저입니다");
                 });
     }
 
@@ -186,14 +185,14 @@ public class UserService {
 
     /**
      * 유저 비밀번호 재설정 |
-     * User 식별자로 정보를 조회해 현재 비밀번호를 비교하고 새 비밀번호와 새 비밀번호 재입력을 비교하여 비밀번호 재설정합니다. User 정보가 조회되지 않거나,
-     * 현재 비밀번호를 틀리거나, 새 비밀번호와 새 비밀번호 재입력이 동일하지 않을시 401(Unauthorized)를 던진다. 새로운 비밀번호를 재설정시 에러가 발생하면
-     * 500(Internal Server Error)를 던진다.
+     * 유저를 조회해 현재 비밀번호를 확인한 후 새 비밀번호와 새 비밀번호 재입력을 비교하여 비밀번호 재설정합니다. 존재하지 않은 유저일 경우 404(NotFound)를
+     * 던지고, 현재 비밀번호가 틀리면 401(Unauthorized)를 던지고, 새 비밀번호와 새 비밀번호 재입력이 다르면 406(Not Acceptable)을 던지고, 서버
+     * 에러가 발생하면 500(Internal Server Error)을 던진다.
      */
     public void resetPassword(UserResetPasswordRequestDto request) {
         log.info("INITIALIZE | 유저 비밀번호 재설정 At " + LocalDateTime.now() + " | " + request.getId());
-        userRepository.findById(request.getId()).ifPresentOrElse(
-                (user) -> {
+        userRepository.findById(request.getId())
+                .ifPresentOrElse(user -> {
                     if (passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
                         if (request.getNewPassword().equals(request.getNewPasswordReEntered())) {
                             try {
@@ -203,13 +202,13 @@ public class UserService {
                                 throw new InternalServerErrorException("유저 비밀번호 재설정 중 에러", e);
                             }
                         } else {
-                            throw new UnauthorizedException("새 비밀번호와 새 비밀번호 재입력이 다릅니다");
+                            throw new NotAcceptableException("새 비밀번호와 새 비밀번호 재입력이 다릅니다");
                         }
                     } else {
                         throw new UnauthorizedException("현재 비밀번호가 틀렸습니다");
                     }
                 }, () -> {
-                    throw new UnauthorizedException("유저 정보가 존재하지 않습니다");
+                    throw new NotFoundException("존재하지 않는 유저입니다");
                 }
         );
         log.info("COMPLETE | 유저 비밀번호 재설정 At " + LocalDateTime.now() + " | " + request.getId());
@@ -217,13 +216,14 @@ public class UserService {
 
     /**
      * 유저 탈퇴 |
-     * User 식별자로 정보를 조회해, 탈퇴 여부와 비밀번호를 확인하여 탈퇴를 시킨다. 비밀번호가 틀리거나 식별자로 정보가 조회되지 않으면 401(Unauthorized)을
+     * 유저를 조회해 탈퇴 여부와 비밀번호를 확인하여 탈퇴를 시킨다. 존재하지 않은 유저일 경우 404(NotFound)를 던지고, 비밀번호가 틀리면
+     * 401(Unauthorized)를 던지고, 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
      * 던진다.
      */
     public void deactivateUser(UserDeactivateRequestDto request) {
         log.info("INITIALIZE | 유저 탈퇴 At " + LocalDateTime.now() + " | " + request.getId());
         userRepository.findById(request.getId())
-                .ifPresentOrElse((user) -> {
+                .ifPresentOrElse(user -> {
                     if (!user.getIsDeactivated() &&
                             passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                         user.setIsDeactivated(true);
@@ -238,7 +238,38 @@ public class UserService {
                     }
                     throw new UnauthorizedException("비밀번호가 틀렸습니다");
                 }, () -> {
-                    throw new UnauthorizedException("유저 정보가 존재하지 않습니다");
+                    throw new NotFoundException("존재하지 않은 유저입니다");
+                });
+    }
+
+    /**
+     * 유저 존재 여부 확인 |
+     * 유저 존재 여부를 확인한다. 존재하지 않거나 탈퇴한 유저일 경우 404(Not Found)를 던진다.
+     */
+    public void isExistingUser(String id) {
+        userRepository.findById(id)
+                .ifPresentOrElse(user -> {
+                    if (user.getIsDeactivated()) {
+                        throw new NotFoundException("존재하지 않는 유저입니다");
+                    }
+                }, () -> {
+                    throw new NotFoundException("존재하지 않는 유저입니다");
+                });
+    }
+
+    /**
+     * 프로필 저장 |
+     * 유저의 존재 여부를 확인하고 프로필 정보를 저장한다. 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
+     */
+    public void saveProfile(String id, String profileId) {
+        userRepository.findById(id)
+                .ifPresent(user -> {
+                    user.setProfileId(profileId);
+                    try {
+                        userRepository.save(user);
+                    } catch (Exception e) {
+                        throw new InternalServerErrorException("프로필 저장 중 에러 발생", e);
+                    }
                 });
     }
 
