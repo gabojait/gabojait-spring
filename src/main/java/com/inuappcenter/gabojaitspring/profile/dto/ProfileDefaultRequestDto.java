@@ -24,7 +24,11 @@ public class ProfileDefaultRequestDto {
     @Size(max = 100, message = "소개글은 100자 이하만 가능합니다", groups = ValidationSequence.Size.class)
     private String about;
 
-    @ApiModelProperty(position = 3, dataType = "Character", value = "포지션", example = "position")
+    @ApiModelProperty(position = 3,
+            dataType = "Character",
+            allowableValues = "D, B, F, P",
+            value = "포지션: D, B, F, P",
+            example = "B")
     private Character position;
 
     public Profile toEntity() {
