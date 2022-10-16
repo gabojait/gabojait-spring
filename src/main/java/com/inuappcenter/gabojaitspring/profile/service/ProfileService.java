@@ -24,12 +24,12 @@ public class ProfileService {
      * 프로필을 저장한다. 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
      */
     public void save(ProfileDefaultRequestDto request) {
-        log.info("INITIALIZE | 프로필 저장 At " + LocalDateTime.now() + " | userId = " + request.getUserId());
+        log.info("INITIALIZE | 프로필 저장 At " + LocalDateTime.now() + " | " + request.getUserId());
         userService.isExistingUser(request.getUserId());
         try {
             Profile profile = profileRepository.save(request.toEntity());
             userService.saveProfile(request.getUserId(), profile.getId());
-            log.info("INITIALIZE | 프로필 저장 At " + LocalDateTime.now() +
+            log.info("COMPLETE | 프로필 저장 At " + LocalDateTime.now() +
                     " | userId = " + profile.getUserId() + ", profileId = " + profile.getId());
         } catch (Exception e) {
             throw new InternalServerErrorException("프로필 저장 중 에러 발생", e);
