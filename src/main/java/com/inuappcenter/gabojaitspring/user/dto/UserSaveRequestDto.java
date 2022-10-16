@@ -20,8 +20,7 @@ import java.time.LocalDate;
         ValidationSequence.NotBlank.class,
         ValidationSequence.NotNull.class,
         ValidationSequence.Size.class,
-        ValidationSequence.Email.class
-})
+        ValidationSequence.Email.class})
 @ApiModel(value = "User 생성 요청")
 public class UserSaveRequestDto {
 
