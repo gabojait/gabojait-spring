@@ -28,7 +28,7 @@ public class ProfileController {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "프로필 저장 성공"),
             @ApiResponse(code = 400, message = "프로필 입력 에러"),
-            @ApiResponse(code = 403, message = "토큰 검증 실패"),
+            @ApiResponse(code = 403, message = "토큰 인증 실패"),
             @ApiResponse(code = 404, message = "유저 조회 실패"),
             @ApiResponse(code = 500, message = "서버 에러")
     })

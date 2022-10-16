@@ -81,6 +81,7 @@ public class UserController {
     @ApiOperation(value = "유저 정보 조회")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "유저 정보 조회 성공"),
+            @ApiResponse(code = 403, message = "토큰 인증 실패"),
             @ApiResponse(code = 404, message = "유저 정보 조회 실패")
     })
     @GetMapping("/{id}")
@@ -191,6 +192,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "유저 비밀번호 재설정 성공"),
             @ApiResponse(code = 401, message = "현재 비밀번호 틀림"),
+            @ApiResponse(code = 403, message = "토큰 인증 실패"),
             @ApiResponse(code = 404, message = "유저 정보 존재하지 않음"),
             @ApiResponse(code = 406, message = "새 비밀번호와 새 비밀번호 재입력 불일치"),
             @ApiResponse(code = 500, message = "서버 에러")
@@ -209,6 +211,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "유저 탈퇴 성공"),
             @ApiResponse(code = 401, message = "현재 비밀번호 틀림"),
+            @ApiResponse(code = 403, message = "토큰 인증 실패"),
             @ApiResponse(code = 404, message = "유저 정보 존재하지 않음"),
             @ApiResponse(code = 500, message = "서버 에러")
     })
