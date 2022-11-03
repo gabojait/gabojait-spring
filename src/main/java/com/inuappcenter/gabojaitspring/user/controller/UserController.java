@@ -197,7 +197,7 @@ public class UserController {
             @ApiResponse(code = 406, message = "새 비밀번호와 새 비밀번호 재입력 불일치"),
             @ApiResponse(code = 500, message = "서버 에러")
     })
-    @PatchMapping("/Pw")
+    @PatchMapping("/pw")
     public ResponseEntity<Object> resetPassword(@RequestBody @Valid UserResetPasswordRequestDto request) {
         userService.resetPassword(request);
         return ResponseEntity.status(200)
