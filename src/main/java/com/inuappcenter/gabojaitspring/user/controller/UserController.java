@@ -213,7 +213,7 @@ public class UserController {
             @ApiResponse(code = 400, message = "유저 정보 입력 에러"),
             @ApiResponse(code = 500, message = "서버 에러")
     })
-    @PatchMapping("/Pw")
+    @PatchMapping("/nickname")
     public ResponseEntity<Object> updateNickname(@RequestBody @Valid UserUpdateNicknameRequestDto request) {
         userService.updateNickname(request);
         return ResponseEntity.status(200)
