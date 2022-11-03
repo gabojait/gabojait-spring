@@ -106,6 +106,20 @@ public class UserService {
     }
 
     /**
+     * 유저 조희 후 유저 엔티티 반환 |
+     * 유저를 조회 하여 유저 엔티티로 반환한다. 조회가 되지 않거나 탈퇴한 유저일 경우 404(NotFound)를 던진다.
+     */
+    public User findUser(String id) {
+        log.info("INITIALIZE | 유저 조회 At " + LocalDateTime.now() + " | " + id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> {
+                    throw new NotFoundException("존재하지 않은 유저입니다");
+                });
+        log.info("COMPLETE | 유저 조회 At " + LocalDateTime.now() + " | " + user.getId());
+        return user;
+    }
+
+    /**
      * 이메일로 아이디 찾기 |
      * 이메일로 유저를 조회하여 해당 이메일로 아이디를 보낸다. 조회가 되지 않거나 탈퇴한 유저일 경우 404(NotFound)를 던진다.
      */
