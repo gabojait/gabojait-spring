@@ -197,13 +197,29 @@ public class UserController {
             @ApiResponse(code = 406, message = "새 비밀번호와 새 비밀번호 재입력 불일치"),
             @ApiResponse(code = 500, message = "서버 에러")
     })
-    @PatchMapping("/resetPw")
+    @PatchMapping("/Pw")
     public ResponseEntity<Object> resetPassword(@RequestBody @Valid UserResetPasswordRequestDto request) {
         userService.resetPassword(request);
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
                         .responseMessage("유저 비밀번호 재설정 완료")
+                        .build());
+    }
+
+    @ApiOperation(value = "유저 닉네임 업데이트")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "유저 닉네임 업데이트 성공"),
+            @ApiResponse(code = 400, message = "유저 정보 입력 에러"),
+            @ApiResponse(code = 500, message = "서버 에러")
+    })
+    @PatchMapping("/Pw")
+    public ResponseEntity<Object> updateNickname(@RequestBody @Valid UserUpdateNicknameRequestDto request) {
+        userService.updateNickname(request);
+        return ResponseEntity.status(200)
+                .body(DefaultResponseDto.builder()
+                        .responseCode("OK")
+                        .responseMessage("유저 닉네임 업데이트 완료")
                         .build());
     }
 

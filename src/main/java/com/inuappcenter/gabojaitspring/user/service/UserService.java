@@ -182,6 +182,20 @@ public class UserService {
     }
 
     /**
+     * 닉네임 업데이트 |
+     * 닉네임을 업데이트합니다. 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
+     */
+    public void updateNickname(UserUpdateNicknameRequestDto request) {
+        User user = findUser(request.getId());
+        try {
+            user.setNickname(request.getNickname());
+            userRepository.save(user);
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e);
+        }
+    }
+
+    /**
      * 임시 비밀번호 생성 |
      * 숫자, 대문자 영문, 소문자 영문의 10가지 조합을 생성해 반환한다.
      */
