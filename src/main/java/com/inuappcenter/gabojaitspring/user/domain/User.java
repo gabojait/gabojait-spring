@@ -57,7 +57,6 @@ public class User extends BaseTimeEntity implements UserDetails {
                 String nickname,
                 Character gender,
                 LocalDate birthdate,
-                Boolean isDeactivated,
                 Contact contact) {
         this.username = username;
         this.password = password;
@@ -65,8 +64,8 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.nickname = nickname;
         this.gender = gender;
         this.birthdate = birthdate;
-        this.isDeactivated = isDeactivated;
         this.contact = contact;
+        this.isDeactivated = false;
     }
 
     public void setPassword(String password) {
