@@ -15,7 +15,7 @@ import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
-@GroupSequence({EducationUpdateRequestDto.class, ValidationSequence.NotBlank.class, ValidationSequence.NotNull.class})
+@GroupSequence({EducationSaveRequestDto.class, ValidationSequence.NotBlank.class, ValidationSequence.NotNull.class})
 @ApiModel(value = "Education 생성 요청")
 public class EducationSaveRequestDto {
 
