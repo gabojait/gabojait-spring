@@ -6,15 +6,16 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.*;
 
 @Getter
 @NoArgsConstructor
-@GroupSequence({ProfileDefaultRequestDto.class, ValidationSequence.NotBlank.class, ValidationSequence.Size.class})
+@GroupSequence({ProfileSaveRequestDto.class, ValidationSequence.NotBlank.class, ValidationSequence.Size.class})
 @ApiModel(value = "Profile 요청")
-public class ProfileDefaultRequestDto {
+public class ProfileSaveRequestDto {
 
     @ApiModelProperty(position = 1, required = true, dataType = "String", value = "유저 식별자", example = "userId")
     @NotBlank(message = "모든 필수 정보를 입력해 주세요", groups = ValidationSequence.NotBlank.class)
