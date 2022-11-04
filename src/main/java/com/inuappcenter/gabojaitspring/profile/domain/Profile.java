@@ -69,4 +69,9 @@ public class Profile extends BaseTimeEntity {
     public void removeReview(String review) {
         this.review.remove(review);
     }
+
+    public void update(String about, Character position) {
+        this.about = about;
+        this.position = position;
+    }
 }

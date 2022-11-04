@@ -1,24 +1,24 @@
 package com.inuappcenter.gabojaitspring.profile.dto;
 
 import com.inuappcenter.gabojaitspring.common.ValidationSequence;
-import com.inuappcenter.gabojaitspring.profile.domain.Profile;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.GroupSequence;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @Getter
 @NoArgsConstructor
-@GroupSequence({ProfileSaveRequestDto.class, ValidationSequence.NotBlank.class, ValidationSequence.Size.class})
-@ApiModel(value = "Profile 생성 요청")
-public class ProfileSaveRequestDto {
+@GroupSequence({ProfileUpdateRequestDto.class, ValidationSequence.NotBlank.class, ValidationSequence.Size.class})
+@ApiModel(value = "Profile 수정 요청")
+public class ProfileUpdateRequestDto {
 
-    @ApiModelProperty(position = 1, required = true, dataType = "String", value = "유저 식별자", example = "userId")
+    @ApiModelProperty(position = 1, required = true, dataType = "String", value = "프로필 식별자", example = "profileId")
     @NotBlank(message = "모든 필수 정보를 입력해 주세요", groups = ValidationSequence.NotBlank.class)
-    private String userId;
+    private String id;
 
     @ApiModelProperty(position = 2, dataType = "String", value = "소개글", example = "about")
     @Size(max = 100, message = "소개글은 100자 이하만 가능합니다", groups = ValidationSequence.Size.class)
@@ -30,13 +30,5 @@ public class ProfileSaveRequestDto {
             value = "포지션: D, B, F, P",
             example = "B")
     private Character position;
-
-    public Profile toEntity() {
-        return Profile.ByProfileBuilder()
-                .userId(userId)
-                .about(about)
-                .position(position)
-                .build();
-    }
 }
 
