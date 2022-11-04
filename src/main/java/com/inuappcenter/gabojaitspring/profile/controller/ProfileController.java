@@ -106,6 +106,10 @@ public class ProfileController {
     @PatchMapping("/education/delete")
     public ResponseEntity<Object> deleteEducation(@RequestBody @Valid EducationDeleteRequestDto request) {
         profileService.deleteEducation(request);
-        return ResponseEntity.status(204).build();
+        return ResponseEntity.status(204)
+                .body(DefaultResponseDto.builder()
+                        .responseCode("NO_CONTENT")
+                        .responseMessage("학력 삭제 완료")
+                        .build());
     }
 }
