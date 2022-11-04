@@ -62,7 +62,6 @@ public class ProfileController {
     @ApiOperation(value = "프로필 조회")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "프로필 조회 성공"),
-            @ApiResponse(code = 400, message = "프로필 입력 에러"),
             @ApiResponse(code = 403, message = "토큰 인증 실패"),
             @ApiResponse(code = 404, message = "정보 조회 실패")
     })
