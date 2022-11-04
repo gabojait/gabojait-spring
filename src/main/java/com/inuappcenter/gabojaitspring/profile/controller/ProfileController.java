@@ -103,7 +103,7 @@ public class ProfileController {
             @ApiResponse(code = 404, message = "정보 조회 실패"),
             @ApiResponse(code = 500, message = "서버 에러")
     })
-    @PatchMapping("/education")
+    @PatchMapping("/education/delete")
     public ResponseEntity<Object> deleteEducation(@RequestBody @Valid EducationDeleteRequestDto request) {
         profileService.deleteEducation(request);
         return ResponseEntity.status(204).build();
