@@ -59,6 +59,24 @@ public class ProfileController {
                         .build());
     }
 
+    @ApiOperation(value = "프로필 조회")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "프로필 조회 성공"),
+            @ApiResponse(code = 400, message = "프로필 입력 에러"),
+            @ApiResponse(code = 403, message = "토큰 인증 실패"),
+            @ApiResponse(code = 404, message = "정보 조회 실패")
+    })
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> findOneProfile(@PathVariable String id) {
+        ProfileDefaultResponseDto response = profileService.findOneProfile(id);
+        return ResponseEntity.status(200)
+                .body(DefaultResponseDto.builder()
+                        .responseCode("OK")
+                        .responseMessage("프로필 수정 완료")
+                        .data(response)
+                        .build());
+    }
+
     @ApiOperation(value = "학력 저장")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "학력 저장 성공"),
