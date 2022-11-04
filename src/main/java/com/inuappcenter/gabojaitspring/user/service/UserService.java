@@ -185,7 +185,8 @@ public class UserService {
      * 닉네임 업데이트 |
      * 닉네임을 업데이트합니다. 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
      */
-    public void updateNickname(UserUpdateNicknameRequestDto request) {
+    public String updateNickname(UserUpdateNicknameRequestDto request) {
+        log.info("INITIALIZE | 닉네임 업데이트 At " + LocalDateTime.now() + " | " + request.getId());
         User user = findUser(request.getId());
         try {
             user.setNickname(request.getNickname());
@@ -193,6 +194,8 @@ public class UserService {
         } catch (Exception e) {
             throw new InternalServerErrorException(e);
         }
+        log.info("COMPLETE | 닉네임 업데이트 At " + LocalDateTime.now() + " | " + request.getId());
+        return user.getId();
     }
 
     /**

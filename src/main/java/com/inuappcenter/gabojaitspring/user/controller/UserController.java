@@ -215,11 +215,12 @@ public class UserController {
     })
     @PatchMapping("/nickname")
     public ResponseEntity<Object> updateNickname(@RequestBody @Valid UserUpdateNicknameRequestDto request) {
-        userService.updateNickname(request);
+        String id = userService.updateNickname(request);
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
                         .responseMessage("유저 닉네임 업데이트 완료")
+                        .data(id)
                         .build());
     }
 
