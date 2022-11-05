@@ -18,9 +18,9 @@ import javax.validation.constraints.*;
 @ApiModel(value = "User 비밀번호 재설정 요청")
 public class UserResetPasswordRequestDto {
 
-    @ApiModelProperty(position = 1, required = true, dataType = "String", value = "식별자")
+    @ApiModelProperty(position = 1, required = true, dataType = "String", value = "유저 식별자")
     @NotBlank(message = "모든 필수 정보를 입력해 주세요")
-    private String id;
+    private String userId;
 
     @ApiModelProperty(position = 2, required = true, dataType = "String", value = "현재 비밀번호", example = "password")
     @NotBlank(message = "모든 필수 정보를 입력해 주세요", groups = ValidationSequence.NotBlank.class)

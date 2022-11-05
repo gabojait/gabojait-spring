@@ -16,9 +16,9 @@ import javax.validation.constraints.Size;
 @ApiModel(value = "User 닉네임 업데이트 요청")
 public class UserUpdateNicknameRequestDto {
 
-    @ApiModelProperty(position = 1, required = true, dataType = "String", value = "식별자")
+    @ApiModelProperty(position = 1, required = true, dataType = "String", value = "유저 식별자")
     @NotBlank(message = "모든 필수 정보를 입력해 주세요")
-    private String id;
+    private String userId;
 
     @ApiModelProperty(position = 4, required = true, dataType = "String", value = "닉네임", example = "닉네임")
     @NotBlank(message = "모든 필수 정보를 입력해 주세요", groups = ValidationSequence.NotBlank.class)

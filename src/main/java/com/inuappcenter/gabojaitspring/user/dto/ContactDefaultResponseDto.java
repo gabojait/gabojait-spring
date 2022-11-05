@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class ContactDefaultResponseDto {
 
     @ApiModelProperty(position = 1, required = true, value = "식별자")
-    private String id;
+    private String contactId;
 
     @ApiModelProperty(position = 2, required = true, value = "이메일")
     private String email;
@@ -28,18 +28,18 @@ public class ContactDefaultResponseDto {
     private Boolean isRegistered;
 
     @ApiModelProperty(position = 6, required = true, value = "생성일")
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime createdDate;
 
     @ApiModelProperty(position = 7, required = true, value = "수정일")
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime modifiedDate;
 
     @ApiModelProperty(position = 8, required = true, value = "스키마버전")
     private String schemaVersion;
 
     public ContactDefaultResponseDto(Contact contact) {
-        this.id = contact.getId();
+        this.contactId = contact.getId();
         this.email = contact.getEmail();
         this.verificationCode = contact.getVerificationCode();
         this.isVerified = contact.getIsVerified();

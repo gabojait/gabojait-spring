@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @ApiModel(value = "User 응답")
 public class UserDefaultResponseDto {
 
-    @ApiModelProperty(position = 1, required = true, value = "식별자")
-    private String id;
+    @ApiModelProperty(position = 1, required = true, value = "유저 식별자")
+    private String userId;
 
     @ApiModelProperty(position = 2, required = true, value = "아이디")
     private String username;
@@ -44,7 +44,7 @@ public class UserDefaultResponseDto {
     private String schemaVersion;
 
     public UserDefaultResponseDto(User user) {
-        this.id = user.getId();
+        this.userId = user.getId();
         this.username = user.getUsername();
         this.legalName = user.getLegalName();
         this.nickname = user.getNickname();

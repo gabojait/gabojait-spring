@@ -186,15 +186,15 @@ public class UserService {
      * 닉네임을 업데이트합니다. 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
      */
     public String updateNickname(UserUpdateNicknameRequestDto request) {
-        log.info("INITIALIZE | 닉네임 업데이트 At " + LocalDateTime.now() + " | " + request.getId());
-        User user = findUser(request.getId());
+        log.info("INITIALIZE | 닉네임 업데이트 At " + LocalDateTime.now() + " | " + request.getUserId());
+        User user = findUser(request.getUserId());
         try {
             user.setNickname(request.getNickname());
             userRepository.save(user);
         } catch (Exception e) {
             throw new InternalServerErrorException(e);
         }
-        log.info("COMPLETE | 닉네임 업데이트 At " + LocalDateTime.now() + " | " + request.getId());
+        log.info("COMPLETE | 닉네임 업데이트 At " + LocalDateTime.now() + " | " + request.getUserId());
         return user.getId();
     }
 
@@ -221,8 +221,8 @@ public class UserService {
      * 에러가 발생하면 500(Internal Server Error)을 던진다.
      */
     public void resetPassword(UserResetPasswordRequestDto request) {
-        log.info("INITIALIZE | 유저 비밀번호 재설정 At " + LocalDateTime.now() + " | " + request.getId());
-        userRepository.findById(request.getId())
+        log.info("INITIALIZE | 유저 비밀번호 재설정 At " + LocalDateTime.now() + " | " + request.getUserId());
+        userRepository.findById(request.getUserId())
                 .ifPresentOrElse(user -> {
                     if (passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
                         if (request.getNewPassword().equals(request.getNewPasswordReEntered())) {
@@ -242,7 +242,7 @@ public class UserService {
                     throw new NotFoundException("존재하지 않는 유저입니다");
                 }
         );
-        log.info("COMPLETE | 유저 비밀번호 재설정 At " + LocalDateTime.now() + " | " + request.getId());
+        log.info("COMPLETE | 유저 비밀번호 재설정 At " + LocalDateTime.now() + " | " + request.getUserId());
     }
 
     /**
@@ -252,8 +252,8 @@ public class UserService {
      * 던진다.
      */
     public void deactivateUser(UserDeactivateRequestDto request) {
-        log.info("INITIALIZE | 유저 탈퇴 At " + LocalDateTime.now() + " | " + request.getId());
-        userRepository.findById(request.getId())
+        log.info("INITIALIZE | 유저 탈퇴 At " + LocalDateTime.now() + " | " + request.getUserId());
+        userRepository.findById(request.getUserId())
                 .ifPresentOrElse(user -> {
                     if (!user.getIsDeactivated() &&
                             passwordEncoder.matches(request.getPassword(), user.getPassword())) {
@@ -261,7 +261,7 @@ public class UserService {
                         contactService.deactivateContact(user.getContact());
                         try {
                             userRepository.save(user);
-                            log.info("COMPLETE | 유저 탈퇴 At " + LocalDateTime.now() + " | " + request.getId());
+                            log.info("COMPLETE | 유저 탈퇴 At " + LocalDateTime.now() + " | " + request.getUserId());
                             return;
                         } catch (Exception e) {
                             throw new InternalServerErrorException("유저 탈퇴 중 에러 발생", e);
