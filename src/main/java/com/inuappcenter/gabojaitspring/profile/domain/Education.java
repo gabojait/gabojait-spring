@@ -27,8 +27,8 @@ public class Education extends BaseTimeEntity {
     @Field(name = "is_current")
     private Boolean isCurrent;
 
-    @Field(name = "user_id")
-    private String userId;
+    @Field(name = "profile_id")
+    private String profileId;
 
     @Field(name = "is_deleted")
     private Boolean isDeleted;
@@ -37,16 +37,14 @@ public class Education extends BaseTimeEntity {
     public Education(String institutionName,
                      LocalDate startedDate,
                      LocalDate endedDate,
-                     Boolean isCurrent) {
+                     Boolean isCurrent,
+                     String profileId) {
         this.institutionName = institutionName;
         this.startedDate = startedDate;
         this.endedDate = endedDate;
         this.isCurrent = isCurrent;
+        this.profileId = profileId;
         this.isDeleted = false;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 
     public void setIsDeleted(Boolean isDeleted) {

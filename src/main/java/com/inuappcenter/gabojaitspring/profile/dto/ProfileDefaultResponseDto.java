@@ -1,12 +1,10 @@
 package com.inuappcenter.gabojaitspring.profile.dto;
 
-import com.inuappcenter.gabojaitspring.profile.domain.Education;
 import com.inuappcenter.gabojaitspring.profile.domain.Profile;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,8 +12,8 @@ import java.util.List;
 @ApiModel(value = "Profile 응답")
 public class ProfileDefaultResponseDto {
 
-    @ApiModelProperty(position = 1, required = true, value = "식별자")
-    private String id;
+    @ApiModelProperty(position = 1, required = true, value = "프로필 식별자")
+    private String profileId;
 
     @ApiModelProperty(position = 2, required = true, value = "소개글")
     private String about;
@@ -27,7 +25,7 @@ public class ProfileDefaultResponseDto {
     private List<EducationListResponseDto> educationList = new ArrayList<>();
 
     public ProfileDefaultResponseDto(Profile profile, List<EducationListResponseDto> educationList) {
-        this.id = profile.getId();
+        this.profileId = profile.getId();
         this.about = profile.getAbout();
         this.position = profile.getPosition();
         this.educationList = educationList;

@@ -51,8 +51,8 @@ public class ProfileService {
      * 프로필을 수정한다. 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
      */
     public ProfileDefaultResponseDto update(ProfileUpdateRequestDto request) {
-        log.info("INITIALIZE | 프로필 수정 At " + LocalDateTime.now() + " | " + request.getId());
-        Profile profile = findProfile(request.getId());
+        log.info("INITIALIZE | 프로필 수정 At " + LocalDateTime.now() + " | " + request.getProfileId());
+        Profile profile = findProfile(request.getProfileId());
         try {
             profile.update(request.getAbout(), request.getPosition());
             profileRepository.save(profile);
@@ -62,7 +62,7 @@ public class ProfileService {
 
         List<EducationListResponseDto> educationList = listEducation(profile.getEducation());
 
-        log.info("COMPLETE | 프로필 수정 At " + LocalDateTime.now() + " | " + request.getId());
+        log.info("COMPLETE | 프로필 수정 At " + LocalDateTime.now() + " | " + request.getProfileId());
         return new ProfileDefaultResponseDto(profile, educationList);
     }
 
@@ -114,12 +114,19 @@ public class ProfileService {
 
     /**
      * 프로필 학력 저장 |
-     * 프로필 학력을 저장한다.
+     * 프로필 학력을 저장한다. 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
      */
     public void saveEducation(EducationSaveRequestDto request) {
-        log.info("INITIALIZE | 프로필 학력 저장 At " + LocalDateTime.now() + " | " + request.getUserId());
-        educationService.save(request);
-        log.info("INITIALIZE | 프로필 학력 저장 At " + LocalDateTime.now() + " | " + request.getUserId());
+        log.info("INITIALIZE | 프로필 학력 저장 At " + LocalDateTime.now() + " | " + request.getProfileId());
+        Education education = educationService.save(request);
+        Profile profile = findProfile(request.getProfileId());
+        try {
+            profile.addEducation(education);
+            profileRepository.save(profile);
+        } catch (Exception e) {
+            throw new InternalServerErrorException("프로필 학력 저장 중 에러 발생", e);
+        }
+        log.info("COMPLETE | 프로필 학력 저장 At " + LocalDateTime.now() + " | " + request.getProfileId());
     }
 
     /**
@@ -127,11 +134,16 @@ public class ProfileService {
      * 프로필 학력을 수정한다.
      */
     public void updateEducation(EducationUpdateRequestDto request) {
-        log.info("INITIALIZE | 프로필 학력 수정 At " + LocalDateTime.now() + " | " + request.getId());
+        log.info("INITIALIZE | 프로필 학력 수정 At " + LocalDateTime.now() + " | " + request.getEducationId());
         educationService.update(request);
-        log.info("INITIALIZE | 프로필 학력 수정 At " + LocalDateTime.now() + " | " + request.getId());
+        log.info("INITIALIZE | 프로필 학력 수정 At " + LocalDateTime.now() + " | " + request.getEducationId());
     }
 
+    /**
+     * 프로필 학력 삭제 |
+     * 프로필 학력을 삭제한다. 학력 삭제 여부를 참으로 바꾼 뒤, 프로필에서 해당 학력을 제거한다. 서버 에러가 발생하면 500(Internal Server Error)을 던
+     * 진다.
+     */
     public void deleteEducation(EducationDeleteRequestDto request) {
         log.info("INITIALIZE | 프로필 학력 삭제 At " + LocalDateTime.now() +
                 " | profileId = " + request.getProfileId() + " educationId = " + request.getEducationId());

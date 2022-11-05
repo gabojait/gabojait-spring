@@ -19,9 +19,9 @@ import java.time.LocalDate;
 @ApiModel(value = "Education 생성 요청")
 public class EducationSaveRequestDto {
 
-    @ApiModelProperty(position = 1, required = true, dataType = "String", value = "유저 식별자", example = "userId")
+    @ApiModelProperty(position = 1, required = true, dataType = "String", value = "프로필 식별자", example = "profileId")
     @NotBlank(message = "모든 필수 정보를 입력해 주세요", groups = ValidationSequence.NotBlank.class)
-    private String userId;
+    private String profileId;
 
     @ApiModelProperty(position = 2, dataType = "String", value = "학교명", example = "institutionName")
     @NotBlank(message = "모든 필수 정보를 입력해 주세요", groups = ValidationSequence.NotBlank.class)
@@ -47,6 +47,7 @@ public class EducationSaveRequestDto {
                 .startedDate(startedDate)
                 .endedDate(endedDate)
                 .isCurrent(isCurrent)
+                .profileId(profileId)
                 .build();
     }
 }

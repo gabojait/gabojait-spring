@@ -20,7 +20,7 @@ public class EducationUpdateRequestDto {
 
     @ApiModelProperty(position = 1, required = true, dataType = "String", value = "학력 식별자", example = "educationId")
     @NotBlank(message = "모든 필수 정보를 입력해 주세요", groups = ValidationSequence.NotBlank.class)
-    private String id;
+    private String educationId;
 
     @ApiModelProperty(position = 2, dataType = "String", value = "학교명", example = "institutionName")
     @NotBlank(message = "모든 필수 정보를 입력해 주세요", groups = ValidationSequence.NotBlank.class)

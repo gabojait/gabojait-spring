@@ -71,7 +71,7 @@ public class ProfileController {
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
-                        .responseMessage("프로필 수정 완료")
+                        .responseMessage("프로필 조회 완료")
                         .data(response)
                         .build());
     }

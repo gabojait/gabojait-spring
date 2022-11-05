@@ -18,7 +18,7 @@ public class ProfileUpdateRequestDto {
 
     @ApiModelProperty(position = 1, required = true, dataType = "String", value = "프로필 식별자", example = "profileId")
     @NotBlank(message = "모든 필수 정보를 입력해 주세요", groups = ValidationSequence.NotBlank.class)
-    private String id;
+    private String profileId;
 
     @ApiModelProperty(position = 2, dataType = "String", value = "소개글", example = "about")
     @Size(max = 100, message = "소개글은 100자 이하만 가능합니다", groups = ValidationSequence.Size.class)

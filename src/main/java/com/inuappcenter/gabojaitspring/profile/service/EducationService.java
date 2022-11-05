@@ -6,7 +6,6 @@ import com.inuappcenter.gabojaitspring.profile.domain.Education;
 import com.inuappcenter.gabojaitspring.profile.dto.EducationSaveRequestDto;
 import com.inuappcenter.gabojaitspring.profile.dto.EducationUpdateRequestDto;
 import com.inuappcenter.gabojaitspring.profile.repository.EducationRepository;
-import com.inuappcenter.gabojaitspring.user.domain.User;
 import com.inuappcenter.gabojaitspring.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,24 +18,21 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class EducationService {
 
-    private EducationRepository educationRepository;
-    private UserService userService;
+    private final EducationRepository educationRepository;
 
     /**
      * 학력 저장 |
      * 학력을 저장한다. 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
      */
-    public void save(EducationSaveRequestDto request) {
-        log.info("INITIALIZE | 학력 저장 At " + LocalDateTime.now() + " | " + request.getUserId());
-        User user = userService.findUser(request.getUserId());
+    public Education save(EducationSaveRequestDto request) {
+        log.info("INITIALIZE | 학력 저장 At " + LocalDateTime.now() + " | " + request.getProfileId());
         try {
-            Education education = request.toEntity();
-            education.setUserId(user.getId());
-            educationRepository.save(education);
+            Education education = educationRepository.save(request.toEntity());
+            log.info("COMPLETE | 학력 저장 At " + LocalDateTime.now() + " | " + request.getProfileId());
+            return education;
         } catch (Exception e) {
             throw new InternalServerErrorException("학력 저장 중 에러 발생", e);
         }
-        log.info("COMPLETE | 학력 저장 At " + LocalDateTime.now() + " | " + request.getUserId());
     }
 
     /**
@@ -58,8 +54,8 @@ public class EducationService {
      * 학력을 업데이트 한다. 업데이트 중 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
      */
     public void update(EducationUpdateRequestDto request) {
-        log.info("INITIALIZE | 학력 업데이트 At " + LocalDateTime.now() + " | " + request.getId());
-        Education education = findEducation(request.getId());
+        log.info("INITIALIZE | 학력 업데이트 At " + LocalDateTime.now() + " | " + request.getEducationId());
+        Education education = findEducation(request.getEducationId());
 
         try {
             education.update(request.getInstitutionName(),
@@ -70,7 +66,7 @@ public class EducationService {
         } catch (Exception e) {
             throw new InternalServerErrorException(e);
         }
-        log.info("COMPLETE | 학력 업데이트 At " + LocalDateTime.now() + " | " + request.getId());
+        log.info("COMPLETE | 학력 업데이트 At " + LocalDateTime.now() + " | " + request.getEducationId());
     }
 
     /**
