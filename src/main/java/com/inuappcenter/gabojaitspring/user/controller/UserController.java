@@ -178,7 +178,7 @@ public class UserController {
             @ApiResponse(code = 404, message = "유저 정보 존재하지 않음"),
             @ApiResponse(code = 500, message = "서버 에러")
     })
-    @GetMapping("/findPw/{username}/{email}")
+    @PatchMapping("/findPw/{username}/{email}")
     public ResponseEntity<Object> forgotPassword(@PathVariable String username, @PathVariable String email) {
         userService.resetPasswordByEmailAndUsername(username, email);
         return ResponseEntity.status(200)
@@ -197,9 +197,10 @@ public class UserController {
             @ApiResponse(code = 406, message = "새 비밀번호와 새 비밀번호 재입력 불일치"),
             @ApiResponse(code = 500, message = "서버 에러")
     })
-    @PatchMapping("/pw")
-    public ResponseEntity<Object> resetPassword(@RequestBody @Valid UserResetPasswordRequestDto request) {
-        userService.resetPassword(request);
+    @PatchMapping("/{userId}/pw")
+    public ResponseEntity<Object> resetPassword(@RequestBody @Valid UserResetPasswordRequestDto request,
+                                                @PathVariable String userId) {
+        userService.resetPassword(request, userId);
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
@@ -213,9 +214,10 @@ public class UserController {
             @ApiResponse(code = 400, message = "유저 정보 입력 에러"),
             @ApiResponse(code = 500, message = "서버 에러")
     })
-    @PatchMapping("/nickname")
-    public ResponseEntity<Object> updateNickname(@RequestBody @Valid UserUpdateNicknameRequestDto request) {
-        String id = userService.updateNickname(request);
+    @PatchMapping("/{userId}/nickname")
+    public ResponseEntity<Object> updateNickname(@RequestBody @Valid UserUpdateNicknameRequestDto request,
+                                                 @PathVariable String userId) {
+        String id = userService.updateNickname(request, userId);
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
@@ -232,9 +234,10 @@ public class UserController {
             @ApiResponse(code = 404, message = "유저 정보 존재하지 않음"),
             @ApiResponse(code = 500, message = "서버 에러")
     })
-    @PatchMapping("/deactivate")
-    public ResponseEntity<Object> deactivate(@RequestBody @Valid UserDeactivateRequestDto request) {
-        userService.deactivateUser(request);
+    @PatchMapping("/{userId}/deactivate")
+    public ResponseEntity<Object> deactivate(@RequestBody @Valid UserDeactivateRequestDto request,
+                                             @PathVariable String userId) {
+        userService.deactivateUser(request, userId);
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")

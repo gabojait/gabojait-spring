@@ -185,16 +185,16 @@ public class UserService {
      * 닉네임 업데이트 |
      * 닉네임을 업데이트합니다. 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
      */
-    public String updateNickname(UserUpdateNicknameRequestDto request) {
-        log.info("INITIALIZE | 닉네임 업데이트 At " + LocalDateTime.now() + " | " + request.getUserId());
-        User user = findUser(request.getUserId());
+    public String updateNickname(UserUpdateNicknameRequestDto request, String userId) {
+        log.info("INITIALIZE | 닉네임 업데이트 At " + LocalDateTime.now() + " | " + userId);
+        User user = findUser(userId);
         try {
             user.setNickname(request.getNickname());
             userRepository.save(user);
         } catch (Exception e) {
-            throw new InternalServerErrorException(e);
+            throw new InternalServerErrorException("닉네임 업데이트 중 에러 발생", e);
         }
-        log.info("COMPLETE | 닉네임 업데이트 At " + LocalDateTime.now() + " | " + request.getUserId());
+        log.info("COMPLETE | 닉네임 업데이트 At " + LocalDateTime.now() + " | " + userId);
         return user.getId();
     }
 
@@ -220,9 +220,9 @@ public class UserService {
      * 던지고, 현재 비밀번호가 틀리면 401(Unauthorized)를 던지고, 새 비밀번호와 새 비밀번호 재입력이 다르면 406(Not Acceptable)을 던지고, 서버
      * 에러가 발생하면 500(Internal Server Error)을 던진다.
      */
-    public void resetPassword(UserResetPasswordRequestDto request) {
-        log.info("INITIALIZE | 유저 비밀번호 재설정 At " + LocalDateTime.now() + " | " + request.getUserId());
-        userRepository.findById(request.getUserId())
+    public void resetPassword(UserResetPasswordRequestDto request, String userId) {
+        log.info("INITIALIZE | 유저 비밀번호 재설정 At " + LocalDateTime.now() + " | " + userId);
+        userRepository.findById(userId)
                 .ifPresentOrElse(user -> {
                     if (passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
                         if (request.getNewPassword().equals(request.getNewPasswordReEntered())) {
@@ -242,7 +242,7 @@ public class UserService {
                     throw new NotFoundException("존재하지 않는 유저입니다");
                 }
         );
-        log.info("COMPLETE | 유저 비밀번호 재설정 At " + LocalDateTime.now() + " | " + request.getUserId());
+        log.info("COMPLETE | 유저 비밀번호 재설정 At " + LocalDateTime.now() + " | " + userId);
     }
 
     /**
@@ -251,9 +251,9 @@ public class UserService {
      * 401(Unauthorized)를 던지고, 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
      * 던진다.
      */
-    public void deactivateUser(UserDeactivateRequestDto request) {
-        log.info("INITIALIZE | 유저 탈퇴 At " + LocalDateTime.now() + " | " + request.getUserId());
-        userRepository.findById(request.getUserId())
+    public void deactivateUser(UserDeactivateRequestDto request, String userId) {
+        log.info("INITIALIZE | 유저 탈퇴 At " + LocalDateTime.now() + " | " + userId);
+        userRepository.findById(userId)
                 .ifPresentOrElse(user -> {
                     if (!user.getIsDeactivated() &&
                             passwordEncoder.matches(request.getPassword(), user.getPassword())) {
@@ -261,7 +261,7 @@ public class UserService {
                         contactService.deactivateContact(user.getContact());
                         try {
                             userRepository.save(user);
-                            log.info("COMPLETE | 유저 탈퇴 At " + LocalDateTime.now() + " | " + request.getUserId());
+                            log.info("COMPLETE | 유저 탈퇴 At " + LocalDateTime.now() + " | " + userId);
                             return;
                         } catch (Exception e) {
                             throw new InternalServerErrorException("유저 탈퇴 중 에러 발생", e);
