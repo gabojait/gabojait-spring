@@ -53,9 +53,9 @@ public class EducationService {
      * 학력 업데이트 |
      * 학력을 업데이트 한다. 업데이트 중 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
      */
-    public void update(EducationUpdateRequestDto request) {
-        log.info("INITIALIZE | 학력 업데이트 At " + LocalDateTime.now() + " | " + request.getEducationId());
-        Education education = findEducation(request.getEducationId());
+    public void update(EducationUpdateRequestDto request, String educationId) {
+        log.info("INITIALIZE | 학력 업데이트 At " + LocalDateTime.now() + " | " + educationId);
+        Education education = findEducation(educationId);
 
         try {
             education.update(request.getInstitutionName(),
@@ -66,7 +66,7 @@ public class EducationService {
         } catch (Exception e) {
             throw new InternalServerErrorException(e);
         }
-        log.info("COMPLETE | 학력 업데이트 At " + LocalDateTime.now() + " | " + request.getEducationId());
+        log.info("COMPLETE | 학력 업데이트 At " + LocalDateTime.now() + " | " + educationId);
     }
 
     /**

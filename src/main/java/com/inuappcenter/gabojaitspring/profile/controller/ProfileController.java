@@ -48,9 +48,10 @@ public class ProfileController {
             @ApiResponse(code = 404, message = "정보 조회 실패"),
             @ApiResponse(code = 500, message = "서버 에러")
     })
-    @PatchMapping
-    public ResponseEntity<Object> update(@RequestBody @Valid ProfileUpdateRequestDto request) {
-        ProfileDefaultResponseDto response = profileService.update(request);
+    @PatchMapping("/{profileId}")
+    public ResponseEntity<Object> update(@RequestBody @Valid ProfileUpdateRequestDto request,
+                                         @PathVariable String profileId) {
+        ProfileDefaultResponseDto response = profileService.update(request, profileId);
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
@@ -65,9 +66,9 @@ public class ProfileController {
             @ApiResponse(code = 403, message = "토큰 인증 실패"),
             @ApiResponse(code = 404, message = "정보 조회 실패")
     })
-    @GetMapping("/{id}")
-    public ResponseEntity<Object> findOneProfile(@PathVariable String id) {
-        ProfileDefaultResponseDto response = profileService.findOneProfile(id);
+    @GetMapping("/{profileId}")
+    public ResponseEntity<Object> findOneProfile(@PathVariable String profileId) {
+        ProfileDefaultResponseDto response = profileService.findOneProfile(profileId);
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
@@ -84,7 +85,7 @@ public class ProfileController {
             @ApiResponse(code = 404, message = "정보 조회 실패"),
             @ApiResponse(code = 500, message = "서버 에러")
     })
-    @PostMapping("/education/new")
+    @PostMapping("/{profileId}/education/new")
     public ResponseEntity<Object> createEducation(@RequestBody @Valid EducationSaveRequestDto request) {
         profileService.saveEducation(request);
         return ResponseEntity.status(201)
@@ -102,9 +103,10 @@ public class ProfileController {
             @ApiResponse(code = 404, message = "정보 조회 실패"),
             @ApiResponse(code = 500, message = "서버 에러")
     })
-    @PatchMapping("/education")
-    public ResponseEntity<Object> updateEducation(@RequestBody @Valid EducationUpdateRequestDto request) {
-        profileService.updateEducation(request);
+    @PatchMapping("/education/{educationId}")
+    public ResponseEntity<Object> updateEducation(@RequestBody @Valid EducationUpdateRequestDto request,
+                                                  @RequestParam String educationId) {
+        profileService.updateEducation(request, educationId);
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
@@ -120,9 +122,9 @@ public class ProfileController {
             @ApiResponse(code = 404, message = "정보 조회 실패"),
             @ApiResponse(code = 500, message = "서버 에러")
     })
-    @PatchMapping("/education/delete")
-    public ResponseEntity<Object> deleteEducation(@RequestBody @Valid EducationDeleteRequestDto request) {
-        profileService.deleteEducation(request);
+    @PatchMapping("/{profileId}/education/{educationId}/delete")
+    public ResponseEntity<Object> deleteEducation(@RequestParam String profileId, @RequestParam String educationId) {
+        profileService.deleteEducation(profileId, educationId);
         return ResponseEntity.status(204)
                 .body(DefaultResponseDto.builder()
                         .responseCode("NO_CONTENT")

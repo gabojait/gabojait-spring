@@ -50,9 +50,9 @@ public class ProfileService {
      * 프로필 수정 |
      * 프로필을 수정한다. 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
      */
-    public ProfileDefaultResponseDto update(ProfileUpdateRequestDto request) {
-        log.info("INITIALIZE | 프로필 수정 At " + LocalDateTime.now() + " | " + request.getProfileId());
-        Profile profile = findProfile(request.getProfileId());
+    public ProfileDefaultResponseDto update(ProfileUpdateRequestDto request, String profileId) {
+        log.info("INITIALIZE | 프로필 수정 At " + LocalDateTime.now() + " | " + profileId);
+        Profile profile = findProfile(profileId);
         try {
             profile.update(request.getAbout(), request.getPosition());
             profileRepository.save(profile);
@@ -62,7 +62,7 @@ public class ProfileService {
 
         List<EducationListResponseDto> educationList = listEducation(profile.getEducation());
 
-        log.info("COMPLETE | 프로필 수정 At " + LocalDateTime.now() + " | " + request.getProfileId());
+        log.info("COMPLETE | 프로필 수정 At " + LocalDateTime.now() + " | " + profileId);
         return new ProfileDefaultResponseDto(profile, educationList);
     }
 
@@ -84,9 +84,9 @@ public class ProfileService {
      * 프로필 조희 |
      * 프로필을 조회한다. 조회가 되지 않을 경우 404(NotFound)를 던진다.
      */
-    public ProfileDefaultResponseDto findOneProfile(String id) {
-        log.info("INITIALIZE | 프로필 조회 At " + LocalDateTime.now() + " | " + id);
-        Profile foundProfile = profileRepository.findById(id)
+    public ProfileDefaultResponseDto findOneProfile(String profileId) {
+        log.info("INITIALIZE | 프로필 조회 At " + LocalDateTime.now() + " | " + profileId);
+        Profile foundProfile = profileRepository.findById(profileId)
                 .orElseThrow(() -> {
                     throw new NotFoundException("존재 하지 않은 정보입니다");
                 });
@@ -94,7 +94,7 @@ public class ProfileService {
         List<EducationListResponseDto> educationList = listEducation(foundProfile.getEducation());
 
         ProfileDefaultResponseDto profile = new ProfileDefaultResponseDto(foundProfile, educationList);
-        log.info("COMPLETE | 프로필 조회 At " + LocalDateTime.now() + " | " + id);
+        log.info("COMPLETE | 프로필 조회 At " + LocalDateTime.now() + " | " + profileId);
         return profile;
     }
 
@@ -102,13 +102,13 @@ public class ProfileService {
      * 프로필 조희 후 프로필 엔티티 반환 |
      * 프로필을 조회 하여 프로필 엔티티로 반환한다. 조회가 되지 않을 경우 404(NotFound)를 던진다.
      */
-    public Profile findProfile(String id) {
-        log.info("INITIALIZE | 프로필 조회 후 프로필 엔티티 반환 At " + LocalDateTime.now() + " | " + id);
-        Profile profile = profileRepository.findById(id)
+    public Profile findProfile(String profileId) {
+        log.info("INITIALIZE | 프로필 조회 후 프로필 엔티티 반환 At " + LocalDateTime.now() + " | " + profileId);
+        Profile profile = profileRepository.findById(profileId)
                 .orElseThrow(() -> {
                     throw new NotFoundException("존재 하지 않은 정보입니다");
                 });
-        log.info("COMPLETE | 프로필 조회 후 프로필 엔티티 반환 At " + LocalDateTime.now() + " | " + id);
+        log.info("COMPLETE | 프로필 조회 후 프로필 엔티티 반환 At " + LocalDateTime.now() + " | " + profileId);
         return profile;
     }
 
@@ -133,10 +133,10 @@ public class ProfileService {
      * 프로필 학력 수정 |
      * 프로필 학력을 수정한다.
      */
-    public void updateEducation(EducationUpdateRequestDto request) {
-        log.info("INITIALIZE | 프로필 학력 수정 At " + LocalDateTime.now() + " | " + request.getEducationId());
-        educationService.update(request);
-        log.info("INITIALIZE | 프로필 학력 수정 At " + LocalDateTime.now() + " | " + request.getEducationId());
+    public void updateEducation(EducationUpdateRequestDto request, String educationId) {
+        log.info("INITIALIZE | 프로필 학력 수정 At " + LocalDateTime.now() + " | " + educationId);
+        educationService.update(request, educationId);
+        log.info("INITIALIZE | 프로필 학력 수정 At " + LocalDateTime.now() + " | " + educationId);
     }
 
     /**
@@ -144,14 +144,13 @@ public class ProfileService {
      * 프로필 학력을 삭제한다. 학력 삭제 여부를 참으로 바꾼 뒤, 프로필에서 해당 학력을 제거한다. 서버 에러가 발생하면 500(Internal Server Error)을 던
      * 진다.
      */
-    public void deleteEducation(EducationDeleteRequestDto request) {
+    public void deleteEducation(String profileId, String educationId) {
         log.info("INITIALIZE | 프로필 학력 삭제 At " + LocalDateTime.now() +
-                " | profileId = " + request.getProfileId() + " educationId = " + request.getEducationId());
-        Profile profile = findProfile(request.getProfileId());
+                " | profileId = " + profileId + " educationId = " + educationId);
+        Profile profile = findProfile(profileId);
         try {
-
             for (Education education : profile.getEducation())
-                if (education.getId().equals(request.getEducationId())) {
+                if (education.getId().equals(educationId)) {
                     educationService.delete(education.getId());
                     profile.removeEducation(education);
                 }
