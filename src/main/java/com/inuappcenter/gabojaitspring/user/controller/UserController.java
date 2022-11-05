@@ -84,9 +84,9 @@ public class UserController {
             @ApiResponse(code = 403, message = "토큰 인증 실패"),
             @ApiResponse(code = 404, message = "유저 정보 조회 실패")
     })
-    @GetMapping("/{id}")
-    public ResponseEntity<Object> findOneUser(@PathVariable String id) {
-        UserDefaultResponseDto response = userService.findOneUser(id);
+    @GetMapping("/{userId}")
+    public ResponseEntity<Object> findOneUser(@PathVariable String userId) {
+        UserDefaultResponseDto response = userService.findOneUser(userId);
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")

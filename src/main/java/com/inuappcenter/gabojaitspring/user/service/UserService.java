@@ -95,9 +95,9 @@ public class UserService {
      * 유저 조회 |
      * 유저를 조회 한다. 조회가 되지 않거나 탈퇴한 유저일 경우 404(NotFound)를 던진다.
      */
-    public UserDefaultResponseDto findOneUser(String id) {
-        log.info("INITIALIZE | 유저 조회 At " + LocalDateTime.now() + " | " + id);
-        Optional<User> user = userRepository.findById(id);
+    public UserDefaultResponseDto findOneUser(String userId) {
+        log.info("INITIALIZE | 유저 조회 At " + LocalDateTime.now() + " | " + userId);
+        Optional<User> user = userRepository.findById(userId);
         if ((user.isPresent() && user.get().getIsDeactivated()) || user.isEmpty()) {
             throw new NotFoundException("존재하지 않는 유저입니다");
         }
@@ -109,9 +109,9 @@ public class UserService {
      * 유저 조희 후 유저 엔티티 반환 |
      * 유저를 조회 하여 유저 엔티티로 반환한다. 조회가 되지 않거나 탈퇴한 유저일 경우 404(NotFound)를 던진다.
      */
-    public User findUser(String id) {
-        log.info("INITIALIZE | 유저 조희 후 유저 엔티티 반환 At " + LocalDateTime.now() + " | " + id);
-        User user = userRepository.findById(id)
+    public User findUser(String userId) {
+        log.info("INITIALIZE | 유저 조희 후 유저 엔티티 반환 At " + LocalDateTime.now() + " | " + userId);
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
                     throw new NotFoundException("존재하지 않은 유저입니다");
                 });
@@ -277,8 +277,8 @@ public class UserService {
      * 유저 존재 여부 확인 |
      * 유저 존재 여부를 확인한다. 존재하지 않거나 탈퇴한 유저일 경우 404(Not Found)를 던진다.
      */
-    public void isExistingUser(String id) {
-        userRepository.findById(id)
+    public void isExistingUser(String userId) {
+        userRepository.findById(userId)
                 .ifPresentOrElse(user -> {
                     if (user.getIsDeactivated()) {
                         throw new NotFoundException("존재하지 않는 유저입니다");
@@ -292,8 +292,8 @@ public class UserService {
      * 프로필 저장 |
      * 유저의 존재 여부를 확인하고 프로필 정보를 저장한다. 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
      */
-    public void saveProfile(String id, String profileId) {
-        userRepository.findById(id)
+    public void saveProfile(String userId, String profileId) {
+        userRepository.findById(userId)
                 .ifPresent(user -> {
                     user.setProfileId(profileId);
                     try {
