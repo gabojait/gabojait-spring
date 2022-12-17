@@ -2,13 +2,11 @@ package com.inuappcenter.gabojaitspring.user.controller;
 
 import com.inuappcenter.gabojaitspring.auth.JwtProvider;
 import com.inuappcenter.gabojaitspring.common.DefaultResponseDto;
-import com.inuappcenter.gabojaitspring.common.ValidationSequence;
 import com.inuappcenter.gabojaitspring.exception.http.UnauthorizedException;
 import com.inuappcenter.gabojaitspring.user.dto.*;
 import com.inuappcenter.gabojaitspring.user.service.UserService;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -133,7 +131,7 @@ public class UserController {
                     required = true,
                     paramType = "header",
                     dataTypeClass = String.class,
-                    example = "Bearer access_token")
+                    example = "Bearer refresh_token")
     })
     @GetMapping("/auth")
     public ResponseEntity<Object> refreshToken(HttpServletRequest request) {
