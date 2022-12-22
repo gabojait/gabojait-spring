@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -34,7 +35,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         String responseCode;
         LocalDateTime timestamp = LocalDateTime.now();
 
-        if (Objects.requireNonNull(responseMessage).contains("입력")) {
+        if (responseMessage.contains("입력")) {
             responseCode = "FIELD_REQUIRED";
         } else if (responseMessage.contains("~")) {
             responseCode = exception.getFieldError().getField().toUpperCase().concat("_LENGTH_INVALID");
@@ -44,12 +45,35 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
             responseCode = exception.getFieldError().getField().toUpperCase();
         }
 
-        log.error("ERROR | " + responseMessage + " At " + timestamp + " | "
-                + exception.getFieldError().getField() + " = " +
-                ((Objects.requireNonNull(exception.getFieldError().getRejectedValue()).toString() == null) ?
-                        "null" : exception.getFieldError().getRejectedValue().toString()));
+        log.error("ERROR | " + responseMessage + " | " + timestamp + " | " + exception.getCause());
 
         return ResponseEntity.status(status).body(
+                DefaultExceptionResponseDto.builder()
+                        .responseCode(responseCode)
+                        .responseMessage(responseMessage)
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Object> handleBadRequestException(ConstraintViolationException exception) {
+        String responseMessage = Objects.requireNonNull(exception.getMessage().split(": ")[1]);
+        String responseCode= Objects.requireNonNull(exception.getMessage().split("[.:]")[1]);
+        LocalDateTime timestamp = LocalDateTime.now();
+
+        if (responseMessage.contains("입력")) {
+            responseCode = "FIELD_REQUIRED";
+        } else if (responseMessage.contains("~")) {
+            responseCode = responseCode.toUpperCase().concat("_LENGTH_INVALID");
+        } else if (responseMessage.contains("형식")) {
+            responseCode = responseCode.toUpperCase().concat("_FORMAT_INVALID");
+        } else {
+            responseCode = responseCode.toUpperCase();
+        }
+
+        log.error("ERROR | " + responseMessage + " | " + timestamp + " | " + exception.getCause());
+
+        return ResponseEntity.status(400).body(
                 DefaultExceptionResponseDto.builder()
                         .responseCode(responseCode)
                         .responseMessage(responseMessage)
@@ -72,7 +96,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
             responseMessage = exception.getMessage();
         }
 
-        log.error("ERROR | " + exception.getMessage() + " At " + timestamp + " | " + exception);
+        log.error("ERROR | " + responseMessage + " | " + timestamp + " | " + exception.getCause());
 
         return ResponseEntity.status(401).body(
                 DefaultExceptionResponseDto.builder()
@@ -87,13 +111,12 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
      * 미승인 또는 비인증이므로 클라이언트는 요청한 응답을 받기 위해서 반드시 스스로를 인증해야됩니다.
      */
     @ExceptionHandler(UsernameNotFoundException.class)
-    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<Object> handleUsernameNotFoundException() {
+    public ResponseEntity<Object> handleUsernameNotFoundException(UsernameNotFoundException exception) {
         String responseMessage = "사용자 정보가 없습니다";
         String responseCode = "UNAUTHORIZED";
         LocalDateTime timestamp = LocalDateTime.now();
 
-        log.error("ERROR | " + responseMessage + " At " + timestamp);
+        log.error("ERROR | " + responseMessage + " | " + timestamp + " | " + exception.getCause());
 
         return ResponseEntity.status(401).body(
                 DefaultExceptionResponseDto.builder()
@@ -114,7 +137,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         String responseCode = "FORBIDDEN";
         LocalDateTime timestamp = LocalDateTime.now();
 
-        log.error("ERROR | " + responseMessage + " At " + timestamp + " | ");
+        log.error("ERROR | " + responseMessage + " | " + timestamp + " | " + exception.getCause());
 
         return ResponseEntity.status(403).body(
                 DefaultExceptionResponseDto.builder()
@@ -135,7 +158,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         String responseCode = "NOT_FOUND";
         LocalDateTime timestamp = LocalDateTime.now();
 
-        log.error("ERROR | " + responseMessage + " At " + timestamp + " | " + exception);
+        log.error("ERROR | " + responseMessage + " | " + timestamp + " | " + exception.getCause());
 
         return ResponseEntity.status(404).body(
                 DefaultExceptionResponseDto.builder()
@@ -158,7 +181,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         String responseCode = "METHOD_NOT_ALLOWED";
         LocalDateTime timestamp = LocalDateTime.now();
 
-        log.error("ERROR | " + responseMessage + " At " + timestamp + " | " + exception);
+        log.error("ERROR | " + responseMessage + " | " + timestamp + " | " + exception.getCause());
 
         return ResponseEntity.status(status).body(
                 DefaultExceptionResponseDto.builder()
@@ -179,8 +202,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         String responseCode = "NOT_ACCEPTABLE";
         LocalDateTime timestamp = LocalDateTime.now();
 
-        log.error("ERROR | " + responseMessage + " At " + timestamp + " | "
-                + exception.getMessage() + " = " + exception.getCause());
+        log.error("ERROR | " + responseMessage + " | " + timestamp + " | " + exception.getCause());
 
         return ResponseEntity.status(406).body(
                 DefaultExceptionResponseDto.builder()
@@ -202,8 +224,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         String responseCode = "CONFLICT";
         LocalDateTime timestamp = LocalDateTime.now();
 
-        log.error("ERROR | " + responseMessage + " At " + timestamp + " | "
-                + exception.getMessage() + " = " + exception.getCause());
+        log.error("ERROR | " + responseMessage + " | " + timestamp + " | " + exception.getCause());
 
         return ResponseEntity.status(409).body(
                 DefaultExceptionResponseDto.builder()
@@ -225,8 +246,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         String responseCode = "INTERNAL_SERVER_ERROR";
         LocalDateTime timestamp = LocalDateTime.now();
 
-        log.error("ERROR | " + responseMessage + " At " + timestamp + " | "
-                + exception.getMessage() + " = " + exception.getCause());
+        log.error("ERROR | " + responseCode + " | " + timestamp + " | " + exception.getMessage());
 
         return ResponseEntity.status(500).body(
                 DefaultExceptionResponseDto.builder()
