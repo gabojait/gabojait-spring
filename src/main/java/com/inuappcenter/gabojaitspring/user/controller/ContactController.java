@@ -40,7 +40,7 @@ public class ContactController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "연락처 인증번호 확인 성공"),
             @ApiResponse(code = 400, message = "연락처 인증번호 입력 에러"),
-            @ApiResponse(code = 401, message = "연락처 정보 존재하지 않음"),
+            @ApiResponse(code = 404, message = "연락처 정보 존재하지 않음"),
             @ApiResponse(code = 409, message = "인증번호 불일치"),
             @ApiResponse(code = 500, message = "서버 에러")
     })
