@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -26,8 +27,9 @@ public class EmailService {
      */
     @Async
     public void sendEmail(String receiver, String title, String intro, String key) {
-        log.info("INITIALIZE | 이메일 전송 At " + LocalDateTime.now() +
-                " | receiver = " + receiver  + " title = " + title);
+        log.info("INITIALIZE | EmailService | sendEmail | " +  receiver  + " | " + title);
+        LocalDateTime initTime = LocalDateTime.now();
+
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, "utf-8");
@@ -41,8 +43,9 @@ public class EmailService {
         } catch (MessagingException e) {
             throw new InternalServerErrorException("이메일 전송 중 에러", e);
         }
-        log.info("COMPLETE | 이메일 전송 완료 At " + LocalDateTime.now() +
-                " | receiver = " + receiver  + " title = " + title);
+
+        log.info("COMPLETE | EmailService | sendEmail | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
+                receiver  + " | " + title);
     }
 
     /**
