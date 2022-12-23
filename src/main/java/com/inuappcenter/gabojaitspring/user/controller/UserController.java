@@ -1,22 +1,18 @@
 package com.inuappcenter.gabojaitspring.user.controller;
 
-import com.inuappcenter.gabojaitspring.auth.JwtProvider;
 import com.inuappcenter.gabojaitspring.common.DefaultResponseDto;
-import com.inuappcenter.gabojaitspring.exception.http.UnauthorizedException;
 import com.inuappcenter.gabojaitspring.user.dto.*;
 import com.inuappcenter.gabojaitspring.user.service.UserService;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -24,15 +20,13 @@ import javax.validation.constraints.Size;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "User")
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user")
 public class UserController {
 
     private final UserService userService;
-    private final JwtProvider jwtProvider;
-    private final AuthenticationManager authenticationManager;
-    private final String tokenPrefix = "Bearer ";
 
     @ApiOperation(value = "유저 아이디 중복 여부 확인")
     @ApiResponses(value = {
@@ -44,11 +38,13 @@ public class UserController {
     @GetMapping("/duplicate/{username}")
     public ResponseEntity<Object> duplicateUsername(
             @PathVariable
-            @NotBlank(message = "모든 필수 정보를 입력해 주세요")
+            @NotBlank(message = "아이디를 입력해 주세요")
             @Size(min = 5, max = 15, message = "아이디는 5~15자만 가능합니다")
             @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "아이디 형식은 영문과 숫자의 조합만 가능합니다")
-            String username) {
+            String username
+    ) {
         userService.isExistingUsername(username);
+
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
@@ -60,31 +56,40 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "유저 가입 성공"),
             @ApiResponse(code = 400, message = "유저 정보 입력 에러"),
-            @ApiResponse(code = 401, message = "인증되지 않은 연락처"),
-            @ApiResponse(code = 404, message = "연락처 조회 실패"),
+            @ApiResponse(code = 401, message = "유저 비밀번호 에러"),
+            @ApiResponse(code = 404, message = "존재하지 않은 유저"),
             @ApiResponse(code = 409, message = "유저 아이디 또는 닉네임 중복 검사 실패"),
             @ApiResponse(code = 500, message = "서버 에러")
     })
     @PostMapping("/new")
     public ResponseEntity<Object> signUp(@RequestBody @Valid UserSaveRequestDto request) {
-        UserDefaultResponseDto response = userService.save(request);
+        userService.save(request);
+
+        String[] token = userService.generateToken(request.getUsername(), request.getPassword());
+        HttpHeaders responseHeader = new HttpHeaders();
+        responseHeader.add("ACCESS-TOKEN", token[0]);
+        responseHeader.add("REFRESH-TOKEN", token[1]);
+
         return ResponseEntity.status(201)
+                .headers(responseHeader)
                 .body(DefaultResponseDto.builder()
                         .responseCode("CREATED")
                         .responseMessage("유저 가입 완료")
-                        .data(response)
                         .build());
     }
 
     @ApiOperation(value = "유저 정보 조회")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "유저 정보 조회 성공"),
-            @ApiResponse(code = 403, message = "토큰 인증 실패"),
-            @ApiResponse(code = 404, message = "유저 정보 조회 실패")
+            @ApiResponse(code = 401, message = "토큰 인증 실패"),
+            @ApiResponse(code = 404, message = "존재하지 않은 유저"),
+            @ApiResponse(code = 500, message = "서버 에러")
     })
-    @GetMapping("/{userId}")
-    public ResponseEntity<Object> findOneUser(@PathVariable String userId) {
-        UserDefaultResponseDto response = userService.findOneUser(userId);
+    @GetMapping()
+    public ResponseEntity<Object> findOneUser(HttpServletRequest servletRequest) {
+        String token = servletRequest.getHeader(AUTHORIZATION);
+        UserDefaultResponseDto response = userService.findOneUserByToken(token);
+
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
@@ -96,28 +101,22 @@ public class UserController {
     @ApiOperation(value = "유저 로그인")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "유저 로그인 성공"),
-            @ApiResponse(code = 401, message = "유저 로그인 실패")
+            @ApiResponse(code = 401, message = "유저 로그인 실패"),
+            @ApiResponse(code = 404, message = "존재하지 않은 유저")
     })
     @PostMapping("/login")
-    public ResponseEntity<Object> signIn(@RequestBody UserSignInRequestDto request) {
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
-        Authentication authentication = authenticationManager.authenticate(authenticationToken);
-        if (authentication.isAuthenticated()) {
-            User user = (User) authentication.getPrincipal();
-            String[] token = jwtProvider.generateJwt(user);
-            HttpHeaders responseHeader = new HttpHeaders();
-            responseHeader.add("ACCESS-TOKEN", token[0]);
-            responseHeader.add("REFRESH-TOKEN", token[1]);
-            return ResponseEntity.status(200)
-                    .headers(responseHeader)
-                    .body(DefaultResponseDto.builder()
-                            .responseCode("OK")
-                            .responseMessage("유저 로그인 완료")
-                            .build());
-        } else {
-            throw new UnauthorizedException("유저 로그인 실패");
-        }
+    public ResponseEntity<Object> signIn(@RequestBody @Valid UserSignInRequestDto request) {
+        String[] token = userService.generateToken(request.getUsername(), request.getPassword());
+        HttpHeaders responseHeader = new HttpHeaders();
+        responseHeader.add("ACCESS-TOKEN", token[0]);
+        responseHeader.add("REFRESH-TOKEN", token[1]);
+
+        return ResponseEntity.status(200)
+                .headers(responseHeader)
+                .body(DefaultResponseDto.builder()
+                        .responseCode("OK")
+                        .responseMessage("유저 로그인 완료")
+                        .build());
     }
 
     @ApiOperation(value = "유저 토큰 재발급")
@@ -125,33 +124,19 @@ public class UserController {
             @ApiResponse(code = 200, message = "유저 토큰 재발급 성공"),
             @ApiResponse(code = 401, message = "유저 토큰 재발급 실패")
     })
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization",
-                    value = "Refresh Token",
-                    required = true,
-                    paramType = "header",
-                    dataTypeClass = String.class,
-                    example = "Bearer refresh_token")
-    })
     @GetMapping("/auth")
-    public ResponseEntity<Object> refreshToken(HttpServletRequest request) {
-        String authorizationHeader = request.getHeader(AUTHORIZATION);
-        if (authorizationHeader != null && authorizationHeader.startsWith(tokenPrefix)) {
-            String refreshToken = authorizationHeader.substring(tokenPrefix.length());
-            User user =  jwtProvider.verifyJwt(refreshToken);
-            String[] token = jwtProvider.generateJwt(user);
-            HttpHeaders responseHeader = new HttpHeaders();
-            responseHeader.add("ACCESS-TOKEN", token[0]);
-            responseHeader.add("REFRESH-TOKEN", token[1]);
-            return ResponseEntity.status(200)
-                    .headers(responseHeader)
-                    .body(DefaultResponseDto.builder()
-                            .responseCode("OK")
-                            .responseMessage("유저 토큰 재발급 완료")
-                            .build());
-        } else {
-            throw new UnauthorizedException("유저 토큰 재발급 실패");
-        }
+    public ResponseEntity<Object> refreshToken(HttpServletRequest servletRequest) {
+        String[] token = userService.regenerateToken(servletRequest.getHeader(AUTHORIZATION));
+        HttpHeaders responseHeader = new HttpHeaders();
+        responseHeader.add("ACCESS-TOKEN", token[0]);
+        responseHeader.add("REFRESH-TOKEN", token[1]);
+
+        return ResponseEntity.status(200)
+                .headers(responseHeader)
+                .body(DefaultResponseDto.builder()
+                        .responseCode("OK")
+                        .responseMessage("유저 토큰 재발급 완료")
+                        .build());
     }
 
     @ApiOperation(value = "유저 아이디 찾기")
@@ -161,8 +146,14 @@ public class UserController {
             @ApiResponse(code = 500, message = "서버 에러")
     })
     @GetMapping("/findId/{email}")
-    public ResponseEntity<Object> forgotId(@PathVariable String email) {
+    public ResponseEntity<Object> forgotId(
+            @PathVariable
+            @NotBlank(message = "이메일을 입력해 주세요")
+            @Email(message = "올바른 이메일 형식이 아닙니다")
+            String email
+    ) {
         userService.findForgotUsernameByEmail(email);
+
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
@@ -177,8 +168,20 @@ public class UserController {
             @ApiResponse(code = 500, message = "서버 에러")
     })
     @PatchMapping("/findPw/{username}/{email}")
-    public ResponseEntity<Object> forgotPassword(@PathVariable String username, @PathVariable String email) {
+    public ResponseEntity<Object> forgotPassword(
+            @PathVariable
+            @NotBlank(message = "아이디를 입력해 주세요")
+            @Size(min = 5, max = 15, message = "아이디는 5~15자만 가능합니다")
+            @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "아이디 형식은 영문과 숫자의 조합만 가능합니다")
+            String username,
+
+            @PathVariable
+            @NotBlank(message = "이메일을 입력해 주세요")
+            @Email(message = "올바른 이메일 형식이 아닙니다")
+            String email
+    ) {
         userService.resetPasswordByEmailAndUsername(username, email);
+
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
@@ -189,16 +192,18 @@ public class UserController {
     @ApiOperation(value = "유저 비밀번호 재설정")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "유저 비밀번호 재설정 성공"),
-            @ApiResponse(code = 401, message = "현재 비밀번호 틀림"),
-            @ApiResponse(code = 403, message = "토큰 인증 실패"),
+            @ApiResponse(code = 401, message = "토큰 인증 실패"),
             @ApiResponse(code = 404, message = "유저 정보 존재하지 않음"),
             @ApiResponse(code = 406, message = "새 비밀번호와 새 비밀번호 재입력 불일치"),
+            @ApiResponse(code = 409, message = "현재 비밀번호 틀림"),
             @ApiResponse(code = 500, message = "서버 에러")
     })
-    @PatchMapping("/{userId}/pw")
-    public ResponseEntity<Object> resetPassword(@RequestBody @Valid UserResetPasswordRequestDto request,
-                                                @PathVariable String userId) {
-        userService.resetPassword(request, userId);
+    @PatchMapping("/pw")
+    public ResponseEntity<Object> resetPassword(HttpServletRequest servletRequest,
+                                                @RequestBody @Valid UserResetPasswordRequestDto request) {
+        String token = servletRequest.getHeader(AUTHORIZATION);
+        userService.resetPassword(token, request);
+
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
@@ -210,32 +215,37 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "유저 닉네임 업데이트 성공"),
             @ApiResponse(code = 400, message = "유저 정보 입력 에러"),
+            @ApiResponse(code = 401, message = "토큰 인증 실패"),
+            @ApiResponse(code = 404, message = "유저 정보 존재하지 않음"),
             @ApiResponse(code = 500, message = "서버 에러")
     })
-    @PatchMapping("/{userId}/nickname")
-    public ResponseEntity<Object> updateNickname(@RequestBody @Valid UserUpdateNicknameRequestDto request,
-                                                 @PathVariable String userId) {
-        String id = userService.updateNickname(request, userId);
+    @PatchMapping("/nickname")
+    public ResponseEntity<Object> updateNickname(HttpServletRequest servletRequest,
+                                                 @RequestBody @Valid UserUpdateNicknameRequestDto request) {
+        String token = servletRequest.getHeader(AUTHORIZATION);
+        userService.updateNickname(token, request);
+
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
                         .responseMessage("유저 닉네임 업데이트 완료")
-                        .data(id)
                         .build());
     }
 
     @ApiOperation(value = "유저 탈퇴")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "유저 탈퇴 성공"),
-            @ApiResponse(code = 401, message = "현재 비밀번호 틀림"),
-            @ApiResponse(code = 403, message = "토큰 인증 실패"),
+            @ApiResponse(code = 401, message = "토큰 인증 실패"),
             @ApiResponse(code = 404, message = "유저 정보 존재하지 않음"),
+            @ApiResponse(code = 409, message = "현재 비밀번호 틀림"),
             @ApiResponse(code = 500, message = "서버 에러")
     })
-    @PatchMapping("/{userId}/deactivate")
-    public ResponseEntity<Object> deactivate(@RequestBody @Valid UserDeactivateRequestDto request,
-                                             @PathVariable String userId) {
-        userService.deactivateUser(request, userId);
+    @PatchMapping("/deactivate")
+    public ResponseEntity<Object> deactivate(HttpServletRequest servletRequest,
+                                             @RequestBody @Valid UserDeactivateRequestDto request) {
+        String token = servletRequest.getHeader(AUTHORIZATION);
+
+        userService.deactivateUser(token, request);
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("OK")
