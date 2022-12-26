@@ -16,10 +16,12 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
@@ -31,11 +33,12 @@ import static java.util.Arrays.stream;
 @RequiredArgsConstructor
 public class JwtProvider {
 
-    @Value("${jwt.secret}")
-    private String secret;
+    private final String secret = "secret";
 
     @Value("${jwt.domain}")
     private String domain;
+
+    private final String tokenPrefix = "Bearer ";
     private final UserDetailsService userDetailsService;
 
     /**
@@ -43,7 +46,8 @@ public class JwtProvider {
      * Access 토큰과 refresh 토큰을 제작한다.
      */
     public String[] generateJwt(User user) {
-        log.info("INITIALIZE | JWT 제작 At " + LocalDateTime.now());
+        log.info("INITIALIZE | JwtProvider | generateJwt | " + user.getUsername());
+        LocalDateTime initTime = LocalDateTime.now();
 
         Algorithm algorithm = Algorithm.HMAC256(secret.getBytes(StandardCharsets.UTF_8));
 
@@ -64,34 +68,70 @@ public class JwtProvider {
                 .withSubject(user.getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + 28L * 24 * 60 * 60 * 1000))
                 .withIssuer(domain)
+                .withClaim("roles",
+                        user.getAuthorities()
+                                .stream()
+                                .map(GrantedAuthority::getAuthority)
+                                .collect(Collectors.toList()))
                 .sign(algorithm);
 
-        log.info("COMPLETE | JWT 제작 At " + LocalDateTime.now() + " | " + user.getUsername());
+        log.info("COMPLETE | JwtProvider | generateJwt | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
+                user.getUsername());
         return token;
     }
 
     /**
      * JWT 인증 |
-     * JWT를 인증한다. JWT 인증 실패시 401(Unauthroized)을 던진다.
+     * JWT를 인증한다. JWT 인증 실패시 403(Unauthorized)을 던진다.
      */
     public User verifyJwt(String token) {
-        try {
-            Algorithm algorithm = Algorithm.HMAC256(secret.getBytes(StandardCharsets.UTF_8));
-            JWTVerifier verifier = JWT.require(algorithm).build();
-            DecodedJWT decodedJWT = verifier.verify(token);
-            String username = decodedJWT.getSubject();
-            String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
+        log.info("INITIALIZE | JwtProvider | verifyJwt | " + token);
+        LocalDateTime initTime = LocalDateTime.now();
 
-            Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            stream(roles).forEach(role -> {
-                authorities.add(new SimpleGrantedAuthority(role));
-            });
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(username, null, authorities);
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-            return (User) userDetailsService.loadUserByUsername(username);
-        } catch (Exception e) {
-            throw new UnauthorizedException(e);
+        if (token == null || !token.startsWith(tokenPrefix)) {
+            throw new UnauthorizedException();
         }
+        token = token.substring(tokenPrefix.length());
+        Algorithm algorithm = Algorithm.HMAC256(secret.getBytes(StandardCharsets.UTF_8));
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        DecodedJWT decodedJWT = verifier.verify(token);
+        String username = decodedJWT.getSubject();
+        String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
+
+        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        stream(roles).forEach(role -> {
+            authorities.add(new SimpleGrantedAuthority(role));
+        });
+
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(username, null, authorities);
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+        log.info("COMPLETE | JwtProvider | verifyJwt | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
+                username);
+        return (User) userDetailsService.loadUserByUsername(username);
+    }
+
+    /**
+     * JWT로 유저 조회 |
+     * JWT로 유저네임을 조회한다. 실패시 403(Unauthorized)를 던진다.
+     */
+    public String loadUsernameByJwt(String token) {
+        log.info("INITIALIZE | JwtProvider | loadUsernameByJwt | " + token);
+        LocalDateTime initTime = LocalDateTime.now();
+
+        if (token == null || !token.startsWith(tokenPrefix)) {
+            throw new UnauthorizedException("인증에 실패했습니다");
+        }
+
+        token = token.substring(tokenPrefix.length());
+        Algorithm algorithm = Algorithm.HMAC256(secret.getBytes(StandardCharsets.UTF_8));
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        DecodedJWT decodedJWT = verifier.verify(token);
+        String username = decodedJWT.getSubject();
+
+        log.info("COMPLETE | JwtProvider | loadUsernameByJwt | " + Duration.between(initTime, LocalDateTime.now()) +
+                " | " + username);
+        return username;
     }
 }
