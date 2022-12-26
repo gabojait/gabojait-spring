@@ -54,10 +54,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/user/findPw/**/**",
                         "/swagger-ui/index.html/**")
                 .permitAll()
-                .antMatchers("/user/**",
+                .antMatchers("/user", "/user/**",
                         "/profile/**")
                 .permitAll()
-//                .authenticated()
                 .and()
                 .addFilterBefore(new CustomAuthorizationFilter(jwtProvider),
                         UsernamePasswordAuthenticationFilter.class);
