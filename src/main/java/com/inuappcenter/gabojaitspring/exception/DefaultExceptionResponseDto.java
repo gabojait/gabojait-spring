@@ -1,21 +1,29 @@
 package com.inuappcenter.gabojaitspring.exception;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.LocalDateTime;
+import org.springframework.http.ResponseEntity;
 
 @Getter
+@Builder
+@ApiModel(value = "기본 에러 응답")
 public class DefaultExceptionResponseDto {
 
-    private final String responseCode;
+    @ApiModelProperty(position = 1, dataType = "String", value = "에러 코드", example = "EXCEPTION_CODE")
+    private String responseCode;
 
-    private final String responseMessage;
+    @ApiModelProperty(position = 2, dataType = "String", value = "에러 메세지", example = "Exception message.")
+    private String responseMessage;
 
-    @Builder
-    public DefaultExceptionResponseDto(String responseCode, String responseMessage) {
-        this.responseCode = responseCode;
-        this.responseMessage = responseMessage;
+    public static ResponseEntity<DefaultExceptionResponseDto> exceptionResponse(final ExceptionCode exceptionCode) {
+        return ResponseEntity
+                .status(exceptionCode.getHttpStatus())
+                .body(DefaultExceptionResponseDto.builder()
+                        .responseCode(exceptionCode.name())
+                        .responseMessage(exceptionCode.getMessage())
+                        .build()
+                );
     }
 }

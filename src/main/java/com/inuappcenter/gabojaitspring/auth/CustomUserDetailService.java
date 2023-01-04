@@ -37,9 +37,7 @@ public class CustomUserDetailService implements UserDetailsService {
                 });
 
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        user.getRoles().forEach(role -> {
-            authorities.add(new SimpleGrantedAuthority(role));
-        });
+        authorities.add(new SimpleGrantedAuthority(user.getRole()));
 
         log.info("COMPLETE | CustomUserDetailService | loadUserByUsername | " +
                 Duration.between(initTime, LocalDateTime.now()) + " | " + user.getUsername());

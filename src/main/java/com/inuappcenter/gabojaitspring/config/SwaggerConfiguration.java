@@ -1,5 +1,7 @@
 package com.inuappcenter.gabojaitspring.config;
 
+import com.fasterxml.classmate.TypeResolver;
+import com.inuappcenter.gabojaitspring.exception.DefaultExceptionResponseDto;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -10,8 +12,8 @@ import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.ApiKey;
 import springfox.documentation.service.AuthorizationScope;
 import springfox.documentation.service.SecurityReference;
-import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
@@ -40,7 +42,10 @@ public class SwaggerConfiguration {
 
     @Bean
     public Docket api() {
+        TypeResolver typeResolver = new TypeResolver();
+
         return new Docket(DocumentationType.SWAGGER_2)
+                .additionalModels(typeResolver.resolve(DefaultExceptionResponseDto.class))
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo())
                 .securityContexts(Collections.singletonList(securityContext()))
@@ -53,9 +58,8 @@ public class SwaggerConfiguration {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("Gabojait API with Swagger")
+                .title("Gabojait API")
                 .version("1.0")
-                .description("Test server to test API")
                 .build();
     }
 }

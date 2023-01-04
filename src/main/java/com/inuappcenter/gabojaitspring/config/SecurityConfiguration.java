@@ -1,10 +1,10 @@
 package com.inuappcenter.gabojaitspring.config;
 
-import com.inuappcenter.gabojaitspring.auth.CustomAuthorizationFilter;
-import com.inuappcenter.gabojaitspring.auth.JwtProvider;
+import com.inuappcenter.gabojaitspring.auth.CustomAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final CustomAuthenticationFilter customAuthenticationFilter;
 
     @Bean
     @Override
@@ -31,13 +31,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
+        auth.userDetailsService(userDetailsService).passwordEncoder(new BCryptPasswordEncoder());
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        JwtProvider jwtProvider = new JwtProvider(userDetailsService);
-
         http
                 .csrf().disable()
                 .cors()
@@ -45,20 +43,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/contact/**",
-                        "/user/duplicate/**",
-                        "/user/new/**",
-                        "/user/login/**",
-                        "/user/auth/**",
-                        "/user/findId/**",
-                        "/user/findPw/**/**",
-                        "/swagger-ui/index.html/**")
+                .antMatchers("/swagger-ui/**", "/swagger-resources/**", "/v2/api-docs")
                 .permitAll()
-                .antMatchers("/user", "/user/**",
-                        "/profile/**")
+                .antMatchers(HttpMethod.POST, "/contact/**")
+                .permitAll()
+                .antMatchers(HttpMethod.PATCH, "/contact")
+                .permitAll()
+                .antMatchers(HttpMethod.DELETE, "/contact")
+                .permitAll()
+                .anyRequest()
                 .permitAll()
                 .and()
-                .addFilterBefore(new CustomAuthorizationFilter(jwtProvider),
-                        UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     }
 }
