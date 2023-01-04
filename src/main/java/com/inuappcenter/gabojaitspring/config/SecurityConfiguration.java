@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -34,6 +35,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userDetailsService).passwordEncoder(new BCryptPasswordEncoder());
     }
 
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -45,14 +51,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/swagger-ui/**", "/swagger-resources/**", "/v2/api-docs")
                 .permitAll()
-                .antMatchers(HttpMethod.POST, "/contact/**")
+                .antMatchers("/contact", "/contact/**")
                 .permitAll()
-                .antMatchers(HttpMethod.PATCH, "/contact")
-                .permitAll()
-                .antMatchers(HttpMethod.DELETE, "/contact")
+                .antMatchers("/user/duplicate/**/**", "/user/findUsername/**", "/user/findPw/**/**",
+                        "/user/login", "/user/new")
                 .permitAll()
                 .anyRequest()
-                .permitAll()
+                .authenticated()
                 .and()
                 .addFilterBefore(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     }

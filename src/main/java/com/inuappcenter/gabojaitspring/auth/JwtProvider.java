@@ -3,9 +3,9 @@ package com.inuappcenter.gabojaitspring.auth;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.inuappcenter.gabojaitspring.exception.CustomException;
+import com.inuappcenter.gabojaitspring.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +13,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +38,6 @@ public class JwtProvider {
     private String domain;
 
     private final String tokenPrefix = "Bearer ";
-    private final UserDetailsService userDetailsService;
 
     /**
      * JWT 제작 |
@@ -82,7 +80,6 @@ public class JwtProvider {
 
     /**
      * JWT 인증
-     *
      */
     public void authenticateJwt(String token) {
         log.info("INITIALIZE | JwtProvider | authenticateJwt | " + token);
@@ -96,7 +93,6 @@ public class JwtProvider {
 
     /**
      * JWT 인가
-     *
      */
     public String authorizeJwt(String token) {
         log.info("INITIALIZE | JwtProvider | authorizeJwt | " + token);
@@ -111,7 +107,6 @@ public class JwtProvider {
 
     /**
      * JWT 검증
-     *
      */
     public String verifyJwt(String token) {
         token = token.substring(tokenPrefix.length());
@@ -121,7 +116,7 @@ public class JwtProvider {
         try {
             DecodedJWT decodedJWT = verifier.verify(token);
             String username = decodedJWT.getSubject();
-            String[] roles = decodedJWT.getClaim("role").asArray(String.class);
+            String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
 
             Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
             stream(roles).forEach(role -> {

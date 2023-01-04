@@ -14,11 +14,15 @@ public enum ExceptionCode {
      * 400 BAD_REQUEST
      */
     INCORRECT_VERIFICATION_CODE(BAD_REQUEST, "인증번호가 틀렸습니다."),
+    INCORRECT_GENDER(BAD_REQUEST, "성별은 M 또는 F 입니다."),
+    PASSWORD_VALIDATION_FAIL(BAD_REQUEST, "비밀번호와 비밀번호 재입력이 동일하지 않습니다."),
 
     /**
      * 401 UNAUTHORIZED
      */
     TOKEN_AUTHENTICATION_FAIL(UNAUTHORIZED, "로그인 후 이용해주세요."),
+    LOGIN_FAIL(UNAUTHORIZED, "아이디 또는 비밀번호가 틀렸습니다."),
+    INCORRECT_PASSWORD(UNAUTHORIZED, "비밀번호가 틀렸습니다."),
 
     /**
      * 403 FORBIDDEN
@@ -28,6 +32,8 @@ public enum ExceptionCode {
      * 404 NOT FOUND
      */
     NOT_VERIFIED_EMAIL(NOT_FOUND, "이메일 인증을 먼저 해주세요."),
+    NON_EXISTING_USER(NOT_FOUND, "존재하지 않은 회원입니다."),
+    NON_EXISTING_EMAIL(NOT_FOUND, "존재하지 않은 이메일입니다."),
 
     /**
      * 409 CONFLICT

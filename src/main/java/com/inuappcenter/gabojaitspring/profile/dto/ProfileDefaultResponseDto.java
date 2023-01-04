@@ -24,6 +24,12 @@ public class ProfileDefaultResponseDto {
     @ApiModelProperty(position = 4, required = true, value = "학력 리스트")
     private List<EducationListResponseDto> educationList = new ArrayList<>();
 
+//    @ApiModelProperty(position = 5, required = true, value = "경력 리스트")
+//    private List<WorkListResponseDto> workList = new ArrayList<>();
+//
+//    @ApiModelProperty(position = 6, required = true, value = "스킬 리스트")
+//    private List<SkillListResponseDto> skillList = new ArrayList<>();
+
     public ProfileDefaultResponseDto(Profile profile, List<EducationListResponseDto> educationList) {
         this.profileId = profile.getId();
         this.about = profile.getAbout();

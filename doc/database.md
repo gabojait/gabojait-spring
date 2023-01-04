@@ -54,7 +54,7 @@ profile
   "about": <string>,
   "position": <int>,
   "education": <array>,
-  "work_experience": <array>,
+  "work": <array>,
   "skill": <array>,
   "review": <array>,
   "created_date": <array>,
@@ -75,7 +75,7 @@ education
   "schema_version": <string>
 }
 
-work_experience
+work
 {
   "_id": <objectId>,
   "corporation_name": <string>,

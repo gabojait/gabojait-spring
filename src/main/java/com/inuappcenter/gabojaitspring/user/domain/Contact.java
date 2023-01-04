@@ -1,12 +1,9 @@
 package com.inuappcenter.gabojaitspring.user.domain;
 
 import com.inuappcenter.gabojaitspring.common.BaseTimeEntity;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.index.Indexed;
+import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
@@ -26,13 +23,13 @@ public class Contact extends BaseTimeEntity {
     @Field(name = "is_registered")
     private Boolean isRegistered;
 
-
-    @Builder(builderClassName = "ByContactBuilder", builderMethodName = "ByContactBuilder")
+    @Builder
     public Contact(String email, String verificationCode) {
         this.email = email;
         this.verificationCode = verificationCode;
         this.isVerified = false;
         this.isRegistered = false;
+        this.isDeleted = false;
     }
 
     public void setIsVerified(Boolean isVerified) {

@@ -4,7 +4,10 @@ import com.inuappcenter.gabojaitspring.common.DefaultResponseDto;
 import com.inuappcenter.gabojaitspring.user.dto.ContactSaveRequestDto;
 import com.inuappcenter.gabojaitspring.user.dto.ContactVerificationRequestDto;
 import com.inuappcenter.gabojaitspring.user.service.ContactService;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,49 +22,55 @@ public class ContactController {
 
     private final ContactService contactService;
 
-    @ApiOperation(value = "연락처 이메일 중복여부 확인")
+    @ApiOperation(value = "이메일 중복 확인")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "연락처 이메일 중복확인 후 생성 성공"),
-            @ApiResponse(code = 400, message = "연락처 정보 입력 에러"),
-            @ApiResponse(code = 409, message = "이미 존재하는 이메일"),
-            @ApiResponse(code = 500, message = "서버 에러")
+            @ApiResponse(responseCode = "201", description = "이메일 중복 확인 완료"),
+            @ApiResponse(responseCode = "400", description = "사용자 에러"),
+            @ApiResponse(responseCode = "409", description = "이미 사용중인 이메일"),
+            @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @PostMapping("/new")
-    public ResponseEntity<Object> create(@RequestBody @Valid ContactSaveRequestDto request) {
+    public ResponseEntity<DefaultResponseDto<Object>> create(@RequestBody @Valid ContactSaveRequestDto request) {
+        contactService.isExistingEmail(request.getEmail());
+
         contactService.save(request);
-        return ResponseEntity.status(201)
-                .body(DefaultResponseDto.builder()
-                        .responseCode("CREATED")
-                        .responseMessage("이메일 중복여부 확인 완료")
+
+        return ResponseEntity.status(201).body(
+                DefaultResponseDto.builder()
+                        .responseCode("NO_DUPLICATE_EMAIL")
+                        .responseMessage("이메일 중복 확인 완료")
                         .build());
     }
 
-    @ApiOperation(value = "연락처 인증번호 확인")
+    @ApiOperation(value = "인증번호 확인")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "연락처 인증번호 확인 성공"),
-            @ApiResponse(code = 400, message = "연락처 인증번호 입력 에러"),
-            @ApiResponse(code = 404, message = "연락처 정보 존재하지 않음"),
-            @ApiResponse(code = 409, message = "인증번호 불일치"),
-            @ApiResponse(code = 500, message = "서버 에러")
+            @ApiResponse(responseCode = "200", description = "인증번호 확인 완료"),
+            @ApiResponse(responseCode = "400", description = "사용자 에러"),
+            @ApiResponse(responseCode = "404", description = "인증 요청 하지 않은 이메일"),
+            @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @PatchMapping
-    public ResponseEntity<Object> verify(@RequestBody @Valid ContactVerificationRequestDto request) {
+    public ResponseEntity<DefaultResponseDto<Object>> verify(@RequestBody @Valid ContactVerificationRequestDto request)
+    {
         contactService.verification(request);
-        return ResponseEntity.status(200)
-                .body(DefaultResponseDto.builder()
-                        .responseCode("OK")
+
+        return ResponseEntity.status(201).body(
+                DefaultResponseDto.builder()
+                        .responseCode("EMAIL_VERIFIED")
                         .responseMessage("이메일 인증번호 확인 완료")
                         .build());
     }
 
-    @ApiOperation(value = "연락처 전체 삭제")
+    // TODO: 배포 전 삭제 필요
+    @ApiOperation(value = "전체 삭제")
     @ApiResponses(value = {
-            @ApiResponse(code = 204, message = "연락처 전체 삭제 성공"),
-            @ApiResponse(code = 500, message = "서버 에러")
+            @ApiResponse(responseCode = "204", description = "전체 삭제"),
+            @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @DeleteMapping
-    public ResponseEntity<Object> deleteAll() {
+    @DeleteMapping("/all")
+    public ResponseEntity<DefaultResponseDto<Object>> deleteAll() {
         contactService.deleteAll();
+
         return ResponseEntity.status(204)
                 .body(DefaultResponseDto.builder()
                         .build());
