@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @ApiModel(value = "User 응답")
 public class UserDefaultResponseDto {
 
-    @ApiModelProperty(position = 1, required = true, value = "식별자")
+    @ApiModelProperty(position = 1, required = true, value = "회원 식별자")
     private String userId;
 
     @ApiModelProperty(position = 2, required = true, value = "아이디")
@@ -36,7 +36,7 @@ public class UserDefaultResponseDto {
     @ApiModelProperty(position = 7, required = true, value = "평점")
     private Float rating;
 
-    @ApiModelProperty(position = 8, required = true, value = "이메일")
+    @ApiModelProperty(position = 8, required = true, value = "연락처")
     private ContactDefaultResponseDto contact;
 
     @ApiModelProperty(position = 9, required = true, value = "생성일")

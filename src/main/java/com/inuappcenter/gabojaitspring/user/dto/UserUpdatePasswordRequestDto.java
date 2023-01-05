@@ -22,11 +22,11 @@ import javax.validation.constraints.Size;
 public class UserUpdatePasswordRequestDto {
 
     @ApiModelProperty(position = 1, required = true, dataType = "String", value = "현재 비밀번호", example = "password")
-    @NotBlank(message = "모든 필수 정보를 입력해 주세요", groups = ValidationSequence.NotBlank.class)
+    @NotBlank(message = "모든 필수 정보를 입력해주세요", groups = ValidationSequence.NotBlank.class)
     private String currentPassword;
 
     @ApiModelProperty(position = 2, required = true, dataType = "String", value = "새 비밀번호", example = "newPassword")
-    @NotBlank(message = "모든 필수 정보를 입력해 주세요", groups = ValidationSequence.NotBlank.class)
+    @NotBlank(message = "모든 필수 정보를 입력해주세요", groups = ValidationSequence.NotBlank.class)
     @Size(min = 8, max = 30, message = "비밀번호는 8~30자만 가능합니다", groups = ValidationSequence.Size.class)
     @Pattern(regexp = "^[a-zA-Z0-9]+$",
             message = "비밀번호는 영문과 숫자의 조합만 가능합니다.",
@@ -34,6 +34,6 @@ public class UserUpdatePasswordRequestDto {
     private String newPassword;
 
     @ApiModelProperty(position = 3, required = true, dataType = "String", value = "새 비밀번호 재입력", example = "newPassword")
-    @NotBlank(message = "모든 필수 정보를 입력해 주세요", groups = ValidationSequence.NotBlank.class)
+    @NotBlank(message = "모든 필수 정보를 입력해주세요", groups = ValidationSequence.NotBlank.class)
     private String newPasswordReEntered;
 }

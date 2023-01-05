@@ -1,6 +1,6 @@
 package com.inuappcenter.gabojaitspring.email.service;
 
-import com.inuappcenter.gabojaitspring.exception.http.InternalServerErrorException;
+import com.inuappcenter.gabojaitspring.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -13,6 +13,8 @@ import javax.mail.internet.MimeMessage;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.MAIL_SENDING_ERROR;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -22,8 +24,8 @@ public class EmailService {
 
     /**
      * 이메일 전송 |
-     * 이메일 받는자, 이메일 제목, 이메일 내용을 받아서 gabojait.help@gmail.com으로부터 보낸다. 전송 중 오류가 발생하면 500(Internal Server
-     * Error)을 던진다.
+     * 이메일 받는자, 제목, 내용을 받아서 gabojait.help@gmail.com으로부터 이메일을 보낸다. 전송 중 오류가 발생하면 500(INTERNAL_SERVER_ERROR)을
+     * 던진다.
      */
     @Async
     public void sendEmail(String receiver, String title, String intro, String key) {
@@ -41,7 +43,7 @@ public class EmailService {
 
             javaMailSender.send(mimeMessage);
         } catch (MessagingException e) {
-            throw new InternalServerErrorException("이메일 전송 중 에러", e);
+            throw new CustomException(MAIL_SENDING_ERROR);
         }
 
         log.info("COMPLETE | EmailService | sendEmail | " + Duration.between(initTime, LocalDateTime.now()) + " | " +

@@ -9,7 +9,7 @@ import lombok.Getter;
 @ApiModel(value = "Contact 응답")
 public class ContactDefaultResponseDto {
 
-    @ApiModelProperty(position = 1, required = true, value = "식별자")
+    @ApiModelProperty(position = 1, required = true, value = "연락처 식별자")
     private String contactId;
 
     @ApiModelProperty(position = 2, required = true, value = "이메일")

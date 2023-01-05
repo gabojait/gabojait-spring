@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -28,6 +29,9 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     @Field(name = "legal_name")
     private String legalName;
+
+    @Field(name = "profile_id")
+    private ObjectId profileId;
 
     private String password;
     private String nickname;
@@ -57,6 +61,15 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public void setProfileId(ObjectId profileId) {
+        this.profileId = profileId;
+    }
+
+    public void deleteUser() {
+        this.isDeleted = true;
+        this.contact.setIsDeleted(true);
     }
 
     @Override

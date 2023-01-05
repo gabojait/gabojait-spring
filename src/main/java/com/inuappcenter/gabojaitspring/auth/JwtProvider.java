@@ -13,7 +13,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -38,6 +37,8 @@ public class JwtProvider {
     private String domain;
 
     private final String tokenPrefix = "Bearer ";
+    private final Long accessTokenTime = 30L * 60 * 1000;
+    private final Long refreshTokenTime = 28L * 24 * 60 * 1000;
 
     /**
      * JWT 제작 |
@@ -50,10 +51,12 @@ public class JwtProvider {
         Algorithm algorithm = Algorithm.HMAC256(secret.getBytes(StandardCharsets.UTF_8));
 
         String[] token = new String[2];
+        long time = System.currentTimeMillis();
 
         token[0] = JWT.create()
                 .withSubject(user.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
+                .withIssuedAt(new Date(time))
+                .withExpiresAt(new Date(time + accessTokenTime))
                 .withIssuer(domain)
                 .withClaim("roles",
                         user.getAuthorities()
@@ -64,7 +67,8 @@ public class JwtProvider {
 
         token[1] = JWT.create()
                 .withSubject(user.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 28L * 24 * 60 * 60 * 1000))
+                .withIssuedAt(new Date(time))
+                .withExpiresAt(new Date(time + refreshTokenTime))
                 .withIssuer(domain)
                 .withClaim("roles",
                         user.getAuthorities()
@@ -94,28 +98,28 @@ public class JwtProvider {
     /**
      * JWT 인가
      */
-    public String authorizeJwt(String token) {
+    public List<String> authorizeJwt(String token) {
         log.info("INITIALIZE | JwtProvider | authorizeJwt | " + token);
         LocalDateTime initTime = LocalDateTime.now();
 
-        String username = verifyJwt(token);
+        List<String> verifiedInfo = verifyJwt(token);
 
         log.info("COMPLETE | JwtProvider | authorizeJwt | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
-                username);
-        return username;
+                verifiedInfo.get(0) + " | " + verifiedInfo.get(1));
+        return verifiedInfo;
     }
 
     /**
      * JWT 검증
      */
-    public String verifyJwt(String token) {
+    public List<String> verifyJwt(String token) {
         token = token.substring(tokenPrefix.length());
         Algorithm algorithm = Algorithm.HMAC256(secret.getBytes(StandardCharsets.UTF_8));
         JWTVerifier verifier = JWT.require(algorithm).build();
+        List<String> verifiedInfo = new ArrayList<>();
 
         try {
             DecodedJWT decodedJWT = verifier.verify(token);
-            String username = decodedJWT.getSubject();
             String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
 
             Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
@@ -123,12 +127,29 @@ public class JwtProvider {
                 authorities.add(new SimpleGrantedAuthority(role));
             });
 
+            Long validTime = decodedJWT.getExpiresAt().getTime() - decodedJWT.getIssuedAt().getTime();
+            String type;
+            if (validTime.equals(accessTokenTime)) {
+                type = JwtType.ACCESS.name();
+            } else if (validTime.equals(refreshTokenTime)) {
+                type = JwtType.REFRESH.name();
+            } else {
+                throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
+            }
+
+            String username = decodedJWT.getSubject();
+
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(username, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-            return username;
+
+            verifiedInfo.add(username);
+            verifiedInfo.add(type);
         } catch (Exception e) {
             throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
         }
+
+        log.info("PROGRESS | JwtProvider | verifyJwt | " + verifiedInfo.get(0) + " | " + verifiedInfo.get(1));
+        return verifiedInfo;
     }
 }

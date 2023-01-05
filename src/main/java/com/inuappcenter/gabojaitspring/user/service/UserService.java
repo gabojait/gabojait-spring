@@ -12,6 +12,7 @@ import com.inuappcenter.gabojaitspring.user.dto.UserUpdatePasswordRequestDto;
 import com.inuappcenter.gabojaitspring.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,7 +36,7 @@ public class UserService {
 
     /**
      * 중복 아이디 여부 확인 |
-     * 중복 아이디 존재를 파악하고, 이미 사용중인 아이디면 400(BAD_REQUEST)를 던진다.
+     * 400: 이미 사용중인 아이디 경우
      */
     public void isExistingUsername(String username) {
         log.info("INITIALIZE | UserService | isExistingUsername | " + username);
@@ -54,7 +55,7 @@ public class UserService {
 
     /**
      * 중복 닉네임 여부 확인 |
-     * 중복 닉네임 존재를 파악하고, 이미 사용중인 닉네임이면 400(BAD_REQUEST)를 던진다.
+     * 400: 이미 사용중인 닉네임 에러
      */
     public void isExistingNickname(String nickname) {
         log.info("INITIALIZE | UserService | isExistingNickname | " + nickname);
@@ -73,9 +74,10 @@ public class UserService {
 
     /**
      * 회원 가입 |
-     * 회원 가입 절차를 밟아서 정보를 저장한다. 서버 에러가 발생하면 500(INTERNAL_SERVER_ERROR)을 던진다.
+     * 회원 가입 절차를 밟아서 정보를 저장한다. |
+     * 500: 회원 정보 저장 중 서버 에러
      */
-    public String save(UserSaveRequestDto request) {
+    public ObjectId save(UserSaveRequestDto request) {
         log.info("INITIALIZE | UserService | save | " + request.getUsername());
         LocalDateTime initTime = LocalDateTime.now();
 
@@ -88,19 +90,20 @@ public class UserService {
         User user = request.toEntity(password, gender, contact);
 
         try {
-            userRepository.save(user);
+            user = userRepository.save(user);
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
 
         log.info("COMPLETE | UserService | save | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
                 user.getUsername());
-        return user.getId().toString();
+        return user.getId();
     }
 
     /**
      * 비밀번호 검증 |
-     * 비밀번호와 비밀번호 재입력이 동일한지 확인하고 암호화된 비밀번호를 반환한다. 두 비밀번호가 동일하지 않은 경우 400(BAD_REQUEST)를 던진다.
+     * 비밀번호와 비밀번호 재입력이 동일한지 확인하고 암호화된 비밀번호를 반환한다. |
+     * 400: 두 비밀번호가 동일하지 않은 경우 에러
      */
     private String validatePassword(String password, String passwordReEntered) {
         if (!password.equals(passwordReEntered)) {
@@ -113,7 +116,8 @@ public class UserService {
 
     /**
      * 성별 검증 |
-     * 성별이 남자 'M' 또는 여자 'F'로 되어 있는지 확인한다. 올바르지 않을 포맷일 경우 400(BAD_REQUEST)을 던진다.
+     * 성별이 남자 'M' 또는 여자 'F'로 되어 있는지 확인한다. |
+     * 400: 올바르지 않을 포맷 에러
      */
     private Gender validateGender(Character gender) {
         log.info("PROGRESS | UserService | validateGender | " + gender);
@@ -123,7 +127,7 @@ public class UserService {
         } else if (gender == Gender.FEMALE.getType()) {
             return Gender.FEMALE;
         } else {
-            throw new CustomException(INCORRECT_GENDER);
+            throw new CustomException(INCORRECT_GENDER_TYPE);
         }
     }
 
@@ -144,9 +148,10 @@ public class UserService {
 
     /**
      * 회원 단건 조회 |
-     * 회원 정보를 조회하여 반환합니다. 존재하지 않은 유저아이디 일 경우 404(NOT_FOUND)를 던진다.
+     * 회원 정보를 조회하여 반환합니다. |
+     * 404: 존재하지 않은 유저아이디 에러
      */
-    public User findOne(String userId) {
+    public User findOne(ObjectId userId) {
         log.info("INITIALIZE | UserService | findOne | " + userId);
         LocalDateTime initTime = LocalDateTime.now();
 
@@ -162,7 +167,8 @@ public class UserService {
 
     /**
      * 로그인 |
-     * 아이디와 비밀번호를 통해 로그인을 진행한다. 아이디 또는 비밀번호가 틀렸을 경우 401(UNAUTHORIZED)를 던진다.
+     * 아이디와 비밀번호를 통해 로그인을 진행한다. |
+     * 401: 아이디 또는 비밀번호가 틀렸을 경우 에러
      */
     public User login(UserLoginRequestDto request) {
         log.info("INITIALIZE | UserService | login | " + request.getUsername());
@@ -184,7 +190,8 @@ public class UserService {
 
     /**
      * 아이디로 회원 단건 조회 |
-     * 아이디로 회원 정보를 조회하여 반환한다. 존재하지 않은 아이디일 경우 404(NOT_FOUND)를 던진다.
+     * 아이디로 회원 정보를 조회하여 반환한다. |
+     * 404: 존재하지 않은 아이디 에러
      */
     public User findOneByUsername(String username) {
         log.info("INITIALIZE | UserService | findOneByUsername | " + username);
@@ -202,7 +209,8 @@ public class UserService {
 
     /**
      * 아이디 찾기 |
-     * 이메일로 유저를 조회하여 해당 이메일로 아이디를 보낸다. 조회가 되지 않거나 탈퇴한 유저일 경우 404(NOT_FOUND)를 던진다.
+     * 이메일로 유저를 조회하여 해당 이메일로 아이디를 보낸다. |
+     * 404: 조회가 되지 않거나 탈퇴한 유저 에러
      */
     public void findForgotUsername(String email) {
         log.info("INITIALIZE | UseService | findForgotUsernameByEmail | " + email);
@@ -230,8 +238,9 @@ public class UserService {
 
     /**
      * 아이디와 이메일로 비밀번호 초기화 |
-     * 아이디로 유저를 조회 후 비밀번호를 초기화하여 이메일로 초기화된 비밀번호를 보낸다. 존재하지 않거나 탈퇴한 유저인 경우 404(NOT_FOUND)를 던진다. 서버
-     * 에러가 발생하면 500(INTERNAL_SERVER_ERROR)을 던진다.
+     * 아이디로 유저를 조회 후 비밀번호를 초기화하여 이메일로 초기화된 비밀번호를 보낸다. |
+     * 404: 존재하지 않거나 탈퇴한 유저인 경우 에러
+     * 500: 회원 정보 저장 중 서버 에러
      */
     public void resetForgotPassword(String username, String email) {
         log.info("INITIALIZE | UseService | findForgotUsernameByEmail | " + username + " | " + email);
@@ -288,9 +297,10 @@ public class UserService {
 
     /**
      * 비밀번호 업데이트 |
-     * 현재 비밀번호가 동일한지 확인 후 새 비밀번호와 새 비밀번호 재입력이 동일한지 확인하고 비밀번호 업데이트 한다. 탈퇴한 회원이거나 현재 비밀번호가 동일하지
-     * 않으면 401(UNAUTHORIZED)을 던진다. 새 배밀번호와 새 배밀번호 재입력이 동일하지 않으면 400(BAD_REQUEST)를 던진다. 서버 에러가 발생하면
-     * 500(INTERNAL_SERVER_ERROR)을 던진다.
+     * 현재 비밀번호가 동일한지 확인 후 새 비밀번호와 새 비밀번호 재입력이 동일한지 확인하고 비밀번호 업데이트 한다. |
+     * 401: 탈퇴한 회원이거나 현재 비밀번호가 동일하지 않는 경우 에러
+     * 400: 새 배밀번호와 새 배밀번호 재입력이 동일하지 않는 경우 에러
+     * 500: 회원 정보 저장 중 서버 에러
      */
     public User updatePassword(User user, UserUpdatePasswordRequestDto request) {
         log.info("INITIALIZE | UseService | updatePassword | " + user.getUsername());
@@ -319,7 +329,8 @@ public class UserService {
 
     /**
      * 닉네임 업데이트 |
-     * 닉네임을 업데이트 시킨다. 탈퇴한 유저인 경우 404(NOT_FOUND)을 던지고 서버 에러가 발생하면 500(INTERNAL_SERVER_ERROR)을 던진다.
+     * 404: 탈퇴한 유저 에러
+     * 500: 회원 정보 저장 중 서버 에러
      */
     public User updateNickname(User user, String nickname) {
         log.info("INITIALIZE | UserService | updateNickname | " + user.getUsername() + " | " + user.getNickname());
@@ -344,14 +355,14 @@ public class UserService {
 
     /**
      * 회원 탈퇴 |
-     * 모든 회원 관련 정보에 탈퇴 여부를 true 로 바꾼다. 서버 에러가 발생하면 500(INTERNAL_SERVER_ERROR)을 던진다.
+     * 모든 회원 관련 정보에 탈퇴 여부를 true 로 바꾼다. |
+     * 500: 회원 정보 저장 중 서버 에러
      */
     public void deactivate(User user) {
         log.info("INITIALIZE | UseService | deactivate | " + user.getUsername());
         LocalDateTime initTime = LocalDateTime.now();
 
-        user.setIsDeleted(true);
-        user.getContact().setIsDeleted(true);
+        user.deleteUser();
 
         try {
             user = userRepository.save(user);
@@ -364,8 +375,29 @@ public class UserService {
     }
 
     /**
+     * 프로필 저장 |
+     * 프로필 아이디를 회원 정보에 저장한다. |
+     * 500: 회원 정보 저장 중 서버 에러
+     */
+    public void saveProfileId(User user, ObjectId profileId) {
+        log.info("INITIALIZE | UseService | saveProfileId | " + user.getUsername() + " | " + profileId);
+        LocalDateTime initTime = LocalDateTime.now();
+
+        user.setProfileId(profileId);
+
+        try {
+            user = userRepository.save(user);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        log.info("COMPLETE | UserService | saveProfileId | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
+                user.getUsername() + " | " + user.getProfileId());
+    }
+
+    /**
      * 전체 삭제 |
-     * 모든 회원을 삭제한다. 서버 에러가 발생하면 500(INTERNAL_SERVER_ERROR)을 던진다.
+     * 500: 회원 정보 삭제 중 서버 에러
      * TODO: 배포 전 삭제 필요
      */
     public void deleteAll() {

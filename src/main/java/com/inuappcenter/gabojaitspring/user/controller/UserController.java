@@ -1,8 +1,9 @@
 package com.inuappcenter.gabojaitspring.user.controller;
 
 import com.inuappcenter.gabojaitspring.auth.JwtProvider;
+import com.inuappcenter.gabojaitspring.auth.JwtType;
 import com.inuappcenter.gabojaitspring.common.DefaultResponseDto;
-import com.inuappcenter.gabojaitspring.common.ValidationSequence;
+import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import com.inuappcenter.gabojaitspring.user.dto.*;
 import com.inuappcenter.gabojaitspring.user.service.UserService;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -25,9 +27,12 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import java.util.List;
+
+import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-@Api(tags = "User")
+@Api(tags = "회원")
 @Validated
 @RestController
 @RequiredArgsConstructor
@@ -43,14 +48,14 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "409", description = "이미 사용중인 아이디")
     })
-    @GetMapping("/duplicate/username/{username}")
+    @GetMapping("/duplicate/{username}")
     public ResponseEntity<DefaultResponseDto<Object>> duplicateUsername(
             @PathVariable
             @NotBlank(message = "아이디를 입력해주세요.")
             @Size(min = 5, max = 15, message = "아이디는 5~15자만 가능합니다.")
             @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "아이디 형식은 영문과 숫자의 조합만 가능합니다")
             String username
-    ) {
+            ) {
         userService.isExistingUsername(username);
 
         return ResponseEntity.status(200)
@@ -66,7 +71,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "409", description = "이미 사용중인 아이디")
     })
-    @GetMapping("/duplicate/nickname/{nickname}")
+    @GetMapping("/duplicate/{nickname}")
     public ResponseEntity<DefaultResponseDto<Object>> duplciateNickname(
             @PathVariable
             @NotBlank(message = "닉네임을 입력해주세요.")
@@ -95,7 +100,7 @@ public class UserController {
         userService.isExistingUsername(request.getUsername());
         userService.isExistingNickname(request.getNickname());
 
-        String userId = userService.save(request);
+        ObjectId userId = userService.save(request);
         User user = userService.findOne(userId);
 
         String[] tokens = jwtProvider.generateJwt(user);
@@ -137,7 +142,7 @@ public class UserController {
                         .build());
     }
 
-    @ApiOperation(value = "단건 조회 및 토큰 재발급")
+    @ApiOperation(value = "단건 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "단건 조회 및 토큰 재발급 완료",
                     content = @Content(schema = @Schema(implementation = UserDefaultResponseDto.class))),
@@ -146,19 +151,50 @@ public class UserController {
     })
     @GetMapping
     public ResponseEntity<DefaultResponseDto<Object>> findOne(HttpServletRequest servletRequest) {
-        String username = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
+        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        User user = userService.findOneByUsername(username);
+        if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
+            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
+        }
 
-        HttpHeaders responseHeader = userService.generateJwtToken(user);
-        UserDefaultResponseDto responseBody = new UserDefaultResponseDto(user);
+        User user = userService.findOneByUsername(tokenInfo.get(0));
+
+        UserDefaultResponseDto response = new UserDefaultResponseDto(user);
+
+        return ResponseEntity.status(200)
+                .body(DefaultResponseDto.builder()
+                        .responseCode("USER_INFO_FOUND")
+                        .responseMessage("단건 조회 완료")
+                        .data(response)
+                        .build());
+    }
+
+    @ApiOperation(value = "토큰 재발급")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "토큰 재발급 완료"),
+            @ApiResponse(responseCode = "401", description = "토큰 에러"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않은 회원")
+    })
+    @GetMapping("/auth")
+    public ResponseEntity<DefaultResponseDto<Object>> renewToken(HttpServletRequest servletRequest) {
+        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        if (!tokenInfo.get(1).equals(JwtType.REFRESH.name())) {
+            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
+        }
+
+        User user = userService.findOneByUsername(tokenInfo.get(0));
+
+        String[] tokens = jwtProvider.generateJwt(user);
+        HttpHeaders responseHeader = new HttpHeaders();
+        responseHeader.add("ACCESS-TOKEN", tokens[0]);
+        responseHeader.add("REFRESH-TOKEN", tokens[1]);
 
         return ResponseEntity.status(200)
                 .headers(responseHeader)
                 .body(DefaultResponseDto.builder()
-                        .responseCode("USER_INFO_FOUND")
-                        .responseMessage("단건 조회 및 토큰 재발급 완료")
-                        .data(responseBody)
+                        .responseMessage("TOKEN_RENEWED")
+                        .responseMessage("토큰 재발급 완료")
                         .build());
     }
 
@@ -222,23 +258,25 @@ public class UserController {
     })
     @PatchMapping("/password")
     public ResponseEntity<DefaultResponseDto<Object>> updatePw(HttpServletRequest servletRequest,
-                                                               @RequestBody @Valid UserUpdatePasswordRequestDto request)
+                                                              @RequestBody @Valid UserUpdatePasswordRequestDto request)
     {
-        String username = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
+        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        User user = userService.findOneByUsername(username);
+        if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
+            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
+        }
+
+        User user = userService.findOneByUsername(tokenInfo.get(0));
 
         user = userService.updatePassword(user, request);
 
-        HttpHeaders responseHeader = userService.generateJwtToken(user);
-        UserDefaultResponseDto responseBody = new UserDefaultResponseDto(user);
+        UserDefaultResponseDto response = new UserDefaultResponseDto(user);
 
         return ResponseEntity.status(200)
-                .headers(responseHeader)
                 .body(DefaultResponseDto.builder()
                         .responseCode("PASSWORD_UPDATED")
                         .responseMessage("비밀번호 업데이트 완료")
-                        .data(responseBody)
+                        .data(response)
                         .build());
     }
 
@@ -258,22 +296,24 @@ public class UserController {
             @Size(min = 2, max = 8, message = "닉네임은 2~8자만 가능합니다.")
             String nickname
     ) {
-        String username = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
+        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        User user = userService.findOneByUsername(username);
+        if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
+            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
+        }
+
+        User user = userService.findOneByUsername(tokenInfo.get(0));
 
         userService.isExistingNickname(nickname);
         user = userService.updateNickname(user, nickname);
 
-        HttpHeaders responseHeader = userService.generateJwtToken(user);
-        UserDefaultResponseDto responseBody = new UserDefaultResponseDto(user);
+        UserDefaultResponseDto response = new UserDefaultResponseDto(user);
 
         return ResponseEntity.status(200)
-                .headers(responseHeader)
                 .body(DefaultResponseDto.builder()
                         .responseCode("NICKNAME_UPDATED")
                         .responseMessage("닉네임 업데이트 완료")
-                        .data(responseBody)
+                        .data(response)
                         .build());
     }
 
@@ -284,12 +324,16 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "존재하지 않은 회원"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PatchMapping
+    @PatchMapping("/deactivate")
     public ResponseEntity<DefaultResponseDto<Object>> deactivate(HttpServletRequest servletRequest,
                                                                  @RequestBody @Valid UserDeactivateRequestDto request) {
-        String username = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
+        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        User user = userService.findOneByUsername(username);
+        if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
+            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
+        }
+
+        User user = userService.findOneByUsername(tokenInfo.get(0));
 
         userService.deactivate(user);
 

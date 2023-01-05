@@ -18,7 +18,7 @@ import javax.validation.constraints.NotBlank;
 public class ContactSaveRequestDto {
 
     @ApiModelProperty(position = 1, required = true, dataType = "String", value = "이메일", example = "email@domain.com")
-    @NotBlank(message = "이메일을 입력해 주세요.", groups = ValidationSequence.NotBlank.class)
+    @NotBlank(message = "이메일을 입력해주세요.", groups = ValidationSequence.NotBlank.class)
     @Email(message = "올바른 이메일 형식이 아닙니다.", groups = ValidationSequence.Email.class)
     private String email;
 

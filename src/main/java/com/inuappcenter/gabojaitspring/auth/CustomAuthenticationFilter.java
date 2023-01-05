@@ -38,7 +38,6 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         if (token != null && token.startsWith(tokenPrefix)) {
             jwtProvider.authenticateJwt(token);
         }
-
         filterChain.doFilter(request, response);
 
         log.info("COMPLETE | CustomAuthenticationFilter | doFilterInternal | " +

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-@Api(tags = "Contact")
+@Api(tags = "연락처")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/contact")

@@ -26,8 +26,9 @@ public class ContactService {
 
     /**
      * 이메일 중복 확인 |
-     * 이메일로 이미 가입된 유저가 있는지 확인한다. 이미 가입한 경우 400(BAD_REQUEST)를 던지고, 서버 에러가 발생하면 500(INTERNAL_SERVER_ERROR)를
-     * 던진다.
+     * 이메일로 이미 가입된 유저가 있는지 확인한다. |
+     * 400: 이미 가입한 경우 에러
+     * 500: 연락처 정보 저장 중 서버 에러
      */
     public void isExistingEmail(String email) {
         log.info("INITIALIZE | ContactService | isExistingEmail | " + email);
@@ -52,7 +53,8 @@ public class ContactService {
 
     /**
      * 연락처 저장 |
-     * 이메일이 존재하는지 확인하고, 이메일에 대한 정보를 저장한다. 저장 중 에러가 발생하면 500(INTERNAL_SERVER_ERROR)를 던진다.
+     * 이메일이 존재하는지 확인하고, 이메일에 대한 정보를 저장한다. |
+     * 500: 연락처 정보 저장 중 서버 에러
      */
     public void save(ContactSaveRequestDto request) {
         log.info("INITIALIZE | ContactService | save | " + request.getEmail());
@@ -95,8 +97,9 @@ public class ContactService {
 
     /**
      * 인증번호 확인 |
-     * 이메일로 수신한 인증번호를 확인한다. 존재하지 않은 이메일이거나 틀린 인증번호일 경우 400(BAD_REQUEST)를 던지고, 서버 에러가 발생하면
-     * 500(INTERNAL_SERVER_ERROR)을 던진다.
+     * 이메일로 수신한 인증번호를 확인한다. |
+     * 400: 존재하지 않은 이메일이거나 틀린 인증번호인 에러
+     * 500: 연락처 정보 저장 중 서버 에러
      */
     public void verification(ContactVerificationRequestDto request) {
         log.info("INITIALIZE | ContactService | verification | " + request.getEmail());
@@ -125,7 +128,8 @@ public class ContactService {
 
     /**
      * 이메일로 단건 조회 |
-     * 이메일로 연락처를 조회하여 반환한다. 이메일 인증을 하지 않았을 경우 404(NOT_FOUND)를 던진다.
+     * 이메일로 연락처를 조회하여 반환한다. |
+     * 404: 이메일 인증을 하지 않았을 에러
      */
     public Contact findOneByEmail(String email) {
         log.info("INITIALIZE | ContactService | findOneByEmail | " + email);
@@ -147,7 +151,8 @@ public class ContactService {
 
     /**
      * 회원 가입 |
-     * 연락처에 회원가입 여부를 true 로 바꾼다. 서버 에러가 발생하면 500(INTERNAL_SERVER_ERROR)을 던진다.
+     * 연락처에 회원가입 여부를 true 로 바꾼다. |
+     * 500: 연락처 정보 저장 중 서버 에러
      */
     public void register(Contact contact) {
         log.info("INITIALIZE | ContactService | register | " + contact.getEmail());
@@ -166,8 +171,8 @@ public class ContactService {
     }
 
     /**
-     * 전체 삭제 |
-     * 연락처를 전부 삭제한다. 서버 에러가 발생하면 500(INTERNAL_SERVER_ERROR)을 던진다.
+     * 연락처 전체 삭제 |
+     * 500: 연락처 정보 삭제 중 서버 에러
      * TODO: 배포 전 삭제 필요
      */
     public void deleteAll() {
@@ -180,6 +185,6 @@ public class ContactService {
             throw new CustomException(SERVER_ERROR);
         }
 
-        log.info("COMPLETE  ContactService | deleteAll | " + Duration.between(initTime, LocalDateTime.now()));
+        log.info("COMPLETE | ContactService | deleteAll | " + Duration.between(initTime, LocalDateTime.now()));
     }
 }
