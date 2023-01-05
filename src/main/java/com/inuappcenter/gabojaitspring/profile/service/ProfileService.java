@@ -1,19 +1,20 @@
 package com.inuappcenter.gabojaitspring.profile.service;
 
-import com.inuappcenter.gabojaitspring.exception.http.InternalServerErrorException;
-import com.inuappcenter.gabojaitspring.exception.http.NotFoundException;
-import com.inuappcenter.gabojaitspring.profile.domain.Education;
-import com.inuappcenter.gabojaitspring.profile.domain.Profile;
-import com.inuappcenter.gabojaitspring.profile.dto.*;
+import com.inuappcenter.gabojaitspring.exception.CustomException;
+import com.inuappcenter.gabojaitspring.profile.domain.*;
+import com.inuappcenter.gabojaitspring.profile.dto.ProfileSaveRequestDto;
+import com.inuappcenter.gabojaitspring.profile.dto.ProfileUpdateRequestDto;
 import com.inuappcenter.gabojaitspring.profile.repository.ProfileRepository;
-import com.inuappcenter.gabojaitspring.user.service.UserService;
+import com.inuappcenter.gabojaitspring.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.LinkedList;
-import java.util.List;
+
+import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 
 @Slf4j
 @Service
@@ -21,143 +22,245 @@ import java.util.List;
 public class ProfileService {
 
     private final ProfileRepository profileRepository;
-    private final UserService userService;
-    private final EducationService educationService;
 
     /**
-     * 프로필 저장 |
-     * 프로필을 저장한다. 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
+     * 프로필 생성 |
+     * 프로필 생성 절차를 밟아서 정보를 저장한다. |
+     * 500: 프로필 정보 저장 중 서버 에러
      */
-    public ProfileDefaultResponseDto save(ProfileSaveRequestDto request) {
-        log.info("INITIALIZE | 프로필 저장 At " + LocalDateTime.now() + " | " + request.getUserId());
-        Profile profile = null;
+    public Profile save(ProfileSaveRequestDto request) {
+        log.info("INITIALIZE | ProfileService | save");
+        LocalDateTime initTime = LocalDateTime.now();
+
+        Position position = validatePosition(request.getPosition());
+
+        Profile profile = request.toEntity(position);
+
         try {
-            profile = profileRepository.save(request.toEntity());
-            userService.saveProfile(request.getUserId(), profile.getId());
-        } catch (Exception e) {
-            throw new InternalServerErrorException("프로필 저장 중 에러 발생", e);
+            profile = profileRepository.save(profile);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
         }
 
-        List<EducationListResponseDto> educationList = listEducation(profile.getEducation());
+        log.info("COMPLETE | ProfileService | save | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
+                profile.getId());
+        return profile;
+    }
 
-        log.info("COMPLETE | 프로필 저장 At " + LocalDateTime.now() +
-                " | userId = " + profile.getUserId() + ", profileId = " + profile.getId());
+    /**
+     * 포지션 검증 |
+     * 포지션이 디자이너 'D', 백엔드 'B', 프론트엔드 'F', 매니저 'M'로 되어 있는지 확인한다. |
+     * 400: 올바르지 않을 포맷
+     */
+    private Position validatePosition(Character position) {
+        log.info("PROGRESS | ProfileService | validatePosition | " + position);
 
-        return new ProfileDefaultResponseDto(profile, educationList);
+        if (position == Position.DESIGNER.getType()) {
+            return Position.DESIGNER;
+        } else if (position == Position.BACKEND.getType()) {
+            return Position.BACKEND;
+        } else if (position == Position.FRONTEND.getType()) {
+            return Position.FRONTEND;
+        } else if (position == Position.MANAGER.getType()) {
+            return Position.MANAGER;
+        } else {
+            throw new CustomException(INCORRECT_POSITION_TYPE);
+        }
+    }
+
+    /**
+     * 유저 아이디 저장 |
+     * 유저 아이디를 프로필 정보에 저장한다. |
+     * 500: 프로필 정보 저장 중 서버 에러
+     */
+    public void saveUserId(User user, Profile profile) {
+        log.info("INITIALIZE | ProfileService | saveUserId | " + profile.getId());
+        LocalDateTime initTime = LocalDateTime.now();
+
+        profile.setUserId(user.getId());
+
+        try {
+            profileRepository.save(profile);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        log.info("COMPLETE | ProfileService | saveUserId | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
+                profile.getId() + " | " + profile.getUserId());
+    }
+
+    /**
+     * 프로필 단건 조회 |
+     * 프로필 정보를 찾아 반환한다. |
+     * 404: 존재하지 않은 프로필 에러
+     */
+    public Profile findOne(ObjectId profileId) {
+        log.info("INITIALIZE | ProfileService | findOne | " + profileId);
+        LocalDateTime initTime = LocalDateTime.now();
+
+        Profile profile = profileRepository.findById(profileId)
+                .orElseThrow(() -> {
+                    throw new CustomException(NON_EXISTING_PROFILE);
+                });
+
+        log.info("COMPLETE | ProfileService | findOne | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
+                profile.getId() + " | " + profile.getUserId());
+        return profile;
     }
 
     /**
      * 프로필 수정 |
-     * 프로필을 수정한다. 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
+     * 프로필 정보를 수정한다. |
+     * 500: 프로필 정보 저장 중 서버 에러
      */
-    public ProfileDefaultResponseDto update(ProfileUpdateRequestDto request, String profileId) {
-        log.info("INITIALIZE | 프로필 수정 At " + LocalDateTime.now() + " | " + profileId);
-        Profile profile = findProfile(profileId);
+    public Profile update(Profile profile, ProfileUpdateRequestDto request) {
+        log.info("INITIALIZE | ProfileService | update | " + profile.getId());
+        LocalDateTime initTime = LocalDateTime.now();
+
+        Position position = validatePosition(request.getPosition());
+
+        profile.updateProfile(request.getDescription(), position);
+
         try {
-            profile.update(request.getAbout(), request.getPosition());
-            profileRepository.save(profile);
-        } catch (Exception e) {
-            throw new InternalServerErrorException("프로필 수정 중 에러 발생", e);
-        }
-
-        List<EducationListResponseDto> educationList = listEducation(profile.getEducation());
-
-        log.info("COMPLETE | 프로필 수정 At " + LocalDateTime.now() + " | " + profileId);
-        return new ProfileDefaultResponseDto(profile, educationList);
-    }
-
-    /**
-     * 학력 리스트 조회 |
-     * 학력 리스트를 조회하고 DTO 형태로 반환한다.
-     */
-    public List<EducationListResponseDto> listEducation(List<Education> educationList) {
-        log.info("INITIALIZE | 학력 리스트 조회 At " + LocalDateTime.now());
-        List<EducationListResponseDto> list = new LinkedList<>();
-        for (Education education : educationList) {
-            list.add(new EducationListResponseDto(education));
-        }
-        log.info("COMPLETE | 학력 리스트 조회 At " + LocalDateTime.now());
-        return list;
-    }
-
-    /**
-     * 프로필 조희 |
-     * 프로필을 조회한다. 조회가 되지 않을 경우 404(NotFound)를 던진다.
-     */
-    public ProfileDefaultResponseDto findOneProfile(String profileId) {
-        log.info("INITIALIZE | 프로필 조회 At " + LocalDateTime.now() + " | " + profileId);
-        Profile foundProfile = profileRepository.findById(profileId)
-                .orElseThrow(() -> {
-                    throw new NotFoundException("존재 하지 않은 정보입니다");
-                });
-
-        List<EducationListResponseDto> educationList = listEducation(foundProfile.getEducation());
-
-        ProfileDefaultResponseDto profile = new ProfileDefaultResponseDto(foundProfile, educationList);
-        log.info("COMPLETE | 프로필 조회 At " + LocalDateTime.now() + " | " + profileId);
-        return profile;
-    }
-
-    /**
-     * 프로필 조희 후 프로필 엔티티 반환 |
-     * 프로필을 조회 하여 프로필 엔티티로 반환한다. 조회가 되지 않을 경우 404(NotFound)를 던진다.
-     */
-    public Profile findProfile(String profileId) {
-        log.info("INITIALIZE | 프로필 조회 후 프로필 엔티티 반환 At " + LocalDateTime.now() + " | " + profileId);
-        Profile profile = profileRepository.findById(profileId)
-                .orElseThrow(() -> {
-                    throw new NotFoundException("존재 하지 않은 정보입니다");
-                });
-        log.info("COMPLETE | 프로필 조회 후 프로필 엔티티 반환 At " + LocalDateTime.now() + " | " + profileId);
-        return profile;
-    }
-
-    /**
-     * 프로필 학력 저장 |
-     * 프로필 학력을 저장한다. 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
-     */
-    public void saveEducation(EducationSaveRequestDto request) {
-        log.info("INITIALIZE | 프로필 학력 저장 At " + LocalDateTime.now() + " | " + request.getProfileId());
-        Education education = educationService.save(request);
-        Profile profile = findProfile(request.getProfileId());
-        try {
-            profile.addEducation(education);
-            profileRepository.save(profile);
-        } catch (Exception e) {
-            throw new InternalServerErrorException("프로필 학력 저장 중 에러 발생", e);
-        }
-        log.info("COMPLETE | 프로필 학력 저장 At " + LocalDateTime.now() + " | " + request.getProfileId());
-    }
-
-    /**
-     * 프로필 학력 수정 |
-     * 프로필 학력을 수정한다.
-     */
-    public void updateEducation(EducationUpdateRequestDto request, String educationId) {
-        log.info("INITIALIZE | 프로필 학력 수정 At " + LocalDateTime.now() + " | " + educationId);
-        educationService.update(request, educationId);
-        log.info("INITIALIZE | 프로필 학력 수정 At " + LocalDateTime.now() + " | " + educationId);
-    }
-
-    /**
-     * 프로필 학력 삭제 |
-     * 프로필 학력을 삭제한다. 학력 삭제 여부를 참으로 바꾼 뒤, 프로필에서 해당 학력을 제거한다. 서버 에러가 발생하면 500(Internal Server Error)을 던
-     * 진다.
-     */
-    public void deleteEducation(String profileId, String educationId) {
-        log.info("INITIALIZE | 프로필 학력 삭제 At " + LocalDateTime.now() +
-                " | profileId = " + profileId + " educationId = " + educationId);
-        Profile profile = findProfile(profileId);
-        try {
-            for (Education education : profile.getEducation())
-                if (education.getId().equals(educationId)) {
-                    educationService.delete(education.getId());
-                    profile.removeEducation(education);
-                }
             profile = profileRepository.save(profile);
-        } catch (Exception e) {
-            throw new InternalServerErrorException("프로필 학력 삭제", e);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
         }
-        log.info("INITIALIZE | 프로필 학력 삭제 At " + LocalDateTime.now() + " | profileId = " + profile.getId());
+
+        log.info("COMPLETE | ProfileService | update | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
+                profile.getId() + " | " + profile.getUserId());
+        return profile;
+    }
+
+    /**
+     * 학력 프로필 생성 |
+     * 학력 정보를 프로필에 저장한다. |
+     * 500: 프로필 정보 저장 중 서버 에러
+     */
+    public Profile saveEducation(Profile profile, Education education) {
+        log.info("INITIALIZE | ProfileService | saveEducation | " + profile.getId() + " | " + education.getId());
+        LocalDateTime initTime = LocalDateTime.now();
+
+        profile.addEducation(education);
+
+        try {
+            profile = profileRepository.save(profile);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        log.info("COMPLETE | ProfileService | saveEducation | " + Duration.between(initTime, LocalDateTime.now()) +
+                " | " + profile.getId() + " | " + education.getId());
+        return profile;
+    }
+
+    /**
+     * 학력 프로필 제거 |
+     * 프로필에서 학력을 제거한다. |
+     * 500: 프로필 정보 저장 중 서버 에러
+     */
+    public Profile deleteEducation(Profile profile, Education education) {
+        log.info("INITIALIZE | ProfileService | deleteEducation | " + profile.getId() + " | " + education.getId());
+        LocalDateTime initTime = LocalDateTime.now();
+
+        profile.removeEducation(education);
+
+        try {
+            profile = profileRepository.save(profile);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        log.info("COMPLETE | ProfileService | deleteEducation | " + Duration.between(initTime, LocalDateTime.now()) +
+                " | " + profile.getId() + " | " + profile.getUserId());
+        return profile;
+    }
+
+    /**
+     * 기술 프로필 생성 |
+     * 기술 정보를 프로필에 저장한다. |
+     * 500: 프로필 정보 저장 중 서버 에러
+     */
+    public Profile saveSkill(Profile profile, Skill skill) {
+        log.info("INITIALIZE | ProfileService | saveSkill | " + profile.getId() + " | " + skill.getId());
+        LocalDateTime initTime = LocalDateTime.now();
+
+        profile.addSkill(skill);
+
+        try {
+            profile = profileRepository.save(profile);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        log.info("COMPLETE | ProfileService | saveSkill | " + Duration.between(initTime, LocalDateTime.now()) +
+                " | " + profile.getId() + " | " + skill.getId());
+        return profile;
+    }
+
+    /**
+     * 기술 프로필 제거 |
+     * 프로필에서 기술을 제거한다. |
+     * 500: 프로필 정보 저장 중 서버 에러
+     */
+    public Profile deleteSkill(Profile profile, Skill skill) {
+        log.info("INITIALIZE | ProfileService | deleteSkill | " + profile.getId() + " | " + skill.getId());
+        LocalDateTime initTime = LocalDateTime.now();
+
+        profile.removeSkill(skill);
+
+        try {
+            profile = profileRepository.save(profile);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        log.info("COMPLETE | ProfileService | deleteSkill | " + Duration.between(initTime, LocalDateTime.now()) +
+                " | " + profile.getId() + " | " + profile.getUserId());
+        return profile;
+    }
+
+    /**
+     * 경력 프로필 생성 |
+     * 경력 정보를 프로필에 저장한다. |
+     * 500: 프로필 정보 저장 중 서버 에러
+     */
+    public Profile saveWork(Profile profile, Work work) {
+        log.info("INITIALIZE | ProfileService | saveWork | " + profile.getId() + " | " + work.getId());
+        LocalDateTime initTime = LocalDateTime.now();
+
+        profile.addWork(work);
+
+        try {
+            profile = profileRepository.save(profile);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        log.info("COMPLETE | ProfileService | saveWork | " + Duration.between(initTime, LocalDateTime.now()) +
+                " | " + profile.getId() + " | " + work.getId());
+        return profile;
+    }
+
+    /**
+     * 경력 프로필 제거 |
+     * 프로필에서 경력을 제거한다. |
+     * 500: 프로필 정보 저장 중 서버 에러
+     */
+    public Profile deleteWork(Profile profile, Work work) {
+        log.info("INITIALIZE | ProfileService | deleteWork | " + profile.getId() + " | " + work.getId());
+        LocalDateTime initTime = LocalDateTime.now();
+
+        profile.removeWork(work);
+
+        try {
+            profile = profileRepository.save(profile);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        log.info("COMPLETE | ProfileService | deleteWork | " + Duration.between(initTime, LocalDateTime.now()) +
+                " | " + profile.getId() + " | " + profile.getUserId());
+        return profile;
     }
 }

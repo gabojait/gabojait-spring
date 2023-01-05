@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -12,66 +14,61 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@Document(collection = "profile")
+@Document
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Profile extends BaseTimeEntity {
 
     @Field(name = "user_id")
-    private String userId;
+    private ObjectId userId;
 
-    private String about;
+    private String description;
 
-    private Character position; // D = Designer, B = Backend Engineer, F = Frontend Engineer, P = Product Manager
+    private Character position;
 
-    private List<Education> education = new ArrayList<>();
+    private List<Education> educations = new ArrayList<>();
 
-    private List<Work> work = new ArrayList<>();
+    private List<Work> works = new ArrayList<>();
 
-    private List<Skill> skill = new ArrayList<>();
+    private List<Skill> skills = new ArrayList<>();
 
-    private List<String> review = new ArrayList<>();
+    private List<ObjectId> reviews = new ArrayList<>();
 
-    @Builder(builderClassName = "ByProfileBuilder", builderMethodName = "ByProfileBuilder")
-    public Profile(String userId, String about, Character position) {
+    @Builder
+    public Profile(String description, Position position) {
+        this.description = description;
+        this.position = position.getType();
+    }
+
+    public void setUserId(ObjectId userId) {
         this.userId = userId;
-        this.about = about;
-        this.position = position;
+    }
+
+    public void updateProfile(String description, Position position) {
+        this.description = description;
+        this.position = position.getType();
     }
 
     public void addEducation(Education education) {
-        this.education.add(education);
+        this.educations.add(education);
     }
 
     public void removeEducation(Education education) {
-        this.education.remove(education);
-    }
-
-    public void addWork(Work work) {
-        this.work.add(work);
-    }
-
-    public void removeWork(Work work) {
-        this.work.remove(work);
+        this.educations.remove(education);
     }
 
     public void addSkill(Skill skill) {
-        this.skill.add(skill);
+        this.skills.add(skill);
     }
 
     public void removeSkill(Skill skill) {
-        this.skill.remove(skill);
+        this.skills.remove(skill);
     }
 
-    public void addReview(String review) {
-        this.review.add(review);
+    public void addWork(Work work) {
+        this.works.add(work);
     }
 
-    public void removeReview(String review) {
-        this.review.remove(review);
-    }
-
-    public void update(String about, Character position) {
-        this.about = about;
-        this.position = position;
+    public void removeWork(Work work) {
+        this.works.remove(work);
     }
 }

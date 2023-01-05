@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -18,8 +19,6 @@ public class Work extends BaseTimeEntity {
     @Field(name = "corporation_name")
     private String corporationName;
 
-    private String about;
-
     @Field(name = "started_date")
     private LocalDate startedDate;
 
@@ -29,43 +28,40 @@ public class Work extends BaseTimeEntity {
     @Field(name = "is_current")
     private Boolean isCurrent;
 
-    @Field(name = "user_id")
-    private String userId;
+    @Field(name = "profile_id")
+    private ObjectId profileId;
 
-    @Field(name = "is_deleted")
-    private Boolean isDeleted;
+    private String description;
 
-    @Builder(builderClassName = "ByWorkBuilder", builderMethodName = "ByWorkBuilder")
+    @Builder
     public Work(String corporationName,
-                String about,
                 LocalDate startedDate,
                 LocalDate endedDate,
-                Boolean isCurrent) {
+                Boolean isCurrent,
+                ObjectId profileId,
+                String description) {
         this.corporationName = corporationName;
-        this.about = about;
         this.startedDate = startedDate;
         this.endedDate = endedDate;
         this.isCurrent = isCurrent;
+        this.profileId = profileId;
+        this.description = description;
         this.isDeleted = false;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void deleteWork() {
+        this.isDeleted = true;
     }
 
-    public void setIsDeleted(Boolean isDeleted) {
-        this.isDeleted = isDeleted;
-    }
-
-    public void update(String corporationName,
-                       String about,
-                       LocalDate startedDate,
-                       LocalDate endedDate,
-                       Boolean isCurrent) {
+    public void updateWork(String corporationName,
+                           LocalDate startedDate,
+                           LocalDate endedDate,
+                           Boolean isCurrent,
+                           String description) {
         this.corporationName = corporationName;
-        this.about = about;
         this.startedDate = startedDate;
         this.endedDate = endedDate;
         this.isCurrent = isCurrent;
+        this.description = description;
     }
 }

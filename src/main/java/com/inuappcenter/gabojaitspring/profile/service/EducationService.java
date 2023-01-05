@@ -1,17 +1,22 @@
 package com.inuappcenter.gabojaitspring.profile.service;
 
-import com.inuappcenter.gabojaitspring.exception.http.InternalServerErrorException;
-import com.inuappcenter.gabojaitspring.exception.http.NotFoundException;
+
+import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.profile.domain.Education;
+import com.inuappcenter.gabojaitspring.profile.domain.Profile;
 import com.inuappcenter.gabojaitspring.profile.dto.EducationSaveRequestDto;
 import com.inuappcenter.gabojaitspring.profile.dto.EducationUpdateRequestDto;
 import com.inuappcenter.gabojaitspring.profile.repository.EducationRepository;
-import com.inuappcenter.gabojaitspring.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 
 @Slf4j
 @Service
@@ -21,67 +26,109 @@ public class EducationService {
     private final EducationRepository educationRepository;
 
     /**
-     * 학력 저장 |
-     * 학력을 저장한다. 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
+     * 학력 생성 |
+     * 학력 생성 절차를 밟아서 정보를 저장한다. |
+     * 500: 학력 정보 저장 중 서버 에러
      */
-    public Education save(EducationSaveRequestDto request) {
-        log.info("INITIALIZE | 학력 저장 At " + LocalDateTime.now() + " | " + request.getProfileId());
-        try {
-            Education education = educationRepository.save(request.toEntity());
-            log.info("COMPLETE | 학력 저장 At " + LocalDateTime.now() + " | " + request.getProfileId());
-            return education;
-        } catch (Exception e) {
-            throw new InternalServerErrorException("학력 저장 중 에러 발생", e);
-        }
-    }
+    public Education save(EducationSaveRequestDto request, Profile profile) {
+        log.info("INITIALIZE | EducationService | save | " + profile.getId());
+        LocalDateTime initTime = LocalDateTime.now();
 
-    /**
-     * 경력 조희 후 경력 엔티티 반환 |
-     * 경력을 조회 하여 경력 엔티티로 반환한다. 조회가 되지 않을 경우 404(NotFound)를 던진다.
-     */
-    public Education findEducation(String id) {
-        log.info("INITIALIZE | 경력 조회 At " + LocalDateTime.now() + " | " + id);
-        Education education = educationRepository.findById(id)
-                .orElseThrow(() -> {
-                    throw new NotFoundException("존재 하지 않은 정보입니다");
-                });
-        log.info("COMPLETE | 경력 조회 At " + LocalDateTime.now() + " | " + id);
+        validateDate(request.getStartedDate(), request.getEndedDate());
+
+        Education education = request.toEntity(profile.getId());
+
+        try {
+            education = educationRepository.save(education);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        log.info("COMPLETE | EducationService | save | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
+                profile.getId() + " | " + education.getId());
         return education;
     }
 
     /**
-     * 학력 업데이트 |
-     * 학력을 업데이트 한다. 업데이트 중 서버 에러가 발생하면 500(Internal Server Error)을 던진다.
+     * 날짜 검증 |
+     * 시작일이 종료일 이전으로 설정되어 있는지 확인한다. |
+     * 400: 종료일이 시작일보다 전일 경우 에러
      */
-    public void update(EducationUpdateRequestDto request, String educationId) {
-        log.info("INITIALIZE | 학력 업데이트 At " + LocalDateTime.now() + " | " + educationId);
-        Education education = findEducation(educationId);
+    private void validateDate(LocalDate startedDate, LocalDate endedDate) {
+        log.info("PROGRESS | EducationService | validateDate | " + startedDate.toString() + " | " +
+                endedDate.toString());
 
-        try {
-            education.update(request.getInstitutionName(),
-                    request.getStartedDate(),
-                    request.getEndedDate(),
-                    request.getIsCurrent());
-            educationRepository.save(education);
-        } catch (Exception e) {
-            throw new InternalServerErrorException(e);
-        }
-        log.info("COMPLETE | 학력 업데이트 At " + LocalDateTime.now() + " | " + educationId);
+        if (startedDate.isBefore(endedDate))
+            throw new CustomException(INCORRECT_DATE);
     }
 
     /**
-     * 학력 삭제 |
-     * 학력을 삭제한다. 삭제 중 에러가 발생하면 500(Internal Server Error)을 던진다.
+     * 학력 업데이트 |
+     * 학력 정보를 조회하여 업데이트한다. |
+     * 500: 학력 정보 저장 중 서버 에러
      */
-    public void delete(String id) {
-        log.info("INITIALIZE | 학력 삭제 At " + LocalDateTime.now() + " | " + id);
-        Education education = findEducation(id);
+    public void update(Profile profile, EducationUpdateRequestDto request) {
+        log.info("INITIALIZE | EducationService | update | " + profile.getId() + " | " + request.getEducationId());
+        LocalDateTime initTime = LocalDateTime.now();
+
+        ObjectId educationId = new ObjectId(request.getEducationId());
+        Education education = findOne(profile, educationId);
+        validateDate(request.getStartedDate(), request.getEndedDate());
+
+        education.updateEducation(request.getInstitutionName(),
+                request.getStartedDate(),
+                request.getEndedDate(),
+                request.getIsCurrent());
+
         try {
-            education.setIsDeleted(true);
-            educationRepository.save(education);
-        } catch (Exception e) {
-            throw new InternalServerErrorException(e);
+            education = educationRepository.save(education);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
         }
-        log.info("COMPLETE | 학력 삭제 At " + LocalDateTime.now() + " | " + id);
+
+        log.info("COMPLETE | EducationService | update | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
+                profile.getId() + " | " + education.getId());
+    }
+
+    /**
+     * 학력 단건 조회 |
+     * 학력 정보가 프로필 정보에 있는지 확인하고 반환한다. |
+     * 404: 존재하지 않은 학력 정보 에러
+     */
+    private Education findOne(Profile profile, ObjectId educationId) {
+        log.info("PROGRESS | EducationService | findOne | " + profile.getId() + " | " + educationId);
+
+        for (Education education : profile.getEducations()) {
+            if (education.getId().equals(educationId)) {
+                return education;
+            }
+        }
+
+        throw new CustomException(NON_EXISTING_EDUCATION);
+    }
+
+    /**
+     * 학력 제거 |
+     * 학력 정보에 제거 표시를 한 후 학력을 반환한다. |
+     * 500: 학력 정보 저장 중 서버 에러
+     */
+    public Education delete(Profile profile, String educationId) {
+        log.info("INITIALIZE | EducationService | delete | " + profile.getId() + " | " + educationId);
+        LocalDateTime initTime = LocalDateTime.now();
+
+        ObjectId id = new ObjectId(educationId);
+        Education education = findOne(profile, id);
+
+        education.deleteEducation();
+
+        try {
+            educationRepository.save(education);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        log.info("COMPLETE | EducationService | delete | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
+                education.getId() + " | " + education.getIsDeleted());
+        return education;
     }
 }

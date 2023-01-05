@@ -1,9 +1,11 @@
 package com.inuappcenter.gabojaitspring.profile.domain;
 
+import com.inuappcenter.gabojaitspring.common.BaseTimeEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -12,65 +14,40 @@ import java.time.LocalDate;
 @Getter
 @Document(collection = "skill")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Skill {
+public class Skill extends BaseTimeEntity {
 
     @Field(name = "skill_name")
     private String skillName;
 
-    private Byte level;
-
     @Field(name = "is_experienced")
     private Boolean isExperienced;
 
-    @Field(name = "started_date")
-    private LocalDate startedDate;
+    @Field(name = "profile_id")
+    private ObjectId profileId;
 
-    @Field(name = "ended_date")
-    private LocalDate endedDate;
+    private Byte level;
 
-    @Field(name = "is_current")
-    private Boolean isCurrent;
-
-    @Field(name = "user_id")
-    private String userId;
-
-    @Field(name = "is_deleted")
-    private Boolean isDeleted;
-
-    @Builder(builderClassName = "BySkillBuilder", builderMethodName = "BySkillBuilder")
+    @Builder
     public Skill(String skillName,
-                 Byte level,
                  Boolean isExperienced,
-                 LocalDate startedDate,
-                 LocalDate endedDate,
-                 Boolean isCurrent) {
+                 Level level,
+                 ObjectId profileId) {
         this.skillName = skillName;
-        this.level = level;
         this.isExperienced = isExperienced;
-        this.startedDate = startedDate;
-        this.endedDate = endedDate;
-        this.isCurrent = isCurrent;
+        this.profileId = profileId;
+        this.level = level.getType();
+        this.isDeleted = false;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void deleteSkill() {
+        this.isDeleted = true;
     }
 
-    public void setIsDeleted(Boolean isDeleted) {
-        this.isDeleted = isDeleted;
-    }
-
-    public void update(String skillName,
-                       Byte level,
-                       Boolean isExperienced,
-                       LocalDate startedDate,
-                       LocalDate endedDate,
-                       Boolean isCurrent) {
+    public void updateSkill(String skillName,
+                            Boolean isExperienced,
+                            Level level) {
         this.skillName = skillName;
-        this.level = level;
         this.isExperienced = isExperienced;
-        this.startedDate = startedDate;
-        this.endedDate = endedDate;
-        this.isCurrent = isCurrent;
+        this.level = level.getType();
     }
 }

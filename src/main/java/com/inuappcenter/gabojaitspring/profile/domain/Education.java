@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -28,17 +29,14 @@ public class Education extends BaseTimeEntity {
     private Boolean isCurrent;
 
     @Field(name = "profile_id")
-    private String profileId;
+    private ObjectId profileId;
 
-    @Field(name = "is_deleted")
-    private Boolean isDeleted;
-
-    @Builder(builderClassName = "ByEducationBuilder", builderMethodName = "ByEducationBuilder")
+    @Builder
     public Education(String institutionName,
                      LocalDate startedDate,
                      LocalDate endedDate,
                      Boolean isCurrent,
-                     String profileId) {
+                     ObjectId profileId) {
         this.institutionName = institutionName;
         this.startedDate = startedDate;
         this.endedDate = endedDate;
@@ -47,11 +45,11 @@ public class Education extends BaseTimeEntity {
         this.isDeleted = false;
     }
 
-    public void setIsDeleted(Boolean isDeleted) {
-        this.isDeleted = isDeleted;
+    public void deleteEducation() {
+        this.isCurrent = true;
     }
 
-    public void update(String institutionName, LocalDate startedDate, LocalDate endedDate, Boolean isCurrent) {
+    public void updateEducation(String institutionName, LocalDate startedDate, LocalDate endedDate, Boolean isCurrent) {
         this.institutionName = institutionName;
         this.startedDate = startedDate;
         this.endedDate = endedDate;

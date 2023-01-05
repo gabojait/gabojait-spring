@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 @Getter
 @ApiModel(value = "Education 응답")
-public class EducationListResponseDto {
+public class EducationDefaultResponseDto {
 
     @ApiModelProperty(position = 1, required = true, value = "학력 식별자")
     private String educationId;
@@ -26,14 +26,18 @@ public class EducationListResponseDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate endedDate;
 
-    @ApiModelProperty(position = 5, required = true, value = "현재 진행 여부")
+    @ApiModelProperty(position = 5, required = true, value = "현재여부")
     private Boolean isCurrent;
 
-    public EducationListResponseDto(Education education) {
-        this.educationId = education.getId();
+    @ApiModelProperty(position = 6, required = true, value = "스키마버전")
+    private String schemaVersion;
+
+    public EducationDefaultResponseDto(Education education) {
+        this.educationId = education.getId().toString();
         this.institutionName = education.getInstitutionName();
         this.startedDate = education.getStartedDate();
         this.endedDate = education.getEndedDate();
         this.isCurrent = education.getIsCurrent();
+        this.schemaVersion = education.getSchemaVersion();
     }
 }
