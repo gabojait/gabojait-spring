@@ -17,7 +17,7 @@ import javax.validation.Valid;
 @Api(tags = "연락처")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/contact")
+@RequestMapping("/api/v1/contact")
 public class ContactController {
 
     private final ContactService contactService;

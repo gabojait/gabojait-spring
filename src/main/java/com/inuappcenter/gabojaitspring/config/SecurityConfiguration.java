@@ -50,10 +50,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/swagger-ui/**", "/swagger-resources/**", "/v2/api-docs")
                 .permitAll()
-                .antMatchers("/contact", "/contact/**")
+                .antMatchers("/api/**/contact", "/api/**/contact/**")
                 .permitAll()
-                .antMatchers("/user/duplicate/**/**", "/user/findUsername/**", "/user/findPw/**/**",
-                        "/user/login", "/user/new")
+                .antMatchers("/api/**/user/duplicate/**", "/api/**/user/findUsername/**",
+                        "/api/**/user/findPw/**/**", "/api/**/user/login", "/api/**/user/new")
                 .permitAll()
                 .anyRequest()
                 .authenticated()

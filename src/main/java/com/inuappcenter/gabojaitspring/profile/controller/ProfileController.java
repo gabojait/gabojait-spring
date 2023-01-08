@@ -33,7 +33,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user/profile")
+@RequestMapping("/api/v1/user/profile")
 public class ProfileController {
 
     private final ProfileService profileService;

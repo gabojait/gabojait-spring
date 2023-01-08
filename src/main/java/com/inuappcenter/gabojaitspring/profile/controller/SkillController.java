@@ -35,7 +35,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user/profile/skill")
+@RequestMapping("/api/v1/user/profile/skill")
 public class SkillController {
 
     private final SkillService skillService;

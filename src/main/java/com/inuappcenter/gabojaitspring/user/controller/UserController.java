@@ -36,7 +36,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user")
+@RequestMapping("/api/v1/user")
 public class UserController {
 
     private final UserService userService;
@@ -287,7 +287,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "존재하지 않은 회원"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PatchMapping("/nickname/{nickname}")
+    @PatchMapping("/{nickname}")
     public ResponseEntity<DefaultResponseDto<Object>> updateNickname(
             HttpServletRequest servletRequest,
 

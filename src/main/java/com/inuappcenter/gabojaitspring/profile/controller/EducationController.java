@@ -37,7 +37,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user/profile/education")
+@RequestMapping("/api/v1/user/profile/education")
 public class EducationController {
 
     private final EducationService educationService;

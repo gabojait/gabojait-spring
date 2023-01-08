@@ -35,7 +35,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user/profile/work")
+@RequestMapping("/api/v1/user/profile/work")
 public class WorkController {
 
     private final WorkService workService;
