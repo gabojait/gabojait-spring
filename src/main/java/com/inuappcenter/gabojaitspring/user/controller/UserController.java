@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -95,6 +96,7 @@ public class UserController {
             @ApiResponse(responseCode = "409", description = "중복 여부확인 에러"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
+    @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping("/new")
     public ResponseEntity<DefaultResponseDto<Object>> create(@RequestBody @Valid UserSaveRequestDto request) {
         userService.isExistingUsername(request.getUsername());
@@ -350,6 +352,7 @@ public class UserController {
             @ApiResponse(responseCode = "204", description = "전체 삭제 완료"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @DeleteMapping("/all")
     public ResponseEntity<DefaultResponseDto<Object>> deleteAll() {
         userService.deleteAll();

@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -52,6 +53,7 @@ public class WorkController {
             @ApiResponse(responseCode = "404", description = "존재하지 않은 회원 또는 프로필"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
+    @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping("/new")
     public ResponseEntity<DefaultResponseDto<Object>> create(HttpServletRequest servletRequest,
                                                              @RequestBody @Valid WorkSaveRequestDto request) {
@@ -120,7 +122,7 @@ public class WorkController {
             @ApiResponse(responseCode = "404", description = "존재하지 정보"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PatchMapping("/{educationId}")
+    @PatchMapping("/{workId}")
     public ResponseEntity<DefaultResponseDto<Object>> delete(HttpServletRequest servletRequest,
                                                              @PathVariable
                                                              @NotBlank(message = "학력 식별자를 입력해 주세요.")

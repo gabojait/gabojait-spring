@@ -4,8 +4,10 @@ import com.inuappcenter.gabojaitspring.common.ValidationSequence;
 import com.inuappcenter.gabojaitspring.user.domain.Contact;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.Email;
@@ -27,5 +29,10 @@ public class ContactSaveRequestDto {
                 .email(email)
                 .verificationCode(verificationCode)
                 .build();
+    }
+
+    @Builder
+    public ContactSaveRequestDto(String email) {
+        this.email = email;
     }
 }

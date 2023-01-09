@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,7 @@ public class ContactController {
             @ApiResponse(responseCode = "409", description = "이미 사용중인 이메일"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
+    @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping("/new")
     public ResponseEntity<DefaultResponseDto<Object>> create(@RequestBody @Valid ContactSaveRequestDto request) {
         contactService.isExistingEmail(request.getEmail());
@@ -67,6 +69,7 @@ public class ContactController {
             @ApiResponse(responseCode = "204", description = "전체 삭제"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @DeleteMapping("/all")
     public ResponseEntity<DefaultResponseDto<Object>> deleteAll() {
         contactService.deleteAll();

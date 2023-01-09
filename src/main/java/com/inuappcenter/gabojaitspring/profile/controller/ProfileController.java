@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -49,6 +50,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "404", description = "존재하지 않은 회원"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
+    @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping("/new")
     public ResponseEntity<DefaultResponseDto<Object>> create(HttpServletRequest servletRequest,
                                                              @RequestBody @Valid ProfileSaveRequestDto request) {
