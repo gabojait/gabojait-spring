@@ -50,15 +50,11 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "409", description = "이미 사용중인 아이디")
     })
-    @GetMapping("/duplicate/username/{username}")
+    @GetMapping("/duplicate/username")
     public ResponseEntity<DefaultResponseDto<Object>> duplicateUsername(
-            @PathVariable
-            @NotBlank(message = "아이디를 입력해주세요.")
-            @Size(min = 5, max = 15, message = "아이디는 5~15자만 가능합니다.")
-            @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "아이디 형식은 영문과 숫자의 조합만 가능합니다")
-            String username
-            ) {
-        userService.isExistingUsername(username);
+            @RequestBody @Valid UserDuplicateUsernameRequestDto request
+    ) {
+        userService.isExistingUsername(request.getUsername());
 
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
@@ -74,14 +70,11 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "409", description = "이미 사용중인 아이디")
     })
-    @GetMapping("/duplicate/nickname/{nickname}")
+    @GetMapping("/duplicate/nickname")
     public ResponseEntity<DefaultResponseDto<Object>> duplicateNickname(
-            @PathVariable
-            @NotBlank(message = "닉네임을 입력해주세요.")
-            @Size(min = 3, max = 10, message = "닉네임은 3~10자만 가능합니다.")
-            String nickname
+            @RequestBody @Valid UserDuplicateNicknameRequestDto request
     ) {
-        userService.isExistingNickname(nickname);
+        userService.isExistingNickname(request.getNickname());
 
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
@@ -211,14 +204,9 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "존재하지 않은 회원"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @GetMapping("/findUsername/{email}")
-    public ResponseEntity<DefaultResponseDto<Object>> forgotUsername(
-            @PathVariable
-            @NotBlank(message = "이메일을 입력해 주세요.")
-            @Email(message = "올바른 이메일 형식이 아닙니다.")
-            String email
-    ) {
-        userService.findForgotUsername(email);
+    @GetMapping("/find/username")
+    public ResponseEntity<DefaultResponseDto<Object>> forgotUsername(@RequestBody @Valid UserFindUsernameDto request) {
+        userService.findForgotUsername(request.getEmail());
 
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
@@ -235,18 +223,9 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "존재하지 않은 아이디 또는 이메일"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PatchMapping("/findPw/{username}/{email}")
-    public ResponseEntity<DefaultResponseDto<Object>> forgotPw(
-            @PathVariable
-            @NotBlank(message = "아이디를 입력해주세요.")
-            String username,
-
-            @PathVariable
-            @NotBlank(message = "이메일을 입력해주세요.")
-            @Email(message = "올바른 이메일 형식이 아닙니다.")
-            String email
-    ) {
-        userService.resetForgotPassword(username, email);
+    @PatchMapping("/find/pw")
+    public ResponseEntity<DefaultResponseDto<Object>> forgotPw(@RequestBody @Valid UserFindPasswordDto request) {
+        userService.resetForgotPassword(request.getUsername(), request.getEmail());
 
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
@@ -296,14 +275,9 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "존재하지 않은 회원"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PatchMapping("/nickname/{nickname}")
+    @PatchMapping("/nickname")
     public ResponseEntity<DefaultResponseDto<Object>> updateNickname(
-            HttpServletRequest servletRequest,
-
-            @PathVariable
-            @NotBlank(message = "모든 필수 정보를 입력해 주세요.")
-            @Size(min = 2, max = 8, message = "닉네임은 2~8자만 가능합니다.")
-            String nickname
+            HttpServletRequest servletRequest, @RequestBody @Valid UserDuplicateNicknameRequestDto request
     ) {
         List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
 
@@ -313,8 +287,8 @@ public class UserController {
 
         User user = userService.findOneByUsername(tokenInfo.get(0));
 
-        userService.isExistingNickname(nickname);
-        user = userService.updateNickname(user, nickname);
+        userService.isExistingNickname(request.getNickname());
+        user = userService.updateNickname(user, request.getNickname());
 
         UserDefaultResponseDto response = new UserDefaultResponseDto(user);
 
@@ -345,7 +319,7 @@ public class UserController {
 
         User user = userService.findOneByUsername(tokenInfo.get(0));
 
-        userService.deactivate(user);
+        userService.deactivate(user, request.getPassword());
 
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()

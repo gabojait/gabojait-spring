@@ -1,7 +1,6 @@
 package com.inuappcenter.gabojaitspring.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.inuappcenter.gabojaitspring.user.domain.Contact;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

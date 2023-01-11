@@ -356,11 +356,16 @@ public class UserService {
     /**
      * 회원 탈퇴 |
      * 모든 회원 관련 정보에 탈퇴 여부를 true 로 바꾼다. |
+     * 401: 비밀번호가 틀렸을 경우 에러
      * 500: 회원 정보 저장 중 서버 에러
      */
-    public void deactivate(User user) {
+    public void deactivate(User user, String password) {
         log.info("INITIALIZE | UseService | deactivate | " + user.getUsername());
         LocalDateTime initTime = LocalDateTime.now();
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new CustomException(INCORRECT_PASSWORD);
+        }
 
         user.deleteUser();
 
