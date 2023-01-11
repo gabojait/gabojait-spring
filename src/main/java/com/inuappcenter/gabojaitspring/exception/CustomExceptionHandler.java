@@ -43,6 +43,8 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
             responseCode = exception.getFieldError().getField().toUpperCase().concat("_LENGTH_INVALID");
         } else if (responseMessage.contains("형식")) {
             responseCode = exception.getFieldError().getField().toUpperCase().concat("_FORMAT_INVALID");
+        } else if (responseMessage.contains("한글")) {
+            responseCode = exception.getFieldError().getField().toUpperCase().concat("_NOT_KOREAN");
         } else {
             responseCode = exception.getFieldError().getField().toUpperCase();
         }
