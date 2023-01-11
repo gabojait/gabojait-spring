@@ -8,23 +8,29 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.GroupSequence;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Getter
 @NoArgsConstructor
+@GroupSequence({ProfileSaveRequestDto.class,
+        ValidationSequence.NotNull.class,
+        ValidationSequence.Size.class,
+        ValidationSequence.Pattern.class})
 @ApiModel(value = "Profile 생성 요청")
 public class ProfileSaveRequestDto {
 
-    @ApiModelProperty(position = 1, required = true, dataType = "String", value = "자기소개", example = "저는 가보자잇팀입니다.")
-    @Size(max = 300, message = "자기소개는 0~300자만 가능합니다.", groups = ValidationSequence.Size.class)
+    @ApiModelProperty(position = 1, value = "자기소개", example = "저는 가보자잇팀입니다.",
+            allowableValues = "Restriction: [Size]")
+    @Size(max = 40, message = "자기소개는 0~40자만 가능합니다.", groups = ValidationSequence.Size.class)
     private String description;
 
-    @ApiModelProperty(position = 2,
-            required = true,
-            dataType = "Character",
-            allowableValues = "D, B, F, M",
-            value = "포지션: D, B, F, M",
-            example = "B")
+    @ApiModelProperty(position = 2, required = true, value = "포지션: D, B, F, M", example = "B",
+            allowableValues = "Input: [D | B | F | M], Restriction: [NotNull > Pattern]")
+    @NotNull(message = "포지션을 입력해주세요.", groups = ValidationSequence.NotNull.class)
+    @Pattern(regexp = "^[DBFM]+$]", message = "포지션은 D, B, F, M 중 하나입니다.", groups = ValidationSequence.Pattern.class)
     private Character position;
 
     public Profile toEntity(Position position) {

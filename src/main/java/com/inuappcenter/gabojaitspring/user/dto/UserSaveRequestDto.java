@@ -21,6 +21,7 @@ import java.time.LocalDate;
         ValidationSequence.NotBlank.class,
         ValidationSequence.NotNull.class,
         ValidationSequence.Size.class,
+        ValidationSequence.Pattern.class,
         ValidationSequence.Email.class})
 @ApiModel(value = "User 생성 요청")
 public class UserSaveRequestDto {
@@ -29,7 +30,7 @@ public class UserSaveRequestDto {
             allowableValues = "Restriction: [NotBlank > Size > Pattern]")
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
     @Size(min = 5, max = 15, message = "아이디는 5~15자만 가능합니다.", groups = ValidationSequence.Size.class)
-    @Pattern(regexp = "^(?=.*[A-z])(?=.*\\d)[A-z\\d]+$", message = "아이디는 영문과 숫자의 조합만 가능합니다.",
+    @Pattern(regexp = "^(?=.*[A-z])(?=.*\\d)[A-z\\d]+$", message = "아이디는 영문과 숫자의 조합의 형식만 가능합니다.",
             groups = ValidationSequence.Pattern.class)
     private String username;
 
@@ -38,7 +39,7 @@ public class UserSaveRequestDto {
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
     @Size(min = 8, max = 30, message = "비밀번호는 8~30자만 가능합니다.", groups = ValidationSequence.Size.class)
     @Pattern(regexp = "^(?=.*[A-z])(?=.*\\d)(?=.*[#$@!%&*?])[A-z\\d#$@!%&*?]+$",
-            message = "비밀번호는 영문, 숫자, 특수문자(#$@!%&*?)의 조합만 가능합니다.", groups = ValidationSequence.Pattern.class)
+            message = "비밀번호는 영문, 숫자, 특수문자(#$@!%&*?)의 조합의 형식만 가능합니다.", groups = ValidationSequence.Pattern.class)
     private String password;
 
     @ApiModelProperty(position = 3, required = true, value = "비밀번호 재입력", example = "password",
@@ -61,8 +62,9 @@ public class UserSaveRequestDto {
     private String nickname;
 
     @ApiModelProperty(position = 5, required = true, value = "성별: M, F", example = "M",
-            allowableValues = "Input: [M | F], Restriction: [NotNull]")
-    @NotNull(message = "모든 성별 선택은 필수입니다.", groups = ValidationSequence.NotNull.class)
+            allowableValues = "Input: [M | F], Restriction: [NotNull > Pattern]")
+    @NotNull(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotNull.class)
+    @Pattern(regexp = "^[MF]+$]", message = "성별은 M, F 중 하나입니다.", groups = ValidationSequence.Pattern.class)
     private Character gender;
 
     @ApiModelProperty(position = 6, required = true, notes = "string", value = "생년월일", example = "2000-01-01",

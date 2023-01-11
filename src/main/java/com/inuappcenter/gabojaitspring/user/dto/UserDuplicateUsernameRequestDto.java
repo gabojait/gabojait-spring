@@ -24,6 +24,7 @@ public class UserDuplicateUsernameRequestDto {
             allowableValues = "Restriction: [NotBlank > Size > Pattern]")
     @NotBlank(message = "아이디를 입력해주세요.")
     @Size(min = 5, max = 15, message = "아이디는 5~15자만 가능합니다.")
-    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "아이디 형식은 영문과 숫자의 조합만 가능합니다")
+    @Pattern(regexp = "^(?=.*[A-z])(?=.*\\d)[A-z\\d]+$", message = "아이디는 영문과 숫자의 조합의 형식만 가능합니다.",
+            groups = ValidationSequence.Pattern.class)
     private String username;
 }
