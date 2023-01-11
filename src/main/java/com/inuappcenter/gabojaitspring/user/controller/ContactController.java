@@ -6,6 +6,8 @@ import com.inuappcenter.gabojaitspring.user.dto.ContactVerificationRequestDto;
 import com.inuappcenter.gabojaitspring.user.service.ContactService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +27,8 @@ public class ContactController {
 
     @ApiOperation(value = "이메일 중복 확인")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "이메일 중복 확인 완료"),
+            @ApiResponse(responseCode = "201", description = "이메일 중복 확인 완료",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "409", description = "이미 사용중인 이메일"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
@@ -46,7 +49,8 @@ public class ContactController {
 
     @ApiOperation(value = "인증번호 확인")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "인증번호 확인 완료"),
+            @ApiResponse(responseCode = "200", description = "인증번호 확인 완료",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "404", description = "인증 요청 하지 않은 이메일"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
@@ -66,7 +70,8 @@ public class ContactController {
     // TODO: 배포 전 삭제 필요
     @ApiOperation(value = "전체 삭제")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "전체 삭제"),
+            @ApiResponse(responseCode = "204", description = "전체 삭제",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @ResponseStatus(value = HttpStatus.NO_CONTENT)

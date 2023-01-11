@@ -45,11 +45,12 @@ public class UserController {
 
     @ApiOperation(value = "아이디 중복여부 확인")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "아이디 중복 확인 완료"),
+            @ApiResponse(responseCode = "200", description = "아이디 중복 확인 완료",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "409", description = "이미 사용중인 아이디")
     })
-    @GetMapping("/duplicate/{username}")
+    @GetMapping("/duplicate/username/{username}")
     public ResponseEntity<DefaultResponseDto<Object>> duplicateUsername(
             @PathVariable
             @NotBlank(message = "아이디를 입력해주세요.")
@@ -68,12 +69,13 @@ public class UserController {
 
     @ApiOperation(value = "닉네임 중복여부 확인")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "닉네임 중복 확인 완료"),
+            @ApiResponse(responseCode = "200", description = "닉네임 중복 확인 완료",
+                content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "409", description = "이미 사용중인 아이디")
     })
-    @GetMapping("/duplicate/{nickname}")
-    public ResponseEntity<DefaultResponseDto<Object>> duplciateNickname(
+    @GetMapping("/duplicate/nickname/{nickname}")
+    public ResponseEntity<DefaultResponseDto<Object>> duplicateNickname(
             @PathVariable
             @NotBlank(message = "닉네임을 입력해주세요.")
             @Size(min = 3, max = 10, message = "닉네임은 3~10자만 가능합니다.")
@@ -173,7 +175,8 @@ public class UserController {
 
     @ApiOperation(value = "토큰 재발급")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "토큰 재발급 완료"),
+            @ApiResponse(responseCode = "200", description = "토큰 재발급 완료",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 않은 회원")
     })
@@ -202,7 +205,8 @@ public class UserController {
 
     @ApiOperation(value = "아이디 찾기")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "아이디 찾기 완료"),
+            @ApiResponse(responseCode = "200", description = "아이디 찾기 완료",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400", description = "유저 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 않은 회원"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
@@ -225,7 +229,8 @@ public class UserController {
 
     @ApiOperation(value = "비밀번호 찾기")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "비밀번호 찾기 완료"),
+            @ApiResponse(responseCode = "200", description = "비밀번호 찾기 완료",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400", description = "유저 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 않은 아이디 또는 이메일"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
@@ -252,7 +257,8 @@ public class UserController {
 
     @ApiOperation(value = "비밀번호 업데이트")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "비밀번호 업데이트 완료"),
+            @ApiResponse(responseCode = "200", description = "비밀번호 업데이트 완료",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400", description = "유저 에러"),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 않은 회원"),
@@ -284,12 +290,13 @@ public class UserController {
 
     @ApiOperation(value = "닉네임 업데이트")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "닉네임 업데이트 완료"),
+            @ApiResponse(responseCode = "200", description = "닉네임 업데이트 완료",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 않은 회원"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PatchMapping("/{nickname}")
+    @PatchMapping("/nickname/{nickname}")
     public ResponseEntity<DefaultResponseDto<Object>> updateNickname(
             HttpServletRequest servletRequest,
 
@@ -321,7 +328,8 @@ public class UserController {
 
     @ApiOperation(value = "회원 탈퇴")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "회원 탈퇴 완료"),
+            @ApiResponse(responseCode = "200", description = "회원 탈퇴 완료",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 않은 회원"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
@@ -349,7 +357,8 @@ public class UserController {
     // TODO: 배포 전 삭제 필요
     @ApiOperation(value = "전체 삭제")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "전체 삭제 완료"),
+            @ApiResponse(responseCode = "204", description = "전체 삭제 완료",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
