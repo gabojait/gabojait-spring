@@ -127,7 +127,7 @@ public class UserService {
         } else if (gender == Gender.FEMALE.getType()) {
             return Gender.FEMALE;
         } else {
-            throw new CustomException(INCORRECT_GENDER_TYPE);
+            throw new CustomException(GENDER_INCORRECT_TYPE);
         }
     }
 

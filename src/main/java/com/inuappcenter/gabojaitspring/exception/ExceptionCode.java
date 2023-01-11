@@ -14,11 +14,11 @@ public enum ExceptionCode {
      * 400 BAD_REQUEST
      */
     INCORRECT_VERIFICATION_CODE(BAD_REQUEST, "인증번호가 틀렸습니다."),
-    INCORRECT_GENDER_TYPE(BAD_REQUEST, "성별은 M, F 중 하나입니다."),
+    GENDER_INCORRECT_TYPE(BAD_REQUEST, "성별은 M, F 중 하나입니다."),
     PASSWORD_VALIDATION_FAIL(BAD_REQUEST, "비밀번호와 비밀번호 재입력이 동일하지 않습니다."),
-    INCORRECT_POSITION_TYPE(BAD_REQUEST, "포지션은 D, B, F, M 중 하나입니다."),
+    POSITION_INCORRECT_TYPE(BAD_REQUEST, "포지션은 D, B, F, M 중 하나입니다."),
     INCORRECT_DATE(BAD_REQUEST, "시작일을 종료일 이후로 설정해주세요."),
-    INCORRECT_LEVEL_TYPE(BAD_REQUEST, "기술 레벨은 1, 2, 3 중 하나입니다."),
+    LEVEL_INCORRECT_TYPE(BAD_REQUEST, "기술 레벨은 1, 2, 3 중 하나입니다."),
 
     /**
      * 401 UNAUTHORIZED

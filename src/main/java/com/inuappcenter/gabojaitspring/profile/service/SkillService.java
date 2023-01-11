@@ -64,7 +64,7 @@ public class SkillService {
         } else if (level == Level.HIGH.getType().intValue()) {
             return Level.HIGH;
         } else{
-            throw new CustomException(INCORRECT_LEVEL_TYPE);
+            throw new CustomException(LEVEL_INCORRECT_TYPE);
         }
     }
 

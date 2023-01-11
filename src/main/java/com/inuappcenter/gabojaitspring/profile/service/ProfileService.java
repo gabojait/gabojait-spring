@@ -64,7 +64,7 @@ public class ProfileService {
         } else if (position == Position.MANAGER.getType()) {
             return Position.MANAGER;
         } else {
-            throw new CustomException(INCORRECT_POSITION_TYPE);
+            throw new CustomException(POSITION_INCORRECT_TYPE);
         }
     }
 
