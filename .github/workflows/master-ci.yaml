@@ -38,6 +38,7 @@ jobs:
           JWT_SECRETS: ${{ secrets.JWT_SECRETS }}
           S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
           S3_PROFILE_IMG_BUCKET_NAME: ${{ secrets.S3_PROFILE_IMG_RELEASE_BUCKET_NAME }}
+          S3_PORTFOLIO_FILE_BUCKET_NAME: ${{ secrets.S3_PORTFOLIO_FILE_RELEASE_BUCKET_NAME }}
           S3_REGION: ${{ secrets.S3_REGION }}
           S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
 
