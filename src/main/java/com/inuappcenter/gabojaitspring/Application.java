@@ -1,9 +1,6 @@
 package com.inuappcenter.gabojaitspring;
 
-import com.inuappcenter.gabojaitspring.profile.repository.EducationRepository;
-import com.inuappcenter.gabojaitspring.profile.repository.ProfileRepository;
-import com.inuappcenter.gabojaitspring.profile.repository.SkillRepository;
-import com.inuappcenter.gabojaitspring.profile.repository.WorkRepository;
+import com.inuappcenter.gabojaitspring.profile.repository.*;
 import com.inuappcenter.gabojaitspring.user.repository.ContactRepository;
 import com.inuappcenter.gabojaitspring.user.repository.UserRepository;
 import org.springframework.boot.SpringApplication;
@@ -13,8 +10,9 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 @SpringBootApplication
 @EnableMongoRepositories(basePackageClasses = {
-		ContactRepository.class, UserRepository.class, ProfileRepository.class, EducationRepository.class,
-		SkillRepository.class, WorkRepository.class
+		ContactRepository.class, UserRepository.class,
+		ProfileRepository.class, EducationRepository.class, SkillRepository.class, WorkRepository.class,
+		PortfolioRepository.class,
 })
 @EnableMongoAuditing
 public class Application {

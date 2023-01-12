@@ -22,23 +22,20 @@ public class Profile extends BaseTimeEntity {
     private ObjectId userId;
 
     private String description;
-
     private Character position;
-
+    private String imageUrl;
     private List<Education> educations = new ArrayList<>();
-
     private List<Work> works = new ArrayList<>();
-
     private List<Skill> skills = new ArrayList<>();
-
     private List<Portfolio> portfolios = new ArrayList<>();
-
     private List<ObjectId> reviews = new ArrayList<>();
 
     @Builder
     public Profile(String description, Position position) {
         this.description = description;
         this.position = position.getType();
+        this.imageUrl = null;
+        this.isDeleted = false;
     }
 
     public void setUserId(ObjectId userId) {
@@ -48,6 +45,10 @@ public class Profile extends BaseTimeEntity {
     public void updateProfile(String description, Position position) {
         this.description = description;
         this.position = position.getType();
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public void addEducation(Education education) {

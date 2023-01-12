@@ -1,6 +1,7 @@
 package com.inuappcenter.gabojaitspring.profile.service;
 
 import com.inuappcenter.gabojaitspring.exception.CustomException;
+import com.inuappcenter.gabojaitspring.file.service.FileService;
 import com.inuappcenter.gabojaitspring.profile.domain.*;
 import com.inuappcenter.gabojaitspring.profile.dto.ProfileSaveRequestDto;
 import com.inuappcenter.gabojaitspring.profile.dto.ProfileUpdateRequestDto;
@@ -9,10 +10,13 @@ import com.inuappcenter.gabojaitspring.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 
@@ -21,7 +25,11 @@ import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 @RequiredArgsConstructor
 public class ProfileService {
 
+    @Value(value = "${s3.profileImgBucketName}")
+    private String bucketName;
     private final ProfileRepository profileRepository;
+    private final FileService fileService;
+
 
     /**
      * 프로필 생성 |
@@ -50,7 +58,7 @@ public class ProfileService {
     /**
      * 포지션 검증 |
      * 포지션이 디자이너 'D', 백엔드 'B', 프론트엔드 'F', 매니저 'M'로 되어 있는지 확인한다. |
-     * 400: 올바르지 않을 포맷
+     * 400: 올바르지 않은 포맷
      */
     private Position validatePosition(Character position) {
         log.info("PROGRESS | ProfileService | validatePosition | " + position);
@@ -113,8 +121,8 @@ public class ProfileService {
      * 프로필 정보를 수정한다. |
      * 500: 프로필 정보 저장 중 서버 에러
      */
-    public Profile update(Profile profile, ProfileUpdateRequestDto request) {
-        log.info("INITIALIZE | ProfileService | update | " + profile.getId());
+    public Profile updateProfile(Profile profile, ProfileUpdateRequestDto request) {
+        log.info("INITIALIZE | ProfileService | updateProfile | " + profile.getId());
         LocalDateTime initTime = LocalDateTime.now();
 
         Position position = validatePosition(request.getPosition());
@@ -127,9 +135,53 @@ public class ProfileService {
             throw new CustomException(SERVER_ERROR);
         }
 
-        log.info("COMPLETE | ProfileService | update | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
-                profile.getId() + " | " + profile.getUserId());
+        log.info("COMPLETE | ProfileService | updateProfile | " + Duration.between(initTime, LocalDateTime.now()) +
+                " | " + profile.getId() + " | " + profile.getUserId());
         return profile;
+    }
+
+    /**
+     * 프로필 사진 수정 |
+     * 프로필 정보를 수정한다.
+     * 500: 프로필 사진 저장 중 서버 에러
+     */
+    public Profile updateImage(String username, Profile profile, MultipartFile image) {
+        log.info("INITIALIZE | ProfileService | updateImage | " + username + " | " + profile.getId());
+        LocalDateTime initTime = LocalDateTime.now();
+
+        validateImageType(image);
+
+        String imageUrl = fileService.upload(bucketName,
+                username + "-" + profile.getId().toString(),
+                initTime.format(DateTimeFormatter.ISO_DATE_TIME),
+                image);
+
+        profile.setImageUrl(imageUrl);
+
+        try {
+            profile = profileRepository.save(profile);
+        } catch (RuntimeException e) {
+            throw new CustomException(PROFILE_IMG_TYPE_UNSUPPORTED);
+        }
+
+        log.info("COMPLETE | ProfileService | updateImage | " + Duration.between(initTime, LocalDateTime.now()) +
+                " | " + profile.getId() + " | " + profile.getUserId());
+        return profile;
+    }
+
+    /**
+     * 이미지 타입 검증 |
+     * 이미지 타입이 .png, .jpg, .jpeg 중 하나로 되어 있는지 확인한다. |
+     * 415: 올바르지 않은 포맷
+     */
+    private void validateImageType(MultipartFile image) {
+        log.info("PROGRESS | ProfileService | validateImageType");
+
+        String type = image.getContentType().split("/")[1];
+
+        if (!(type.equals("jpg") || type.equals("jpeg") || type.equals("png"))) {
+            throw new CustomException(PROFILE_IMG_TYPE_UNSUPPORTED);
+        }
     }
 
     /**

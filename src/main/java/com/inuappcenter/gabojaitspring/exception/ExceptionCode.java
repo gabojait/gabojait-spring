@@ -13,11 +13,11 @@ public enum ExceptionCode {
     /**
      * 400 BAD_REQUEST
      */
-    INCORRECT_VERIFICATION_CODE(BAD_REQUEST, "인증번호가 틀렸습니다."),
+    VERIFICATION_CODE_INCORRECT(BAD_REQUEST, "인증번호가 틀렸습니다."),
     GENDER_INCORRECT_TYPE(BAD_REQUEST, "성별은 M, F 중 하나입니다."),
     PASSWORD_VALIDATION_FAIL(BAD_REQUEST, "비밀번호와 비밀번호 재입력이 동일하지 않습니다."),
     POSITION_INCORRECT_TYPE(BAD_REQUEST, "포지션은 D, B, F, M 중 하나입니다."),
-    INCORRECT_DATE(BAD_REQUEST, "시작일을 종료일 이후로 설정해주세요."),
+    DATE_INCORRECT(BAD_REQUEST, "시작일을 종료일 이후로 설정해주세요."),
     LEVEL_INCORRECT_TYPE(BAD_REQUEST, "기술 레벨은 1, 2, 3 중 하나입니다."),
     PORTFOLIO_TYPE_INCORRECT_TYPE(BAD_REQUEST, "포트폴리오 타입은 L, F 중 하나입니다."),
 
@@ -51,6 +51,12 @@ public enum ExceptionCode {
     EXISTING_EMAIL(CONFLICT, "이미 사용중인 이메일입니다."),
     EXISTING_USERNAME(CONFLICT, "이미 사용중인 아이디입니다."),
     EXISTING_NICKNAME(CONFLICT, "이미 사용중인 닉네임입니다."),
+
+    /**
+     * 415 UNSUPPORTED MEDIA TYPE
+     */
+    PROFILE_IMG_TYPE_UNSUPPORTED(UNSUPPORTED_MEDIA_TYPE, "프로필 사진은 .png, .jpg, .jpeg 을 지원합니다."),
+    PORTFOLIO_FILE_TYPE_UNSUPPORTED(UNSUPPORTED_MEDIA_TYPE, "포트폴리오 파일은 .pdf, .png, .jpg, .jpeg 을 지원합니다."),
 
     /**
      * 500 INTERNAL_SERVER_ERROR

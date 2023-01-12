@@ -19,9 +19,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -41,9 +43,9 @@ public class ProfileController {
     private final UserService userService;
     private final JwtProvider jwtProvider;
 
-    @ApiOperation(value = "프로필 생성")
+    @ApiOperation(value = "기본 프로필 생성")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "프로필 생성 완료",
+            @ApiResponse(responseCode = "201", description = "기본 프로필 생성 완료",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
@@ -70,8 +72,8 @@ public class ProfileController {
 
         return ResponseEntity.status(201)
                 .body(DefaultResponseDto.builder()
-                        .responseCode("PROFILE_CREATED")
-                        .responseMessage("프로필 생성 완료")
+                        .responseCode("DEFAULT_PROFILE_CREATED")
+                        .responseMessage("기본 프로필 생성 완료")
                         .data(response)
                         .build());
     }
@@ -86,7 +88,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @PatchMapping
-    public ResponseEntity<DefaultResponseDto<Object>> update(HttpServletRequest servletRequest,
+    public ResponseEntity<DefaultResponseDto<Object>> updateProfile(HttpServletRequest servletRequest,
                                                              @RequestBody @Valid ProfileUpdateRequestDto request) {
         List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
 
@@ -97,7 +99,7 @@ public class ProfileController {
         User user = userService.findOneByUsername(tokenInfo.get(0));
         Profile profile = profileService.findOne(user.getProfileId());
 
-        profile = profileService.update(profile, request);
+        profile = profileService.updateProfile(profile, request);
 
         ProfileDefaultResponseDto response = new ProfileDefaultResponseDto(profile);
 
@@ -105,6 +107,40 @@ public class ProfileController {
                 .body(DefaultResponseDto.builder()
                         .responseCode("PROFILE_UPDATED")
                         .responseMessage("프로필 수정 완료")
+                        .data(response)
+                        .build());
+    }
+
+    @ApiOperation(value = "프로필 사진 수정")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "프로필 사진 수정 완료",
+                    content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "사용자 에러"),
+            @ApiResponse(responseCode = "401", description = "토큰 에러"),
+            @ApiResponse(responseCode = "404", description = "존재하지 정보"),
+            @ApiResponse(responseCode = "415", description = "미지원 파일 규격"),
+            @ApiResponse(responseCode = "500", description = "서버 에러")
+    })
+    @PatchMapping(value = "/img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<DefaultResponseDto<Object>> updateImage(HttpServletRequest servletRequest,
+                                                                  @RequestPart(required = false) MultipartFile image) {
+        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
+            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
+        }
+
+        User user = userService.findOneByUsername(tokenInfo.get(0));
+        Profile profile = profileService.findOne(user.getProfileId());
+
+        profileService.updateImage(user.getUsername(), profile, image);
+
+        ProfileDefaultResponseDto response = new ProfileDefaultResponseDto(profile);
+
+        return ResponseEntity.status(200)
+                .body(DefaultResponseDto.builder()
+                        .responseCode("PROFILE_IMAGE_UPDATED")
+                        .responseMessage("프로필 사진 수정 완료")
                         .data(response)
                         .build());
     }
