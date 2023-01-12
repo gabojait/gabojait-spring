@@ -31,6 +31,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	implementation 'org.springframework.boot:spring-boot-starter-security:2.6.3'
 	implementation 'com.auth0:java-jwt:3.18.2'
+	implementation 'com.amazonaws:aws-java-sdk-s3'
+	implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.1000')
+	implementation 'javax.xml.bind:jaxb-api:2.3.1'
 //	implementation 'io.sentry:sentry-spring-boot-starter:6.4.0'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
