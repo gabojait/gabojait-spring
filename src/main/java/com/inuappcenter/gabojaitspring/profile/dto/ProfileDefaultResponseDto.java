@@ -20,6 +20,9 @@ public class ProfileDefaultResponseDto {
     @ApiModelProperty(position = 3, required = true, value = "포지션")
     private Character position;
 
+    @ApiModelProperty(position = 4, required = true, value = "프로필 사진")
+    private String imageUrl;
+
     @ApiModelProperty(position = 4, required = true, value = "학력")
     private List<EducationDefaultResponseDto> educations;
 
@@ -39,6 +42,7 @@ public class ProfileDefaultResponseDto {
         this.profileId = profile.getId().toString();
         this.description = profile.getDescription();
         this.position = profile.getPosition();
+        this.imageUrl = profile.getImageUrl();
 
         for (Education education : profile.getEducations())
             this.educations.add(new EducationDefaultResponseDto(education));

@@ -26,7 +26,7 @@ public class ProfileUpdateRequestDto {
     private String description;
 
     @ApiModelProperty(position = 2, required = true, value = "포지션: D, B, F, M", example = "B",
-            allowableValues = "Input: [D | B | F | M], Restriction: [NotNull > Pattern]")
+            allowableValues = "D, B, F, M")
     @NotNull(message = "포지션을 입력해주세요.", groups = ValidationSequence.NotNull.class)
     @Pattern(regexp = "^[DBFM]+$]", message = "포지션은 D, B, F, M 중 하나입니다.", groups = ValidationSequence.Pattern.class)
     private Character position;

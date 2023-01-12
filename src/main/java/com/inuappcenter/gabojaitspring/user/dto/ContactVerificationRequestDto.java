@@ -16,13 +16,12 @@ import javax.validation.constraints.NotBlank;
 @ApiModel(value = "Contact 인증번호 확인 요청")
 public class ContactVerificationRequestDto {
 
-    @ApiModelProperty(position = 1, required = true, value = "이메일", example = "email@domain.com",
-            allowableValues = "Input: [XXX@XXXXX.XXX], Restriction: [NotBlank > Email]")
+    @ApiModelProperty(position = 1, required = true, value = "이메일", example = "email@domain.com")
     @NotBlank(message = "이메일 또는 인증번호를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
     @Email(message = "올바른 이메일 형식이 아닙니다.", groups = ValidationSequence.Email.class)
     private String email;
 
-    @ApiModelProperty(position = 2, required = true, value = "인증번호", allowableValues = "Restriction: [NotBlank]")
+    @ApiModelProperty(position = 2, required = true, value = "인증번호")
     @NotBlank(message = "이메일 또는 인증번호를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
     private String verificationCode;
 }

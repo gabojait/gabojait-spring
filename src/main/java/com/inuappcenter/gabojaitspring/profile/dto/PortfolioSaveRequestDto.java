@@ -26,19 +26,17 @@ import javax.validation.constraints.Size;
 public class PortfolioSaveRequestDto {
 
     @ApiModelProperty(position = 1, required = true, value = "포트폴리오 타입: L, F", example = "L",
-            allowableValues = "Input: [L | F], Restriction: [NotNull > Pattern]")
+            allowableValues = "L, F")
     @NotNull(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotNull.class)
     @Pattern(regexp = "^[LF]+$]", message = "포트폴리오 타입은 L, F 중 하나입니다.", groups = ValidationSequence.Pattern.class)
     private Character portfolioType;
 
-    @ApiModelProperty(position = 2, required = true, value = "이름", example = "깃허브",
-            allowableValues = "Restriction: [NotBlank > Size]")
+    @ApiModelProperty(position = 2, required = true, value = "이름", example = "깃허브")
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
     @Size(min = 1, max = 10, message = "이름은 1~10자만 가능합니다.", groups = ValidationSequence.Size.class)
     private String name;
 
-    @ApiModelProperty(position = 3, required = true, value = "링크", example = "github.com/gabojait",
-            allowableValues = "Restriction: [NotBlank]")
+    @ApiModelProperty(position = 3, required = true, value = "링크", example = "github.com/gabojait")
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
     private String url;
 
