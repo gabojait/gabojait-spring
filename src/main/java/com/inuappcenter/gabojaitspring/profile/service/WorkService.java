@@ -13,6 +13,7 @@ import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
@@ -33,6 +34,7 @@ public class WorkService {
         log.info("INITIALIZE | WorkService | save | " + profile.getId());
         LocalDateTime initTime = LocalDateTime.now();
 
+        validateDate(request.getStartedDate(), request.getEndedDate());
         Work work = request.toEntity(profile.getId());
 
         try {
@@ -44,6 +46,19 @@ public class WorkService {
         log.info("COMPLETE | WorkService | save | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
                 profile.getId() + " | " + work.getId());
         return work;
+    }
+
+    /**
+     * 날짜 검증 |
+     * 시작일이 종료일 이전으로 설정되어 있는지 확인한다. |
+     * 400: 종료일이 시작일보다 전일 경우 에러
+     */
+    private void validateDate(LocalDate startedDate, LocalDate endedDate) {
+        log.info("PROGRESS | WorkService | validateDate | " + startedDate.toString() + " | " +
+                endedDate.toString());
+
+        if (startedDate.isAfter(endedDate))
+            throw new CustomException(DATE_INCORRECT);
     }
 
     /**
