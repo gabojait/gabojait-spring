@@ -34,7 +34,12 @@ jobs:
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
           MAIL_PORT: ${{ secrets.MAIL_PORT }}
           MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
-          SECRETS: ${{ secrets.SECRETS }}
+          JWT_DOMAIN: ${{ secrets.JWT_DOMAIN }}
+          JWT_SECRETS: ${{ secrets.JWT_SECRETS }}
+          S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+          S3_PROFILE_IMG_BUCKET_NAME: ${{ secrets.S3_PROFILE_IMG_RELEASE_BUCKET_NAME }}
+          S3_REGION: ${{ secrets.S3_REGION }}
+          S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
 
       - name: Build and push Docker image
         uses: mr-smithers-excellent/docker-build-push@v5
