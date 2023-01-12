@@ -46,16 +46,20 @@ public class ProfileDefaultResponseDto {
         this.imageUrl = profile.getImageUrl();
 
         for (Education education : profile.getEducations())
-            this.educations.add(new EducationDefaultResponseDto(education));
+            if (!education.getIsDeleted())
+                this.educations.add(new EducationDefaultResponseDto(education));
 
         for (Work work : profile.getWorks())
-            this.works.add(new WorkDefaultResponseDto(work));
+            if (!work.getIsDeleted())
+                this.works.add(new WorkDefaultResponseDto(work));
 
         for (Skill skill : profile.getSkills())
-            this.skills.add(new SkillDefaultResponseDto(skill));
+            if (!skill.getIsDeleted())
+                this.skills.add(new SkillDefaultResponseDto(skill));
 
         for (Portfolio portfolio: profile.getPortfolios())
-            this.portfolios.add(new PortfolioDefaultResponseDto(portfolio));
+            if (!portfolio.getIsDeleted())
+                this.portfolios.add(new PortfolioDefaultResponseDto(portfolio));
 
         this.schemaVersion = profile.getSchemaVersion();
     }

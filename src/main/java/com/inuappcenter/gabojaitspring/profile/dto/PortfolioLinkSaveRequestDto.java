@@ -1,10 +1,13 @@
 package com.inuappcenter.gabojaitspring.profile.dto;
 
 import com.inuappcenter.gabojaitspring.common.ValidationSequence;
+import com.inuappcenter.gabojaitspring.profile.domain.Portfolio;
+import com.inuappcenter.gabojaitspring.profile.domain.PortfolioType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
@@ -13,16 +16,12 @@ import javax.validation.constraints.Size;
 
 @Getter
 @NoArgsConstructor
-@GroupSequence({PortfolioUpdateRequestDto.class,
+@GroupSequence({PortfolioLinkSaveRequestDto.class,
         ValidationSequence.NotBlank.class,
         ValidationSequence.NotNull.class,
         ValidationSequence.Size.class})
-@ApiModel(value = "Portfolio 수정 요청")
-public class PortfolioUpdateRequestDto {
-
-    @ApiModelProperty(position = 1, required = true, value = "포트폴리오 식별자")
-    @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
-    private String portfolioId;
+@ApiModel(value = "Portfolio 생성 요청")
+public class PortfolioLinkSaveRequestDto {
 
     @ApiModelProperty(position = 1, required = true, value = "포트폴리오 타입: L, F", example = "L",
             allowableValues = "L, F")
@@ -37,4 +36,12 @@ public class PortfolioUpdateRequestDto {
     @ApiModelProperty(position = 3, required = true, value = "링크", example = "github.com/gabojait")
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
     private String url;
+
+    public Portfolio toEntity(ObjectId profileId, PortfolioType portfolioType) {
+        return Portfolio.builder()
+                .portfolioType(portfolioType)
+                .name(this.name)
+                .url(this.url)
+                .build();
+    }
 }
