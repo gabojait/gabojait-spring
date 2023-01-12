@@ -1,19 +1,25 @@
 package com.inuappcenter.gabojaitspring.profile.service;
 
 import com.inuappcenter.gabojaitspring.exception.CustomException;
+import com.inuappcenter.gabojaitspring.file.service.FileService;
 import com.inuappcenter.gabojaitspring.profile.domain.Portfolio;
 import com.inuappcenter.gabojaitspring.profile.domain.PortfolioType;
 import com.inuappcenter.gabojaitspring.profile.domain.Profile;
-import com.inuappcenter.gabojaitspring.profile.dto.PortfolioSaveRequestDto;
-import com.inuappcenter.gabojaitspring.profile.dto.PortfolioUpdateRequestDto;
+import com.inuappcenter.gabojaitspring.profile.dto.PortfolioFileSaveRequestDto;
+import com.inuappcenter.gabojaitspring.profile.dto.PortfolioFileUpdateRequestDto;
+import com.inuappcenter.gabojaitspring.profile.dto.PortfolioLinkSaveRequestDto;
+import com.inuappcenter.gabojaitspring.profile.dto.PortfolioLinkUpdateRequestDto;
 import com.inuappcenter.gabojaitspring.profile.repository.PortfolioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 
@@ -22,18 +28,21 @@ import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 @RequiredArgsConstructor
 public class PortfolioService {
 
+    @Value(value = "${s3.portfolioFileBucketName}")
+    private String bucketName;
     private final PortfolioRepository portfolioRepository;
+    private final FileService fileService;
 
     /**
-     * 포트폴리오 생성 |
-     * 포트폴리오 생성 절차를 밟아서 정보를 저장한다. |
-     * 500: 포트폴리오 정보 저장 중 서버 에러
+     * 링크 포트폴리오 생성 |
+     * 링크 포트폴리오 생성 절차를 밟아서 정보를 저장한다. |
+     * 500: 링크 포트폴리오 정보 저장 중 서버 에러
      */
-    public Portfolio save(PortfolioSaveRequestDto request, Profile profile) {
-        log.info("INITIALIZE | PortfolioService | save | " + profile.getId());
+    public Portfolio saveLink(PortfolioLinkSaveRequestDto request, Profile profile) {
+        log.info("INITIALIZE | PortfolioService | saveLink | " + profile.getId());
         LocalDateTime initTime = LocalDateTime.now();
 
-        PortfolioType portfolioType = validatePortfolioType(request.getPortfolioType());
+        PortfolioType portfolioType = PortfolioType.LINK;
 
         Portfolio portfolio = request.toEntity(profile.getId(), portfolioType);
 
@@ -43,40 +52,70 @@ public class PortfolioService {
             throw new CustomException(SERVER_ERROR);
         }
 
-        log.info("COMPLETE | PortfolioService | save | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
+        log.info("COMPLETE | PortfolioService | saveLink | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
                 profile.getId() + " | " + portfolio.getId());
         return portfolio;
     }
 
     /**
-     * 포트폴리오 타입 검증 |
-     * 포트폴리오 타입이 L 또는 F로 되어 있는지 확인한다. |
-     * 400: 올바리즈 않은 포맷 에러
+     * 파일 포트폴리오 생성 |
+     * 파일 포트폴리오 생성 절차를 밟아서 정보를 저장한다. |
+     * 500: 파일 포트폴리오 정보 저장 중 서버 에러
      */
-    private PortfolioType validatePortfolioType(Character portfolioType) {
-        log.info("PROGRESS | PortfolioService | validatePortfolioType | " + portfolioType);
+    public Portfolio saveFile(PortfolioFileSaveRequestDto request,
+                              String username,
+                              Profile profile,
+                              MultipartFile file) {
+        log.info("INITIALIZE | PortfolioService | saveFile | " + profile.getId());
+        LocalDateTime initTime = LocalDateTime.now();
 
-        if (portfolioType.equals('L')) {
-            return PortfolioType.LINK;
-        } else if (portfolioType.equals('F')) {
-            return PortfolioType.FILE;
-        } else {
-            throw new CustomException(PORTFOLIO_TYPE_INCORRECT_TYPE);
+        PortfolioType portfolioType = PortfolioType.FILE;
+        validateFileType(file);
+
+        String fileUrl = fileService.upload(bucketName,
+                username + "-" + profile.getId().toString(),
+                initTime.format(DateTimeFormatter.ISO_DATE_TIME),
+                file);
+
+        Portfolio portfolio = request.toEntity(profile.getId(), portfolioType, fileUrl);
+
+        try {
+            portfolio = portfolioRepository.save(portfolio);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        log.info("COMPLETE | PortfolioService | saveFile | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
+                profile.getId() + " | " + portfolio.getId());
+        return portfolio;
+    }
+
+    /**
+     * 파일 타입 검증 |
+     * 파일 타입이 .pdf, .png, .jpg, .jpeg 중 하나로 되어 있는지 확인한다. |
+     * 415: 올바르지 않은 포맷
+     */
+    private void validateFileType(MultipartFile file) {
+        log.info("PROGRESS | PortfolioService | validateFileType");
+
+        String type = file.getContentType().split("/")[1];
+
+        if (!(type.equals("pdf") || type.equals("jpg") || type.equals("jpeg") || type.equals("png"))) {
+            throw new CustomException(PORTFOLIO_FILE_TYPE_UNSUPPORTED);
         }
     }
 
     /**
-     * 포트폴리오 업데이터 |
-     * 포트폴리오 정보를 조회하여 업데이트한다. |
-     * 500: 기술 정보 저장 중 서버 에러
+     * 링크 포트폴리오 업데이터 |
+     * 링크 포트폴리오 정보를 조회하여 업데이트한다. |
+     * 500: 링크 포트폴리오 정보 저장 중 서버 에러
      */
-    public void update(Profile profile, PortfolioUpdateRequestDto request) {
+    public void updateLink(Profile profile, PortfolioLinkUpdateRequestDto request) {
         log.info("INITIALIZE | PortfolioService | update | " + profile.getId() + " | " + request.getPortfolioId());
         LocalDateTime initTime = LocalDateTime.now();
 
         ObjectId portfolioId = new ObjectId(request.getPortfolioId());
         Portfolio portfolio = findOne(profile, portfolioId);
-        PortfolioType portfolioType = validatePortfolioType(request.getPortfolioType());
 
         portfolio.updatePortfolio(request.getName(), request.getUrl());
 
@@ -88,6 +127,37 @@ public class PortfolioService {
 
         log.info("COMPLETE | PortfolioService | update | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
                 profile.getId() + " | " + portfolio.getId());
+    }
+
+    /**
+     * 파일 포트폴리오 업데이터 |
+     * 파일 포트폴리오 정보를 조회하여 업데이트한다. |
+     * 500: 파일 포트폴리오 정보 저장 중 서버 에러
+     */
+    public void updateFile(PortfolioFileUpdateRequestDto request,
+                           String username,
+                           Profile profile,
+                           MultipartFile file) {
+        log.info("INITIALIZE | PortfolioService | updateFile | " + profile.getId());
+        LocalDateTime initTime = LocalDateTime.now();
+
+        ObjectId portfolioId = new ObjectId(request.getPortfolioId());
+        Portfolio portfolio = findOne(profile, portfolioId);
+
+        String fileUrl = fileService.upload(bucketName,
+                username + "-" + profile.getId().toString(),
+                initTime.format(DateTimeFormatter.ISO_DATE_TIME),
+                file);
+        portfolio.updatePortfolio(request.getName(), fileUrl);
+
+        try {
+            portfolio = portfolioRepository.save(portfolio);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        log.info("COMPLETE | PortfolioService | updateFile | " + Duration.between(initTime, LocalDateTime.now()) + " | "
+                + profile.getId() + " | " + portfolio.getId());
     }
 
     /**

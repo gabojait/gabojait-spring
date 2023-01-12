@@ -6,9 +6,7 @@ import com.inuappcenter.gabojaitspring.common.DefaultResponseDto;
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.profile.domain.Portfolio;
 import com.inuappcenter.gabojaitspring.profile.domain.Profile;
-import com.inuappcenter.gabojaitspring.profile.dto.PortfolioSaveRequestDto;
-import com.inuappcenter.gabojaitspring.profile.dto.PortfolioUpdateRequestDto;
-import com.inuappcenter.gabojaitspring.profile.dto.ProfileDefaultResponseDto;
+import com.inuappcenter.gabojaitspring.profile.dto.*;
 import com.inuappcenter.gabojaitspring.profile.service.PortfolioService;
 import com.inuappcenter.gabojaitspring.profile.service.ProfileService;
 import com.inuappcenter.gabojaitspring.user.domain.User;
@@ -21,9 +19,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -46,9 +46,9 @@ public class PortfolioController {
     private final UserService userService;
     private final JwtProvider jwtProvider;
 
-    @ApiOperation(value = "포트폴리오 생성")
+    @ApiOperation(value = "링크 포트폴리오 생성")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "포트폴리오 생성 완료",
+            @ApiResponse(responseCode = "201", description = "링크 포트폴리오 생성 완료",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
@@ -56,9 +56,10 @@ public class PortfolioController {
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @ResponseStatus(value = HttpStatus.CREATED)
-    @PostMapping("/new")
-    public ResponseEntity<DefaultResponseDto<Object>> create(HttpServletRequest servletRequest,
-                                                             @RequestBody @Valid PortfolioSaveRequestDto request) {
+    @PostMapping("/link/new")
+    public ResponseEntity<DefaultResponseDto<Object>> createLink(HttpServletRequest servletRequest,
+                                                             @RequestBody
+                                                             @Valid PortfolioLinkSaveRequestDto request) {
         List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
 
         if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
@@ -68,31 +69,36 @@ public class PortfolioController {
         User user = userService.findOneByUsername(tokenInfo.get(0));
         Profile profile = profileService.findOne(user.getProfileId());
 
-        Portfolio portfolio = portfolioService.save(request, profile);
+        Portfolio portfolio = portfolioService.saveLink(request, profile);
         profile = profileService.savePortfolio(profile, portfolio);
 
         ProfileDefaultResponseDto response = new ProfileDefaultResponseDto(profile);
 
         return ResponseEntity.status(201)
                 .body(DefaultResponseDto.builder()
-                        .responseCode("PORTFOLIO_CREATED")
-                        .responseMessage("포트폴리오 생성 완료")
+                        .responseCode("LINK_PORTFOLIO_CREATED")
+                        .responseMessage("링크 포트폴리오 생성 완료")
                         .data(response)
                         .build());
     }
 
-    @ApiOperation(value = "포트롤리오 수정")
+    @ApiOperation(value = "파일 포트폴리오 생성")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "포트폴리오 수정 완료",
+            @ApiResponse(responseCode = "201", description = "파일 포트폴리오 생성 완료",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 않은 회원 또는 프로필"),
+            @ApiResponse(responseCode = "415", description = "미지원 파일 규격"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PatchMapping
-    public ResponseEntity<DefaultResponseDto<Object>> update(HttpServletRequest servletRequest,
-                                                             @RequestBody @Valid PortfolioUpdateRequestDto request) {
+    @ResponseStatus(value = HttpStatus.CREATED)
+    @PostMapping(value = "/file/new",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<DefaultResponseDto<Object>> createFile(HttpServletRequest servletRequest,
+                                                                 @RequestBody
+                                                                 @Valid PortfolioFileSaveRequestDto request,
+                                                                 @RequestPart MultipartFile file) {
         List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
 
         if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
@@ -102,15 +108,88 @@ public class PortfolioController {
         User user = userService.findOneByUsername(tokenInfo.get(0));
         Profile profile = profileService.findOne(user.getProfileId());
 
-        portfolioService.update(profile, request);
+        Portfolio portfolio = portfolioService.saveFile(request, user.getUsername(), profile, file);
+        profile = profileService.savePortfolio(profile, portfolio);
+
+        ProfileDefaultResponseDto response = new ProfileDefaultResponseDto(profile);
+
+        return ResponseEntity.status(201)
+                .body(DefaultResponseDto.builder()
+                        .responseCode("FILE_PORTFOLIO_CREATED")
+                        .responseMessage("파일 포트폴리오 생성 완료")
+                        .data(response)
+                        .build());
+    }
+
+    @ApiOperation(value = "링크 포트폴리오 수정")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "링크 포트폴리오 수정 완료",
+                    content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "사용자 에러"),
+            @ApiResponse(responseCode = "401", description = "토큰 에러"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않은 회원 또는 프로필"),
+            @ApiResponse(responseCode = "500", description = "서버 에러")
+    })
+    @PatchMapping("/link")
+    public ResponseEntity<DefaultResponseDto<Object>> updateLink(HttpServletRequest servletRequest,
+                                                             @RequestBody @Valid
+                                                             PortfolioLinkUpdateRequestDto request) {
+        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
+            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
+        }
+
+        User user = userService.findOneByUsername(tokenInfo.get(0));
+        Profile profile = profileService.findOne(user.getProfileId());
+
+        portfolioService.updateLink(profile, request);
         profile = profileService.findOne(user.getProfileId());
 
         ProfileDefaultResponseDto response = new ProfileDefaultResponseDto(profile);
 
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
-                        .responseCode("PORTFOLIO_UPDATED")
-                        .responseMessage("포트폴리오 수정 완료")
+                        .responseCode("LINK_PORTFOLIO_UPDATED")
+                        .responseMessage("링크 포트폴리오 수정 완료")
+                        .data(response)
+                        .build());
+    }
+
+    @ApiOperation(value = "파일 포트폴리오 수정")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "파일 포트폴리오 수정 완료",
+                    content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "사용자 에러"),
+            @ApiResponse(responseCode = "401", description = "토큰 에러"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않은 회원 또는 프로필"),
+            @ApiResponse(responseCode = "415", description = "미지원 파일 규격"),
+            @ApiResponse(responseCode = "500", description = "서버 에러")
+    })
+    @PatchMapping(value = "/file",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    ResponseEntity<DefaultResponseDto<Object>> updateFile(HttpServletRequest servletRequest,
+                                                          @RequestBody @Valid
+                                                          PortfolioFileUpdateRequestDto request,
+                                                          @RequestPart MultipartFile file) {
+        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
+            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
+        }
+
+        User user = userService.findOneByUsername(tokenInfo.get(0));
+        Profile profile = profileService.findOne(user.getProfileId());
+
+        portfolioService.updateFile(request, user.getUsername(), profile, file);
+        profile = profileService.findOne(user.getProfileId());
+
+        ProfileDefaultResponseDto response = new ProfileDefaultResponseDto(profile);
+
+        return ResponseEntity.status(200)
+                .body(DefaultResponseDto.builder()
+                        .responseCode("FILE_PORTFOLIO_UPDATED")
+                        .responseMessage("파일 포트폴리오 수정 완료")
                         .data(response)
                         .build());
     }

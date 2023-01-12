@@ -12,11 +12,11 @@ import javax.validation.constraints.Size;
 
 @Getter
 @NoArgsConstructor
-@GroupSequence({PortfolioLinkUpdateRequestDto.class,
+@GroupSequence({PortfolioFileSaveRequestDto.class,
         ValidationSequence.NotBlank.class,
         ValidationSequence.Size.class})
-@ApiModel(value = "Portfolio 링크 수정 요청")
-public class PortfolioLinkUpdateRequestDto {
+@ApiModel(value = "Portfolio 파일 수정 요청")
+public class PortfolioFileUpdateRequestDto {
 
     @ApiModelProperty(position = 1, required = true, value = "포트폴리오 식별자")
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
@@ -26,8 +26,4 @@ public class PortfolioLinkUpdateRequestDto {
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
     @Size(min = 1, max = 10, message = "이름은 1~10자만 가능합니다.", groups = ValidationSequence.Size.class)
     private String name;
-
-    @ApiModelProperty(position = 3, required = true, value = "링크", example = "github.com/gabojait")
-    @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
-    private String url;
 }
