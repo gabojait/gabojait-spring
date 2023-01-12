@@ -263,4 +263,48 @@ public class ProfileService {
                 " | " + profile.getId() + " | " + profile.getUserId());
         return profile;
     }
+
+    /**
+     * 포트폴리오 프로필 생성 |
+     * 포트폴리오 정보를 프로필에 저장한다. |
+     * 500: 프로필 정보 저장 중 서버 에러
+     */
+    public Profile savePortfolio(Profile profile, Portfolio portfolio) {
+        log.info("INITIALIZE | ProfileService | savePortfolio | " + profile.getId() + " | " + portfolio.getId());
+        LocalDateTime initTime = LocalDateTime.now();
+
+        profile.addPortfolio(portfolio);
+
+        try {
+            profile = profileRepository.save(profile);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        log.info("COMPLETE | ProfileService | savePortfolio | " + Duration.between(initTime, LocalDateTime.now()) +
+                " | " + profile.getId() + " | " + portfolio.getId());
+        return profile;
+    }
+
+    /**
+     * 포트폴리오 프로필 제거 |
+     * 프로필에서 포트폴리오를 제거한다. |
+     * 500: 프로필 정보 저장 중 서버 에러
+     */
+    public Profile deletePortfolio(Profile profile, Portfolio portfolio) {
+        log.info("INITIALIZE | ProfileService | deletePortfolio | " + profile.getId() + " | " + portfolio.getId());
+        LocalDateTime initTime = LocalDateTime.now();
+
+        profile.removePortfolio(portfolio);
+
+        try {
+            profile = profileRepository.save(profile);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        log.info("COMPLETE | ProfileService | deletePortfolio | " + Duration.between(initTime, LocalDateTime.now()) +
+                " | " + profile.getId() + " | " + profile.getUserId());
+        return profile;
+    }
 }

@@ -52,7 +52,7 @@ public class SkillService {
     /**
      * 레벨 검증 |
      * 레벨이 1, 2, 또는 3으로 되어 있는지 확인한다. |
-     * 400: 올바르지 않을 포맷 에러
+     * 400: 올바르지 않은 포맷 에러
      */
     private Level validateLevel(Integer level) {
         log.info("PROGRESS | SkillService | validateLevel | " + level);
@@ -63,7 +63,7 @@ public class SkillService {
             return Level.MID;
         } else if (level == Level.HIGH.getType().intValue()) {
             return Level.HIGH;
-        } else{
+        } else {
             throw new CustomException(LEVEL_INCORRECT_TYPE);
         }
     }

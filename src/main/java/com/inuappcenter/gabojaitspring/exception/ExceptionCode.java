@@ -19,6 +19,7 @@ public enum ExceptionCode {
     POSITION_INCORRECT_TYPE(BAD_REQUEST, "포지션은 D, B, F, M 중 하나입니다."),
     INCORRECT_DATE(BAD_REQUEST, "시작일을 종료일 이후로 설정해주세요."),
     LEVEL_INCORRECT_TYPE(BAD_REQUEST, "기술 레벨은 1, 2, 3 중 하나입니다."),
+    PORTFOLIO_TYPE_INCORRECT_TYPE(BAD_REQUEST, "포트폴리오 타입은 L, F 중 하나입니다."),
 
     /**
      * 401 UNAUTHORIZED
@@ -42,6 +43,7 @@ public enum ExceptionCode {
     NON_EXISTING_EDUCATION(NOT_FOUND, "존재하지 않은 학력 정보입니다."),
     NON_EXISTING_SKILL(NOT_FOUND, "존재하지 않은 기술 정보입니다."),
     NON_EXISTING_WORK(NOT_FOUND, "존재하지 않은 경력 정보입니다."),
+    NON_EXISTING_PORTFOLIO(NOT_FOUND, "존재하지 않은 포트폴리오 정보입니다."),
 
     /**
      * 409 CONFLICT

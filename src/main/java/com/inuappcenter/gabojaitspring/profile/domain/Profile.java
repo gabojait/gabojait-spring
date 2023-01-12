@@ -31,6 +31,8 @@ public class Profile extends BaseTimeEntity {
 
     private List<Skill> skills = new ArrayList<>();
 
+    private List<Portfolio> portfolios = new ArrayList<>();
+
     private List<ObjectId> reviews = new ArrayList<>();
 
     @Builder
@@ -70,5 +72,13 @@ public class Profile extends BaseTimeEntity {
 
     public void removeWork(Work work) {
         this.works.remove(work);
+    }
+
+    public void addPortfolio(Portfolio portfolio) {
+        this.portfolios.add(portfolio);
+    }
+
+    public void removePortfolio(Portfolio portfolio) {
+        this.portfolios.remove(portfolio);
     }
 }

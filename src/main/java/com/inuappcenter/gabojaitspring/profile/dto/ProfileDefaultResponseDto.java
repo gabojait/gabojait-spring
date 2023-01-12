@@ -1,9 +1,6 @@
 package com.inuappcenter.gabojaitspring.profile.dto;
 
-import com.inuappcenter.gabojaitspring.profile.domain.Education;
-import com.inuappcenter.gabojaitspring.profile.domain.Profile;
-import com.inuappcenter.gabojaitspring.profile.domain.Skill;
-import com.inuappcenter.gabojaitspring.profile.domain.Work;
+import com.inuappcenter.gabojaitspring.profile.domain.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -32,7 +29,10 @@ public class ProfileDefaultResponseDto {
     @ApiModelProperty(position = 6, required = true, value = "기술")
     private  List<SkillDefaultResponseDto> skills;
 
-    @ApiModelProperty(position = 7, required = true, value = "스키마버전")
+    @ApiModelProperty(position = 7, required = true, value = "포트폴리오")
+    private List<PortfolioDefaultResponseDto> portfolios;
+
+    @ApiModelProperty(position = 8, required = true, value = "스키마버전")
     private String schemaVersion;
 
     public ProfileDefaultResponseDto(Profile profile) {
@@ -48,6 +48,9 @@ public class ProfileDefaultResponseDto {
 
         for (Skill skill : profile.getSkills())
             this.skills.add(new SkillDefaultResponseDto(skill));
+
+        for (Portfolio portfolio: profile.getPortfolios())
+            this.portfolios.add(new PortfolioDefaultResponseDto(portfolio));
 
         this.schemaVersion = profile.getSchemaVersion();
     }
