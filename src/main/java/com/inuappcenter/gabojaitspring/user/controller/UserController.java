@@ -18,15 +18,10 @@ import org.bson.types.ObjectId;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 
 import java.util.List;
 
@@ -34,7 +29,6 @@ import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "회원")
-@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
