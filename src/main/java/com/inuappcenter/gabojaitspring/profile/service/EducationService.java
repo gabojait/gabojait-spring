@@ -58,8 +58,8 @@ public class EducationService {
         log.info("PROGRESS | EducationService | validateDate | " + startedDate.toString() + " | " +
                 endedDate.toString());
 
-        if (startedDate.isBefore(endedDate))
-            throw new CustomException(INCORRECT_DATE);
+        if (startedDate.isAfter(endedDate))
+            throw new CustomException(DATE_INCORRECT);
     }
 
     /**
