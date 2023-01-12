@@ -19,7 +19,7 @@ public class UserLoginRequestDto {
     @NotBlank(message = "아이디 또는 비밀번호를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
     private String username;
 
-    @ApiModelProperty(position = 2, required = true, value = "비밀번호", example = "password")
+    @ApiModelProperty(position = 2, required = true, value = "비밀번호", example = "password1!")
     @NotBlank(message = "아이디 또는 비밀번호를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
     private String password;
 }

@@ -33,14 +33,14 @@ public class UserSaveRequestDto {
             groups = ValidationSequence.Pattern.class)
     private String username;
 
-    @ApiModelProperty(position = 2, required = true, value = "비밀번호", example = "password")
+    @ApiModelProperty(position = 2, required = true, value = "비밀번호", example = "password1!")
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
     @Size(min = 8, max = 30, message = "비밀번호는 8~30자만 가능합니다.", groups = ValidationSequence.Size.class)
     @Pattern(regexp = "^(?=.*[A-z])(?=.*\\d)(?=.*[#$@!%&*?])[A-z\\d#$@!%&*?]+$",
             message = "비밀번호는 영문, 숫자, 특수문자(#$@!%&*?)의 조합의 형식만 가능합니다.", groups = ValidationSequence.Pattern.class)
     private String password;
 
-    @ApiModelProperty(position = 3, required = true, value = "비밀번호 재입력", example = "password")
+    @ApiModelProperty(position = 3, required = true, value = "비밀번호 재입력", example = "password1!")
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
     private String passwordReEntered;
 
@@ -58,7 +58,6 @@ public class UserSaveRequestDto {
 
     @ApiModelProperty(position = 5, required = true, value = "성별: M, F", example = "M", allowableValues = "M, F")
     @NotNull(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotNull.class)
-    @Pattern(regexp = "^[MF]+$]", message = "성별은 M, F 중 하나입니다.", groups = ValidationSequence.Pattern.class)
     private Character gender;
 
     @ApiModelProperty(position = 6, required = true, notes = "string", value = "생년월일", example = "2000-01-01")
