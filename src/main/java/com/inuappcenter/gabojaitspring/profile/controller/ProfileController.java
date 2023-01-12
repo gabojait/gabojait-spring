@@ -98,7 +98,7 @@ public class ProfileController {
 
         ProfileDefaultResponseDto response = new ProfileDefaultResponseDto(profile);
 
-        return ResponseEntity.status(201)
+        return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("PROFILE_INFO_FOUND")
                         .responseMessage("단건 조회 완료")
