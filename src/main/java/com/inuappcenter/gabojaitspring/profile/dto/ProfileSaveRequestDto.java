@@ -10,15 +10,13 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Getter
 @NoArgsConstructor
 @GroupSequence({ProfileSaveRequestDto.class,
         ValidationSequence.NotNull.class,
-        ValidationSequence.Size.class,
-        ValidationSequence.Pattern.class})
+        ValidationSequence.Size.class})
 @ApiModel(value = "Profile 생성 요청")
 public class ProfileSaveRequestDto {
 
@@ -29,7 +27,6 @@ public class ProfileSaveRequestDto {
     @ApiModelProperty(position = 2, required = true, value = "포지션: D, B, F, M", example = "B",
             allowableValues = "D, B, F, M")
     @NotNull(message = "포지션을 입력해주세요.", groups = ValidationSequence.NotNull.class)
-    @Pattern(regexp = "^[DBFM]+$]", message = "포지션은 D, B, F, M 중 하나입니다.", groups = ValidationSequence.Pattern.class)
     private Character position;
 
     public Profile toEntity(Position position) {

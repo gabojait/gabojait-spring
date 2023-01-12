@@ -12,7 +12,6 @@ import org.bson.types.ObjectId;
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
@@ -21,13 +20,11 @@ import java.time.LocalDate;
 @GroupSequence({WorkSaveRequestDto.class,
         ValidationSequence.NotBlank.class,
         ValidationSequence.NotNull.class,
-        ValidationSequence.Size.class,
-        ValidationSequence.Pattern.class})
+        ValidationSequence.Size.class})
 @ApiModel(value = "Work 생성 요청")
 public class WorkSaveRequestDto {
 
-    @ApiModelProperty(position = 1, required = true, value = "기관명", example = "가보자잇회사",
-            allowableValues = "Restriction: [NotBlank > Size]")
+    @ApiModelProperty(position = 1, required = true, value = "기관명", example = "가보자잇회사")
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
     @Size(min = 1, max = 20, message = "기관명은 1~20자만 가능합니다.", groups = ValidationSequence.Size.class)
     private String corporationName;

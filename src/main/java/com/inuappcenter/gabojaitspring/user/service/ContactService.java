@@ -119,7 +119,7 @@ public class ContactService {
                         log.info("COMPLETE | ContactService | verification | " +
                                 Duration.between(initTime, LocalDateTime.now()) + " | " + contact.getEmail());
                     } else {
-                        throw new CustomException(INCORRECT_VERIFICATION_CODE);
+                        throw new CustomException(VERIFICATION_CODE_INCORRECT);
                     }
                 }, () -> {
                     throw new CustomException(NOT_VERIFIED_EMAIL);

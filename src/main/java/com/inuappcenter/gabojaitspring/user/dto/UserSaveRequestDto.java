@@ -29,7 +29,7 @@ public class UserSaveRequestDto {
     @ApiModelProperty(position = 1, required = true, value = "아이디", example = "username")
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
     @Size(min = 5, max = 15, message = "아이디는 5~15자만 가능합니다.", groups = ValidationSequence.Size.class)
-    @Pattern(regexp = "^(?=.*[A-z])(?=.*\\d)[A-z\\d]+$", message = "아이디는 영문과 숫자의 조합의 형식만 가능합니다.",
+    @Pattern(regexp = "^(?=.*[A-z0-9])[A-z0-9]+$", message = "아이디는 영문과 숫자의 형식만 가능합니다.",
             groups = ValidationSequence.Pattern.class)
     private String username;
 
