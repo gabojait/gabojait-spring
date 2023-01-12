@@ -43,9 +43,9 @@ public class ProfileController {
     private final UserService userService;
     private final JwtProvider jwtProvider;
 
-    @ApiOperation(value = "기본 프로필 생성")
+    @ApiOperation(value = "프로필 생성")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "기본 프로필 생성 완료",
+            @ApiResponse(responseCode = "201", description = "프로필 생성 완료",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
@@ -72,13 +72,41 @@ public class ProfileController {
 
         return ResponseEntity.status(201)
                 .body(DefaultResponseDto.builder()
-                        .responseCode("DEFAULT_PROFILE_CREATED")
-                        .responseMessage("기본 프로필 생성 완료")
+                        .responseCode("PROFILE_CREATED")
+                        .responseMessage("프로필 생성 완료")
                         .data(response)
                         .build());
     }
 
-    @ApiOperation(value = "프로필 수정")
+    @ApiOperation(value = "단건 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "프로필 단건 조회 완료",
+                    content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
+            @ApiResponse(responseCode = "401", description = "토큰 에러"),
+            @ApiResponse(responseCode = "404", description = "존재하지 정보")
+    })
+    @GetMapping
+    public ResponseEntity<DefaultResponseDto<Object>> findOne(HttpServletRequest servletRequest) {
+        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
+            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
+        }
+
+        User user = userService.findOneByUsername(tokenInfo.get(0));
+        Profile profile = profileService.findOne(user.getProfileId());
+
+        ProfileDefaultResponseDto response = new ProfileDefaultResponseDto(profile);
+
+        return ResponseEntity.status(201)
+                .body(DefaultResponseDto.builder()
+                        .responseCode("PROFILE_INFO_FOUND")
+                        .responseMessage("단건 조회 완료")
+                        .data(response)
+                        .build());
+    }
+
+    @ApiOperation(value = "수정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "프로필 수정 완료",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
@@ -111,7 +139,7 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "프로필 사진 수정")
+    @ApiOperation(value = "사진 수정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "프로필 사진 수정 완료",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
@@ -139,8 +167,8 @@ public class ProfileController {
 
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
-                        .responseCode("PROFILE_IMAGE_UPDATED")
-                        .responseMessage("프로필 사진 수정 완료")
+                        .responseCode("IMAGE_UPDATED")
+                        .responseMessage("사진 수정 완료")
                         .data(response)
                         .build());
     }
