@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -24,16 +25,16 @@ public class ProfileDefaultResponseDto {
     private String imageUrl;
 
     @ApiModelProperty(position = 4, required = true, value = "학력")
-    private List<EducationDefaultResponseDto> educations;
+    private List<EducationDefaultResponseDto> educations = new ArrayList<>();
 
     @ApiModelProperty(position = 5, required = true, value = "경력")
-    private List<WorkDefaultResponseDto> works;
+    private List<WorkDefaultResponseDto> works = new ArrayList<>();
 
     @ApiModelProperty(position = 6, required = true, value = "기술")
-    private  List<SkillDefaultResponseDto> skills;
+    private  List<SkillDefaultResponseDto> skills = new ArrayList<>();
 
     @ApiModelProperty(position = 7, required = true, value = "포트폴리오")
-    private List<PortfolioDefaultResponseDto> portfolios;
+    private List<PortfolioDefaultResponseDto> portfolios = new ArrayList<>();
 
     @ApiModelProperty(position = 8, required = true, value = "스키마버전")
     private String schemaVersion;
