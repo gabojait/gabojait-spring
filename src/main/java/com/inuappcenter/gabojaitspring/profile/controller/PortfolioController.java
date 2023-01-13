@@ -56,10 +56,10 @@ public class PortfolioController {
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @ResponseStatus(value = HttpStatus.CREATED)
-    @PostMapping("/link/new")
+    @PostMapping("/link")
     public ResponseEntity<DefaultResponseDto<Object>> createLink(HttpServletRequest servletRequest,
-                                                             @RequestBody
-                                                             @Valid PortfolioLinkSaveRequestDto request) {
+                                                             @RequestBody @Valid
+                                                             PortfolioLinkSaveRequestDto request) {
         List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
 
         if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
@@ -93,12 +93,12 @@ public class PortfolioController {
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @ResponseStatus(value = HttpStatus.CREATED)
-    @PostMapping(value = "/file/new",
-            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(value = "/file",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DefaultResponseDto<Object>> createFile(HttpServletRequest servletRequest,
-                                                                 @RequestBody
-                                                                 @Valid PortfolioFileSaveRequestDto request,
-                                                                 @RequestPart MultipartFile file) {
+                                                                 @ModelAttribute @Valid
+                                                                 PortfolioFileSaveRequestDto request) {
         List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
 
         if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
@@ -108,7 +108,7 @@ public class PortfolioController {
         User user = userService.findOneByUsername(tokenInfo.get(0));
         Profile profile = profileService.findOne(user.getProfileId());
 
-        Portfolio portfolio = portfolioService.saveFile(request, user.getUsername(), profile, file);
+        Portfolio portfolio = portfolioService.saveFile(request, user.getUsername(), profile);
         profile = profileService.savePortfolio(profile, portfolio);
 
         ProfileDefaultResponseDto response = new ProfileDefaultResponseDto(profile);
@@ -121,16 +121,16 @@ public class PortfolioController {
                         .build());
     }
 
-    @ApiOperation(value = "링크 포트폴리오 수정")
+    @ApiOperation(value = "링크 수정")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "링크 포트폴리오 수정 완료",
+            @ApiResponse(responseCode = "200", description = "링크 수정 완료",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 않은 회원 또는 프로필"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PatchMapping("/link")
+    @PutMapping("/link")
     public ResponseEntity<DefaultResponseDto<Object>> updateLink(HttpServletRequest servletRequest,
                                                              @RequestBody @Valid
                                                              PortfolioLinkUpdateRequestDto request) {
@@ -156,9 +156,9 @@ public class PortfolioController {
                         .build());
     }
 
-    @ApiOperation(value = "파일 포트폴리오 수정")
+    @ApiOperation(value = "파일 수정")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "파일 포트폴리오 수정 완료",
+            @ApiResponse(responseCode = "200", description = "파일 수정 완료",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
@@ -166,8 +166,8 @@ public class PortfolioController {
             @ApiResponse(responseCode = "415", description = "미지원 파일 규격"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PatchMapping(value = "/file",
-            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @PutMapping(value = "/file",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     ResponseEntity<DefaultResponseDto<Object>> updateFile(HttpServletRequest servletRequest,
                                                           @RequestBody @Valid
                                                           PortfolioFileUpdateRequestDto request,
@@ -194,16 +194,16 @@ public class PortfolioController {
                         .build());
     }
 
-    @ApiOperation(value = "포트폴리오 제거")
+    @ApiOperation(value = "삭제")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "포트폴리오 제거 완료",
+            @ApiResponse(responseCode = "200", description = "포트폴리오 삭제 완료",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 않은 회원 또는 프로필"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PatchMapping("/{portfolioId}")
+    @DeleteMapping("/{portfolioId}")
     public ResponseEntity<DefaultResponseDto<Object>> delete(HttpServletRequest servletRequest,
                                                              @PathVariable
                                                              @NotBlank(message = "포트폴리오 식별자를 입력해 주세요.")
@@ -225,7 +225,7 @@ public class PortfolioController {
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("PORTFOLIO_DELETED")
-                        .responseMessage("포트폴리오 제거 완료")
+                        .responseMessage("포트폴리오 삭제 완료")
                         .data(response)
                         .build());
     }

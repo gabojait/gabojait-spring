@@ -43,9 +43,9 @@ public class WorkController {
     private final UserService userService;
     private final JwtProvider jwtProvider;
 
-    @ApiOperation(value = "경력 생성")
+    @ApiOperation(value = "생성")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "경력 생성 완료",
+            @ApiResponse(responseCode = "201", description = "생성 완료",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
@@ -53,7 +53,7 @@ public class WorkController {
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @ResponseStatus(value = HttpStatus.CREATED)
-    @PostMapping("/new")
+    @PostMapping
     public ResponseEntity<DefaultResponseDto<Object>> create(HttpServletRequest servletRequest,
                                                              @RequestBody @Valid WorkSaveRequestDto request) {
         List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
@@ -78,16 +78,16 @@ public class WorkController {
                         .build());
     }
 
-    @ApiOperation(value = "경력 수정")
+    @ApiOperation(value = "수정")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "경력 수정 완료",
+            @ApiResponse(responseCode = "200", description = "수정 완료",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 정보"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PatchMapping
+    @PutMapping
     public ResponseEntity<DefaultResponseDto<Object>> update(HttpServletRequest servletRequest,
                                                              @RequestBody @Valid WorkUpdateRequestDto request) {
         List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
@@ -112,16 +112,16 @@ public class WorkController {
                         .build());
     }
 
-    @ApiOperation(value = "경력 제거")
+    @ApiOperation(value = "삭제")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "경력 제거 완료",
+            @ApiResponse(responseCode = "200", description = "경력 삭제 완료",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 정보"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PatchMapping("/{workId}")
+    @DeleteMapping("/{workId}")
     public ResponseEntity<DefaultResponseDto<Object>> delete(HttpServletRequest servletRequest,
                                                              @PathVariable
                                                              @NotBlank(message = "학력 식별자를 입력해 주세요.")

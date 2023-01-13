@@ -64,21 +64,19 @@ public class PortfolioService {
      */
     public Portfolio saveFile(PortfolioFileSaveRequestDto request,
                               String username,
-                              Profile profile,
-                              MultipartFile file) {
+                              Profile profile) {
         log.info("INITIALIZE | PortfolioService | saveFile | " + profile.getId());
         LocalDateTime initTime = LocalDateTime.now();
 
         PortfolioType portfolioType = PortfolioType.FILE;
-        validateFileType(file);
+        validateFileType(request.getFile());
 
         String fileUrl = fileService.upload(bucketName,
                 username + "-" + profile.getId().toString(),
                 initTime.format(DateTimeFormatter.ISO_DATE_TIME),
-                file);
+                request.getFile());
 
         Portfolio portfolio = request.toEntity(profile.getId(), portfolioType, fileUrl);
-
         try {
             portfolio = portfolioRepository.save(portfolio);
         } catch (RuntimeException e) {

@@ -44,9 +44,9 @@ public class SkillController {
     private final UserService userService;
     private final JwtProvider jwtProvider;
 
-    @ApiOperation(value = "기술 생성")
+    @ApiOperation(value = "생성")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "기술 생성 완료",
+            @ApiResponse(responseCode = "201", description = "생성 완료",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
@@ -54,7 +54,7 @@ public class SkillController {
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @ResponseStatus(value = HttpStatus.CREATED)
-    @PostMapping("/new")
+    @PostMapping
     public ResponseEntity<DefaultResponseDto<Object>> create(HttpServletRequest servletRequest,
                                                              @RequestBody @Valid SkillSaveRequestDto request) {
         List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
@@ -79,7 +79,7 @@ public class SkillController {
                         .build());
     }
 
-    @ApiOperation(value = "기술 수정")
+    @ApiOperation(value = "수정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "기술 수정 완료",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
@@ -88,7 +88,7 @@ public class SkillController {
             @ApiResponse(responseCode = "404", description = "존재하지 정보"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PatchMapping
+    @PutMapping
     public ResponseEntity<DefaultResponseDto<Object>> update(HttpServletRequest servletRequest,
                                                              @RequestBody @Valid SkillUpdateRequestDto request) {
         List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
@@ -108,21 +108,21 @@ public class SkillController {
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("SKILL_UPDATED")
-                        .responseMessage("학력 수정 완료")
+                        .responseMessage("기술 수정 완료")
                         .data(response)
                         .build());
     }
 
-    @ApiOperation(value = "기술 제거")
+    @ApiOperation(value = "삭제")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "기술 제거 완료",
+            @ApiResponse(responseCode = "200", description = "삭제 완료",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 정보"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PatchMapping("/{skillId}")
+    @DeleteMapping("/{skillId}")
     public ResponseEntity<DefaultResponseDto<Object>> delete(HttpServletRequest servletRequest,
                                                              @PathVariable
                                                              @NotBlank(message = "기술 식별자를 입력해 주세요.")
@@ -144,7 +144,7 @@ public class SkillController {
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("SKILL_DELETED")
-                        .responseMessage("기술 제거 완료")
+                        .responseMessage("기술 삭제 완료")
                         .data(response)
                         .build());
     }

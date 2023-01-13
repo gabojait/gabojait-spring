@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
@@ -25,6 +26,9 @@ public class PortfolioFileSaveRequestDto {
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
     @Size(min = 1, max = 10, message = "이름은 1~10자만 가능합니다.", groups = ValidationSequence.Size.class)
     private String name;
+
+    @ApiModelProperty(position = 2, required = true, value = "파일")
+    private MultipartFile file;
 
     public Portfolio toEntity(ObjectId profileId, PortfolioType portfolioType, String url) {
         return Portfolio.builder()

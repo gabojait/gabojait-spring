@@ -77,16 +77,16 @@ public class UserController {
                         .build());
     }
 
-    @ApiOperation(value = "회원 가입")
+    @ApiOperation(value = "가입")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "회원 가입 완료",
+            @ApiResponse(responseCode = "201", description = "가입 완료",
                     content = @Content(schema = @Schema(implementation = UserDefaultResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "409", description = "중복 여부확인 에러"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @ResponseStatus(value = HttpStatus.CREATED)
-    @PostMapping("/new")
+    @PostMapping
     public ResponseEntity<DefaultResponseDto<Object>> create(@RequestBody @Valid UserSaveRequestDto request) {
         userService.isExistingUsername(request.getUsername());
         userService.isExistingNickname(request.getNickname());
@@ -135,7 +135,7 @@ public class UserController {
 
     @ApiOperation(value = "단건 조회")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "단건 조회 및 토큰 재발급 완료",
+            @ApiResponse(responseCode = "200", description = "단건 조회 완료",
                     content = @Content(schema = @Schema(implementation = UserDefaultResponseDto.class))),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 않은 회원")
@@ -155,7 +155,7 @@ public class UserController {
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("USER_INFO_FOUND")
-                        .responseMessage("단건 조회 완료")
+                        .responseMessage("회원 단건 조회 완료")
                         .data(response)
                         .build());
     }
@@ -167,7 +167,7 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 않은 회원")
     })
-    @GetMapping("/auth")
+    @PostMapping("/auth")
     public ResponseEntity<DefaultResponseDto<Object>> renewToken(HttpServletRequest servletRequest) {
         List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
 
@@ -185,8 +185,8 @@ public class UserController {
         return ResponseEntity.status(200)
                 .headers(responseHeader)
                 .body(DefaultResponseDto.builder()
-                        .responseMessage("TOKEN_RENEWED")
-                        .responseMessage("토큰 재발급 완료")
+                        .responseMessage("USER_TOKEN_RENEWED")
+                        .responseMessage("회원 토큰 재발급 완료")
                         .build());
     }
 
@@ -228,9 +228,9 @@ public class UserController {
                         .build());
     }
 
-    @ApiOperation(value = "비밀번호 업데이트")
+    @ApiOperation(value = "비밀번호 수정")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "비밀번호 업데이트 완료",
+            @ApiResponse(responseCode = "200", description = "비밀번호 수정 완료",
                     content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400", description = "유저 에러"),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
@@ -256,14 +256,14 @@ public class UserController {
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("PASSWORD_UPDATED")
-                        .responseMessage("비밀번호 업데이트 완료")
+                        .responseMessage("비밀번호 수정 완료")
                         .data(response)
                         .build());
     }
 
-    @ApiOperation(value = "닉네임 업데이트")
+    @ApiOperation(value = "닉네임 수정")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "닉네임 업데이트 완료",
+            @ApiResponse(responseCode = "200", description = "닉네임 수정 완료",
                     content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 않은 회원"),
@@ -289,20 +289,20 @@ public class UserController {
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
                         .responseCode("NICKNAME_UPDATED")
-                        .responseMessage("닉네임 업데이트 완료")
+                        .responseMessage("닉네임 수정 완료")
                         .data(response)
                         .build());
     }
 
-    @ApiOperation(value = "회원 탈퇴")
+    @ApiOperation(value = "탈퇴")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "회원 탈퇴 완료",
+            @ApiResponse(responseCode = "200", description = "탈퇴 완료",
                     content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 않은 회원"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PatchMapping("/deactivate")
+    @DeleteMapping
     public ResponseEntity<DefaultResponseDto<Object>> deactivate(HttpServletRequest servletRequest,
                                                                  @RequestBody @Valid UserDeactivateRequestDto request) {
         List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
