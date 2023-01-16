@@ -4,6 +4,7 @@ import com.inuappcenter.gabojaitspring.auth.CustomAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -53,7 +54,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/**/contact", "/api/**/contact/**")
                 .permitAll()
                 .antMatchers("/api/**/user/duplicate/**", "/api/**/user/findUsername/**",
-                        "/api/**/user/findPw/**/**", "/api/**/user/login", "/api/**/user/new")
+                        "/api/**/user/findPw/**/**", "/api/**/user/login")
+                .permitAll()
+                .antMatchers(HttpMethod.POST, "/api/user")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
