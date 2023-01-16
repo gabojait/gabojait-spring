@@ -1,6 +1,8 @@
 package com.inuappcenter.gabojaitspring.profile.domain;
 
 import com.inuappcenter.gabojaitspring.common.BaseTimeEntity;
+import com.inuappcenter.gabojaitspring.project.domain.Project;
+import com.inuappcenter.gabojaitspring.user.domain.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,13 +23,23 @@ public class Profile extends BaseTimeEntity {
     @Field(name = "user_id")
     private ObjectId userId;
 
+    @Field(name = "image_url")
+    private String imageUrl;
+
+    @Field(name = "current_project")
+    private Project currentProject;
+
+    @Field(name = "project_ids")
+    private List<ObjectId> projectIds = new ArrayList<>();
+
+    private String nickname;
     private String description;
     private Character position;
-    private String imageUrl;
     private List<Education> educations = new ArrayList<>();
     private List<Work> works = new ArrayList<>();
     private List<Skill> skills = new ArrayList<>();
     private List<Portfolio> portfolios = new ArrayList<>();
+
     private List<ObjectId> reviews = new ArrayList<>();
     private Float rating;
 
@@ -36,12 +48,14 @@ public class Profile extends BaseTimeEntity {
         this.description = description;
         this.position = position.getType();
         this.imageUrl = null;
+        this.currentProject = null;
         this.isDeleted = false;
         this.rating = 0F;
     }
 
-    public void setUserId(ObjectId userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.userId = user.getId();
+        this.nickname = user.getNickname();
     }
 
     public void updateProfile(String description, Position position) {
@@ -51,6 +65,15 @@ public class Profile extends BaseTimeEntity {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public void startProject(Project project) {
+        this.currentProject = project;
+        this.projectIds.add(project.getId());
+    }
+
+    public void endProject() {
+        this.currentProject = null;
     }
 
     public void setRating (Float rating) {

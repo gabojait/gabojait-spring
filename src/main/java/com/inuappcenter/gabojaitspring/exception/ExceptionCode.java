@@ -32,6 +32,7 @@ public enum ExceptionCode {
     /**
      * 403 FORBIDDEN
      */
+    NON_LEADER(FORBIDDEN, "해당 권한은 프로젝트 리더에게 있습니다."),
 
     /**
      * 404 NOT FOUND
@@ -44,6 +45,7 @@ public enum ExceptionCode {
     NON_EXISTING_SKILL(NOT_FOUND, "존재하지 않은 기술 정보입니다."),
     NON_EXISTING_WORK(NOT_FOUND, "존재하지 않은 경력 정보입니다."),
     NON_EXISTING_PORTFOLIO(NOT_FOUND, "존재하지 않은 포트폴리오 정보입니다."),
+    NON_EXISTING_PROJECT(NOT_FOUND, "존재하지 않은 프로젝트 정보입니다."),
 
     /**
      * 409 CONFLICT
@@ -51,6 +53,7 @@ public enum ExceptionCode {
     EXISTING_EMAIL(CONFLICT, "이미 사용중인 이메일입니다."),
     EXISTING_USERNAME(CONFLICT, "이미 사용중인 아이디입니다."),
     EXISTING_NICKNAME(CONFLICT, "이미 사용중인 닉네임입니다."),
+    CURRENT_PROJECT_EXIST(CONFLICT, "이미 진행 중인 프로젝트가 존재합니다."),
 
     /**
      * 415 UNSUPPORTED MEDIA TYPE

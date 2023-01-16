@@ -6,6 +6,7 @@ import com.inuappcenter.gabojaitspring.profile.domain.*;
 import com.inuappcenter.gabojaitspring.profile.dto.ProfileSaveRequestDto;
 import com.inuappcenter.gabojaitspring.profile.dto.ProfileUpdateRequestDto;
 import com.inuappcenter.gabojaitspring.profile.repository.ProfileRepository;
+import com.inuappcenter.gabojaitspring.project.domain.Project;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 
@@ -77,15 +80,15 @@ public class ProfileService {
     }
 
     /**
-     * 유저 아이디 저장 |
-     * 유저 아이디를 프로필 정보에 저장한다. |
+     * 프로필에 유저 아이디와 닉네임 저장 |
+     * 유저 아이디와 닉네임을 프로필 정보에 저장한다. |
      * 500: 프로필 정보 저장 중 서버 에러
      */
-    public void saveUserId(User user, Profile profile) {
+    public void saveUser(User user, Profile profile) {
         log.info("INITIALIZE | ProfileService | saveUserId | " + profile.getId());
         LocalDateTime initTime = LocalDateTime.now();
 
-        profile.setUserId(user.getId());
+        profile.setUser(user);
 
         try {
             profileRepository.save(profile);
@@ -114,6 +117,27 @@ public class ProfileService {
         log.info("COMPLETE | ProfileService | findOne | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
                 profile.getId() + " | " + profile.getUserId());
         return profile;
+    }
+
+    /**
+     * 프로필 다건 조회 |
+     * 여러 프로필 정보를 찾아 반환한다. |
+     * 404: 존재하지 않은 프로필 에러
+     */
+    public List<Profile> findMany(List<ObjectId> profileIds) {
+        log.info("INITIALIZE | ProfileService | findMany | " + profileIds.size());
+        LocalDateTime initTime = LocalDateTime.now();
+
+        List<Profile> profiles = new ArrayList<>();
+        for(ObjectId profileId : profileIds)
+            profiles.add(profileRepository.findById(profileId)
+                    .orElseThrow(() -> {
+                        throw new CustomException(NON_EXISTING_PROFILE);
+                    }));
+
+        log.info("COMPLETE | ProfileService | findMany | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
+                profileIds.size());
+        return profiles;
     }
 
     /**
@@ -357,6 +381,50 @@ public class ProfileService {
 
         log.info("COMPLETE | ProfileService | deletePortfolio | " + Duration.between(initTime, LocalDateTime.now()) +
                 " | " + profile.getId() + " | " + profile.getUserId());
+        return profile;
+    }
+
+    /**
+     * 프로젝트 시작 정보 프로필에 저장 |
+     * 프로필에 새 프로젝트를 시작한다는 것을 저장한다. |
+     * 500: 프로필 정보 저장 중 서버 에러
+     */
+    public Profile startProject(Profile profile, Project project) {
+        log.info("INITIALIZE | ProfileService | startProject | " + profile.getId() + project.getId());
+        LocalDateTime initTime = LocalDateTime.now();
+
+        profile.startProject(project);
+
+        try {
+            profile = profileRepository.save(profile);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        log.info("COMPLETE | ProfileService | startProject | " + Duration.between(initTime, LocalDateTime.now()) +
+                " | " + profile.getId() + " | " + project.getId());
+        return profile;
+    }
+
+    /**
+     * 프로젝트 종료 정보 프로필에 저장 |
+     * 프로필에 프로젝트를 종료한다는 것을 저장한다. |
+     * 500: 프로필 정보 저장 중 서버 에러
+     */
+    public Profile endProject(Profile profile, Project project) {
+        log.info("INITIALIZE | ProfileService | endProject | " + profile.getId());
+        LocalDateTime initTime = LocalDateTime.now();
+
+        profile.endProject();
+
+        try {
+            profile = profileRepository.save(profile);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        log.info("COMPLETE | ProfileService | endProject | " + Duration.between(initTime, LocalDateTime.now()) +
+                " | " + profile.getId() + " | " + project.getId());
         return profile;
     }
 }
