@@ -76,7 +76,12 @@ public class PortfolioService {
                 initTime.format(DateTimeFormatter.ISO_DATE_TIME),
                 request.getFile());
 
-        Portfolio portfolio = request.toEntity(profile.getId(), portfolioType, fileUrl);
+        Portfolio portfolio = Portfolio.builder()
+                .name(request.getName())
+                .portfolioType(portfolioType)
+                .url(fileUrl)
+                .profileId(profile.getId())
+                .build();
         try {
             portfolio = portfolioRepository.save(portfolio);
         } catch (RuntimeException e) {
