@@ -4,6 +4,8 @@ import com.inuappcenter.gabojaitspring.auth.JwtProvider;
 import com.inuappcenter.gabojaitspring.auth.JwtType;
 import com.inuappcenter.gabojaitspring.common.DefaultResponseDto;
 import com.inuappcenter.gabojaitspring.exception.CustomException;
+import com.inuappcenter.gabojaitspring.profile.domain.Profile;
+import com.inuappcenter.gabojaitspring.profile.service.ProfileService;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import com.inuappcenter.gabojaitspring.user.dto.*;
 import com.inuappcenter.gabojaitspring.user.service.UserService;
@@ -35,6 +37,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 public class UserController {
 
     private final UserService userService;
+    private final ProfileService profileService;
     private final JwtProvider jwtProvider;
 
     @ApiOperation(value = "아이디 중복여부 확인")
@@ -283,6 +286,10 @@ public class UserController {
 
         userService.isExistingNickname(request.getNickname());
         user = userService.updateNickname(user, request.getNickname());
+        if (user.getProfileId() != null) {
+            Profile profile = profileService.findOne(user.getProfileId());
+            profileService.saveUser(user, profile);
+        }
 
         UserDefaultResponseDto response = new UserDefaultResponseDto(user);
 
