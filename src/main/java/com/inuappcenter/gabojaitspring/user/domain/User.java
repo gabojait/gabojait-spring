@@ -39,10 +39,16 @@ public class User extends BaseTimeEntity implements UserDetails {
     private LocalDate birthdate;
     private String role;
     private Contact contact;
-    private Float rating;
 
     @Builder
-    public User(String username, String legalName, String password, String nickname, Gender gender, LocalDate birthdate, Role role, Contact contact) {
+    public User(String username,
+                String legalName,
+                String password,
+                String nickname,
+                Gender gender,
+                LocalDate birthdate,
+                Role role,
+                Contact contact) {
         this.username = username;
         this.legalName = legalName;
         this.password = password;
@@ -51,7 +57,6 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.birthdate = birthdate;
         this.role = role.name();
         this.contact = contact;
-        this.rating = 0F;
         this.isDeleted = false;
     }
 

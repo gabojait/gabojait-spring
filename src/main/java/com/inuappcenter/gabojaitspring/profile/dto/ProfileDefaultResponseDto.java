@@ -24,19 +24,22 @@ public class ProfileDefaultResponseDto {
     @ApiModelProperty(position = 4, required = true, value = "프로필 사진")
     private String imageUrl;
 
-    @ApiModelProperty(position = 4, required = true, value = "학력")
+    @ApiModelProperty(position = 5, required = true, value = "평점")
+    private Float rating;
+
+    @ApiModelProperty(position = 6, required = true, value = "학력")
     private List<EducationDefaultResponseDto> educations = new ArrayList<>();
 
-    @ApiModelProperty(position = 5, required = true, value = "경력")
+    @ApiModelProperty(position = 7, required = true, value = "경력")
     private List<WorkDefaultResponseDto> works = new ArrayList<>();
 
-    @ApiModelProperty(position = 6, required = true, value = "기술")
+    @ApiModelProperty(position = 8, required = true, value = "기술")
     private  List<SkillDefaultResponseDto> skills = new ArrayList<>();
 
-    @ApiModelProperty(position = 7, required = true, value = "포트폴리오")
+    @ApiModelProperty(position = 9, required = true, value = "포트폴리오")
     private List<PortfolioDefaultResponseDto> portfolios = new ArrayList<>();
 
-    @ApiModelProperty(position = 8, required = true, value = "스키마버전")
+    @ApiModelProperty(position = 10, required = true, value = "스키마버전")
     private String schemaVersion;
 
     public ProfileDefaultResponseDto(Profile profile) {
@@ -44,6 +47,7 @@ public class ProfileDefaultResponseDto {
         this.description = profile.getDescription();
         this.position = profile.getPosition();
         this.imageUrl = profile.getImageUrl();
+        this.rating = profile.getRating();
 
         for (Education education : profile.getEducations())
             if (!education.getIsDeleted())

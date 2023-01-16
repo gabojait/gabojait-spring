@@ -29,6 +29,7 @@ public class Profile extends BaseTimeEntity {
     private List<Skill> skills = new ArrayList<>();
     private List<Portfolio> portfolios = new ArrayList<>();
     private List<ObjectId> reviews = new ArrayList<>();
+    private Float rating;
 
     @Builder
     public Profile(String description, Position position) {
@@ -36,6 +37,7 @@ public class Profile extends BaseTimeEntity {
         this.position = position.getType();
         this.imageUrl = null;
         this.isDeleted = false;
+        this.rating = 0F;
     }
 
     public void setUserId(ObjectId userId) {
@@ -49,6 +51,10 @@ public class Profile extends BaseTimeEntity {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public void setRating (Float rating) {
+        this.rating = rating;
     }
 
     public void addEducation(Education education) {
