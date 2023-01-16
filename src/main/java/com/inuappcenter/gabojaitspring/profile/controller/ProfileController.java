@@ -53,7 +53,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @ResponseStatus(value = HttpStatus.CREATED)
-    @PostMapping("/new")
+    @PostMapping
     public ResponseEntity<DefaultResponseDto<Object>> create(HttpServletRequest servletRequest,
                                                              @RequestBody @Valid ProfileSaveRequestDto request) {
         List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
