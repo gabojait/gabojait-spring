@@ -167,11 +167,11 @@ public class PortfolioController {
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @PutMapping(value = "/file",
-            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<DefaultResponseDto<Object>> updateFile(HttpServletRequest servletRequest,
-                                                          @RequestBody @Valid
-                                                          PortfolioFileUpdateRequestDto request,
-                                                          @RequestPart MultipartFile file) {
+                                                          @ModelAttribute @Valid
+                                                          PortfolioFileUpdateRequestDto request) {
         List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
 
         if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
@@ -181,7 +181,7 @@ public class PortfolioController {
         User user = userService.findOneByUsername(tokenInfo.get(0));
         Profile profile = profileService.findOne(user.getProfileId());
 
-        portfolioService.updateFile(request, user.getUsername(), profile, file);
+        portfolioService.updateFile(request, user.getUsername(), profile);
         profile = profileService.findOne(user.getProfileId());
 
         ProfileDefaultResponseDto response = new ProfileDefaultResponseDto(profile);

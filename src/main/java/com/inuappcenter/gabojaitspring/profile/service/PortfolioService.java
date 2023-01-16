@@ -134,8 +134,7 @@ public class PortfolioService {
      */
     public void updateFile(PortfolioFileUpdateRequestDto request,
                            String username,
-                           Profile profile,
-                           MultipartFile file) {
+                           Profile profile) {
         log.info("INITIALIZE | PortfolioService | updateFile | " + profile.getId());
         LocalDateTime initTime = LocalDateTime.now();
 
@@ -145,7 +144,7 @@ public class PortfolioService {
         String fileUrl = fileService.upload(bucketName,
                 username + "-" + profile.getId().toString(),
                 initTime.format(DateTimeFormatter.ISO_DATE_TIME),
-                file);
+                request.getFile());
         portfolio.updatePortfolio(request.getName(), fileUrl);
 
         try {
