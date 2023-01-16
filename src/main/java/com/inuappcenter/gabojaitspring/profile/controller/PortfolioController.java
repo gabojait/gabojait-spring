@@ -93,9 +93,7 @@ public class PortfolioController {
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @ResponseStatus(value = HttpStatus.CREATED)
-    @PostMapping(value = "/file",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DefaultResponseDto<Object>> createFile(HttpServletRequest servletRequest,
                                                                  @ModelAttribute @Valid
                                                                  PortfolioFileSaveRequestDto request) {
@@ -121,7 +119,7 @@ public class PortfolioController {
                         .build());
     }
 
-    @ApiOperation(value = "링크 수정")
+    @ApiOperation(value = "링크 포트폴리오 수정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "링크 수정 완료",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
@@ -156,7 +154,7 @@ public class PortfolioController {
                         .build());
     }
 
-    @ApiOperation(value = "파일 수정")
+    @ApiOperation(value = "파일 포트폴리오 수정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "파일 수정 완료",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
@@ -166,9 +164,7 @@ public class PortfolioController {
             @ApiResponse(responseCode = "415", description = "미지원 파일 규격"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @PutMapping(value = "/file",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/file/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<DefaultResponseDto<Object>> updateFile(HttpServletRequest servletRequest,
                                                           @ModelAttribute @Valid
                                                           PortfolioFileUpdateRequestDto request) {

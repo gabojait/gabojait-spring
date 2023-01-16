@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
 @Document(collection = "portfolio")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class Portfolio extends BaseTimeEntity {
 
     @Field(name = "portfolio_type")
