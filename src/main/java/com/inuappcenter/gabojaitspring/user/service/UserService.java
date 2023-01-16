@@ -276,7 +276,8 @@ public class UserService {
             throw new CustomException(NON_EXISTING_EMAIL);
         }
 
-        log.info("COMPLETE | UseService | findForgotUsernameByEmail | " + username);
+        log.info("COMPLETE | UseService | findForgotUsernameByEmail | "+ Duration.between(initTime, LocalDateTime.now())
+                + " | " + username);
     }
 
     /**
