@@ -251,7 +251,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @GetMapping(value = "/find/project")
+    @GetMapping(value = "/project/find")
     public ResponseEntity<DefaultResponseDto<Object>> findProfileLookingForProject(HttpServletRequest servletRequest,
                                                                                    @RequestParam Integer pageFrom,
                                                                                    @RequestParam(required = false)
