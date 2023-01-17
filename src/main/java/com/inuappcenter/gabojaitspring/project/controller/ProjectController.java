@@ -144,10 +144,10 @@ public class ProjectController {
         project = projectService.end(project, profile);
 
         List<ObjectId> profileIds = new ArrayList<>();
-        profileIds.addAll(project.getBackends());
-        profileIds.addAll(project.getFrontends());
-        profileIds.addAll(project.getDesigners());
-        profileIds.addAll(project.getManagers());
+        profileIds.addAll(project.getBackendProfileIds());
+        profileIds.addAll(project.getFrontendProfileIds());
+        profileIds.addAll(project.getDesignerProfileIds());
+        profileIds.addAll(project.getManagerProfileIds());
         for (ObjectId profileId : profileIds) {
             Profile projectMemberProfile = profileService.findOne(profileId);
             profileService.endProject(projectMemberProfile, project);

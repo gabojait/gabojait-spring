@@ -58,9 +58,9 @@ public class ProjectSaveRequestDto {
     @NotNull(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotNull.class)
     private Byte totalManagerCnt;
 
-    public Project toEntity(ObjectId leader) {
+    public Project toEntity(ObjectId leaderProfileId) {
         return Project.builder()
-                .leader(leader)
+                .leaderProfileId(leaderProfileId)
                 .projectName(this.projectName)
                 .projectDescription(this.projectDescription)
                 .expectationDescription(this.expectationDescription)

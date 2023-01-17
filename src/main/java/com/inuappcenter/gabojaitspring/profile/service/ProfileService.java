@@ -68,7 +68,7 @@ public class ProfileService {
      * 포지션이 디자이너 'D', 백엔드 'B', 프론트엔드 'F', 매니저 'M'로 되어 있는지 확인한다. |
      * 400: 올바르지 않은 포맷
      */
-    private Position validatePosition(Character position) {
+    public Position validatePosition(Character position) {
         log.info("PROGRESS | ProfileService | validatePosition | " + position);
 
         if (position == Position.DESIGNER.getType()) {
@@ -499,5 +499,18 @@ public class ProfileService {
         log.info("COMPLETE | ProfileService | updateFindProjectMode | " +
                 Duration.between(initTime, LocalDateTime.now()) + " | " + profile.getId());
         return profile;
+    }
+
+    /**
+     * 프로필에 현재 프로젝트 없음 검증
+     * 프로필 정보로 현재 프로젝트가 없는지 검증한다. |
+     * 409: 진행 중인 프로젝트 유 에러
+     */
+    public void validateNoCurrentProject(Profile profile) {
+        log.info("PROGRESS | ApplyService | validateNoCurrentProject | " + profile.getId() + " | " +
+                profile.getCurrentProject().getId());
+
+        if (profile.getCurrentProject() != null)
+            throw new CustomException(CURRENT_PROJECT_EXIST);
     }
 }

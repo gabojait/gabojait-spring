@@ -7,6 +7,7 @@ import com.inuappcenter.gabojaitspring.project.domain.Project;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import org.bson.types.ObjectId;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -63,7 +64,13 @@ public class ProjectDefaultResponseDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endedDate;
 
-    @ApiModelProperty(position = 16, required = true, value = "스키마버전")
+    @ApiModelProperty(position = 16, required = true, value = "지원 식별자")
+    private List<ObjectId> applyIds = new ArrayList<>();
+
+    @ApiModelProperty(position = 17, required = true, value = "영입 식별자")
+    private List<ObjectId> recruitIds = new ArrayList<>();
+
+    @ApiModelProperty(position = 18, required = true, value = "스키마버전")
     private String schemaVersion;
 
     public ProjectDefaultResponseDto(Project project,
@@ -100,6 +107,10 @@ public class ProjectDefaultResponseDto {
         this.projectResultLink = project.getProjectResultLink();
         this.startedDate = project.getStartedDate();
         this.endedDate = project.getEndedDate();
+
+        this.applyIds.addAll(project.getApplyIds());
+        this.recruitIds.addAll(project.getRecruitIds());
+
         this.schemaVersion = project.getSchemaVersion();
     }
 }

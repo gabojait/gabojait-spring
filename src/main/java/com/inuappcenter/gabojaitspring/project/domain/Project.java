@@ -18,29 +18,32 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Project extends BaseTimeEntity {
 
+    @Field(name = "leader_profile_id")
+    private ObjectId leaderProfileId;
+
     @Field(name = "project_name")
     private String projectName;
 
-    @Field(name = "backends")
-    private List<ObjectId> backends = new ArrayList<>();
+    @Field(name = "backend_profile_ids")
+    private List<ObjectId> backendProfileIds = new ArrayList<>();
 
     @Field(name = "total_backend_cnt")
     private Byte totalBackendCnt;
 
-    @Field(name = "frontends")
-    private List<ObjectId> frontends = new ArrayList<>();
+    @Field(name = "frontend_profile_ids")
+    private List<ObjectId> frontendProfileIds = new ArrayList<>();
 
     @Field(name = "total_frontend_cnt")
     private Byte totalFrontendCnt;
 
-    @Field(name = "designers")
-    private List<ObjectId> designers = new ArrayList<>();
+    @Field(name = "designer_profile_ids")
+    private List<ObjectId> designerProfileIds = new ArrayList<>();
 
     @Field(name = "total_designer_cnt")
     private Byte totalDesignerCnt;
 
-    @Field(name = "managers")
-    private List<ObjectId> managers = new ArrayList<>();
+    @Field(name = "manager_profile_ids")
+    private List<ObjectId> managerProfileIds = new ArrayList<>();
 
     @Field(name = "total_manager_cnt")
     private Byte totalManagerCnt;
@@ -50,6 +53,12 @@ public class Project extends BaseTimeEntity {
 
     @Field(name = "expectation_description")
     private String expectationDescription;
+
+    @Field(name = "apply_ids")
+    private List<ObjectId> applyIds = new ArrayList<>();
+
+    @Field(name = "recruit_ids")
+    private List<ObjectId> recruitIds = new ArrayList<>();
 
     @Field(name = "started_date")
     private LocalDateTime startedDate;
@@ -63,10 +72,8 @@ public class Project extends BaseTimeEntity {
     @Field(name = "project_result_link")
     private String projectResultLink;
 
-    private ObjectId leader;
-
     @Builder
-    public Project(ObjectId leader,
+    public Project(ObjectId leaderProfileId,
                    String projectName,
                    String projectDescription,
                    String expectationDescription,
@@ -75,7 +82,7 @@ public class Project extends BaseTimeEntity {
                    Byte totalFrontendCnt,
                    Byte totalDesignerCnt,
                    Byte totalManagerCnt) {
-        this.leader = leader;
+        this.leaderProfileId = leaderProfileId;
         this.projectName = projectName;
         this.projectDescription = projectDescription;
         this.expectationDescription = expectationDescription;
@@ -118,35 +125,43 @@ public class Project extends BaseTimeEntity {
         this.projectResultLink = projectResultLink;
     }
 
-    public void addBackend(ObjectId profile) {
-        this.backends.add(profile);
+    public void addBackend(ObjectId profileId) {
+        this.backendProfileIds.add(profileId);
     }
 
-    public void removeBackend(ObjectId profile) {
-        this.backends.remove(profile);
+    public void removeBackend(ObjectId profileId) {
+        this.backendProfileIds.remove(profileId);
     }
 
-    public void addFrontend(ObjectId profile) {
-        this.frontends.add(profile);
+    public void addFrontend(ObjectId profileId) {
+        this.frontendProfileIds.add(profileId);
     }
 
-    public void removeFrontend(ObjectId profile) {
-        this.frontends.remove(profile);
+    public void removeFrontend(ObjectId profileId) {
+        this.frontendProfileIds.remove(profileId);
     }
 
-    public void addDesigner(ObjectId profile) {
-        this.designers.add(profile);
+    public void addDesigner(ObjectId profileId) {
+        this.designerProfileIds.add(profileId);
     }
 
-    public void removeDesigner(ObjectId profile) {
-        this.designers.remove(profile);
+    public void removeDesigner(ObjectId profileId) {
+        this.designerProfileIds.remove(profileId);
     }
 
-    public void addManager(ObjectId profile) {
-        this.managers.add(profile);
+    public void addManager(ObjectId profileId) {
+        this.managerProfileIds.add(profileId);
     }
 
-    public void removeManager(ObjectId profile) {
-        this.managers.remove(profile);
+    public void removeManager(ObjectId profileId) {
+        this.managerProfileIds.remove(profileId);
+    }
+
+    public void addApply(ObjectId applyId) {
+        this.applyIds.add(applyId);
+    }
+
+    public void addRecruit(ObjectId recruitId) {
+        this.recruitIds.add(recruitId);
     }
 }

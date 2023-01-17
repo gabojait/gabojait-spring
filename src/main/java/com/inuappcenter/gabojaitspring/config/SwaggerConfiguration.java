@@ -4,8 +4,10 @@ import com.fasterxml.classmate.TypeResolver;
 import com.inuappcenter.gabojaitspring.common.DefaultResponseDto;
 import com.inuappcenter.gabojaitspring.exception.DefaultExceptionResponseDto;
 import com.inuappcenter.gabojaitspring.profile.dto.*;
+import com.inuappcenter.gabojaitspring.project.dto.ApplyDefaultResponseDto;
 import com.inuappcenter.gabojaitspring.project.dto.ProjectAbstractResponseDto;
 import com.inuappcenter.gabojaitspring.project.dto.ProjectDefaultResponseDto;
+import com.inuappcenter.gabojaitspring.project.dto.RecruitDefaultResponseDto;
 import com.inuappcenter.gabojaitspring.user.dto.ContactDefaultResponseDto;
 import com.inuappcenter.gabojaitspring.user.dto.UserDefaultResponseDto;
 import org.springframework.context.annotation.Bean;
@@ -64,6 +66,8 @@ public class SwaggerConfiguration {
                 .additionalModels(typeResolver.resolve(PortfolioDefaultResponseDto.class))
                 .additionalModels(typeResolver.resolve(ProjectDefaultResponseDto.class))
                 .additionalModels(typeResolver.resolve(ProjectAbstractResponseDto.class))
+                .additionalModels(typeResolver.resolve(ApplyDefaultResponseDto.class))
+                .additionalModels(typeResolver.resolve(RecruitDefaultResponseDto.class))
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo())
                 .securityContexts(Collections.singletonList(securityContext()))

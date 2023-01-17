@@ -55,6 +55,7 @@ public enum ExceptionCode {
     EXISTING_USERNAME(CONFLICT, "이미 사용중인 아이디입니다."),
     EXISTING_NICKNAME(CONFLICT, "이미 사용중인 닉네임입니다."),
     CURRENT_PROJECT_EXIST(CONFLICT, "이미 진행 중인 프로젝트가 존재합니다."),
+    POSITION_UNAVAILABLE(CONFLICT, "해당 포지션은 지원 마감하였습니다."),
 
     /**
      * 415 UNSUPPORTED MEDIA TYPE

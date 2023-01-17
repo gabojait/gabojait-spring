@@ -15,11 +15,11 @@ public class ProjectAbstractResponseDto {
     @ApiModelProperty(position = 1, required = true, value = "프로젝트 식별자")
     private String projectId;
 
-    @ApiModelProperty(position = 2, required = true, value = "프로젝트 이름")
-    private String projectName;
+    @ApiModelProperty(position = 2, required = true, value = "리더 프로필 식별자")
+    private String leaderProfileId;
 
-    @ApiModelProperty(position = 3, required = true, value = "리더 프로필 식별자")
-    private String leaderId;
+    @ApiModelProperty(position = 3, required = true, value = "프로젝트 이름")
+    private String projectName;
 
     @ApiModelProperty(position = 4, required = true, value = "채팅 링크")
     private String chatLink;
@@ -59,31 +59,41 @@ public class ProjectAbstractResponseDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endedDate;
 
-    @ApiModelProperty(position = 16, required = true, value = "스키마버전")
+    @ApiModelProperty(position = 16, required = true, value = "지원 수")
+    private Integer applyCnt;
+
+    @ApiModelProperty(position = 17, required = true, value = "영입 수")
+    private Integer recruitCnt;
+
+    @ApiModelProperty(position = 18, required = true, value = "스키마버전")
     private String schemaVersion;
 
 
     public ProjectAbstractResponseDto(Project project) {
         this.projectId = project.getId().toString();
+        this.leaderProfileId = project.getLeaderProfileId().toString();
         this.projectName = project.getProjectName();
-        this.leaderId = project.getLeader().toString();
         this.chatLink = project.getChatLink();
 
-        this.backendCnt = project.getBackends().size();
+        this.backendCnt = project.getBackendProfileIds().size();
         this.totalBackendCnt = project.getTotalBackendCnt();
 
-        this.frontendCnt = project.getFrontends().size();
+        this.frontendCnt = project.getFrontendProfileIds().size();
         this.totalFrontendCnt = project.getTotalFrontendCnt();
 
-        this.designerCnt = project.getDesigners().size();
+        this.designerCnt = project.getDesignerProfileIds().size();
         this.totalDesignerCnt = project.getTotalDesignerCnt();
 
-        this.managerCnt = project.getManagers().size();
+        this.managerCnt = project.getManagerProfileIds().size();
         this.totalManagerCnt = project.getTotalManagerCnt();
 
         this.projectResultLink = project.getProjectResultLink();
         this.startedDate = project.getStartedDate();
         this.endedDate = project.getEndedDate();
+
+        this.applyCnt = project.getApplyIds().size();
+        this.recruitCnt = project.getRecruitIds().size();
+
         this.schemaVersion = project.getSchemaVersion();
     }
 }
