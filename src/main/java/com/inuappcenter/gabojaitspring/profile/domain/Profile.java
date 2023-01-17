@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -32,6 +31,9 @@ public class Profile extends BaseTimeEntity {
     @Field(name = "project_ids")
     private List<ObjectId> projectIds = new ArrayList<>();
 
+    @Field(name = "is_looking_for_project")
+    private Boolean isLookingForProject;
+
     private String nickname;
     private String description;
     private Character position;
@@ -49,6 +51,7 @@ public class Profile extends BaseTimeEntity {
         this.position = position.getType();
         this.imageUrl = null;
         this.currentProject = null;
+        this.isLookingForProject = false;
         this.isDeleted = false;
         this.rating = 0F;
     }
@@ -110,5 +113,9 @@ public class Profile extends BaseTimeEntity {
 
     public void removePortfolio(Portfolio portfolio) {
         this.portfolios.remove(portfolio);
+    }
+
+    public void setIsLookingForProject(Boolean isLookingForProject) {
+        this.isLookingForProject = isLookingForProject;
     }
 }

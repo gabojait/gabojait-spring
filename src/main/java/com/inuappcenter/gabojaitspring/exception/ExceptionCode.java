@@ -20,6 +20,7 @@ public enum ExceptionCode {
     DATE_INCORRECT(BAD_REQUEST, "시작일을 종료일 이후로 설정해주세요."),
     LEVEL_INCORRECT_TYPE(BAD_REQUEST, "기술 레벨은 1, 2, 3 중 하나입니다."),
     PORTFOLIO_TYPE_INCORRECT_TYPE(BAD_REQUEST, "포트폴리오 타입은 L, F 중 하나입니다."),
+    PAGE_INCORRECT_TYPE(BAD_REQUEST, "페이지 포맷이 잘못 되었습니다."),
 
     /**
      * 401 UNAUTHORIZED

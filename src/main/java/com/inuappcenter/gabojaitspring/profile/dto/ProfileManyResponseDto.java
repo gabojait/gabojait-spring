@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@ApiModel(value = "Profile 다중 응답")
+@ApiModel(value = "Profile 다건 응답")
 public class ProfileManyResponseDto {
 
     @ApiModelProperty(position = 1, required = true, value = "프로필")

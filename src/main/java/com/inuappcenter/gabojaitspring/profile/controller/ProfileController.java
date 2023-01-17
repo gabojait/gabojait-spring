@@ -17,6 +17,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -128,7 +130,7 @@ public class ProfileController {
                     ObjectId profileId = new ObjectId(pId);
                     profileIds.add(profileId);
                 });
-        List<Profile> profiles = profileService.findMany(profileIds);
+        List<Profile> profiles = profileService.findManyById(profileIds);
 
         ProfileManyResponseDto response = new ProfileManyResponseDto(profiles);
 
@@ -203,6 +205,77 @@ public class ProfileController {
                 .body(DefaultResponseDto.builder()
                         .responseCode("PROFILE_IMG_UPDATED")
                         .responseMessage("프로필 사진 추가/수정 완료")
+                        .data(response)
+                        .build());
+    }
+
+    @ApiOperation(value = "프로젝트 찾기 모드")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "프로젝트 찾기 모드 수정 완료",
+                    content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "사용자 에러"),
+            @ApiResponse(responseCode = "401", description = "토큰 에러"),
+            @ApiResponse(responseCode = "404", description = "존재하지 정보"),
+            @ApiResponse(responseCode = "500", description = "서버 에러")
+    })
+    @PatchMapping(value = "/project/mode")
+    public ResponseEntity<DefaultResponseDto<Object>> findProjectMode(HttpServletRequest servletRequest,
+                                                                      @RequestBody @Valid
+                                                                      ProfileFindProjectModeRequestDto request) {
+        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
+            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
+        }
+
+        User user = userService.findOneByUsername(tokenInfo.get(0));
+        Profile profile = profileService.findOne(user.getProfileId());
+
+        profile = profileService.updateFindProjectMode(profile, request.getIsLookingForProject());
+
+        ProfileDefaultResponseDto response = new ProfileDefaultResponseDto(profile);
+
+        return ResponseEntity.status(200)
+                .body(DefaultResponseDto.builder()
+                        .responseCode("PROJECT_FIND_MODE_UPDATED")
+                        .responseMessage("프로젝트 찾기 모드 수정 완료")
+                        .data(response)
+                        .build());
+    }
+
+    @ApiOperation(value = "프로젝트 찾는 프로필 다건 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "프로젝트 찾는 프로필 다건 조회 완료",
+                    content = @Content(schema = @Schema(implementation = ProfileManyResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "사용자 에러"),
+            @ApiResponse(responseCode = "401", description = "토큰 에러"),
+            @ApiResponse(responseCode = "500", description = "서버 에러")
+    })
+    @GetMapping(value = "/find/project")
+    public ResponseEntity<DefaultResponseDto<Object>> findProfileLookingForProject(HttpServletRequest servletRequest,
+                                                                                   @RequestParam Integer pageFrom,
+                                                                                   @RequestParam(required = false)
+                                                                                       Integer pageNum,
+                                                                                   @RequestParam(required = false)
+                                                                                       Character position) {
+        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
+            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
+        }
+
+        Page<Profile> profilePages = profileService
+                .findManyLookingForProject(pageFrom, pageNum, position);
+
+        List<ProfileDefaultResponseDto> response = new ArrayList<>();
+        profilePages.forEach((p) -> {
+            response.add(new ProfileDefaultResponseDto(p));
+        });
+
+        return ResponseEntity.status(200)
+                .body(DefaultResponseDto.builder()
+                        .responseCode("FOUND_PROFILES_LOOKING_FOR_PROJECT")
+                        .responseMessage("프로젝트 찾는 프로필 다건 조회 완료")
                         .data(response)
                         .build());
     }

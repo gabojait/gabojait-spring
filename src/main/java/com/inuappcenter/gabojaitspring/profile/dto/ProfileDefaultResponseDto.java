@@ -50,6 +50,9 @@ public class ProfileDefaultResponseDto {
     @ApiModelProperty(position = 12, required = true, value = "전체 프로젝트")
     private List<String> projectIds;
 
+    @ApiModelProperty(position = 13, required = true, value = "프로젝트 찾기 모드")
+    private Boolean isLookingForProject;
+
     @ApiModelProperty(position = 13, required = true, value = "스키마버전")
     private String schemaVersion;
 
@@ -85,6 +88,7 @@ public class ProfileDefaultResponseDto {
         for (ObjectId projectId : profile.getProjectIds())
             this.projectIds.add(projectId.toString());
 
+        this.isLookingForProject = profile.getIsLookingForProject();
         this.schemaVersion = profile.getSchemaVersion();
     }
 }

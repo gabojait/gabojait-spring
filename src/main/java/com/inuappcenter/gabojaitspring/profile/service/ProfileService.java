@@ -12,6 +12,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +23,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
@@ -120,11 +125,11 @@ public class ProfileService {
     }
 
     /**
-     * 프로필 다건 조회 |
-     * 여러 프로필 정보를 찾아 반환한다. |
+     * 프로필 식별자로 다건 조회 |
+     * 프로필 식별자로 여러 프로필 정보를 찾아 반환한다. |
      * 404: 존재하지 않은 프로필 에러
      */
-    public List<Profile> findMany(List<ObjectId> profileIds) {
+    public List<Profile> findManyById(List<ObjectId> profileIds) {
         log.info("INITIALIZE | ProfileService | findMany | " + profileIds.size());
         LocalDateTime initTime = LocalDateTime.now();
 
@@ -139,6 +144,50 @@ public class ProfileService {
                 profileIds.size());
         return profiles;
     }
+
+    /**
+     * 프로필 다건 조회
+     * 여러 프로필 정보를 찾아 반환한다. |
+     */
+    public Page<Profile> findManyLookingForProject(Integer pageFrom, Integer pageNum, Character position) {
+        log.info("INITIALIZE | ProfileService | findMany | " + pageFrom + " | " + pageNum + " | " + position);
+        LocalDateTime initTime = LocalDateTime.now();
+
+        if (pageNum == null)
+            pageNum = 20;
+        validatePage(pageFrom, pageNum);
+
+        Page<Profile> profilePages;
+
+        if (position == null) {
+            profilePages = profileRepository
+                    .findAllByIsLookingForProjectIsTrueOrderByModifiedDateDesc(PageRequest.of(pageFrom, 20));
+        } else {
+            validatePosition(position);
+
+            profilePages = profileRepository
+                    .findAllByIsLookingForProjectIsTrueAndPositionEqualsOrderByModifiedDate(
+                            PageRequest.of(pageFrom, pageNum), position
+                    );
+        }
+
+        log.info("COMPLETE | ProfileService | findMany | " + Duration.between(initTime, LocalDateTime.now()) +
+                " | " + pageFrom + " | " + profilePages.getSize());
+        return profilePages;
+    }
+
+    /**
+     * 페이지 검증 |
+     * 페이지 시작점이 0 이상이고 페이지 갯수가 1개 이상인지 검증한다. |
+     * 400: 올바르지 않은 포맷
+     */
+    private void validatePage(Integer pageFrom, Integer pageNum) {
+        log.info("PROGRESS | ProfileService | validatePage | " + pageFrom + " | " + pageNum);
+
+        if (pageFrom < 0 || pageNum < 1)
+            throw new CustomException(PAGE_INCORRECT_TYPE);
+    }
+
 
     /**
      * 프로필 수정 |
@@ -425,6 +474,28 @@ public class ProfileService {
 
         log.info("COMPLETE | ProfileService | endProject | " + Duration.between(initTime, LocalDateTime.now()) +
                 " | " + profile.getId() + " | " + project.getId());
+        return profile;
+    }
+
+    /**
+     * 프로젝트 찾기 모드 변경 |
+     * 프로필에 현재 프로젝트를 찾는지에 대한 여부를 변경하여 저장한다. |
+     * 500: 프로필 정보 저장 중 서버 에러
+     */
+    public Profile updateFindProjectMode(Profile profile, Boolean isLookingForProject) {
+        log.info("INITIALIZE | ProfileService | updateFindProjectMode | " + profile.getId());
+        LocalDateTime initTime = LocalDateTime.now();
+
+        profile.setIsLookingForProject(isLookingForProject);
+
+        try {
+            profile = profileRepository.save(profile);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        log.info("COMPLETE | ProfileService | updateFindProjectMode | " +
+                Duration.between(initTime, LocalDateTime.now()) + " | " + profile.getId());
         return profile;
     }
 }
