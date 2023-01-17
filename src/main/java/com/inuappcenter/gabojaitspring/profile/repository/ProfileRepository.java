@@ -10,7 +10,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProfileRepository extends MongoRepository<Profile, ObjectId> {
 
-    Page<Profile> findAllByIsLookingForProjectIsTrueOrderByModifiedDateDesc(Pageable pageable);
+    Page<Profile> findAllByIsLookingForProjectIsTrueAndIsDeletedFalseOrderByModifiedDateDesc(Pageable pageable);
 
-    Page<Profile> findAllByIsLookingForProjectIsTrueAndPositionEqualsOrderByModifiedDate(Pageable pageable, Character position);
+    Page<Profile> findAllByIsLookingForProjectIsTrueAndIsDeletedFalseAndPositionEqualsOrderByModifiedDate
+            (Pageable pageable, Character position);
 }

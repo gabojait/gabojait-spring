@@ -161,12 +161,14 @@ public class ProfileService {
 
         if (position == null) {
             profilePages = profileRepository
-                    .findAllByIsLookingForProjectIsTrueOrderByModifiedDateDesc(PageRequest.of(pageFrom, 20));
+                    .findAllByIsLookingForProjectIsTrueAndIsDeletedFalseOrderByModifiedDateDesc(
+                            PageRequest.of(pageFrom, 20)
+                    );
         } else {
             validatePosition(position);
 
             profilePages = profileRepository
-                    .findAllByIsLookingForProjectIsTrueAndPositionEqualsOrderByModifiedDate(
+                    .findAllByIsLookingForProjectIsTrueAndIsDeletedFalseAndPositionEqualsOrderByModifiedDate(
                             PageRequest.of(pageFrom, pageNum), position
                     );
         }
