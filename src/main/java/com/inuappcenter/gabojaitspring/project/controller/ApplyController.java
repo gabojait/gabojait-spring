@@ -9,6 +9,7 @@ import com.inuappcenter.gabojaitspring.profile.domain.Profile;
 import com.inuappcenter.gabojaitspring.profile.service.ProfileService;
 import com.inuappcenter.gabojaitspring.project.domain.Apply;
 import com.inuappcenter.gabojaitspring.project.domain.Project;
+import com.inuappcenter.gabojaitspring.project.dto.ApplyAcceptOrDeclineRequestDto;
 import com.inuappcenter.gabojaitspring.project.dto.ApplyDefaultResponseDto;
 import com.inuappcenter.gabojaitspring.project.dto.ApplySaveRequestDto;
 import com.inuappcenter.gabojaitspring.project.service.ApplyService;
@@ -53,6 +54,7 @@ public class ApplyController {
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 않은 정보"),
+            @ApiResponse(responseCode = "409", description = "비지니스 로직 에러"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @ResponseStatus(value = HttpStatus.CREATED)
@@ -70,7 +72,7 @@ public class ApplyController {
         Project project = projectService.findOne(new ObjectId(request.getProjectId()));
         Position position = profileService.validatePosition(request.getPosition());
 
-        projectService.validatePositionAvailability(project, position);
+        projectService.validatePositionAvailability(project, position.getType());
         profileService.validateNoCurrentProject(profile);
 
         Apply apply = applyService.save(request, profile, position);
@@ -85,5 +87,46 @@ public class ApplyController {
                         .build());
     }
 
+    @ApiOperation(value = "수락/거절")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "수락/거절 완료",
+                    content = @Content(schema = @Schema(implementation = ApplyDefaultResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "사용자 에러"),
+            @ApiResponse(responseCode = "401", description = "토큰 에러"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않은 정보"),
+            @ApiResponse(responseCode = "409", description = "비지니스 로직 에러"),
+            @ApiResponse(responseCode = "500", description = "서버 에러")
+    })
+    @PatchMapping
+    public ResponseEntity<DefaultResponseDto<Object>> acceptOrDeclineApply(HttpServletRequest servletRequest,
+                                                                           @RequestBody @Valid
+                                                                           ApplyAcceptOrDeclineRequestDto request) {
+        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
 
+        if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
+            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
+        }
+
+        User user = userService.findOneByUsername(tokenInfo.get(0));
+        Profile leaderProfile = profileService.findOne(user.getProfileId());
+        Apply apply = applyService.findOne(new ObjectId(request.getApplyId()));
+        Profile userProfile = profileService.findOne(apply.getUserProfileId());
+        Project project = projectService.findOne(apply.getProjectId());
+
+        projectService.validatePositionAvailability(project, apply.getPosition());
+        profileService.validateNoCurrentProject(userProfile);
+        projectService.validateLeader(project, leaderProfile);
+
+        apply = applyService.acceptOrDecline(apply, request.getIsAccepted());
+        projectService.joinProject(project, userProfile.getId(), apply.getPosition());
+
+        ApplyDefaultResponseDto response = new ApplyDefaultResponseDto(apply);
+
+        return ResponseEntity.status(200)
+                .body(DefaultResponseDto.builder()
+                        .responseCode("APPLY_RESULT")
+                        .responseMessage("지원 수락/거절 완료")
+                        .data(response)
+                        .build());
+    }
 }

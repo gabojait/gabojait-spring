@@ -9,6 +9,7 @@ import com.inuappcenter.gabojaitspring.profile.domain.Profile;
 import com.inuappcenter.gabojaitspring.profile.service.ProfileService;
 import com.inuappcenter.gabojaitspring.project.domain.Project;
 import com.inuappcenter.gabojaitspring.project.domain.Recruit;
+import com.inuappcenter.gabojaitspring.project.dto.RecruitAcceptOrDeclineRequestDto;
 import com.inuappcenter.gabojaitspring.project.dto.RecruitDefaultResponseDto;
 import com.inuappcenter.gabojaitspring.project.dto.RecruitSaveRequestDto;
 import com.inuappcenter.gabojaitspring.project.service.ProjectService;
@@ -53,6 +54,7 @@ public class RecruitController {
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 않은 정보"),
+            @ApiResponse(responseCode = "409", description = "비지니스 로직 에러"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @ResponseStatus(value = HttpStatus.CREATED)
@@ -69,9 +71,9 @@ public class RecruitController {
         Profile leaderProfile = profileService.findOne(user.getProfileId());
         Profile userProfile = profileService.findOne(new ObjectId(request.getUserProfileId()));
         Project project = projectService.findOne(leaderProfile.getCurrentProject().getId());
-        Position position = profileService.validatePosition(request.getPosition());
 
-        projectService.validatePositionAvailability(project, position);
+        Position position = profileService.validatePosition(request.getPosition());
+        projectService.validatePositionAvailability(project, position.getType());
         profileService.validateNoCurrentProject(userProfile);
         projectService.validateLeader(project, leaderProfile);
 
@@ -82,6 +84,47 @@ public class RecruitController {
                 .body(DefaultResponseDto.builder()
                         .responseCode("RECRUIT_COMPLETE")
                         .responseMessage("영입하기 완료")
+                        .data(response)
+                        .build());
+    }
+
+    @ApiOperation(value = "수락/거절")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "수락/거절 완료",
+                    content = @Content(schema = @Schema(implementation = RecruitDefaultResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "사용자 에러"),
+            @ApiResponse(responseCode = "401", description = "토큰 에러"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않은 정보"),
+            @ApiResponse(responseCode = "409", description = "비지니스 로직 에러"),
+            @ApiResponse(responseCode = "500", description = "서버 에러")
+    })
+    @PatchMapping
+    public ResponseEntity<DefaultResponseDto<Object>> acceptOrDeclineRecruit(HttpServletRequest servletRequest,
+                                                                             @RequestBody @Valid
+                                                                             RecruitAcceptOrDeclineRequestDto request) {
+        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
+            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
+        }
+
+        User user = userService.findOneByUsername(tokenInfo.get(0));
+        Profile profile = profileService.findOne(user.getProfileId());
+        Recruit recruit = recruitService.findOne(new ObjectId(request.getRecruitId()));
+        Project project = projectService.findOne(recruit.getProjectId());
+
+        projectService.validatePositionAvailability(project, recruit.getPosition());
+        profileService.validateNoCurrentProject(profile);
+
+        recruit = recruitService.acceptOrDecline(recruit, request.getIsAccepted());
+        projectService.joinProject(project, profile.getId(), recruit.getPosition());
+
+        RecruitDefaultResponseDto response = new RecruitDefaultResponseDto(recruit);
+
+        return ResponseEntity.status(200)
+                .body(DefaultResponseDto.builder()
+                        .responseCode("RECRUIT_RESULT")
+                        .responseMessage("영입 수락/거절 완료")
                         .data(response)
                         .build());
     }

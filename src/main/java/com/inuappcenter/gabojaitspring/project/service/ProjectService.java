@@ -146,21 +146,21 @@ public class ProjectService {
      * 409: 포지션 인원 초과 에러
      * 500: 프로젝트에 해당 포지션 여부 검증 중 서버 에러
      */
-    public void validatePositionAvailability(Project project, Position position) {
-        log.info("PROGRESS | ProjectService | validatePosition | " + project.getId() + " | " + position.getType());
+    public void validatePositionAvailability(Project project, Character position) {
+        log.info("PROGRESS | ProjectService | validatePosition | " + project.getId() + " | " + position);
 
-        if (position.getType() == 'B') {
+        if (position == 'B') {
             if (project.getBackendProfileIds().size() >= project.getTotalBackendCnt())
                 throw new CustomException(POSITION_UNAVAILABLE);
-        } else if (position.getType() == 'F') {
+        } else if (position == 'F') {
             if (project.getFrontendProfileIds().size() >= project.getTotalFrontendCnt())
                 throw new CustomException(POSITION_UNAVAILABLE);
 
-        } else if (position.getType() == 'D') {
+        } else if (position == 'D') {
             if (project.getDesignerProfileIds().size() >= project.getTotalDesignerCnt())
                 throw new CustomException(POSITION_UNAVAILABLE);
 
-        } else if (position.getType() == 'M') {
+        } else if (position == 'M') {
             if (project.getManagerProfileIds().size() >= project.getTotalManagerCnt())
                 throw new CustomException(POSITION_UNAVAILABLE);
 
@@ -221,5 +221,36 @@ public class ProjectService {
 
         if (project.getLeaderProfileId() != profile.getId())
             throw new CustomException(NON_LEADER);
+    }
+
+    /**
+     * 프로젝트 합류 |
+     * 새로운 팀원을 해당 포지션에 합류 시키고 정보를 저장한다. |
+     * 500: 프로젝트 정보 저장 중 서버 에러
+     */
+    public void joinProject(Project project, ObjectId profileId, Character position) {
+        log.info("INITIALIZE | ProjectService | joinProject | " + project.getId() + " | " + profileId);
+        LocalDateTime initTime = LocalDateTime.now();
+
+        if (position == 'B') {
+            project.addBackend(profileId);
+        } else if (position == 'F') {
+            project.addFrontend(profileId);
+        } else if (position == 'D') {
+            project.addDesigner(profileId);
+        } else if (position == 'M') {
+            project.addManager(profileId);
+        } else {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        try {
+            projectRepository.save(project);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        log.info("COMPLETE | ProjectService | joinProject | " + Duration.between(initTime, LocalDateTime.now()) + " | "
+                + project.getId() + " | " + profileId);
     }
 }

@@ -34,11 +34,7 @@ public class Recruit extends BaseTimeEntity {
         this.isDeleted = false;
     }
 
-    public void accept() {
-        this.isAccepted = true;
-    }
-
-    public void decline() {
-        this.isAccepted = false;
+    public void setIsAccepted(Boolean isAccepted) {
+        this.isAccepted = isAccepted;
     }
 }

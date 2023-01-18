@@ -47,6 +47,8 @@ public enum ExceptionCode {
     NON_EXISTING_WORK(NOT_FOUND, "존재하지 않은 경력 정보입니다."),
     NON_EXISTING_PORTFOLIO(NOT_FOUND, "존재하지 않은 포트폴리오 정보입니다."),
     NON_EXISTING_PROJECT(NOT_FOUND, "존재하지 않은 프로젝트 정보입니다."),
+    NON_EXISTING_RECRUIT(NOT_FOUND, "존재하지 않은 영입 정보입니다."),
+    NON_EXISTING_APPLY(NOT_FOUND, "존재하지 않은 지원 정보입니다."),
 
     /**
      * 409 CONFLICT
