@@ -22,7 +22,7 @@ public class RecruitAcceptOrDeclineRequestDto {
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
     private String recruitId;
 
-    @ApiModelProperty(position = 2, required = true, value = "수락 여부")
+    @ApiModelProperty(position = 2, required = true, value = "수락 여부: true, false", example = "true")
     @NotNull(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotNull.class)
     private Boolean isAccepted;
 }
