@@ -10,7 +10,6 @@ import com.inuappcenter.gabojaitspring.project.domain.Project;
 import com.inuappcenter.gabojaitspring.project.dto.ProjectDefaultResponseDto;
 import com.inuappcenter.gabojaitspring.project.dto.ProjectEndRequestDto;
 import com.inuappcenter.gabojaitspring.project.dto.ProjectSaveRequestDto;
-import com.inuappcenter.gabojaitspring.project.dto.ProjectStartRequestDto;
 import com.inuappcenter.gabojaitspring.project.service.ProjectService;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import com.inuappcenter.gabojaitspring.user.service.UserService;
@@ -88,16 +87,16 @@ public class ProjectController {
 
     @ApiOperation(value = "프로젝트 시작")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "시작 완료"),
+            @ApiResponse(responseCode = "200", description = "시작 완료",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
-            @ApiResponse(responseCode = "403", description = "리더가 아닌 사용자 권한 에러"),
+            @ApiResponse(responseCode = "403", description = "권한 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 않은 정보"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @PatchMapping("/start")
-    public ResponseEntity<DefaultResponseDto<Object>> start(HttpServletRequest servletRequest,
-                                                          @RequestBody @Valid ProjectStartRequestDto request) {
+    public ResponseEntity<DefaultResponseDto<Object>> start(HttpServletRequest servletRequest) {
         List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
 
         if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
@@ -106,10 +105,8 @@ public class ProjectController {
 
         User user = userService.findOneByUsername(tokenInfo.get(0));
         Profile profile = profileService.findOne(user.getProfileId());
-        ObjectId projectId = new ObjectId(request.getProjectId());
-        Project project = projectService.findOne(projectId);
 
-        projectService.start(project, profile);
+        projectService.start(profile.getCurrentProject(), profile);
 
         return ResponseEntity.status(200)
                 .body(DefaultResponseDto.builder()
@@ -120,10 +117,11 @@ public class ProjectController {
 
     @ApiOperation(value = "프로젝트 종료")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "종료 완료"),
+            @ApiResponse(responseCode = "200", description = "종료 완료",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400", description = "사용자 에러"),
             @ApiResponse(responseCode = "401", description = "토큰 에러"),
-            @ApiResponse(responseCode = "403", description = "리더가 아닌 사용자 권한 에러"),
+            @ApiResponse(responseCode = "403", description = "권한 에러"),
             @ApiResponse(responseCode = "404", description = "존재하지 않은 정보"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
@@ -138,10 +136,8 @@ public class ProjectController {
 
         User user = userService.findOneByUsername(tokenInfo.get(0));
         Profile profile = profileService.findOne(user.getProfileId());
-        ObjectId projectId = new ObjectId(request.getProjectId());
-        Project project = projectService.findOne(projectId);
 
-        project = projectService.end(project, profile);
+        Project project = projectService.end(profile.getCurrentProject(), profile);
 
         List<ObjectId> profileIds = new ArrayList<>();
         profileIds.addAll(project.getBackendProfileIds());
