@@ -122,9 +122,9 @@ public class SkillController {
             @ApiResponse(responseCode = "404", description = "존재하지 정보"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @DeleteMapping("/{skillId}")
+    @DeleteMapping("/{skill-id}")
     public ResponseEntity<DefaultResponseDto<Object>> delete(HttpServletRequest servletRequest,
-                                                             @PathVariable
+                                                             @PathVariable(value = "skill-id")
                                                              @NotBlank(message = "기술 식별자를 입력해 주세요.")
                                                              String skillId) {
         List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));

@@ -199,9 +199,9 @@ public class PortfolioController {
             @ApiResponse(responseCode = "404", description = "존재하지 않은 회원 또는 프로필"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @DeleteMapping("/{portfolioId}")
+    @DeleteMapping("/{portfolio-id}")
     public ResponseEntity<DefaultResponseDto<Object>> delete(HttpServletRequest servletRequest,
-                                                             @PathVariable
+                                                             @PathVariable(value = "portfolio-id")
                                                              @NotBlank(message = "포트폴리오 식별자를 입력해 주세요.")
                                                              String portfolioId) {
         List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));

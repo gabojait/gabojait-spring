@@ -124,9 +124,9 @@ public class EducationController {
             @ApiResponse(responseCode = "404", description = "존재하지 정보"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @DeleteMapping("/{educationId}")
+    @DeleteMapping("/{education-id}")
     public ResponseEntity<DefaultResponseDto<Object>> delete(HttpServletRequest servletRequest,
-                                                             @PathVariable
+                                                             @PathVariable(value = "education-id")
                                                              @NotBlank(message = "학력 식별자를 입력해 주세요.")
                                                              String educationId) {
         List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
