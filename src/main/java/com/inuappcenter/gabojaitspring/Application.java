@@ -4,6 +4,7 @@ import com.inuappcenter.gabojaitspring.profile.repository.*;
 import com.inuappcenter.gabojaitspring.project.repository.ApplyRepository;
 import com.inuappcenter.gabojaitspring.project.repository.ProjectRepository;
 import com.inuappcenter.gabojaitspring.project.repository.RecruitRepository;
+import com.inuappcenter.gabojaitspring.review.repository.ReviewRepository;
 import com.inuappcenter.gabojaitspring.user.repository.ContactRepository;
 import com.inuappcenter.gabojaitspring.user.repository.UserRepository;
 import org.springframework.boot.SpringApplication;
@@ -16,7 +17,8 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 		ContactRepository.class, UserRepository.class,
 		ProfileRepository.class, EducationRepository.class, SkillRepository.class, WorkRepository.class,
 		PortfolioRepository.class,
-		ProjectRepository.class, ApplyRepository.class, RecruitRepository.class
+		ProjectRepository.class, ApplyRepository.class, RecruitRepository.class,
+		ReviewRepository.class
 })
 @EnableMongoAuditing
 public class Application {
