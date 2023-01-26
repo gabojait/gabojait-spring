@@ -27,15 +27,16 @@ public class ContactController {
 
     @ApiOperation(value = "이메일 중복 확인")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "이메일 중복 확인 완료",
+            @ApiResponse(responseCode = "201", description = "NO_DUPLICATE_EMAIL",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "사용자 에러"),
-            @ApiResponse(responseCode = "409", description = "이미 사용중인 이메일"),
-            @ApiResponse(responseCode = "500", description = "서버 에러")
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED / EMAIL_FORMAT_INVALID"),
+            @ApiResponse(responseCode = "409", description = "EXISTING_EMAIL"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping
     public ResponseEntity<DefaultResponseDto<Object>> create(@RequestBody @Valid ContactSaveRequestDto request) {
+
         contactService.isExistingEmail(request.getEmail());
 
         contactService.save(request);
@@ -49,10 +50,11 @@ public class ContactController {
 
     @ApiOperation(value = "인증번호 확인")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "인증번호 확인 완료",
+            @ApiResponse(responseCode = "200", description = "EMAIL_VERIFIED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "사용자 에러"),
-            @ApiResponse(responseCode = "404", description = "인증 요청 하지 않은 이메일"),
+            @ApiResponse(responseCode = "400",
+                    description = "FIELD_REQUIRED / EMAIL_FORMAT_INVALID / VERIFICATIONCODE_INVALID"),
+            @ApiResponse(responseCode = "404", description = "NOT_VERIFIED_EMAIL"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
     @PatchMapping
@@ -60,7 +62,7 @@ public class ContactController {
     {
         contactService.verification(request);
 
-        return ResponseEntity.status(201).body(
+        return ResponseEntity.status(200).body(
                 DefaultResponseDto.builder()
                         .responseCode("EMAIL_VERIFIED")
                         .responseMessage("이메일 인증번호 확인 완료")
@@ -70,9 +72,8 @@ public class ContactController {
     // TODO: 배포 전 삭제 필요
     @ApiOperation(value = "전체 삭제")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "전체 삭제",
-                    content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "500", description = "서버 에러")
+            @ApiResponse(responseCode = "204", content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @DeleteMapping("/all")
