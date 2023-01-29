@@ -16,6 +16,9 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Work extends BaseTimeEntity {
 
+    @Field(name = "user_id")
+    private ObjectId userId;
+
     @Field(name = "corporation_name")
     private String corporationName;
 
@@ -28,40 +31,36 @@ public class Work extends BaseTimeEntity {
     @Field(name = "is_current")
     private Boolean isCurrent;
 
-    @Field(name = "profile_id")
-    private ObjectId profileId;
-
     private String description;
 
     @Builder
-    public Work(String corporationName,
+    public Work(ObjectId userId,
+                String corporationName,
                 LocalDate startedDate,
                 LocalDate endedDate,
-                Boolean isCurrent,
-                ObjectId profileId,
+                boolean isCurrent,
                 String description) {
+        this.userId = userId;
         this.corporationName = corporationName;
         this.startedDate = startedDate;
         this.endedDate = endedDate;
         this.isCurrent = isCurrent;
-        this.profileId = profileId;
         this.description = description;
-        this.isDeleted = false;
     }
 
-    public void deleteWork() {
+    public void delete() {
         this.isDeleted = true;
     }
 
-    public void updateWork(String corporationName,
-                           LocalDate startedDate,
-                           LocalDate endedDate,
-                           Boolean isCurrent,
-                           String description) {
+    public void update(String corporationName,
+                       LocalDate startedDate,
+                       LocalDate endedDate,
+                       boolean isCurrent,
+                       String description) {
         this.corporationName = corporationName;
         this.startedDate = startedDate;
         this.endedDate = endedDate;
         this.isCurrent = isCurrent;
-        this.description = description;
+        this. description = description;
     }
 }

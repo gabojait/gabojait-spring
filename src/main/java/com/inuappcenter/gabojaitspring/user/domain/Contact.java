@@ -32,11 +32,15 @@ public class Contact extends BaseTimeEntity {
         this.isDeleted = false;
     }
 
-    public void setIsVerified(Boolean isVerified) {
-        this.isVerified = isVerified;
+    public void verified() {
+        this.isVerified = true;
     }
 
-    public void setIsRegistered(Boolean isRegistered) {
-        this.isRegistered = isRegistered;
+    public void registered() {
+        this.isRegistered = true;
+    }
+
+    public void delete() {
+        this.isDeleted = true;
     }
 }

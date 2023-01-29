@@ -1,8 +1,8 @@
 package com.inuappcenter.gabojaitspring.user.controller;
 
-import com.inuappcenter.gabojaitspring.common.DefaultResponseDto;
-import com.inuappcenter.gabojaitspring.user.dto.ContactSaveRequestDto;
-import com.inuappcenter.gabojaitspring.user.dto.ContactVerificationRequestDto;
+import com.inuappcenter.gabojaitspring.common.DefaultResDto;
+import com.inuappcenter.gabojaitspring.user.dto.req.ContactSaveReqDto;
+import com.inuappcenter.gabojaitspring.user.dto.req.ContactVerificationReqDto;
 import com.inuappcenter.gabojaitspring.user.service.ContactService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import static com.inuappcenter.gabojaitspring.common.SuccessCode.EMAIL_NO_DUPLICATE;
+import static com.inuappcenter.gabojaitspring.common.SuccessCode.EMAIL_VERIFIED;
+
 @Api(tags = "연락처")
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +28,7 @@ public class ContactController {
 
     private final ContactService contactService;
 
-    @ApiOperation(value = "이메일 중복 확인")
+    @ApiOperation(value = "이메일 인증번호 요청")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "NO_DUPLICATE_EMAIL",
                     content = @Content(schema = @Schema(implementation = Object.class))),
@@ -35,53 +38,37 @@ public class ContactController {
     })
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping
-    public ResponseEntity<DefaultResponseDto<Object>> create(@RequestBody @Valid ContactSaveRequestDto request) {
+    public ResponseEntity<DefaultResDto<Object>> create(@RequestBody @Valid ContactSaveReqDto request) {
 
         contactService.isExistingEmail(request.getEmail());
 
         contactService.save(request);
 
-        return ResponseEntity.status(201).body(
-                DefaultResponseDto.builder()
-                        .responseCode("NO_DUPLICATE_EMAIL")
-                        .responseMessage("이메일 중복 확인 완료")
+        return ResponseEntity.status(EMAIL_NO_DUPLICATE.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(EMAIL_NO_DUPLICATE.name())
+                        .responseMessage(EMAIL_NO_DUPLICATE.getMessage())
                         .build());
     }
 
-    @ApiOperation(value = "인증번호 확인")
+    @ApiOperation(value = "인증번호 검증")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "EMAIL_VERIFIED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400",
                     description = "FIELD_REQUIRED / EMAIL_FORMAT_INVALID / VERIFICATIONCODE_INVALID"),
             @ApiResponse(responseCode = "404", description = "NOT_VERIFIED_EMAIL"),
-            @ApiResponse(responseCode = "500", description = "서버 에러")
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
     @PatchMapping
-    public ResponseEntity<DefaultResponseDto<Object>> verify(@RequestBody @Valid ContactVerificationRequestDto request)
+    public ResponseEntity<DefaultResDto<Object>> verify(@RequestBody @Valid ContactVerificationReqDto request)
     {
         contactService.verification(request);
 
-        return ResponseEntity.status(200).body(
-                DefaultResponseDto.builder()
-                        .responseCode("EMAIL_VERIFIED")
-                        .responseMessage("이메일 인증번호 확인 완료")
-                        .build());
-    }
-
-    // TODO: 배포 전 삭제 필요
-    @ApiOperation(value = "전체 삭제")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
-    })
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    @DeleteMapping("/all")
-    public ResponseEntity<DefaultResponseDto<Object>> deleteAll() {
-        contactService.deleteAll();
-
-        return ResponseEntity.status(204)
-                .body(DefaultResponseDto.builder()
+        return ResponseEntity.status(EMAIL_VERIFIED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(EMAIL_VERIFIED.name())
+                        .responseMessage(EMAIL_VERIFIED.getMessage())
                         .build());
     }
 }

@@ -1,6 +1,13 @@
 package com.inuappcenter.gabojaitspring.user.domain;
 
 import com.inuappcenter.gabojaitspring.common.BaseTimeEntity;
+import com.inuappcenter.gabojaitspring.review.domain.ReviewComment;
+import com.inuappcenter.gabojaitspring.profile.domain.Education;
+import com.inuappcenter.gabojaitspring.profile.domain.Portfolio;
+import com.inuappcenter.gabojaitspring.profile.domain.Skill;
+import com.inuappcenter.gabojaitspring.profile.domain.Work;
+import com.inuappcenter.gabojaitspring.user.domain.type.Gender;
+import com.inuappcenter.gabojaitspring.user.domain.type.Role;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,9 +21,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Getter
@@ -30,57 +35,117 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Field(name = "legal_name")
     private String legalName;
 
-    @Field(name = "profile_id")
-    private ObjectId profileId;
+    @Field(name = "is_temporary_password")
+    private Boolean isTemporaryPassword;
+
+    @Field(name = "image_url")
+    private String imageUrl;
+
+    @Field(name = "current_project_id")
+    private ObjectId currentProjectId;
+
+    @Field(name = "completed_project_ids")
+    private List<ObjectId> completedProjectIds = new ArrayList<>();
 
     private String password;
-    private String nickname;
     private Character gender;
     private LocalDate birthdate;
-    private String role;
+    private Set<String> roles = new HashSet<>();
     private Contact contact;
+    private String nickname;
+    private String description;
+    private Character position;
+    private Float rating;
+    private Boolean isPublic;
+    private List<Education> educations = new ArrayList<>();
+    private List<Work> works = new ArrayList<>();
+    private List<Skill> skills = new ArrayList<>();
+    private List<Portfolio> portfolios = new ArrayList<>();
+    private List<ReviewComment> reviewComments = new ArrayList<>();
 
     @Builder
     public User(String username,
                 String legalName,
                 String password,
-                String nickname,
                 Gender gender,
                 LocalDate birthdate,
-                Role role,
-                Contact contact) {
+                Contact contact,
+                String nickname,
+                Set<Role> roles) {
         this.username = username;
         this.legalName = legalName;
+        this.isTemporaryPassword = false;
+        this.imageUrl = null;
+        this.currentProjectId = null;
         this.password = password;
-        this.nickname = nickname;
         this.gender = gender.getType();
         this.birthdate = birthdate;
-        this.role = role.name();
         this.contact = contact;
+        this.nickname = nickname;
+        this.description = null;
+        this.position = null;
+        this.rating = null;
+        this.isPublic = false;
         this.isDeleted = false;
+
+        updateRoles(roles);
     }
 
-    public void setPassword(String password) {
+    public void updateRoles(Set<Role> roles) {
+        for (Role role : roles)
+            this.roles.add(role.name());
+    }
+
+    public void updateIsTemporaryPassword(boolean isTemporaryPassword) {
+        this.isTemporaryPassword = isTemporaryPassword;
+    }
+
+    public void updatePassword(String password) {
         this.password = password;
     }
 
-    public void setNickname(String nickname) {
+    public void updateNickname(String nickname) {
         this.nickname = nickname;
     }
 
-    public void setProfileId(ObjectId profileId) {
-        this.profileId = profileId;
+    public void addEducation(Education education) {
+        this.educations.add(education);
     }
 
-    public void deleteUser() {
+    public void removeEducation(Education education) {
+        this.educations.remove(education);
+    }
+
+    public void addPortfolio(Portfolio portfolio) {
+        this.portfolios.add(portfolio);
+    }
+
+    public void removePortfolio(Portfolio portfolio) {
+        this.portfolios.remove(portfolio);
+    }
+
+    public void addSkill(Skill skill) {
+        this.skills.add(skill);
+    }
+
+    public void removeSkill(Skill skill) {
+        this.skills.remove(skill);
+    }
+
+    public void addWork(Work work) {
+        this.works.add(work);
+    }
+
+    public void removeWork(Work work) {
+        this.works.remove(work);
+    }
+
+    public void delete() {
         this.isDeleted = true;
-        this.contact.setIsDeleted(true);
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Set<String> roles = new HashSet<>();
-        roles.add(role);
         return roles.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());

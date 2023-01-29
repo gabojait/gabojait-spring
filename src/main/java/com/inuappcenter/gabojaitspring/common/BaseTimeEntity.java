@@ -1,7 +1,6 @@
 package com.inuappcenter.gabojaitspring.common;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -24,11 +23,9 @@ public abstract class BaseTimeEntity {
     @Field(name = "modified_date")
     private LocalDateTime modifiedDate;
 
-    @Setter
     @Field(name = "is_deleted")
     protected Boolean isDeleted;
 
-    @Setter
     @Field(name = "schema_version")
     protected String schemaVersion = "1.0";
 }

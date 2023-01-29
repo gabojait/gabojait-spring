@@ -24,27 +24,20 @@ public class CustomUserDetailService implements UserDetailsService {
 
     /**
      * 사용자 정보 존재 여부 확인 |
-     * 사용자 유저이름으로 정보 존재를 파악하고, 존재하지 않은 유저이름이면 401(Unauthorized)를 던진다.
+     * 404(USER_NOT_FOUND)
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info("INITIALIZE | CustomUserDetailService | loadUserByUsername | " + username);
-        LocalDateTime initTime = LocalDateTime.now();
 
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByUsernameAndIsDeletedIsFalse(username)
                 .orElseThrow(() -> {
                     throw new UsernameNotFoundException("사용자 정보가 없습니다");
                 });
 
-        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(user.getRole()));
-
-        log.info("COMPLETE | CustomUserDetailService | loadUserByUsername | " +
-                Duration.between(initTime, LocalDateTime.now()) + " | " + user.getUsername());
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
-                authorities
+                user.getAuthorities()
         );
     }
 }

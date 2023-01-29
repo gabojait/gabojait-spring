@@ -9,46 +9,67 @@ import static org.springframework.http.HttpStatus.*;
 @Getter
 @AllArgsConstructor
 public enum ExceptionCode {
-
     /**
      * 400 BAD_REQUEST
      */
-    VERIFICATION_CODE_INCORRECT(BAD_REQUEST, "인증번호가 틀렸습니다."),
-    GENDER_INCORRECT_TYPE(BAD_REQUEST, "성별은 M, F 중 하나입니다."),
-    PASSWORD_VALIDATION_FAIL(BAD_REQUEST, "비밀번호와 비밀번호 재입력이 동일하지 않습니다."),
-    POSITION_INCORRECT_TYPE(BAD_REQUEST, "포지션은 D, B, F, M 중 하나입니다."),
-    DATE_INCORRECT(BAD_REQUEST, "시작일을 종료일 이후로 설정해주세요."),
-    LEVEL_INCORRECT_TYPE(BAD_REQUEST, "기술 레벨은 1, 2, 3 중 하나입니다."),
-    PORTFOLIO_TYPE_INCORRECT_TYPE(BAD_REQUEST, "포트폴리오 타입은 L, F 중 하나입니다."),
-    PAGE_INCORRECT_TYPE(BAD_REQUEST, "페이지 포맷이 잘못 되었습니다."),
+    // @NotBlank, @NotNull
+    FIELD_REQUIRED(BAD_REQUEST, "모든 필수 정보를 입력해주세요."),
+
+    // @Size
+    USERNAME_LENGTH_INVALID(BAD_REQUEST, "아이디는 5~15자만 가능합니다."),
+    PASSWORD_LENGTH_INVALID(BAD_REQUEST, "비밀번호는 8~30자만 가능합니다."),
+    LEGALNAME_LENGTH_INVALID(BAD_REQUEST, "실명은 2~5자만 가능합니다."),
+    NICKNAME_LENGTH_INVALID(BAD_REQUEST, "닉네임은 2~8자만 가능합니다."),
+    INISTITUTIONNAME_LENGTH_INVALID(BAD_REQUEST, "학교명은 3~20자만 가능합니다."),
+    CORPORTATIONNAME_LENGTH_INVALID(BAD_REQUEST, "기관명은 1~20자만 가능합니다."),
+    PORTFOLIONAME_LENGTH_INVALID(BAD_REQUEST, "포트폴리오명은 1~10자만 가능합니다."),
+    URL_LENGTH_INVALID(BAD_REQUEST, "URL은 1~1000자만 가능합니다"),
+    SKILLNAME_LENGTH_INVALID(BAD_REQUEST, "기술명은 1~20자만 가능합니다."),
+
+
+    // @Email @Pattern
+    EMAIL_FORMAT_INVALID(BAD_REQUEST, "올바른 이메일 형식이 아닙니다."),
+    USERNAME_FORMAT_INVALID(BAD_REQUEST, "아이디는 영문과 숫자의 형식만 가능합니다."),
+    NICKNAME_FORMAT_INVALID(BAD_REQUEST, "닉네임은 한글 형식만 가능합니다."),
+    PASSWORD_FORMAT_INVALID(BAD_REQUEST, "비밀번호는 영문, 숫자, 특수문자(#$@!%&*?)의 조합의 형식만 가능합니다."),
+    LEGALNAME_FORMAT_INVALID(BAD_REQUEST, "실명은 한글 형식만 가능합니다."),
+
+    // Custom
+    EMAIL_VERIFICATION_INVALID(BAD_REQUEST, "이메일 인증을 먼저 해주세요."),
+    VERIFICATIONCODE_INVALID(BAD_REQUEST, "인증번호가 틀렸습니다."),
+    GENDER_FORMAT_INVALID(BAD_REQUEST, "성별은 M, F 중 하나입니다."),
+    PASSWORD_MATCH_INVALID(BAD_REQUEST, "비밀번호와 비밀번호 재입력이 동일하지 않습니다."),
+    LEVEL_FORMAT_INVALID(BAD_REQUEST, "레벨은 1, 2, 3 중 하나입니다."),
 
     /**
      * 401 UNAUTHORIZED
      */
     TOKEN_AUTHENTICATION_FAIL(UNAUTHORIZED, "토큰 인증에 실패했습니다. 다시 로그인한 후 이용해주세요."),
-    TOKEN_AUTHORIZATION_FAIL(UNAUTHORIZED, "토큰 인가를 실패했습니다. 다시 로그인한 후 이용해주세요."),
-    LOGIN_FAIL(UNAUTHORIZED, "아이디 또는 비밀번호가 틀렸습니다."),
-    INCORRECT_PASSWORD(UNAUTHORIZED, "비밀번호가 틀렸습니다."),
+    TOKEN_REQUIRED_FAIL(UNAUTHORIZED, "헤더에 토큰이 없습니다."),
+    LOGIN_FAIL(UNAUTHORIZED, "로그인에 실패했습니다."),
+    USERNAME_EMAIL_NO_MATCH(UNAUTHORIZED, "아이디와 이메일 정보가 일치하지 않습니다."),
+    PASSWORD_AUTHENTICATION_FAIL(UNAUTHORIZED, "비밀번호가 틀렸습니다."),
 
     /**
      * 403 FORBIDDEN
      */
-    NON_LEADER(FORBIDDEN, "해당 권한은 프로젝트 리더에게 있습니다."),
+    ROLE_NOT_ALLOWED(FORBIDDEN, "권한이 없습니다."),
+    TOKEN_NOT_ALLOWED(FORBIDDEN, "권한이 없는 토큰입니다. 다시 로그인한 후 이용해주세요."),
 
     /**
-     * 404 NOT FOUND
+     * 404 NOT_FOUND
      */
-    NOT_VERIFIED_EMAIL(NOT_FOUND, "이메일 인증을 먼저 해주세요."),
-    NON_EXISTING_USER(NOT_FOUND, "존재하지 않은 회원입니다."),
-    NON_EXISTING_EMAIL(NOT_FOUND, "존재하지 않은 이메일입니다."),
-    NON_EXISTING_PROFILE(NOT_FOUND, "존재하지 않은 프로필입니다."),
-    NON_EXISTING_EDUCATION(NOT_FOUND, "존재하지 않은 학력 정보입니다."),
-    NON_EXISTING_SKILL(NOT_FOUND, "존재하지 않은 기술 정보입니다."),
-    NON_EXISTING_WORK(NOT_FOUND, "존재하지 않은 경력 정보입니다."),
-    NON_EXISTING_PORTFOLIO(NOT_FOUND, "존재하지 않은 포트폴리오 정보입니다."),
-    NON_EXISTING_PROJECT(NOT_FOUND, "존재하지 않은 프로젝트 정보입니다."),
-    NON_EXISTING_RECRUIT(NOT_FOUND, "존재하지 않은 영입 정보입니다."),
-    NON_EXISTING_APPLY(NOT_FOUND, "존재하지 않은 지원 정보입니다."),
+    USER_NOT_FOUND(NOT_FOUND, "존재하지 않는 사용자입니다."),
+    EMAIL_NOT_FOUND(NOT_FOUND, "존재하지 않는 이메일입니다."),
+    EDUCATION_NOT_FOUND(NOT_FOUND, "존재하지 않는 학력입니다."),
+    WORK_NOT_FOUND(NOT_FOUND, "존재하지 않는 경력입니다."),
+    SKILL_NOT_FOUND(NOT_FOUND, "존재하지 않은 기술입니다."),
+    PORTFOLIO_NOT_FOUND(NOT_FOUND, "존재하지 않은 포트폴리오입니다."),
+
+    /**
+     * 405 METHOD_NOT_ALLOWED
+     */
+    METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "사용할 수 없는 메소드 입니다."),
 
     /**
      * 409 CONFLICT
@@ -56,14 +77,13 @@ public enum ExceptionCode {
     EXISTING_EMAIL(CONFLICT, "이미 사용중인 이메일입니다."),
     EXISTING_USERNAME(CONFLICT, "이미 사용중인 아이디입니다."),
     EXISTING_NICKNAME(CONFLICT, "이미 사용중인 닉네임입니다."),
-    CURRENT_PROJECT_EXIST(CONFLICT, "이미 진행 중인 프로젝트가 존재합니다."),
-    POSITION_UNAVAILABLE(CONFLICT, "해당 포지션은 지원 마감하였습니다."),
+
 
     /**
-     * 415 UNSUPPORTED MEDIA TYPE
+     * 413 PAYLOAD_TOO_LARGE
      */
-    PROFILE_IMG_TYPE_UNSUPPORTED(UNSUPPORTED_MEDIA_TYPE, "프로필 사진은 .png, .jpg, .jpeg 을 지원합니다."),
-    PORTFOLIO_FILE_TYPE_UNSUPPORTED(UNSUPPORTED_MEDIA_TYPE, "포트폴리오 파일은 .pdf, .png, .jpg, .jpeg 을 지원합니다."),
+    FILE_SIZE_EXCEED(PAYLOAD_TOO_LARGE, "파일 용량이 초과되었습니다"),
+    FILE_COUNT_EXCEED(PAYLOAD_TOO_LARGE, "파일 개수가 초과되었습니다"),
 
     /**
      * 500 INTERNAL_SERVER_ERROR

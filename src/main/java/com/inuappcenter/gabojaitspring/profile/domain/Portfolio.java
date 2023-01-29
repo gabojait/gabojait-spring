@@ -11,32 +11,32 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
 @Document(collection = "portfolio")
-@NoArgsConstructor(access = AccessLevel.PUBLIC)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Portfolio extends BaseTimeEntity {
+
+    @Field(name = "user_id")
+    private ObjectId userId;
 
     @Field(name = "portfolio_type")
     private Character portfolioType;
-
-    @Field(name = "profile_id")
-    private ObjectId profileId;
 
     private String name;
     private String url;
 
     @Builder
-    public Portfolio(PortfolioType portfolioType, String name, String url, ObjectId profileId) {
+    public Portfolio(ObjectId userId, PortfolioType portfolioType, String name, String url) {
+        this.userId = userId;
         this.portfolioType = portfolioType.getType();
         this.name = name;
         this.url = url;
-        this.profileId = profileId;
         this.isDeleted = false;
     }
 
-    public void deletePortfolio() {
-        this.isDeleted  = true;
+    public void delete() {
+        this.isDeleted = true;
     }
 
-    public void updatePortfolio(String name, String url) {
+    public void update(String name, String url) {
         this.name = name;
         this.url = url;
     }

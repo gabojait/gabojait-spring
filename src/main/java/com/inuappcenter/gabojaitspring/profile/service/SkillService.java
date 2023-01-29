@@ -1,140 +1,98 @@
 package com.inuappcenter.gabojaitspring.profile.service;
 
 import com.inuappcenter.gabojaitspring.exception.CustomException;
-import com.inuappcenter.gabojaitspring.profile.domain.Education;
 import com.inuappcenter.gabojaitspring.profile.domain.Level;
-import com.inuappcenter.gabojaitspring.profile.domain.Profile;
 import com.inuappcenter.gabojaitspring.profile.domain.Skill;
-import com.inuappcenter.gabojaitspring.profile.dto.SkillSaveRequestDto;
-import com.inuappcenter.gabojaitspring.profile.dto.SkillUpdateRequestDto;
+import com.inuappcenter.gabojaitspring.profile.dto.req.SkillDefaultReqDto;
 import com.inuappcenter.gabojaitspring.profile.repository.SkillRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class SkillService {
 
     private final SkillRepository skillRepository;
 
     /**
-     * 기술 생성 |
-     * 기술 생성 절차를 밟아서 정보를 저장한다. |
-     * 500: 기술 정보 저장 중 서버 에러
+     * 기술 저장 |
+     * 500(SERVER_ERROR)
      */
-    public Skill save(SkillSaveRequestDto request, Profile profile) {
-        log.info("INITIALIZE | SkillService | save | " + profile.getId());
-        LocalDateTime initTime = LocalDateTime.now();
-
-        Level level = validateLevel(request.getLevel());
-
-        Skill skill = request.toEntity(profile.getId(), level);
+    public Skill saveSkill(ObjectId userId, SkillDefaultReqDto request, Level level) {
 
         try {
-            skill = skillRepository.save(skill);
+            return skillRepository.save(request.toEntity(userId, level));
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
-
-        log.info("COMPLETE | SkillService | save | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
-                profile.getId() + " | " + skill.getId());
-        return skill;
     }
 
     /**
      * 레벨 검증 |
-     * 레벨이 1, 2, 또는 3으로 되어 있는지 확인한다. |
-     * 400: 올바르지 않은 포맷 에러
+     * 400(LEVEL_FORMAT_INVALID)
      */
-    private Level validateLevel(Integer level) {
-        log.info("PROGRESS | SkillService | validateLevel | " + level);
+    public Level validateLevel(Byte level) {
 
-        if (level == Level.LOW.getType().intValue()) {
-            return Level.LOW;
-        } else if (level == Level.MID.getType().intValue()) {
-            return Level.MID;
-        } else if (level == Level.HIGH.getType().intValue()) {
+        if (level == Level.HIGH.getType()) {
             return Level.HIGH;
+        } else if (level == Level.MID.getType()) {
+            return Level.MID;
+        } else if (level == Level.LOW.getType()) {
+            return Level.LOW;
         } else {
-            throw new CustomException(LEVEL_INCORRECT_TYPE);
+            throw new CustomException(LEVEL_FORMAT_INVALID);
+        }
+    }
+
+    /**
+     * 식별자 기술 조회 |
+     * 404(WORK_NOT_FOUND)
+     * 500(SERVER_ERROR)
+     */
+    public Skill findOneSkill(String skillId) {
+
+        try {
+            return skillRepository.findById(new ObjectId(skillId))
+                    .orElseThrow(() -> {
+                        throw new CustomException(SKILL_NOT_FOUND);
+                    });
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
         }
     }
 
     /**
      * 기술 업데이트 |
-     * 기술 정보를 조회하여 업데이트한다. |
-     * 500: 기술 정보 저장 중 서버 에러
+     * 500(SERVER_ERROR)
      */
-    public void update(Profile profile, SkillUpdateRequestDto request) {
-        log.info("INITIALIZE | SkillService | update | " + profile.getId() + " | " + request.getSkillId());
-        LocalDateTime initTime = LocalDateTime.now();
-
-        ObjectId skillId = new ObjectId(request.getSkillId());
-        Skill skill = findOne(profile, skillId);
-        Level level = validateLevel(request.getLevel());
-
-
-        skill.updateSkill(request.getSkillName(),
-                request.getIsExperienced(),
-                level);
+    @Transactional
+    public void updateSkill(Skill skill, SkillDefaultReqDto request, Level level) {
 
         try {
-            skill = skillRepository.save(skill);
+            skill.update(request.getSkillName(),
+                    request.getIsExperienced(),
+                    level);
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
-
-        log.info("COMPLETE | SkillService | update | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
-                profile.getId() + " | " + skill.getId());
     }
 
     /**
-     * 기술 단건 조회 |
-     * 기술 정보가 프로필 정보에 있는지 확인하고 반환한다. |
-     * 404: 존재하지 않은 기술 정보 에러
+     * 기술 삭제 |
+     * 500(SERVER_ERROR)
      */
-    private Skill findOne(Profile profile, ObjectId skillId) {
-        log.info("PROGRESS | SkillService | findOne | " + profile.getId() + " | " + skillId);
-
-        for (Skill skill : profile.getSkills()) {
-            if (skill.getId().equals(skillId)) {
-                return skill;
-            }
-        }
-
-        throw new CustomException(NON_EXISTING_SKILL);
-    }
-
-    /**
-     * 기술 제거 |
-     * 기술 정보에 제거 표시를 한 후 기술을 반환한다. |
-     * 500: 기술 정보 저장 중 서버 에러
-     */
-    public Skill delete(Profile profile, String skillId) {
-        log.info("INITIALIZE | SkillService | delete | " + profile.getId() + " | " + skillId);
-        LocalDateTime initTime = LocalDateTime.now();
-
-        ObjectId id = new ObjectId(skillId);
-        Skill skill = findOne(profile, id);
-
-        skill.deleteSkill();
+    @Transactional
+    public void deleteSkill(Skill skill) {
 
         try {
-            skillRepository.save(skill);
+            skill.delete();
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
-
-        log.info("COMPLETE | SkillService | delete | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
-                skill.getId() + " | " + skill.getIsDeleted());
-        return skill;
     }
 }

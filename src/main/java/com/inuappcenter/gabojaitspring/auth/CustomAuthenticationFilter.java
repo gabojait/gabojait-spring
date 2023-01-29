@@ -1,7 +1,9 @@
 package com.inuappcenter.gabojaitspring.auth;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -10,8 +12,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDateTime;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -29,18 +29,21 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-        log.info("INITIALIZE | CustomAuthenticationFilter | doFilterInternal | " + request.getRequestURI());
-        LocalDateTime initTime = LocalDateTime.now();
+            throws ServletException, IOException, JWTVerificationException {
 
-        String token = request.getHeader(AUTHORIZATION);
+        log.info(">>>>>>>>>>>>>>> {} <<<<<<<<<<<<<<<", request.getRequestURI());
 
-        if (token != null && token.startsWith(tokenPrefix)) {
-            jwtProvider.authenticateJwt(token);
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+
+            String token = request.getHeader(AUTHORIZATION);
+
+            if (token != null && token.startsWith(tokenPrefix)) {
+                jwtProvider.authenticateJwt(token, null);
+            }
         }
+
         filterChain.doFilter(request, response);
 
-        log.info("COMPLETE | CustomAuthenticationFilter | doFilterInternal | " +
-                Duration.between(initTime, LocalDateTime.now()) + " | " + request.getRequestURI());
+        log.info("<<<<<<<<<<<<<<< {} >>>>>>>>>>>>>>>", request.getRequestURI());
     }
 }

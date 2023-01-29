@@ -1,15 +1,15 @@
 package com.inuappcenter.gabojaitspring.config;
 
 import com.fasterxml.classmate.TypeResolver;
-import com.inuappcenter.gabojaitspring.common.DefaultResponseDto;
-import com.inuappcenter.gabojaitspring.exception.DefaultExceptionResponseDto;
-import com.inuappcenter.gabojaitspring.profile.dto.*;
-import com.inuappcenter.gabojaitspring.project.dto.ApplyDefaultResponseDto;
-import com.inuappcenter.gabojaitspring.project.dto.ProjectAbstractResponseDto;
-import com.inuappcenter.gabojaitspring.project.dto.ProjectDefaultResponseDto;
-import com.inuappcenter.gabojaitspring.project.dto.RecruitDefaultResponseDto;
-import com.inuappcenter.gabojaitspring.user.dto.ContactDefaultResponseDto;
-import com.inuappcenter.gabojaitspring.user.dto.UserDefaultResponseDto;
+import com.inuappcenter.gabojaitspring.common.DefaultResDto;
+import com.inuappcenter.gabojaitspring.exception.DefaultExceptionResDto;
+import com.inuappcenter.gabojaitspring.user.dto.res.ContactDefaultResDto;
+import com.inuappcenter.gabojaitspring.profile.dto.res.EducationDefaultResDto;
+import com.inuappcenter.gabojaitspring.profile.dto.res.PortfolioDefaultResDto;
+import com.inuappcenter.gabojaitspring.profile.dto.res.SkillDefaultResDto;
+import com.inuappcenter.gabojaitspring.profile.dto.res.WorkDefaultResDto;
+import com.inuappcenter.gabojaitspring.user.dto.res.UserDefaultResDto;
+import com.inuappcenter.gabojaitspring.profile.dto.res.UserProfileDefaultResDto;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -53,21 +53,15 @@ public class SwaggerConfiguration {
         TypeResolver typeResolver = new TypeResolver();
 
         return new Docket(DocumentationType.SWAGGER_2)
-                .additionalModels(typeResolver.resolve(DefaultResponseDto.class))
-                .additionalModels(typeResolver.resolve(DefaultExceptionResponseDto.class))
-                .additionalModels(typeResolver.resolve(ContactDefaultResponseDto.class))
-                .additionalModels(typeResolver.resolve(UserDefaultResponseDto.class))
-                .additionalModels(typeResolver.resolve(ProfileDefaultResponseDto.class))
-                .additionalModels(typeResolver.resolve(ProfileAbstractResponseDto.class))
-                .additionalModels(typeResolver.resolve(ProfileManyResponseDto.class))
-                .additionalModels(typeResolver.resolve(EducationDefaultResponseDto.class))
-                .additionalModels(typeResolver.resolve(SkillDefaultResponseDto.class))
-                .additionalModels(typeResolver.resolve(WorkDefaultResponseDto.class))
-                .additionalModels(typeResolver.resolve(PortfolioDefaultResponseDto.class))
-                .additionalModels(typeResolver.resolve(ProjectDefaultResponseDto.class))
-                .additionalModels(typeResolver.resolve(ProjectAbstractResponseDto.class))
-                .additionalModels(typeResolver.resolve(ApplyDefaultResponseDto.class))
-                .additionalModels(typeResolver.resolve(RecruitDefaultResponseDto.class))
+                .additionalModels(typeResolver.resolve(DefaultResDto.class))
+                .additionalModels(typeResolver.resolve(DefaultExceptionResDto.class))
+                .additionalModels(typeResolver.resolve(ContactDefaultResDto.class))
+                .additionalModels(typeResolver.resolve(UserDefaultResDto.class))
+                .additionalModels(typeResolver.resolve(UserProfileDefaultResDto.class))
+                .additionalModels(typeResolver.resolve(EducationDefaultResDto.class))
+                .additionalModels(typeResolver.resolve(PortfolioDefaultResDto.class))
+                .additionalModels(typeResolver.resolve(SkillDefaultResDto.class))
+                .additionalModels(typeResolver.resolve(WorkDefaultResDto.class))
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo())
                 .securityContexts(Collections.singletonList(securityContext()))

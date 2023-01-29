@@ -3,20 +3,20 @@ package com.inuappcenter.gabojaitspring.user.service;
 import com.inuappcenter.gabojaitspring.email.service.EmailService;
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.user.domain.Contact;
-import com.inuappcenter.gabojaitspring.user.dto.ContactSaveRequestDto;
-import com.inuappcenter.gabojaitspring.user.dto.ContactVerificationRequestDto;
+import com.inuappcenter.gabojaitspring.user.dto.req.ContactSaveReqDto;
+import com.inuappcenter.gabojaitspring.user.dto.req.ContactVerificationReqDto;
 import com.inuappcenter.gabojaitspring.user.repository.ContactRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ContactService {
 
     private final ContactRepository contactRepository;
@@ -24,12 +24,12 @@ public class ContactService {
 
     /**
      * 이메일 중복 확인 |
-     * 409: EXISTING_EMAIL
-     * 500: SERVER_ERROR
+     * 409(EXISTING_EMAIL)
+     * 500(SERVER_ERROR)
      */
     public void isExistingEmail(String email) {
 
-        contactRepository.findByEmail(email)
+        contactRepository.findByEmailAndIsDeletedIsFalse(email)
                 .ifPresent(contact -> {
                     if (contact.getIsRegistered()) {
                         throw new CustomException(EXISTING_EMAIL);
@@ -45,10 +45,10 @@ public class ContactService {
 
     /**
      * 연락처 저장 |
-     * 이메일이 존재하는지 확인하고, 이메일에 대한 정보를 저장한다. |
-     * 500: SERVER_ERROR
+     * 500(SERVER_ERROR)
      */
-    public void save(ContactSaveRequestDto request) {
+    @Transactional
+    public void save(ContactSaveReqDto request) {
 
         try {
             Contact contact = contactRepository.save(request.toEntity(generateVerificationCode()));
@@ -82,21 +82,45 @@ public class ContactService {
     }
 
     /**
-     * 인증번호 확인 |
-     * 이메일로 수신한 인증번호를 확인한다. |
-     * 400: VERIFICATIONCODE_INVALID
-     * 404: NOT_VERIFIED_EMAIL
-     * 500: SERVER_ERROR
+     * 이메일로 인증안된 연락처 단건 조회 |
+     * 409(EMAIL_VERIFICATION_INVALID)
      */
-    public void verification(ContactVerificationRequestDto request) {
+    public Contact findOneUnverifiedByEmail(String email) {
 
-        contactRepository.findByEmail(request.getEmail())
+        return contactRepository.findByEmailAndIsVerifiedIsFalseAndIsDeletedIsFalse(email)
+                .orElseThrow(() -> {
+                    throw new CustomException(EMAIL_VERIFICATION_INVALID);
+                });
+    }
+
+    /**
+     * 회원 가입
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void register(Contact contact) {
+
+        try {
+            contact.registered();
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 인증번호 확인 |
+     * 400(VERIFICATIONCODE_INVALID)
+     * 404(EMAIL_VERIFICATION_INVALID)
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void verification(ContactVerificationReqDto request) {
+
+        contactRepository.findByEmailAndIsVerifiedIsFalseAndIsDeletedIsFalse(request.getEmail())
                 .ifPresentOrElse(contact -> {
                     if (contact.getVerificationCode().equals(request.getVerificationCode())) {
-                        contact.setIsVerified(true);
-
                         try {
-                            contactRepository.save(contact);
+                            contact.verified();
                         } catch (RuntimeException e) {
                             throw new CustomException(SERVER_ERROR);
                         }
@@ -104,53 +128,31 @@ public class ContactService {
                         throw new CustomException(VERIFICATIONCODE_INVALID);
                     }
                 }, () -> {
-                    throw new CustomException(NOT_VERIFIED_EMAIL);
+                    throw new CustomException(EMAIL_VERIFICATION_INVALID);
                 });
     }
 
     /**
-     * 이메일로 단건 조회 |
-     * 이메일로 연락처를 조회하여 반환한다. |
-     * 404: NOT_VERIFIED_EMAIL
+     * 이메일로 가입된 연락처 단건 조회 |
+     * 404(EMAIL_NOT_FOUND)
      */
-    public Contact findOneByEmail(String email) {
+    public Contact findOneRegisteredByEmail(String email) {
 
-        Contact contact = contactRepository.findByEmail(email)
+        return contactRepository.findByEmailAndIsDeletedIsFalseAndIsRegisteredIsTrue(email)
                 .orElseThrow(() -> {
-                    throw new CustomException(NOT_VERIFIED_EMAIL);
+                    throw new CustomException(EMAIL_NOT_FOUND);
                 });
-
-        if (!contact.getIsVerified() && contact.getIsRegistered()) {
-            throw new CustomException(NOT_VERIFIED_EMAIL);
-        }
-        return contact;
     }
 
     /**
-     * 회원 가입 |
-     * 연락처에 회원가입 여부를 true 로 바꾼다. |
-     * 500: SERVER_ERROR
+     * 탈퇴 |
+     * 500(SERVER_ERROR)
      */
-    public void register(Contact contact) {
-
-        contact.setIsRegistered(true);
+    @Transactional
+    public void deactivate(Contact contact) {
 
         try {
-            contactRepository.save(contact);
-        } catch (RuntimeException e) {
-            throw new CustomException(SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 연락처 전체 삭제 |
-     * 500: SERVER_ERROR
-     * TODO: 배포 전 삭제 필요
-     */
-    public void deleteAll() {
-
-        try {
-            contactRepository.deleteAll();
+            contact.delete();
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }

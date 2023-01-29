@@ -9,12 +9,13 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.time.LocalDate;
-
 @Getter
 @Document(collection = "skill")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Skill extends BaseTimeEntity {
+
+    @Field(name = "user_id")
+    private ObjectId userId;
 
     @Field(name = "skill_name")
     private String skillName;
@@ -22,30 +23,22 @@ public class Skill extends BaseTimeEntity {
     @Field(name = "is_experienced")
     private Boolean isExperienced;
 
-    @Field(name = "profile_id")
-    private ObjectId profileId;
-
     private Byte level;
 
     @Builder
-    public Skill(String skillName,
-                 Boolean isExperienced,
-                 Level level,
-                 ObjectId profileId) {
+    public Skill(ObjectId userId, String skillName, boolean isExperienced, Level level) {
+        this.userId = userId;
         this.skillName = skillName;
         this.isExperienced = isExperienced;
-        this.profileId = profileId;
         this.level = level.getType();
         this.isDeleted = false;
     }
 
-    public void deleteSkill() {
+    public void delete() {
         this.isDeleted = true;
     }
 
-    public void updateSkill(String skillName,
-                            Boolean isExperienced,
-                            Level level) {
+    public void update(String skillName, boolean isExperienced, Level level) {
         this.skillName = skillName;
         this.isExperienced = isExperienced;
         this.level = level.getType();

@@ -1,93 +1,83 @@
 package com.inuappcenter.gabojaitspring.user.service;
 
-import com.inuappcenter.gabojaitspring.auth.JwtProvider;
-import com.inuappcenter.gabojaitspring.email.service.EmailService;
 import com.inuappcenter.gabojaitspring.exception.CustomException;
+import com.inuappcenter.gabojaitspring.email.service.EmailService;
+import com.inuappcenter.gabojaitspring.profile.domain.Portfolio;
+import com.inuappcenter.gabojaitspring.profile.domain.Skill;
+import com.inuappcenter.gabojaitspring.profile.domain.Work;
 import com.inuappcenter.gabojaitspring.user.domain.Contact;
-import com.inuappcenter.gabojaitspring.user.domain.Gender;
+import com.inuappcenter.gabojaitspring.profile.domain.Education;
+import com.inuappcenter.gabojaitspring.user.domain.type.Gender;
 import com.inuappcenter.gabojaitspring.user.domain.User;
-import com.inuappcenter.gabojaitspring.user.dto.UserLoginRequestDto;
-import com.inuappcenter.gabojaitspring.user.dto.UserSaveRequestDto;
-import com.inuappcenter.gabojaitspring.user.dto.UserUpdatePasswordRequestDto;
+import com.inuappcenter.gabojaitspring.user.dto.req.UserLoginReqDto;
+import com.inuappcenter.gabojaitspring.user.dto.req.UserSaveReqDto;
 import com.inuappcenter.gabojaitspring.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.Random;
 
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository userRepository;
-    private final ContactService contactService;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
-    private final JwtProvider jwtProvider;
 
     /**
      * 중복 아이디 여부 확인 |
-     * 400: 이미 사용중인 아이디 경우
+     * 409(EXISTING_USERNAME)
      */
     public void isExistingUsername(String username) {
-        log.info("INITIALIZE | UserService | isExistingUsername | " + username);
-        LocalDateTime initTime = LocalDateTime.now();
 
-        userRepository.findByUsername(username)
-                .ifPresent(user -> {
-                    if (!user.getIsDeleted()) {
-                        throw new CustomException(EXISTING_USERNAME);
-                    }
+        userRepository.findByUsernameAndIsDeletedIsFalse(username)
+                .ifPresent(u -> {
+                    throw new CustomException(EXISTING_USERNAME);
                 });
-
-        log.info("COMPLETE | UserService | isExistingUsername | " + Duration.between(initTime, LocalDateTime.now()) +
-                " | " + username);
     }
 
     /**
-     * 중복 닉네임 여부 확인 |
-     * 400: 이미 사용중인 닉네임 에러
+     * 성별 검증 |
+     * 400(GENDER_FORMAT_INVALID)
      */
-    public void isExistingNickname(String nickname) {
-        log.info("INITIALIZE | UserService | isExistingNickname | " + nickname);
-        LocalDateTime initTime = LocalDateTime.now();
+    public Gender validateGender(Character gender) {
 
-        userRepository.findByNickname(nickname)
-                .ifPresent(user -> {
-                    if (!user.getIsDeleted()) {
-                        throw new CustomException(EXISTING_NICKNAME);
-                    }
-                });
-
-        log.info("COMPLETE | UserService | isExistingNickname | " + Duration.between(initTime, LocalDateTime.now()) +
-                " | " + nickname);
+        if (gender == Gender.MALE.getType()) {
+            return Gender.MALE;
+        } else if (gender == Gender.FEMALE.getType()) {
+            return Gender.FEMALE;
+        } else {
+            throw new CustomException(GENDER_FORMAT_INVALID);
+        }
     }
 
     /**
-     * 회원 가입 |
-     * 회원 가입 절차를 밟아서 정보를 저장한다. |
-     * 500: 회원 정보 저장 중 서버 에러
+     * 비밀번호와 비밀번호 재입력 검증과 인코딩 |
+     * 400(PASSWORD_MATCH_INVALID)
      */
-    public ObjectId save(UserSaveRequestDto request) {
-        log.info("INITIALIZE | UserService | save | " + request.getUsername());
-        LocalDateTime initTime = LocalDateTime.now();
+    public String validatePwAndPwReEnterAndEncode(String password, String passwordReEntered) {
 
-        Contact contact = contactService.findOneByEmail(request.getEmail());
-        contactService.register(contact);
+        if (!password.equals(passwordReEntered))
+            throw new CustomException(PASSWORD_MATCH_INVALID);
+        else
+            return passwordEncoder.encode(password);
+    }
 
-        Gender gender = validateGender(request.getGender());
-        String password = validatePassword(request.getPassword(), request.getPasswordReEntered());
+    /**
+     * 유저 저장 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public User save(UserSaveReqDto request, String encodedPassword, Gender gender, Contact contact) {
 
-        User user = request.toEntity(password, gender, contact);
+        User user = request.toEntity(encodedPassword, gender, contact);
 
         try {
             user = userRepository.save(user);
@@ -95,169 +85,123 @@ public class UserService {
             throw new CustomException(SERVER_ERROR);
         }
 
-        log.info("COMPLETE | UserService | save | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
-                user.getUsername());
-        return user.getId();
-    }
-
-    /**
-     * 비밀번호 검증 |
-     * 비밀번호와 비밀번호 재입력이 동일한지 확인하고 암호화된 비밀번호를 반환한다. |
-     * 400: 두 비밀번호가 동일하지 않은 경우 에러
-     */
-    private String validatePassword(String password, String passwordReEntered) {
-        if (!password.equals(passwordReEntered)) {
-            throw new CustomException(PASSWORD_VALIDATION_FAIL);
-        }
-
-        log.info("PROGRESS | UserService | validatePassword");
-        return passwordEncoder.encode(password);
-    }
-
-    /**
-     * 성별 검증 |
-     * 성별이 남자 'M' 또는 여자 'F'로 되어 있는지 확인한다. |
-     * 400: 올바르지 않을 포맷 에러
-     */
-    private Gender validateGender(Character gender) {
-        log.info("PROGRESS | UserService | validateGender | " + gender);
-
-        if (gender == Gender.MALE.getType()) {
-            return Gender.MALE;
-        } else if (gender == Gender.FEMALE.getType()) {
-            return Gender.FEMALE;
-        } else {
-            throw new CustomException(GENDER_INCORRECT_TYPE);
-        }
-    }
-
-    /**
-     * JWT 토큰 생성 |
-     * JWT 토큰을 생성 또는 재생성한다.
-     */
-    public HttpHeaders generateJwtToken(User user) {
-        log.info("PROGRESS | UserService | generateJwtToken | " + user.getUsername());
-
-        String[] tokens = jwtProvider.generateJwt(user);
-        HttpHeaders responseHeader = new HttpHeaders();
-        responseHeader.add("ACCESS-TOKEN", tokens[0]);
-        responseHeader.add("REFRESH-TOKEN", tokens[1]);
-
-        return responseHeader;
-    }
-
-    /**
-     * 회원 단건 조회 |
-     * 회원 정보를 조회하여 반환합니다. |
-     * 404: 존재하지 않은 유저아이디 에러
-     */
-    public User findOne(ObjectId userId) {
-        log.info("INITIALIZE | UserService | findOne | " + userId);
-        LocalDateTime initTime = LocalDateTime.now();
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    throw new CustomException(NON_EXISTING_USER);
-                });
-
-        log.info("COMPLETE | UserService | findOne | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
-                user.getUsername());
         return user;
     }
 
     /**
-     * 로그인 |
-     * 아이디와 비밀번호를 통해 로그인을 진행한다. |
-     * 401: 아이디 또는 비밀번호가 틀렸을 경우 에러
+     * 로그인
+     * 401(LOGIN_FAIL)
      */
-    public User login(UserLoginRequestDto request) {
-        log.info("INITIALIZE | UserService | login | " + request.getUsername());
-        LocalDateTime initTime = LocalDateTime.now();
+    public User login(UserLoginReqDto request) {
 
-        User user = userRepository.findByUsername(request.getUsername())
+        User user = userRepository.findByUsernameAndIsDeletedIsFalse(request.getUsername())
                 .orElseThrow(() -> {
                     throw new CustomException(LOGIN_FAIL);
                 });
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword()))
             throw new CustomException(LOGIN_FAIL);
-        }
 
-        log.info("COMPLETE | UserService | login | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
-                user.getUsername());
         return user;
     }
 
     /**
-     * 아이디로 회원 단건 조회 |
-     * 아이디로 회원 정보를 조회하여 반환한다. |
-     * 404: 존재하지 않은 아이디 에러
+     * 식별자 단건 조회 |
+     * 404(USER_NOT_FOUND)
+     * 500(SERVER_ERROR)
+     */
+    public User findOneByUserId(String userId) {
+
+        try {
+            return userRepository.findByIdAndIsDeletedIsFalse(new ObjectId(userId))
+                    .orElseThrow(() -> {
+                        throw new CustomException(USER_NOT_FOUND);
+                    });
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 중복 닉네임 여부 확인 |
+     * 409(EXISTING_NICKNAME)
+     */
+    public void isExistingNickname(String nickname) {
+
+        userRepository.findByNicknameAndIsDeletedIsFalse(nickname)
+                .ifPresent(user -> {
+                    throw new CustomException(EXISTING_NICKNAME);
+                });
+    }
+
+    /**
+     * 닉네임 업데이트 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public User updateNickname(User user, String nickname) {
+
+        try {
+            user.updateNickname(nickname);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        return user;
+    }
+
+    /**
+     * 연락처 단건 조회 |
+     * 404(USER_NOT_FOUND)
+     * 500(SERVER_ERROR)
+     */
+    public User findOneByContact(Contact contact) {
+
+        try {
+            return userRepository.findByContactAndIsDeletedIsFalse(contact)
+                    .orElseThrow(() -> {
+                        throw new CustomException(USER_NOT_FOUND);
+                    });
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 아이디 이메일로 전송 |
+     */
+    public void sendUsernameEmail(User user) {
+        emailService.sendEmail(
+                user.getContact().getEmail(),
+                "[가보자잇] 아이디 찾기",
+                user.getLegalName() + "님 안녕하세요!🙇🏻<br>해당 이메일로 가입된 아이디 정보입니다.",
+                user.getUsername()
+        );
+    }
+
+    /**
+     * 아이디 단건 조회 |
+     * 404(USER_NOT_FOUND)
      */
     public User findOneByUsername(String username) {
-        log.info("INITIALIZE | UserService | findOneByUsername | " + username);
-        LocalDateTime initTime = LocalDateTime.now();
 
-        User user = userRepository.findByUsername(username)
+        return userRepository.findByUsernameAndIsDeletedIsFalse(username)
                 .orElseThrow(() -> {
-                    throw new CustomException(NON_EXISTING_USER);
+                    throw new CustomException(USER_NOT_FOUND);
                 });
-
-        log.info("COMPLETE | UserService | findOneByUsername | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
-                user.getUsername());
-        return user;
     }
 
     /**
-     * 아이디 찾기 |
-     * 이메일로 유저를 조회하여 해당 이메일로 아이디를 보낸다. |
-     * 404: 조회가 되지 않거나 탈퇴한 유저 에러
+     * 임시 비밀번호 발급 후 이메일로 전송 |
+     * 401(USERNAME_EMAIL_NO_MATCH)
      */
-    public void findForgotUsername(String email) {
-        log.info("INITIALIZE | UseService | findForgotUsernameByEmail | " + email);
-        LocalDateTime initTime = LocalDateTime.now();
-
-        User user = userRepository.findByContact(email)
-                .orElseThrow(() -> {
-                    throw new CustomException(NON_EXISTING_USER);
-                });
-
-        if (user.getIsDeleted()) {
-            throw new CustomException(NON_EXISTING_USER);
-        } else {
-            emailService.sendEmail(
-                    user.getContact().getEmail(),
-                    "[가보자잇] 아이디 찾기",
-                    user.getLegalName() + "님 안녕하세요!🙇🏻<br>해당 이메일로 가입된 아이디 정보입니다.",
-                    user.getUsername()
-            );
-        }
-
-        log.info("COMPLETE | UserService | findForgotUsernameByEmail | " +
-                Duration.between(initTime, LocalDateTime.now()) + " | " + user.getUsername());
-    }
-
-    /**
-     * 아이디와 이메일로 비밀번호 초기화 |
-     * 아이디로 유저를 조회 후 비밀번호를 초기화하여 이메일로 초기화된 비밀번호를 보낸다. |
-     * 404: 존재하지 않거나 탈퇴한 유저인 경우 에러
-     * 500: 회원 정보 저장 중 서버 에러
-     */
-    public void resetForgotPassword(String username, String email) {
-        log.info("INITIALIZE | UseService | findForgotUsernameByEmail | " + username + " | " + email);
-        LocalDateTime initTime = LocalDateTime.now();
-
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> {
-                    throw new CustomException(NON_EXISTING_USER);
-                });
-
-        if (user.getIsDeleted()) {
-            throw new CustomException(NON_EXISTING_USER);
-        }
+    @Transactional
+    public void resetPasswordAndSendEmail(User user, String email) {
 
         if (email.equals(user.getContact().getEmail())) {
             String tempPassword = generateTemporaryPassword();
-            user.setPassword(passwordEncoder.encode(tempPassword));
+            user.updatePassword(passwordEncoder.encode(tempPassword));
+            user.updateIsTemporaryPassword(true);
 
             emailService.sendEmail(
                     user.getContact().getEmail(),
@@ -266,156 +210,175 @@ public class UserService {
                             "님 안녕하세요!🙇🏻<br>임시 비밀번호를 제공해 드립니다.<br>접속 후 비밀번호를 변경 해주세요.",
                     tempPassword
             );
-
-            try {
-                userRepository.save(user);
-            } catch (RuntimeException e) {
-                throw new CustomException(SERVER_ERROR);
-            }
         } else {
-            throw new CustomException(NON_EXISTING_EMAIL);
+            throw new CustomException(USERNAME_EMAIL_NO_MATCH);
         }
-
-        log.info("COMPLETE | UseService | findForgotUsernameByEmail | "+ Duration.between(initTime, LocalDateTime.now())
-                + " | " + username);
     }
 
     /**
      * 임시 비밀번호 생성 |
-     * 알파벳 대문자와 소문자와 숫자를 조합하여 임시 비밀번호를 생성한다.
      */
     private String generateTemporaryPassword() {
         String chars = "0123456789" + "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz";
         Random random = new Random();
+
         random.setSeed(System.currentTimeMillis());
         StringBuilder sb = new StringBuilder(10);
+
         for (int i = 0; i < 10; i++)
             sb.append(chars.charAt(random.nextInt(chars.length())));
 
-        log.info("PROGRESS | UseService | generateTemporaryPassword" + sb);
         return sb.toString();
     }
 
     /**
+     * 현재 비밀번호 검증 |
+     * 401(PASSWORD_AUTHENTICATION_FAIL)
+     */
+    public void validatePassword(String encodedPassword, String password) {
+        if (!passwordEncoder.matches(password, encodedPassword))
+            throw new CustomException(PASSWORD_AUTHENTICATION_FAIL);
+    }
+
+    /**
      * 비밀번호 업데이트 |
-     * 현재 비밀번호가 동일한지 확인 후 새 비밀번호와 새 비밀번호 재입력이 동일한지 확인하고 비밀번호 업데이트 한다. |
-     * 401: 탈퇴한 회원이거나 현재 비밀번호가 동일하지 않는 경우 에러
-     * 400: 새 배밀번호와 새 배밀번호 재입력이 동일하지 않는 경우 에러
-     * 500: 회원 정보 저장 중 서버 에러
+     * 500(SERVER_ERROR)
      */
-    public User updatePassword(User user, UserUpdatePasswordRequestDto request) {
-        log.info("INITIALIZE | UseService | updatePassword | " + user.getUsername());
-        LocalDateTime initTime = LocalDateTime.now();
-
-        if (!user.getIsDeleted() && passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            if (request.getNewPassword().equals(request.getNewPasswordReEntered())) {
-                user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-            } else {
-                throw new CustomException(PASSWORD_VALIDATION_FAIL);
-            }
-        } else {
-            throw new CustomException(INCORRECT_PASSWORD);
-        }
+    @Transactional
+    public void updatePassword(User user, String encodedPassword, boolean isTemporaryPassword) {
 
         try {
-            user = userRepository.save(user);
+            if (isTemporaryPassword)
+                user.updateIsTemporaryPassword(false);
+
+            user.updatePassword(encodedPassword);
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
-
-        log.info("COMPLETE | UserService | updatePassword | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
-                user.getUsername());
-        return user;
     }
 
     /**
-     * 닉네임 업데이트 |
-     * 404: 탈퇴한 유저 에러
-     * 500: 회원 정보 저장 중 서버 에러
+     * 탈퇴 |
+     * 500(SERVER_ERROR)
      */
-    public User updateNickname(User user, String nickname) {
-        log.info("INITIALIZE | UserService | updateNickname | " + user.getUsername() + " | " + user.getNickname());
-        LocalDateTime initTime = LocalDateTime.now();
-
-        if (user.getIsDeleted()) {
-            throw new CustomException(NON_EXISTING_USER);
-        }
-
-        user.setNickname(nickname);
-
+    @Transactional
+    public void deactivate(User user) {
         try {
-            user = userRepository.save(user);
+            user.delete();
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
-
-        log.info("COMPLETE | UserService | updateNickname | " + Duration.between(initTime, LocalDateTime.now()) + " | "
-                + user.getUsername() + " | " + user.getNickname());
-        return user;
     }
 
     /**
-     * 회원 탈퇴 |
-     * 모든 회원 관련 정보에 탈퇴 여부를 true 로 바꾼다. |
-     * 401: 비밀번호가 틀렸을 경우 에러
-     * 500: 회원 정보 저장 중 서버 에러
+     * 학력 추가 |
+     * 500(SERVER_ERROR)
      */
-    public void deactivate(User user, String password) {
-        log.info("INITIALIZE | UseService | deactivate | " + user.getUsername());
-        LocalDateTime initTime = LocalDateTime.now();
-
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new CustomException(INCORRECT_PASSWORD);
-        }
-
-        user.deleteUser();
+    @Transactional
+    public void addEducation(User user, Education education) {
 
         try {
-            user = userRepository.save(user);
+            user.addEducation(education);
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
-
-        log.info("COMPLETE | UserService | deactivate | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
-                user.getUsername());
     }
 
     /**
-     * 프로필 저장 |
-     * 프로필 아이디를 회원 정보에 저장한다. |
-     * 500: 회원 정보 저장 중 서버 에러
+     * 학력 제거 |
+     * 500(SERVER_ERROR)
      */
-    public void saveProfileId(User user, ObjectId profileId) {
-        log.info("INITIALIZE | UseService | saveProfileId | " + user.getUsername() + " | " + profileId);
-        LocalDateTime initTime = LocalDateTime.now();
-
-        user.setProfileId(profileId);
+    @Transactional
+    public void removeEducation(User user, Education education) {
 
         try {
-            user = userRepository.save(user);
+            user.removeEducation(education);
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
-
-        log.info("COMPLETE | UserService | saveProfileId | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
-                user.getUsername() + " | " + user.getProfileId());
     }
 
     /**
-     * 전체 삭제 |
-     * 500: 회원 정보 삭제 중 서버 에러
-     * TODO: 배포 전 삭제 필요
+     * 경력 추가 |
+     * 500(SERVER_ERROR)
      */
-    public void deleteAll() {
-        log.info("INITIALIZE | UseService | deleteAll");
-        LocalDateTime initTime = LocalDateTime.now();
+    @Transactional
+    public void addWork(User user, Work work) {
 
         try {
-            userRepository.deleteAll();
+            user.addWork(work);
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+    }
 
-        log.info("COMPLETE | UserService | deleteAll | " + Duration.between(initTime, LocalDateTime.now()));
+    /**
+     * 경력 제거 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void removeWork(User user, Work work) {
+
+        try {
+            user.removeWork(work);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 기술 추가 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void addSkill(User user, Skill skill) {
+
+        try {
+            user.addSkill(skill);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 기술 제거 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void removeSkill(User user, Skill skill) {
+
+        try {
+            user.removeSkill(skill);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 포트폴리오 추가 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void addPortfolio(User user, Portfolio portfolio) {
+
+        try {
+            user.addPortfolio(portfolio);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 포트폴리오 제거 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void removePortfolio(User user, Portfolio portfolio) {
+
+        try {
+            user.removePortfolio(portfolio);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
     }
 }

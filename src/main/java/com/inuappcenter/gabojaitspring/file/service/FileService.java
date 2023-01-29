@@ -26,11 +26,9 @@ public class FileService {
 
     /**
      * S3에 파일 업로드 |
-     * MultipartFile 에서 File 로 형변환을 한 후 파일을 S3에 업로드한다. |
-     * 500: S3에 파일 업로드 중 서버 에러
+     * 500(SERVER_ERROR)
      */
     public String upload(String bucketName, String folderName, String fileName, MultipartFile file) {
-        log.info("PROGRESS | FileService | save | " + bucketName + " | " + folderName + fileName);
 
         String url;
         String folderFileName = folderName + "/" + fileName;
@@ -53,11 +51,9 @@ public class FileService {
 
     /**
      * MultiPartFile 에서 File 로 형변환 |
-     * MultiPartFile 에서 File 로 형변환을 하여 리턴한다. |
-     * 500: 형변환 중 서버 에러 발생
+     * 500(SERVER_ERROR)
      */
     private File convertMultiPartToFile(MultipartFile file) {
-        log.info("PROGRESS | FileService | convertMultiPartToFile");
 
         File convertFile = new File(Objects.requireNonNull(file.getOriginalFilename()));
 

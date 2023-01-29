@@ -10,8 +10,6 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.time.Duration;
-import java.time.LocalDateTime;
 
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.MAIL_SENDING_ERROR;
 
@@ -24,13 +22,10 @@ public class EmailService {
 
     /**
      * 이메일 전송 |
-     * 이메일 받는자, 제목, 내용을 받아서 gabojait.help@gmail.com으로부터 이메일을 보낸다. 전송 중 오류가 발생하면 500(INTERNAL_SERVER_ERROR)을
-     * 던진다.
+     * 500(INTERNAL_SERVER_ERROR)
      */
     @Async
     public void sendEmail(String receiver, String title, String intro, String key) {
-        log.info("INITIALIZE | EmailService | sendEmail | " +  receiver  + " | " + title);
-        LocalDateTime initTime = LocalDateTime.now();
 
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -45,9 +40,6 @@ public class EmailService {
         } catch (MessagingException e) {
             throw new CustomException(MAIL_SENDING_ERROR);
         }
-
-        log.info("COMPLETE | EmailService | sendEmail | " + Duration.between(initTime, LocalDateTime.now()) + " | " +
-                receiver  + " | " + title);
     }
 
     /**

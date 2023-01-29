@@ -2,12 +2,20 @@ package com.inuappcenter.gabojaitspring.profile.controller;
 
 import com.inuappcenter.gabojaitspring.auth.JwtProvider;
 import com.inuappcenter.gabojaitspring.auth.JwtType;
-import com.inuappcenter.gabojaitspring.common.DefaultResponseDto;
+import com.inuappcenter.gabojaitspring.common.DefaultResDto;
 import com.inuappcenter.gabojaitspring.exception.CustomException;
-import com.inuappcenter.gabojaitspring.profile.domain.Profile;
-import com.inuappcenter.gabojaitspring.profile.dto.*;
-import com.inuappcenter.gabojaitspring.profile.service.ProfileService;
+import com.inuappcenter.gabojaitspring.profile.domain.*;
+import com.inuappcenter.gabojaitspring.profile.dto.req.PortfolioFileDefaultReqDto;
+import com.inuappcenter.gabojaitspring.profile.dto.req.SkillDefaultReqDto;
+import com.inuappcenter.gabojaitspring.profile.dto.req.WorkDefaultReqDto;
+import com.inuappcenter.gabojaitspring.profile.service.PortfolioService;
+import com.inuappcenter.gabojaitspring.profile.service.SkillService;
+import com.inuappcenter.gabojaitspring.profile.service.WorkService;
 import com.inuappcenter.gabojaitspring.user.domain.User;
+import com.inuappcenter.gabojaitspring.user.domain.type.Role;
+import com.inuappcenter.gabojaitspring.profile.dto.req.EducationDefaultReqDto;
+import com.inuappcenter.gabojaitspring.profile.dto.res.UserProfileDefaultResDto;
+import com.inuappcenter.gabojaitspring.profile.service.EductionService;
 import com.inuappcenter.gabojaitspring.user.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -16,266 +24,462 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.ArrayList;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
-import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
+import static com.inuappcenter.gabojaitspring.common.SuccessCode.*;
+import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.TOKEN_AUTHENTICATION_FAIL;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "프로필")
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/user/profile")
+@RequestMapping("/api/v1/user")
 public class ProfileController {
 
-    private final ProfileService profileService;
-    private final UserService userService;
+    private final EductionService educationService;
+    private final WorkService workService;
+    private final SkillService skillService;
+    private final PortfolioService portfolioService;
     private final JwtProvider jwtProvider;
+    private final UserService userService;
 
-    @ApiOperation(value = "생성")
+    @ApiOperation(value = "학력 생성")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "생성 완료",
-                    content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
-            @ApiResponse(responseCode = "400", description = "사용자 에러"),
-            @ApiResponse(responseCode = "401", description = "토큰 에러"),
-            @ApiResponse(responseCode = "404", description = "존재하지 않은 회원"),
-            @ApiResponse(responseCode = "500", description = "서버 에러")
+            @ApiResponse(responseCode = "201", description = "EDUCATION_CREATED",
+                    content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED / INISTITUTIONNAME_LENGTH_INVALID"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
     @ResponseStatus(value = HttpStatus.CREATED)
-    @PostMapping
-    public ResponseEntity<DefaultResponseDto<Object>> create(HttpServletRequest servletRequest,
-                                                             @RequestBody @Valid ProfileSaveRequestDto request) {
-        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
+    @PostMapping("/education")
+    public ResponseEntity<DefaultResDto<Object>> createEducation(HttpServletRequest servletRequest,
+                                                                 @RequestBody @Valid EducationDefaultReqDto request) {
 
-        if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
-            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
-        }
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
 
-        User user = userService.findOneByUsername(tokenInfo.get(0));
+        User user = userService.findOneByUserId(token.get(0));
 
-        Profile profile = profileService.save(request);
-        userService.saveProfileId(user, profile.getId());
-        profileService.saveUser(user, profile);
+        Education education = educationService.saveEducation(user.getId(), request);
+        userService.addEducation(user, education);
 
-        ProfileDefaultResponseDto response = new ProfileDefaultResponseDto(profile);
+        UserProfileDefaultResDto response = new UserProfileDefaultResDto(user);
 
-        return ResponseEntity.status(201)
-                .body(DefaultResponseDto.builder()
-                        .responseCode("PROFILE_CREATED")
-                        .responseMessage("프로필 생성 완료")
+        return ResponseEntity.status(EDUCATION_CREATED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(EDUCATION_CREATED.name())
+                        .responseMessage(EDUCATION_CREATED.getMessage())
                         .data(response)
                         .build());
     }
 
-    @ApiOperation(value = "단건 조회")
+    @ApiOperation(value = "학력 수정")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "단건 조회 완료",
-                    content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
-            @ApiResponse(responseCode = "401", description = "토큰 에러"),
-            @ApiResponse(responseCode = "404", description = "존재하지 정보")
+            @ApiResponse(responseCode = "200", description = "EDUCATION_UPDATED",
+                    content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED / INISTITUTIONNAME_LENGTH_INVALID"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / EDUCATION_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
-    @GetMapping
-    public ResponseEntity<DefaultResponseDto<Object>> findOne(HttpServletRequest servletRequest) {
-        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
+    @PutMapping("/education/update/{education-id}")
+    public ResponseEntity<DefaultResDto<Object>> updateEducation(HttpServletRequest servletRequest,
+                                                                 @PathVariable(value = "education-id")
+                                                                 @NotBlank(message = "모든 필수 정보를 입력해주세요.")
+                                                                 String educationId,
+                                                                 @RequestBody @Valid EducationDefaultReqDto request) {
 
-        if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
-            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
-        }
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
 
-        User user = userService.findOneByUsername(tokenInfo.get(0));
-        Profile profile = profileService.findOne(user.getProfileId());
+        User user = userService.findOneByUserId(token.get(0));
 
-        ProfileDefaultResponseDto response = new ProfileDefaultResponseDto(profile);
+        Education education = educationService.findOneEducation(educationId);
+        educationService.updateEducation(education, request);
 
-        return ResponseEntity.status(200)
-                .body(DefaultResponseDto.builder()
-                        .responseCode("PROFILE_INFO_FOUND")
-                        .responseMessage("프로필 단건 조회 완료")
+        UserProfileDefaultResDto response = new UserProfileDefaultResDto(user);
+
+        return ResponseEntity.status(EDUCATION_UPDATED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(EDUCATION_UPDATED.name())
+                        .responseMessage(EDUCATION_UPDATED.getMessage())
                         .data(response)
                         .build());
     }
 
-    @ApiOperation(value = "타 프로필 단/다건 조회")
+    @ApiOperation(value = "학력 삭제")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "단/다건 조회 완료",
-                    content = @Content(schema = @Schema(implementation = ProfileManyResponseDto.class))),
-            @ApiResponse(responseCode = "401", description = "토큰 에러"),
-            @ApiResponse(responseCode = "404", description = "존재하지 정보")
+            @ApiResponse(responseCode = "200", description = "EDUCATION_DELETED",
+                    content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / EDUCATION_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
-    @PostMapping("/many")
-    public ResponseEntity<DefaultResponseDto<Object>> findOneOrMany(HttpServletRequest servletRequest,
-                                                                    @RequestBody @Valid ProfileManyRequestDto request) {
-        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
+    @DeleteMapping("/education/{education-id}")
+    public ResponseEntity<DefaultResDto<Object>> deleteEducation(HttpServletRequest servletRequest,
+                                                                 @PathVariable(value = "education-id")
+                                                                 @NotBlank(message = "모든 필수 정보를 입력해주세요.")
+                                                                 String educationId) {
 
-        if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
-            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
-        }
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
 
-        List<ObjectId> profileIds = new ArrayList<>();
-        request.getProfileIds()
-                .forEach((pId) -> {
-                    ObjectId profileId = new ObjectId(pId);
-                    profileIds.add(profileId);
-                });
-        List<Profile> profiles = profileService.findManyById(profileIds);
+        User user = userService.findOneByUserId(token.get(0));
 
-        ProfileManyResponseDto response = new ProfileManyResponseDto(profiles);
+        Education education = educationService.findOneEducation(educationId);
 
-        return ResponseEntity.status(200)
-                .body(DefaultResponseDto.builder()
-                        .responseCode("MANY_PROFILE_INFO_FOUND")
-                        .responseMessage("타 프로필 단/다건 조회 완료")
+        userService.removeEducation(user, education);
+        educationService.deleteEducation(education);
+
+        UserProfileDefaultResDto response = new UserProfileDefaultResDto(user);
+
+        return ResponseEntity.status(EDUCATION_DELETED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(EDUCATION_DELETED.name())
+                        .responseMessage(EDUCATION_DELETED.getMessage())
                         .data(response)
                         .build());
     }
 
-    @ApiOperation(value = "수정")
+    @ApiOperation(value = "경력 생성")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "수정 완료",
-                    content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
-            @ApiResponse(responseCode = "400", description = "사용자 에러"),
-            @ApiResponse(responseCode = "401", description = "토큰 에러"),
-            @ApiResponse(responseCode = "404", description = "존재하지 정보"),
-            @ApiResponse(responseCode = "500", description = "서버 에러")
+            @ApiResponse(responseCode = "201", description = "WORK_CREATED",
+                    content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED / *_LENGTH_INVALID"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
-    @PatchMapping
-    public ResponseEntity<DefaultResponseDto<Object>> updateProfile(HttpServletRequest servletRequest,
-                                                             @RequestBody @Valid ProfileUpdateRequestDto request) {
-        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
+    @ResponseStatus(value = HttpStatus.CREATED)
+    @PostMapping("/work")
+    public ResponseEntity<DefaultResDto<Object>> createWork(HttpServletRequest servletRequest,
+                                                            @RequestBody @Valid WorkDefaultReqDto request) {
 
-        if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
-            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
-        }
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
 
-        User user = userService.findOneByUsername(tokenInfo.get(0));
-        Profile profile = profileService.findOne(user.getProfileId());
+        User user = userService.findOneByUserId(token.get(0));
 
-        profile = profileService.updateProfile(profile, request);
+        Work work = workService.saveWork(user.getId(), request);
+        userService.addWork(user, work);
 
-        ProfileDefaultResponseDto response = new ProfileDefaultResponseDto(profile);
+        UserProfileDefaultResDto response = new UserProfileDefaultResDto(user);
 
-        return ResponseEntity.status(200)
-                .body(DefaultResponseDto.builder()
-                        .responseCode("PROFILE_UPDATED")
-                        .responseMessage("프로필 수정 완료")
+        return ResponseEntity.status(WORK_CREATED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(WORK_CREATED.name())
+                        .responseCode(WORK_UPDATED.getMessage())
                         .data(response)
                         .build());
     }
 
-    @ApiOperation(value = "사진 추가/수정")
+    @ApiOperation(value = "경력 수정")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "사진 추가/수정 완료",
-                    content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
-            @ApiResponse(responseCode = "400", description = "사용자 에러"),
-            @ApiResponse(responseCode = "401", description = "토큰 에러"),
-            @ApiResponse(responseCode = "404", description = "존재하지 정보"),
-            @ApiResponse(responseCode = "415", description = "미지원 파일 규격"),
-            @ApiResponse(responseCode = "500", description = "서버 에러")
+            @ApiResponse(responseCode = "200", description = "WORK_UPDATED",
+                    content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED / *_LENGTH_INVALID"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / WORK_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
-    @PatchMapping(value = "/img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<DefaultResponseDto<Object>> updateImage(HttpServletRequest servletRequest,
-                                                                  @RequestPart(required = false) MultipartFile image) {
-        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
+    @PutMapping("/work/update/{work-id}")
+    public ResponseEntity<DefaultResDto<Object>> updateWork(HttpServletRequest servletRequest,
+                                                            @PathVariable(value = "work-id")
+                                                            @NotBlank(message = "모든 필수 정보를 입력해주세요.")
+                                                            String workId,
+                                                            @RequestBody @Valid WorkDefaultReqDto request) {
 
-        if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
-            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
-        }
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
 
-        User user = userService.findOneByUsername(tokenInfo.get(0));
-        Profile profile = profileService.findOne(user.getProfileId());
+        User user = userService.findOneByUserId(token.get(0));
+        Work work = workService.findOneWork(workId);
 
-        profileService.updateImage(user.getUsername(), profile, image);
+        workService.updateWork(work, request);
 
-        ProfileDefaultResponseDto response = new ProfileDefaultResponseDto(profile);
+        UserProfileDefaultResDto response = new UserProfileDefaultResDto(user);
 
-        return ResponseEntity.status(200)
-                .body(DefaultResponseDto.builder()
-                        .responseCode("PROFILE_IMG_UPDATED")
-                        .responseMessage("프로필 사진 추가/수정 완료")
+        return ResponseEntity.status(WORK_UPDATED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(WORK_UPDATED.name())
+                        .responseMessage(WORK_UPDATED.getMessage())
                         .data(response)
                         .build());
     }
 
-    @ApiOperation(value = "프로젝트 찾기 모드")
+    @ApiOperation(value = "경력 삭제")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "프로젝트 찾기 모드 수정 완료",
-                    content = @Content(schema = @Schema(implementation = ProfileDefaultResponseDto.class))),
-            @ApiResponse(responseCode = "400", description = "사용자 에러"),
-            @ApiResponse(responseCode = "401", description = "토큰 에러"),
-            @ApiResponse(responseCode = "404", description = "존재하지 정보"),
-            @ApiResponse(responseCode = "500", description = "서버 에러")
+            @ApiResponse(responseCode = "200", description = "WORK_DELETED",
+                    content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / WORK_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
-    @PatchMapping(value = "/project/mode")
-    public ResponseEntity<DefaultResponseDto<Object>> findProjectMode(HttpServletRequest servletRequest,
-                                                                      @RequestBody @Valid
-                                                                      ProfileFindProjectModeRequestDto request) {
-        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
+    @DeleteMapping("/work/{work-id}")
+    public ResponseEntity<DefaultResDto<Object>> deleteWork(HttpServletRequest servletRequest,
+                                                            @PathVariable(value = "work-id")
+                                                            @NotBlank(message = "모든 필수 정보를 입력해주세요.")
+                                                            String workId) {
 
-        if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
-            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
-        }
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
 
-        User user = userService.findOneByUsername(tokenInfo.get(0));
-        Profile profile = profileService.findOne(user.getProfileId());
+        User user = userService.findOneByUserId(token.get(0));
+        Work work = workService.findOneWork(workId);
 
-        profile = profileService.updateFindProjectMode(profile, request.getIsLookingForProject());
+        userService.removeWork(user, work);
+        workService.deleteWork(work);
 
-        ProfileDefaultResponseDto response = new ProfileDefaultResponseDto(profile);
+        UserProfileDefaultResDto response = new UserProfileDefaultResDto(user);
 
-        return ResponseEntity.status(200)
-                .body(DefaultResponseDto.builder()
-                        .responseCode("PROJECT_FIND_MODE_UPDATED")
-                        .responseMessage("프로젝트 찾기 모드 수정 완료")
+        return ResponseEntity.status(WORK_DELETED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(WORK_DELETED.name())
+                        .responseMessage(WORK_DELETED.getMessage())
                         .data(response)
                         .build());
     }
 
-    @ApiOperation(value = "프로젝트 찾는 프로필 다건 조회")
+    @ApiOperation(value = "기술 생성")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "프로젝트 찾는 프로필 다건 조회 완료",
-                    content = @Content(schema = @Schema(implementation = ProfileManyResponseDto.class))),
-            @ApiResponse(responseCode = "400", description = "사용자 에러"),
-            @ApiResponse(responseCode = "401", description = "토큰 에러"),
-            @ApiResponse(responseCode = "500", description = "서버 에러")
+            @ApiResponse(responseCode = "201", description = "SKILL_CREATED",
+                    content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED / SKILLNAME_LENGTH_INVALID"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
-    @GetMapping(value = "/project/find")
-    public ResponseEntity<DefaultResponseDto<Object>> findProfileLookingForProject(HttpServletRequest servletRequest,
-                                                                                   @RequestParam Integer pageFrom,
-                                                                                   @RequestParam(required = false)
-                                                                                       Integer pageNum,
-                                                                                   @RequestParam(required = false)
-                                                                                       Character position) {
-        List<String> tokenInfo = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION));
+    @ResponseStatus(value = HttpStatus.CREATED)
+    @PostMapping("/skill")
+    public ResponseEntity<DefaultResDto<Object>> createSkill(HttpServletRequest servletRequest,
+                                                             @RequestBody @Valid SkillDefaultReqDto request) {
 
-        if (!tokenInfo.get(1).equals(JwtType.ACCESS.name())) {
-            throw new CustomException(TOKEN_AUTHORIZATION_FAIL);
-        }
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
 
-        Page<Profile> profilePages = profileService
-                .findManyLookingForProject(pageFrom, pageNum, position);
+        User user = userService.findOneByUserId(token.get(0));
 
-        List<ProfileDefaultResponseDto> response = new ArrayList<>();
-        profilePages.forEach((p) -> {
-            response.add(new ProfileDefaultResponseDto(p));
-        });
+        Level level = skillService.validateLevel(request.getLevel().byteValue());
 
-        return ResponseEntity.status(200)
-                .body(DefaultResponseDto.builder()
-                        .responseCode("FOUND_PROFILES_LOOKING_FOR_PROJECT")
-                        .responseMessage("프로젝트 찾는 프로필 다건 조회 완료")
+        Skill skill = skillService.saveSkill(user.getId(), request, level);
+        userService.addSkill(user, skill);
+
+        UserProfileDefaultResDto response = new UserProfileDefaultResDto(user);
+
+        return ResponseEntity.status(SKILL_CREATED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(SKILL_CREATED.name())
+                        .responseMessage(SKILL_CREATED.getMessage())
+                        .data(response)
+                        .build());
+    }
+
+    @ApiOperation(value = "기술 수정")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "SKILL_UPDATED",
+                    content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED / SKILLNAME_LENGTH_INVALID"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / SKILL_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @ResponseStatus(value = HttpStatus.CREATED)
+    @PostMapping("/skill/update/{skill-id}")
+    public ResponseEntity<DefaultResDto<Object>> updateSkill(HttpServletRequest servletRequest,
+                                                             @PathVariable(value = "skill-id")
+                                                             @NotBlank(message = "모든 필수 정보를 입력해주세요.")
+                                                             String skillId,
+                                                             @RequestBody @Valid SkillDefaultReqDto request) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
+
+        User user = userService.findOneByUserId(token.get(0));
+        Skill skill = skillService.findOneSkill(skillId);
+
+        Level level = skillService.validateLevel(request.getLevel().byteValue());
+
+        skillService.updateSkill(skill, request, level);
+
+        UserProfileDefaultResDto response = new UserProfileDefaultResDto(user);
+
+        return ResponseEntity.status(SKILL_UPDATED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(SKILL_UPDATED.name())
+                        .responseMessage(SKILL_UPDATED.getMessage())
+                        .data(response)
+                        .build());
+    }
+
+    @ApiOperation(value = "기술 삭제")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "SKILL_DELETED",
+                    content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / SKILL_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @DeleteMapping("/skill/{skill-id}")
+    public ResponseEntity<DefaultResDto<Object>> deleteSkill(HttpServletRequest servletRequest,
+                                                             @PathVariable(value = "skill-id")
+                                                             @NotBlank(message = "모든 필수 정보를 입력해주세요.")
+                                                             String skillId) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
+
+        User user = userService.findOneByUserId(token.get(0));
+        Skill skill = skillService.findOneSkill(skillId);
+
+        userService.removeSkill(user, skill);
+        skillService.deleteSkill(skill);
+
+        UserProfileDefaultResDto response = new UserProfileDefaultResDto(user);
+
+        return ResponseEntity.status(SKILL_DELETED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(SKILL_DELETED.name())
+                        .responseMessage(SKILL_DELETED.getMessage())
+                        .data(response)
+                        .build());
+    }
+
+    @ApiOperation(value = "포트폴리오 파일 생성")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "PORTFOLIO_FILE_CREATED",
+                    content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED / PORTFOLIONAME_LENGTH_INVALID"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / WORK_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @ResponseStatus(value = HttpStatus.CREATED)
+    @PostMapping("/portfolio/file")
+    public ResponseEntity<DefaultResDto<Object>> createPortfolioFile(HttpServletRequest servletRequest,
+                                                                     @RequestBody @Valid
+                                                                     PortfolioFileDefaultReqDto request) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
+
+        User user = userService.findOneByUserId(token.get(0));
+
+        Portfolio portfolio = portfolioService.savePortfolioFile(user.getId(), user.getUsername(), request);
+        userService.addPortfolio(user, portfolio);
+
+        UserProfileDefaultResDto response = new UserProfileDefaultResDto(user);
+
+        return ResponseEntity.status(PORTFOLIO_FILE_CREATED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(PORTFOLIO_FILE_CREATED.name())
+                        .responseMessage(PORTFOLIO_FILE_CREATED.name())
+                        .data(response)
+                        .build());
+    }
+
+    @ApiOperation(value = "포트폴리오 파일 수정")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "PORTFOLIO_FILE_UPDATED",
+                    content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED / PORTFOLIONAME_LENGTH_INVALID"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / PORTFOLIO_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @PutMapping("/portfolio/file/update/{portfolio-id}")
+    public ResponseEntity<DefaultResDto<Object>> updatePortfolioFile(HttpServletRequest servletRequest,
+                                                                     @PathVariable(value = "portfolio-id")
+                                                                     @NotBlank(message = "모든 필수 정보를 입력해주세요.")
+                                                                     String portfolioId,
+                                                                     @RequestBody @Valid
+                                                                     PortfolioFileDefaultReqDto request) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
+
+        User user = userService.findOneByUserId(token.get(0));
+        Portfolio portfolio = portfolioService.findOnePortfolio(portfolioId);
+
+        portfolioService.updatePortfolioFile(user.getId(), user.getUsername(), portfolio, request);
+
+        UserProfileDefaultResDto response = new UserProfileDefaultResDto(user);
+
+        return ResponseEntity.status(PORTFOLIO_FILE_UPDATED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(PORTFOLIO_FILE_UPDATED.name())
+                        .responseMessage(PORTFOLIO_FILE_UPDATED.getMessage())
+                        .data(response)
+                        .build());
+    }
+
+    @ApiOperation(value = "포트폴리오 파일 삭제")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "PORTFOLIO_FILE_DELETED",
+                    content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / PORTFOLIO_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @DeleteMapping("/portfolio/file/{portfolio-id}")
+    public ResponseEntity<DefaultResDto<Object>> deletePortfolio(HttpServletRequest servletRequest,
+                                                                 @PathVariable(value = "portfolio-id")
+                                                                 @NotBlank(message = "모든 필수 정보를 입력해주세요.")
+                                                                 String portfolioId) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
+
+        User user = userService.findOneByUserId(token.get(0));
+        Portfolio portfolio = portfolioService.findOnePortfolio(portfolioId);
+
+        portfolioService.deletePortfolio(portfolio);
+        userService.removePortfolio(user, portfolio);
+
+        UserProfileDefaultResDto response = new UserProfileDefaultResDto(user);
+
+        return ResponseEntity.status(PORTFOLIO_FILE_DELETED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(PORTFOLIO_FILE_DELETED.name())
+                        .responseMessage(PORTFOLIO_FILE_DELETED.getMessage())
                         .data(response)
                         .build());
     }
