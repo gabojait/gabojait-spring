@@ -17,12 +17,12 @@ import javax.validation.constraints.Size;
 
 @Data
 @NoArgsConstructor
-@GroupSequence({PortfolioFileDefaultReqDto.class,
+@GroupSequence({PortfolioFileSaveReqDto.class,
         ValidationSequence.NotBlank.class,
         ValidationSequence.NotNull.class,
         ValidationSequence.Size.class})
 @Schema(title = "Portfolio 파일 기본 요청")
-public class PortfolioFileDefaultReqDto {
+public class PortfolioFileSaveReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "이름", example = "이력서")
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
