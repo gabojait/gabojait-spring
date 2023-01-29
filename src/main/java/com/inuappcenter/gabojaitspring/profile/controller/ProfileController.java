@@ -389,7 +389,7 @@ public class ProfileController {
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping("/portfolio/file")
     public ResponseEntity<DefaultResDto<Object>> createPortfolioFile(HttpServletRequest servletRequest,
-                                                                     @RequestBody @Valid
+                                                                     @ModelAttribute @Valid
                                                                      PortfolioFileDefaultReqDto request) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
@@ -426,7 +426,7 @@ public class ProfileController {
                                                                      @PathVariable(value = "portfolio-id")
                                                                      @NotBlank(message = "모든 필수 정보를 입력해주세요.")
                                                                      String portfolioId,
-                                                                     @RequestBody @Valid
+                                                                     @ModelAttribute @Valid
                                                                      PortfolioFileDefaultReqDto request) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
