@@ -3,7 +3,9 @@ package com.inuappcenter.gabojaitspring.profile.service;
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.file.service.FileService;
 import com.inuappcenter.gabojaitspring.profile.domain.Portfolio;
-import com.inuappcenter.gabojaitspring.profile.dto.req.PortfolioFileDefaultReqDto;
+import com.inuappcenter.gabojaitspring.profile.dto.req.PortfolioFileSaveReqDto;
+import com.inuappcenter.gabojaitspring.profile.dto.req.PortfolioFileUpdateReqDto;
+import com.inuappcenter.gabojaitspring.profile.dto.req.PortfolioLinkDefaultReqDto;
 import com.inuappcenter.gabojaitspring.profile.repository.PortfolioRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -27,8 +29,12 @@ public class PortfolioService {
     private final PortfolioRepository portfolioRepository;
     private final FileService fileService;
 
+    /**
+     * 포트폴리오 파일 저장 |
+     * 500(SERVER_ERROR)
+     */
     @Transactional
-    public Portfolio savePortfolioFile(ObjectId userId, String username, PortfolioFileDefaultReqDto request) {
+    public Portfolio savePortfolioFile(ObjectId userId, String username, PortfolioFileSaveReqDto request) {
 
         String url = fileService.upload(bucketName,
                 username + "@" + userId.toString(),
@@ -67,7 +73,7 @@ public class PortfolioService {
     public void updatePortfolioFile(ObjectId userId,
                                     String username,
                                     Portfolio portfolio,
-                                    PortfolioFileDefaultReqDto request) {
+                                    PortfolioFileUpdateReqDto request) {
 
         String url = fileService.upload(bucketName,
                 username + "@" + userId.toString(),
@@ -76,6 +82,36 @@ public class PortfolioService {
 
         try {
             portfolio.update(request.getPortfolioName(), url);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 포트폴리오 링크 저장 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public Portfolio savePortfolioLink(ObjectId userId, PortfolioLinkDefaultReqDto request) {
+
+        try {
+            return portfolioRepository.save(request.toEntity(userId));
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 포트폴리오 링크 업데이터 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void updatePortfolioLink(ObjectId userId,
+                                    Portfolio portfolio,
+                                    PortfolioLinkDefaultReqDto request) {
+
+        try {
+            portfolio.update(request.getPortfolioName(), request.getUrl());
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
@@ -94,7 +130,4 @@ public class PortfolioService {
             throw new CustomException(SERVER_ERROR);
         }
     }
-
-
-
 }

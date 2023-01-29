@@ -5,15 +5,12 @@ import com.inuappcenter.gabojaitspring.auth.JwtType;
 import com.inuappcenter.gabojaitspring.common.DefaultResDto;
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.profile.domain.*;
-import com.inuappcenter.gabojaitspring.profile.dto.req.PortfolioFileDefaultReqDto;
-import com.inuappcenter.gabojaitspring.profile.dto.req.SkillDefaultReqDto;
-import com.inuappcenter.gabojaitspring.profile.dto.req.WorkDefaultReqDto;
+import com.inuappcenter.gabojaitspring.profile.dto.req.*;
 import com.inuappcenter.gabojaitspring.profile.service.PortfolioService;
 import com.inuappcenter.gabojaitspring.profile.service.SkillService;
 import com.inuappcenter.gabojaitspring.profile.service.WorkService;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import com.inuappcenter.gabojaitspring.user.domain.type.Role;
-import com.inuappcenter.gabojaitspring.profile.dto.req.EducationDefaultReqDto;
 import com.inuappcenter.gabojaitspring.profile.dto.res.UserProfileDefaultResDto;
 import com.inuappcenter.gabojaitspring.profile.service.EductionService;
 import com.inuappcenter.gabojaitspring.user.service.UserService;
@@ -383,14 +380,14 @@ public class ProfileController {
             @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED / PORTFOLIONAME_LENGTH_INVALID"),
             @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
-            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / WORK_NOT_FOUND"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping("/portfolio/file")
     public ResponseEntity<DefaultResDto<Object>> createPortfolioFile(HttpServletRequest servletRequest,
                                                                      @ModelAttribute @Valid
-                                                                     PortfolioFileDefaultReqDto request) {
+                                                                     PortfolioFileSaveReqDto request) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
         if (!token.get(1).equals(JwtType.ACCESS.name()))
@@ -406,7 +403,7 @@ public class ProfileController {
         return ResponseEntity.status(PORTFOLIO_FILE_CREATED.getHttpStatus())
                 .body(DefaultResDto.builder()
                         .responseCode(PORTFOLIO_FILE_CREATED.name())
-                        .responseMessage(PORTFOLIO_FILE_CREATED.name())
+                        .responseMessage(PORTFOLIO_FILE_CREATED.getMessage())
                         .data(response)
                         .build());
     }
@@ -421,20 +418,17 @@ public class ProfileController {
             @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / PORTFOLIO_NOT_FOUND"),
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
-    @PutMapping("/portfolio/file/update/{portfolio-id}")
+    @PostMapping("/portfolio/file/update")
     public ResponseEntity<DefaultResDto<Object>> updatePortfolioFile(HttpServletRequest servletRequest,
-                                                                     @PathVariable(value = "portfolio-id")
-                                                                     @NotBlank(message = "모든 필수 정보를 입력해주세요.")
-                                                                     String portfolioId,
                                                                      @ModelAttribute @Valid
-                                                                     PortfolioFileDefaultReqDto request) {
+                                                                     PortfolioFileUpdateReqDto request) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
         if (!token.get(1).equals(JwtType.ACCESS.name()))
             throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
 
         User user = userService.findOneByUserId(token.get(0));
-        Portfolio portfolio = portfolioService.findOnePortfolio(portfolioId);
+        Portfolio portfolio = portfolioService.findOnePortfolio(request.getPortfolioId());
 
         portfolioService.updatePortfolioFile(user.getId(), user.getUsername(), portfolio, request);
 
@@ -448,9 +442,9 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "포트폴리오 파일 삭제")
+    @ApiOperation(value = "포트폴리오 삭제")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "PORTFOLIO_FILE_DELETED",
+            @ApiResponse(responseCode = "200", description = "PORTFOLIO_DELETED",
                     content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
             @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED"),
             @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
@@ -458,7 +452,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / PORTFOLIO_NOT_FOUND"),
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
-    @DeleteMapping("/portfolio/file/{portfolio-id}")
+    @DeleteMapping("/portfolio/{portfolio-id}")
     public ResponseEntity<DefaultResDto<Object>> deletePortfolio(HttpServletRequest servletRequest,
                                                                  @PathVariable(value = "portfolio-id")
                                                                  @NotBlank(message = "모든 필수 정보를 입력해주세요.")
@@ -476,10 +470,82 @@ public class ProfileController {
 
         UserProfileDefaultResDto response = new UserProfileDefaultResDto(user);
 
-        return ResponseEntity.status(PORTFOLIO_FILE_DELETED.getHttpStatus())
+        return ResponseEntity.status(PORTFOLIO_DELETED.getHttpStatus())
                 .body(DefaultResDto.builder()
-                        .responseCode(PORTFOLIO_FILE_DELETED.name())
-                        .responseMessage(PORTFOLIO_FILE_DELETED.getMessage())
+                        .responseCode(PORTFOLIO_DELETED.name())
+                        .responseMessage(PORTFOLIO_DELETED.getMessage())
+                        .data(response)
+                        .build());
+    }
+
+    @ApiOperation(value = "포트폴리오 링크 생성")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "PORTFOLIO_LINK_CREATED",
+                    content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED / PORTFOLIONAME_LENGTH_INVALID"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @ResponseStatus(value = HttpStatus.CREATED)
+    @PostMapping("/portfolio/link")
+    public ResponseEntity<DefaultResDto<Object>> createPortfolioLink(HttpServletRequest servletRequest,
+                                                                     @RequestBody @Valid
+                                                                     PortfolioLinkDefaultReqDto request) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
+
+        User user = userService.findOneByUserId(token.get(0));
+
+        Portfolio portfolio = portfolioService.savePortfolioLink(user.getId(), request);
+        userService.addPortfolio(user, portfolio);
+
+        UserProfileDefaultResDto response = new UserProfileDefaultResDto(user);
+
+        return ResponseEntity.status(PORTFOLIO_LINK_CREATED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(PORTFOLIO_LINK_CREATED.name())
+                        .responseMessage(PORTFOLIO_LINK_CREATED.getMessage())
+                        .data(response)
+                        .build());
+    }
+
+    @ApiOperation(value = "포트폴리오 링크 수정")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "PORTFOLIO_LINK_UPDATED",
+                    content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED / PORTFOLIONAME_LENGTH_INVALID"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / PORTFOLIO_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @PatchMapping("/portfolio/link/update/{portfolio-id}")
+    public ResponseEntity<DefaultResDto<Object>> updatePortfolioLink(HttpServletRequest servletRequest,
+                                                                     @PathVariable(value = "portfolio-id")
+                                                                     @NotBlank(message = "모든 필수 정보를 입력해주세요.")
+                                                                     String portfolioId,
+                                                                     @RequestBody @Valid
+                                                                     PortfolioLinkDefaultReqDto request) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
+
+        User user = userService.findOneByUserId(token.get(0));
+        Portfolio portfolio = portfolioService.findOnePortfolio(portfolioId);
+
+        portfolioService.updatePortfolioLink(user.getId(), portfolio, request);
+
+        UserProfileDefaultResDto response = new UserProfileDefaultResDto(user);
+
+        return ResponseEntity.status(PORTFOLIO_LINK_UPDATED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(PORTFOLIO_LINK_UPDATED.name())
+                        .responseMessage(PORTFOLIO_LINK_UPDATED.getMessage())
                         .data(response)
                         .build());
     }

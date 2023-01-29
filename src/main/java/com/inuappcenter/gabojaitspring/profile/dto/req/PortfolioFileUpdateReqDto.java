@@ -1,13 +1,10 @@
 package com.inuappcenter.gabojaitspring.profile.dto.req;
 
 import com.inuappcenter.gabojaitspring.common.ValidationSequence;
-import com.inuappcenter.gabojaitspring.profile.domain.Portfolio;
-import com.inuappcenter.gabojaitspring.profile.domain.PortfolioType;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.GroupSequence;
@@ -17,12 +14,16 @@ import javax.validation.constraints.Size;
 
 @Data
 @NoArgsConstructor
-@GroupSequence({PortfolioFileSaveReqDto.class,
+@GroupSequence({PortfolioFileUpdateReqDto.class,
         ValidationSequence.NotBlank.class,
         ValidationSequence.NotNull.class,
         ValidationSequence.Size.class})
-@Schema(title = "Portfolio 파일 생성 요청")
-public class PortfolioFileSaveReqDto {
+@Schema(title = "Portfolio 파일 수정 요청")
+public class PortfolioFileUpdateReqDto {
+
+    @ApiModelProperty(position = 1, required = true, value = "포트폴리오 식별자", example = "1")
+    @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
+    private String PortfolioId;
 
     @ApiModelProperty(position = 1, required = true, value = "이름", example = "이력서")
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
@@ -32,13 +33,4 @@ public class PortfolioFileSaveReqDto {
     @ApiModelProperty(position = 2, required = true, value = "파일")
     @NotNull(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotNull.class)
     private MultipartFile file;
-
-    public Portfolio toEntity(ObjectId userId, String url) {
-        return Portfolio.builder()
-                .userId(userId)
-                .portfolioType(PortfolioType.FILE)
-                .name(this.portfolioName)
-                .url(url)
-                .build();
-    }
 }

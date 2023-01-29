@@ -50,7 +50,8 @@ public class User extends BaseTimeEntity implements UserDetails {
     private String password;
     private Character gender;
     private LocalDate birthdate;
-    private Set<String> roles = new HashSet<>();
+
+    private List<String> roles = new ArrayList<>();
     private Contact contact;
     private String nickname;
     private String description;
@@ -71,7 +72,7 @@ public class User extends BaseTimeEntity implements UserDetails {
                 LocalDate birthdate,
                 Contact contact,
                 String nickname,
-                Set<Role> roles) {
+                List<Role> roles) {
         this.username = username;
         this.legalName = legalName;
         this.isTemporaryPassword = false;
@@ -88,10 +89,6 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.isPublic = false;
         this.isDeleted = false;
 
-        updateRoles(roles);
-    }
-
-    public void updateRoles(Set<Role> roles) {
         for (Role role : roles)
             this.roles.add(role.name());
     }
@@ -146,7 +143,7 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
+        return this.roles.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }

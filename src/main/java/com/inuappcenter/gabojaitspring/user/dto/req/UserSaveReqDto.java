@@ -5,6 +5,7 @@ import com.inuappcenter.gabojaitspring.common.ValidationSequence;
 import com.inuappcenter.gabojaitspring.user.domain.Contact;
 import com.inuappcenter.gabojaitspring.user.domain.type.Gender;
 import com.inuappcenter.gabojaitspring.user.domain.User;
+import com.inuappcenter.gabojaitspring.user.domain.type.Role;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -13,6 +14,8 @@ import lombok.NoArgsConstructor;
 import javax.validation.GroupSequence;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @NoArgsConstructor
@@ -69,7 +72,7 @@ public class UserSaveReqDto {
     @Email(message = "올바른 이메일 형식이 아닙니다.", groups = ValidationSequence.Email.class)
     private String email;
 
-    public User toEntity(String password, Gender gender, Contact contact) {
+    public User toEntity(String password, Gender gender, Contact contact, List<Role> roles) {
         return User.builder()
                 .username(this.username)
                 .password(password)
@@ -78,6 +81,7 @@ public class UserSaveReqDto {
                 .gender(gender)
                 .birthdate(this.birthdate)
                 .contact(contact)
+                .roles(roles)
                 .build();
     }
 }

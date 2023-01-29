@@ -9,6 +9,7 @@ import com.inuappcenter.gabojaitspring.user.domain.Contact;
 import com.inuappcenter.gabojaitspring.profile.domain.Education;
 import com.inuappcenter.gabojaitspring.user.domain.type.Gender;
 import com.inuappcenter.gabojaitspring.user.domain.User;
+import com.inuappcenter.gabojaitspring.user.domain.type.Role;
 import com.inuappcenter.gabojaitspring.user.dto.req.UserLoginReqDto;
 import com.inuappcenter.gabojaitspring.user.dto.req.UserSaveReqDto;
 import com.inuappcenter.gabojaitspring.user.repository.UserRepository;
@@ -18,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Random;
+import java.util.*;
 
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 
@@ -77,7 +78,15 @@ public class UserService {
     @Transactional
     public User save(UserSaveReqDto request, String encodedPassword, Gender gender, Contact contact) {
 
-        User user = request.toEntity(encodedPassword, gender, contact);
+        List<Role> roles = new ArrayList<>();
+
+        if (true) { // 유저 가입
+            roles.add(Role.USER);
+        } else { // 관리자 가입
+            roles.add(Role.USER);
+            roles.add(Role.ADMIN);
+        }
+        User user = request.toEntity(encodedPassword, gender, contact, roles);
 
         try {
             user = userRepository.save(user);

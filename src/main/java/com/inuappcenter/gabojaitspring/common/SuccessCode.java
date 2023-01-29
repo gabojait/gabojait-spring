@@ -18,16 +18,20 @@ public enum SuccessCode {
     EDUCATION_DELETED(OK, "학력 제거를 완료 했습니다"),
     WORK_UPDATED(OK, "경력 업데이트를 완료 했습니다"),
     WORK_DELETED(OK, "경력 제거를 완료 했습니다."),
-    SKILL_UPDATED(OK, "기술 업데이트를 완료 했습니다"),
+    SKILL_UPDATED(OK, "기술 업데이트 완료 했습니다"),
     SKILL_DELETED(OK, "기술 제거를 완료 했습니다."),
     PORTFOLIO_FILE_UPDATED(OK, "포트폴리오 파일 업데이트를 완료 했습니다"),
-    PORTFOLIO_FILE_DELETED(OK, "포트폴리오 파일 제거를 완료 했습니다."),
+    PORTFOLIO_LINK_UPDATED(OK, "포트폴리오 링크 업데이트를 완료 했습니다"),
+    PORTFOLIO_DELETED(OK, "포트폴리오 제거를 완료 했습니다."),
+
 
     // 201 CREATED
     EDUCATION_CREATED(CREATED, "학력 생성을 완료 했습니다."),
     WORK_CREATED(CREATED, "경력 생성을 완료 했습니다."),
     SKILL_CREATED(CREATED, "기술 생성을 완료 했습니다."),
     PORTFOLIO_FILE_CREATED(CREATED, "포트폴리오 파일 생성을 완료 했습니다."),
+    PORTFOLIO_LINK_CREATED(CREATED, "포트폴리오 링크 생성을 완료 했습니다."),
+
 
 
     /**
