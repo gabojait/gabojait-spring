@@ -35,18 +35,13 @@ public class EductionService {
     /**
      * 식별자 학력 조회 |
      * 404(EDUCATION_NOT_FOUND)
-     * 500(SERVER_ERROR)
      */
     public Education findOneEducation(String educationId) {
 
-        try {
-            return educationRepository.findById(new ObjectId(educationId))
-                    .orElseThrow(() -> {
-                        throw new CustomException(EDUCATION_NOT_FOUND);
-                    });
-        } catch (RuntimeException e) {
-            throw new CustomException(SERVER_ERROR);
-        }
+        return educationRepository.findById(new ObjectId(educationId))
+                .orElseThrow(() -> {
+                    throw new CustomException(EDUCATION_NOT_FOUND);
+                });
     }
 
     /**

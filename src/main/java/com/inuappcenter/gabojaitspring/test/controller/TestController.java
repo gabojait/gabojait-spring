@@ -23,7 +23,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @Api(tags = "개발")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/dev")
+@RequestMapping("/api/dev")
 public class TestController {
 
     private final TestService testService;

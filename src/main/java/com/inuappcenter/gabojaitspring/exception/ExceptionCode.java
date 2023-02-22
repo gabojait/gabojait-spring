@@ -37,9 +37,11 @@ public enum ExceptionCode {
     // Custom
     EMAIL_VERIFICATION_INVALID(BAD_REQUEST, "이메일 인증을 먼저 해주세요."),
     VERIFICATIONCODE_INVALID(BAD_REQUEST, "인증번호가 틀렸습니다."),
-    GENDER_FORMAT_INVALID(BAD_REQUEST, "성별은 M, F 중 하나입니다."),
+    GENDER_FORMAT_INVALID(BAD_REQUEST, "성별은 male, female 중 하나입니다."),
     PASSWORD_MATCH_INVALID(BAD_REQUEST, "비밀번호와 비밀번호 재입력이 동일하지 않습니다."),
-    LEVEL_FORMAT_INVALID(BAD_REQUEST, "레벨은 1, 2, 3 중 하나입니다."),
+    LEVEL_FORMAT_INVALID(BAD_REQUEST, "레벨은 low, mid, high 중 하나입니다."),
+    PORTFOLIOTYPE_FORMAT_INVALID(BAD_REQUEST, "포트폴리오 타입은 file, link 중 하나입니다."),
+    POSITION_FORMAT_INVALID(BAD_REQUEST, "포지션은 designer, backend, frontend, manager 중 하나입니다."),
 
     /**
      * 401 UNAUTHORIZED

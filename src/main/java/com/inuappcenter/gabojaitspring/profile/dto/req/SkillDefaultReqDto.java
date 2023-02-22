@@ -1,6 +1,5 @@
 package com.inuappcenter.gabojaitspring.profile.dto.req;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.inuappcenter.gabojaitspring.common.ValidationSequence;
 import com.inuappcenter.gabojaitspring.profile.domain.Level;
 import com.inuappcenter.gabojaitspring.profile.domain.Skill;
@@ -30,14 +29,14 @@ public class SkillDefaultReqDto {
     @Size(min = 1, max = 20, message = "기술명은 1~20자만 가능합니다.", groups = ValidationSequence.Size.class)
     private String skillName;
 
-    @ApiModelProperty(position = 2, required = true, value = "경험 여부: true, false", example = "true",
+    @ApiModelProperty(position = 2, required = true, value = "경험 여부", example = "true",
             allowableValues = "true, false")
     @NotNull(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotNull.class)
     private Boolean isExperienced;
 
-    @ApiModelProperty(position = 3, required = true, value = "레벨: 1, 2, 3", example = "3", allowableValues = "1, 2, 3")
-    @NotNull(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotNull.class)
-    private Integer level;
+    @ApiModelProperty(position = 3, required = true, value = "레벨", example = "high", allowableValues = "low, mid, high")
+    @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
+    private String level;
 
     @Builder
     public Skill toEntity(ObjectId userId, Level level) {

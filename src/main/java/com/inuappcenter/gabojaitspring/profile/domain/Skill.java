@@ -23,7 +23,7 @@ public class Skill extends BaseTimeEntity {
     @Field(name = "is_experienced")
     private Boolean isExperienced;
 
-    private Byte level;
+    private Character level;
 
     @Builder
     public Skill(ObjectId userId, String skillName, boolean isExperienced, Level level) {

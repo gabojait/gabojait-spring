@@ -2,11 +2,8 @@ package com.inuappcenter.gabojaitspring.user.service;
 
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.email.service.EmailService;
-import com.inuappcenter.gabojaitspring.profile.domain.Portfolio;
-import com.inuappcenter.gabojaitspring.profile.domain.Skill;
-import com.inuappcenter.gabojaitspring.profile.domain.Work;
+import com.inuappcenter.gabojaitspring.profile.domain.*;
 import com.inuappcenter.gabojaitspring.user.domain.Contact;
-import com.inuappcenter.gabojaitspring.profile.domain.Education;
 import com.inuappcenter.gabojaitspring.user.domain.type.Gender;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import com.inuappcenter.gabojaitspring.user.domain.type.Role;
@@ -42,21 +39,6 @@ public class UserService {
                 .ifPresent(u -> {
                     throw new CustomException(EXISTING_USERNAME);
                 });
-    }
-
-    /**
-     * 성별 검증 |
-     * 400(GENDER_FORMAT_INVALID)
-     */
-    public Gender validateGender(Character gender) {
-
-        if (gender == Gender.MALE.getType()) {
-            return Gender.MALE;
-        } else if (gender == Gender.FEMALE.getType()) {
-            return Gender.FEMALE;
-        } else {
-            throw new CustomException(GENDER_FORMAT_INVALID);
-        }
     }
 
     /**
@@ -165,18 +147,13 @@ public class UserService {
     /**
      * 연락처 단건 조회 |
      * 404(USER_NOT_FOUND)
-     * 500(SERVER_ERROR)
      */
     public User findOneByContact(Contact contact) {
 
-        try {
-            return userRepository.findByContactAndIsDeletedIsFalse(contact)
-                    .orElseThrow(() -> {
-                        throw new CustomException(USER_NOT_FOUND);
-                    });
-        } catch (RuntimeException e) {
-            throw new CustomException(SERVER_ERROR);
-        }
+        return userRepository.findByContactAndIsDeletedIsFalse(contact)
+                .orElseThrow(() -> {
+                    throw new CustomException(USER_NOT_FOUND);
+                });
     }
 
     /**
@@ -389,6 +366,20 @@ public class UserService {
 
         try {
             user.removePortfolio(portfolio);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 포지션 선택 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void selectPosition(User user, Position position) {
+
+        try {
+            user.updatePosition(position);
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }

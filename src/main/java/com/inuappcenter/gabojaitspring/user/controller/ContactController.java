@@ -23,7 +23,7 @@ import static com.inuappcenter.gabojaitspring.common.SuccessCode.EMAIL_VERIFIED;
 @Api(tags = "연락처")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/contact")
+@RequestMapping("/api/contact")
 public class ContactController {
 
     private final ContactService contactService;

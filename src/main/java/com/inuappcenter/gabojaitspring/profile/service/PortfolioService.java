@@ -55,14 +55,10 @@ public class PortfolioService {
      */
     public Portfolio findOnePortfolio(String portfolioId) {
 
-        try {
-            return portfolioRepository.findById(new ObjectId(portfolioId))
-                    .orElseThrow(() -> {
-                        throw new CustomException(PORTFOLIO_NOT_FOUND);
-                    });
-        } catch (RuntimeException e) {
-            throw new CustomException(SERVER_ERROR);
-        }
+        return portfolioRepository.findById(new ObjectId(portfolioId))
+                .orElseThrow(() -> {
+                    throw new CustomException(PORTFOLIO_NOT_FOUND);
+                });
     }
 
     /**

@@ -1,11 +1,8 @@
 package com.inuappcenter.gabojaitspring.user.domain;
 
 import com.inuappcenter.gabojaitspring.common.BaseTimeEntity;
+import com.inuappcenter.gabojaitspring.profile.domain.*;
 import com.inuappcenter.gabojaitspring.review.domain.ReviewComment;
-import com.inuappcenter.gabojaitspring.profile.domain.Education;
-import com.inuappcenter.gabojaitspring.profile.domain.Portfolio;
-import com.inuappcenter.gabojaitspring.profile.domain.Skill;
-import com.inuappcenter.gabojaitspring.profile.domain.Work;
 import com.inuappcenter.gabojaitspring.user.domain.type.Gender;
 import com.inuappcenter.gabojaitspring.user.domain.type.Role;
 import lombok.AccessLevel;
@@ -76,21 +73,24 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.username = username;
         this.legalName = legalName;
         this.isTemporaryPassword = false;
-        this.imageUrl = null;
-        this.currentProjectId = null;
         this.password = password;
         this.gender = gender.getType();
         this.birthdate = birthdate;
         this.contact = contact;
         this.nickname = nickname;
-        this.description = null;
-        this.position = null;
-        this.rating = null;
         this.isPublic = false;
         this.isDeleted = false;
 
         for (Role role : roles)
             this.roles.add(role.name());
+    }
+
+    public void updateDescription(String description) {
+        this.description = description;
+    }
+
+    public void updatePosition(Position position) {
+        this.position = position.getType();
     }
 
     public void updateIsTemporaryPassword(boolean isTemporaryPassword) {

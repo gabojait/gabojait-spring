@@ -35,11 +35,7 @@ public class ContactService {
                         throw new CustomException(EXISTING_EMAIL);
                     }
 
-                    try {
-                        contactRepository.delete(contact);
-                    } catch (CustomException e) {
-                        throw new CustomException(SERVER_ERROR);
-                    }
+                    deactivate(contact);
                 });
     }
 

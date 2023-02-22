@@ -33,37 +33,15 @@ public class SkillService {
     }
 
     /**
-     * 레벨 검증 |
-     * 400(LEVEL_FORMAT_INVALID)
-     */
-    public Level validateLevel(Byte level) {
-
-        if (level == Level.HIGH.getType()) {
-            return Level.HIGH;
-        } else if (level == Level.MID.getType()) {
-            return Level.MID;
-        } else if (level == Level.LOW.getType()) {
-            return Level.LOW;
-        } else {
-            throw new CustomException(LEVEL_FORMAT_INVALID);
-        }
-    }
-
-    /**
      * 식별자 기술 조회 |
      * 404(WORK_NOT_FOUND)
-     * 500(SERVER_ERROR)
      */
     public Skill findOneSkill(String skillId) {
 
-        try {
-            return skillRepository.findById(new ObjectId(skillId))
-                    .orElseThrow(() -> {
-                        throw new CustomException(SKILL_NOT_FOUND);
-                    });
-        } catch (RuntimeException e) {
-            throw new CustomException(SERVER_ERROR);
-        }
+        return skillRepository.findById(new ObjectId(skillId))
+                .orElseThrow(() -> {
+                    throw new CustomException(SKILL_NOT_FOUND);
+                });
     }
 
     /**

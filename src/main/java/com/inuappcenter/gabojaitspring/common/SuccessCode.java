@@ -23,6 +23,9 @@ public enum SuccessCode {
     PORTFOLIO_FILE_UPDATED(OK, "포트폴리오 파일 업데이트를 완료 했습니다"),
     PORTFOLIO_LINK_UPDATED(OK, "포트폴리오 링크 업데이트를 완료 했습니다"),
     PORTFOLIO_DELETED(OK, "포트폴리오 제거를 완료 했습니다."),
+    POSITION_UPDATED(OK, "포지션 업데이트를 완료 했습니다."),
+    PROFILE_FOUND(OK, "프로필 단건 조회를 완료 했습니다."),
+    MY_PROFILE_FOUND(OK, "본인 프로필 정보 조회를 완료 했습니다."),
 
 
     // 201 CREATED
@@ -50,7 +53,7 @@ public enum SuccessCode {
     PASSWORD_FORCE_UPDATE(OK, "비밀번호 재설정이 필요합니다."),
     USER_DEACTIVATED(OK, "회원 탈퇴를 완료 했습니다."),
     USER_FOUND(OK, "회원 단건 조희를 완료 했습니다."),
-    MY_INFO_FOUND(OK, "내 정보 조회를 완료 했습니다."),
+    MY_USER_FOUND(OK, "본인 회원 정보 조회를 완료 했습니다."),
 
     // 201 CREATED
     USER_REGISTERED(CREATED, "회원 가입을 완료 했습니다."),

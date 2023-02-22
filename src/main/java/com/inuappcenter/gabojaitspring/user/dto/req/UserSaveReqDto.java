@@ -58,9 +58,9 @@ public class UserSaveReqDto {
     @Pattern(regexp = "^[가-힣]+$", message = "닉네임은 한글 형식만 가능합니다.", groups = ValidationSequence.Pattern.class)
     private String nickname;
 
-    @ApiModelProperty(position = 5, required = true, value = "성별: M, F", example = "M", allowableValues = "M, F")
-    @NotNull(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotNull.class)
-    private Character gender;
+    @ApiModelProperty(position = 5, required = true, value = "성별", example = "male", allowableValues = "male, female")
+    @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
+    private String gender;
 
     @ApiModelProperty(position = 6, required = true, notes = "string", value = "생년월일", example = "2000-01-01")
     @NotNull(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotNull.class)

@@ -1,5 +1,6 @@
 package com.inuappcenter.gabojaitspring.profile.dto.res;
 
+import com.inuappcenter.gabojaitspring.profile.domain.Level;
 import com.inuappcenter.gabojaitspring.profile.domain.Skill;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -19,7 +20,7 @@ public class SkillDefaultResDto {
         private Boolean isExperienced;
 
         @ApiModelProperty(position = 4, required = true, value = "레벨")
-        private Byte level;
+        private String level;
 
         @ApiModelProperty(position = 5, required = true, value = "스키마 버전")
         private String schemaVersion;
@@ -28,7 +29,7 @@ public class SkillDefaultResDto {
             this.skillId = skill.getId().toString();
             this.skillName = skill.getSkillName();
             this.isExperienced = skill.getIsExperienced();
-            this.level = skill.getLevel();
+            this.level = Level.toEnum(skill.getLevel()).name();
             this.schemaVersion = skill.getSchemaVersion();
         }
     }

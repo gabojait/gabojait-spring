@@ -2,6 +2,7 @@ package com.inuappcenter.gabojaitspring.user.dto.res;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.inuappcenter.gabojaitspring.user.domain.User;
+import com.inuappcenter.gabojaitspring.user.domain.type.Gender;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -26,7 +27,7 @@ public class UserDefaultResDto {
     private String nickname;
 
     @ApiModelProperty(position = 5, required = true, value = "성별")
-    private Character gender;
+    private String gender;
 
     @ApiModelProperty(position = 6, required = true, value = "생년월일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
@@ -51,7 +52,7 @@ public class UserDefaultResDto {
         this.username = user.getUsername();
         this.legalName = user.getLegalName();
         this.nickname = user.getNickname();
-        this.gender = user.getGender();
+        this.gender = Gender.toEnum(user.getGender()).name();
         this.birthdate = user.getBirthdate();
         this.contact = new ContactDefaultResDto(user.getContact());
         this.createdDate = user.getCreatedDate();

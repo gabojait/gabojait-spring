@@ -35,18 +35,13 @@ public class WorkService {
     /**
      * 식별자 경력 조회 |
      * 404(WORK_NOT_FOUND)
-     * 500(SERVER_ERROR)
      */
     public Work findOneWork(String workId) {
 
-        try {
-            return workRepository.findById(new ObjectId(workId))
-                    .orElseThrow(() -> {
-                        throw new CustomException(WORK_NOT_FOUND);
-                    });
-        } catch (RuntimeException e) {
-            throw new CustomException(SERVER_ERROR);
-        }
+        return workRepository.findById(new ObjectId(workId))
+                .orElseThrow(() -> {
+                    throw new CustomException(WORK_NOT_FOUND);
+                });
     }
 
     /**

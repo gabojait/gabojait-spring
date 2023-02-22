@@ -44,7 +44,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/user")
 public class UserController {
 
     private final ContactService contactService;
@@ -92,8 +92,7 @@ public class UserController {
 
         userService.isExistingUsername(request.getUsername());
         userService.isExistingNickname(request.getNickname());
-
-        Gender gender = userService.validateGender(request.getGender());
+        Gender gender = Gender.fromString(request.getGender());
         String encodedPassword = userService.validatePwAndPwReEnterAndEncode(
                 request.getPassword(),
                 request.getPasswordReEntered()
@@ -224,7 +223,7 @@ public class UserController {
 
     @ApiOperation(value = "본인 정보 조회")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "MY_INFO_FOUND",
+            @ApiResponse(responseCode = "200", description = "MY_USER_FOUND",
                     content = @Content(schema = @Schema(implementation = UserDefaultResDto.class))),
             @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
@@ -232,7 +231,7 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
     @GetMapping
-    public ResponseEntity<DefaultResDto<Object>> findMyInfo(HttpServletRequest servletRequest) {
+    public ResponseEntity<DefaultResDto<Object>> findMyself(HttpServletRequest servletRequest) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
 
@@ -243,10 +242,10 @@ public class UserController {
 
         UserDefaultResDto responseBody = new UserDefaultResDto(user);
 
-        return ResponseEntity.status(MY_INFO_FOUND.getHttpStatus())
+        return ResponseEntity.status(MY_USER_FOUND.getHttpStatus())
                 .body(DefaultResDto.builder()
-                        .responseCode(MY_INFO_FOUND.name())
-                        .responseMessage(MY_INFO_FOUND.getMessage())
+                        .responseCode(MY_USER_FOUND.name())
+                        .responseMessage(MY_USER_FOUND.getMessage())
                         .data(responseBody)
                         .build());
     }
