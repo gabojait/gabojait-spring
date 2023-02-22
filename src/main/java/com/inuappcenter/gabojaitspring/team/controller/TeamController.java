@@ -44,7 +44,7 @@ public class TeamController {
     @ApiOperation(value = "팀원 찾기")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "TEAMMATES_FOUND",
-                    content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
+                    content = @Content(schema = @Schema(implementation = UserAbstractDefaultResDto.class))),
             @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
             @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),

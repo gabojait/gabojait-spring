@@ -3,13 +3,9 @@ package com.inuappcenter.gabojaitspring.config;
 import com.fasterxml.classmate.TypeResolver;
 import com.inuappcenter.gabojaitspring.common.DefaultResDto;
 import com.inuappcenter.gabojaitspring.exception.DefaultExceptionResDto;
+import com.inuappcenter.gabojaitspring.profile.dto.res.*;
 import com.inuappcenter.gabojaitspring.user.dto.res.ContactDefaultResDto;
-import com.inuappcenter.gabojaitspring.profile.dto.res.EducationDefaultResDto;
-import com.inuappcenter.gabojaitspring.profile.dto.res.PortfolioDefaultResDto;
-import com.inuappcenter.gabojaitspring.profile.dto.res.SkillDefaultResDto;
-import com.inuappcenter.gabojaitspring.profile.dto.res.WorkDefaultResDto;
 import com.inuappcenter.gabojaitspring.user.dto.res.UserDefaultResDto;
-import com.inuappcenter.gabojaitspring.profile.dto.res.UserProfileDefaultResDto;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -58,6 +54,7 @@ public class SwaggerConfiguration {
                 .additionalModels(typeResolver.resolve(ContactDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(UserDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(UserProfileDefaultResDto.class))
+                .additionalModels(typeResolver.resolve(UserAbstractDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(EducationDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(PortfolioDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(SkillDefaultResDto.class))
