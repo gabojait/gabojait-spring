@@ -90,8 +90,8 @@ public enum ExceptionCode {
     /**
      * 500 INTERNAL_SERVER_ERROR
      */
-    SERVER_ERROR(INTERNAL_SERVER_ERROR,"서버 에러가 발생했습니다. gabojait.help@gmail.com으로 연락주세요."),
-    MAIL_SENDING_ERROR(INTERNAL_SERVER_ERROR, "이메일 발송 중 에러가 발생했습니다. gabojait.help@gmail.com으로 연락주세요.");
+    SERVER_ERROR(INTERNAL_SERVER_ERROR,"서버 에러가 발생했습니다. 최대한 빠른 시일내 수정하겠습니다."),
+    MAIL_SENDING_ERROR(INTERNAL_SERVER_ERROR, "이메일 발송 중 에러가 발생했습니다. 최대한 빠른 시일내 수정하겠습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

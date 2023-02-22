@@ -21,25 +21,54 @@ public class DefaultResDto<T> {
     @ApiModelProperty(position = 3, dataType = "Object", value = "데이터")
     private T data;
 
+    @ApiModelProperty(position = 4, dataType = "Integer", value = "총 페이지 수", example = "100")
+    private Integer totalPageNum;
+
     public DefaultResDto(final String responseCode, final String responseMessage) {
         this.responseCode = responseCode;
         this.responseMessage = responseMessage;
         this.data = null;
+        this.totalPageNum = null;
+    }
+
+    public DefaultResDto(final String responseCode, final String responseMessage, final Integer totalPageNum) {
+        this.responseCode = responseCode;
+        this.responseMessage = responseMessage;
+        this.data = null;
+        this.totalPageNum = totalPageNum;
     }
 
     public static <T> DefaultResDto<T> response(final String responseCode,
-                                                     final String responseMessage) {
-        return response(responseCode, responseMessage, null);
+                                                final String responseMessage) {
+        return response(responseCode, responseMessage, null, null);
     }
 
     public static <T> DefaultResDto<T> response(final String responseCode,
-                                                     final String responseMessage,
-                                                     final T data) {
+                                                final String responseMessage,
+                                                final Integer totalPageNum) {
+        return response(responseCode, responseMessage, null, totalPageNum);
+    }
+
+    public static <T> DefaultResDto<T> response(final String responseCode,
+                                                final String responseMessage,
+                                                final T data) {
         return DefaultResDto.<T>builder()
                 .responseCode(responseCode)
                 .responseMessage(responseMessage)
                 .data(data)
                 .build();
 
+    }
+
+    public static <T> DefaultResDto<T> response(final String responseCode,
+                                                final String responseMessage,
+                                                final T data,
+                                                final Integer totalPageNum) {
+        return DefaultResDto.<T>builder()
+                .responseCode(responseCode)
+                .responseMessage(responseMessage)
+                .data(data)
+                .totalPageNum(totalPageNum)
+                .build();
     }
 }

@@ -1,10 +1,7 @@
 package com.inuappcenter.gabojaitspring.profile.dto.res;
 
+import com.inuappcenter.gabojaitspring.profile.domain.*;
 import com.inuappcenter.gabojaitspring.user.domain.*;
-import com.inuappcenter.gabojaitspring.profile.domain.Education;
-import com.inuappcenter.gabojaitspring.profile.domain.Portfolio;
-import com.inuappcenter.gabojaitspring.profile.domain.Skill;
-import com.inuappcenter.gabojaitspring.profile.domain.Work;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -27,7 +24,7 @@ public class UserProfileDefaultResDto {
     private String description;
 
     @ApiModelProperty(position = 4, required = true, value = "포지션")
-    private Character position;
+    private String position;
 
     @ApiModelProperty(position = 5, required = true, value = "프로필 사진")
     private String imageUrl;
@@ -47,11 +44,11 @@ public class UserProfileDefaultResDto {
     @ApiModelProperty(position = 10, required = true, value = "포트폴리오")
     private List<PortfolioDefaultResDto> portfolios = new ArrayList<>();
 
-    @ApiModelProperty(position = 11, required = true, value = "현재 프로젝트 식별자")
-    private String currentProjectId;
+    @ApiModelProperty(position = 11, required = true, value = "현재 팀 식별자")
+    private String currentTeamId;
 
-    @ApiModelProperty(position = 12, required = true, value = "완료한 프로젝트")
-    private List<String> completedProjectIds;
+    @ApiModelProperty(position = 12, required = true, value = "완료한 팀")
+    private List<String> completedTeamIds;
 
     @ApiModelProperty(position = 13, required = true, value = "공개 여부")
     private Boolean isPublic;
@@ -63,9 +60,9 @@ public class UserProfileDefaultResDto {
         this.userId = user.getId().toString();
         this.nickname = user.getNickname();
         this.description = user.getDescription();
-        this.position = user.getPosition();
+        this.position = Position.toEnum(user.getPosition()).name();
         this.imageUrl = user.getImageUrl();
-        this.currentProjectId = user.getCurrentProjectId().toString();
+        this.currentTeamId = user.getCurrentTeamId().toString();
         this.rating = user.getRating();
         this.isPublic = user.getIsPublic();
 
@@ -81,8 +78,8 @@ public class UserProfileDefaultResDto {
         for (Portfolio portfolio : user.getPortfolios())
             this.portfolios.add(new PortfolioDefaultResDto(portfolio));
 
-        for (ObjectId projectId : user.getCompletedProjectIds())
-            this.completedProjectIds.add(projectId.toString());
+        for (ObjectId projectId : user.getCompletedTeamIds())
+            this.completedTeamIds.add(projectId.toString());
 
         this.schemaVersion = user.getSchemaVersion();
     }

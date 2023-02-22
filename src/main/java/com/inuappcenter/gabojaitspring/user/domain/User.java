@@ -38,11 +38,11 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Field(name = "image_url")
     private String imageUrl;
 
-    @Field(name = "current_project_id")
-    private ObjectId currentProjectId;
+    @Field(name = "current_team_id")
+    private ObjectId currentTeamId;
 
-    @Field(name = "completed_project_ids")
-    private List<ObjectId> completedProjectIds = new ArrayList<>();
+    @Field(name = "completed_team_ids")
+    private List<ObjectId> completedTeamIds = new ArrayList<>();
 
     private String password;
     private Character gender;
@@ -77,6 +77,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.gender = gender.getType();
         this.birthdate = birthdate;
         this.contact = contact;
+        this.rating = 0F;
         this.nickname = nickname;
         this.isPublic = false;
         this.isDeleted = false;

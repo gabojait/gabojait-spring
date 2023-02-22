@@ -12,6 +12,8 @@ import com.inuappcenter.gabojaitspring.user.dto.req.UserSaveReqDto;
 import com.inuappcenter.gabojaitspring.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -166,6 +168,24 @@ public class UserService {
                 user.getLegalName() + "님 안녕하세요!🙇🏻<br>해당 이메일로 가입된 아이디 정보입니다.",
                 user.getUsername()
         );
+    }
+
+    /**
+     * 포지션 다건 조회 |
+     * 500(SERVER_ERROR)
+     */
+    public Page<User> findManyByPosition(Position position, Integer pageFrom, Integer pageNum) {
+
+        if (pageNum == null)
+            pageNum = 20;
+        try {
+            return userRepository.findUsersByPositionAndIsPublicIsTrueAndIsDeletedIsFalseOrderByModifiedDateDesc(
+                    position.getType(),
+                    PageRequest.of(pageFrom, pageNum)
+            );
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
     }
 
     /**
