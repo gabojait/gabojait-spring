@@ -125,18 +125,13 @@ public class UserService {
     /**
      * 식별자 단건 조회 |
      * 404(USER_NOT_FOUND)
-     * 500(SERVER_ERROR)
      */
     public User findOneByUserId(String userId) {
 
-        try {
-            return userRepository.findByIdAndIsDeletedIsFalse(new ObjectId(userId))
-                    .orElseThrow(() -> {
-                        throw new CustomException(USER_NOT_FOUND);
-                    });
-        } catch (RuntimeException e) {
-            throw new CustomException(SERVER_ERROR);
-        }
+        return userRepository.findByIdAndIsDeletedIsFalse(new ObjectId(userId))
+                .orElseThrow(() -> {
+                    throw new CustomException(USER_NOT_FOUND);
+                });
     }
 
     /**

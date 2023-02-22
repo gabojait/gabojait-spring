@@ -49,6 +49,8 @@ public enum SuccessCode {
     PASSWORD_VERIFIED(OK, "비밀번호 검증을 완료 했습니다."),
     PASSWORD_FORCE_UPDATE(OK, "비밀번호 재설정이 필요합니다."),
     USER_DEACTIVATED(OK, "회원 탈퇴를 완료 했습니다."),
+    USER_FOUND(OK, "회원 단건 조희를 완료 했습니다."),
+    MY_INFO_FOUND(OK, "내 정보 조회를 완료 했습니다."),
 
     // 201 CREATED
     USER_REGISTERED(CREATED, "회원 가입을 완료 했습니다."),

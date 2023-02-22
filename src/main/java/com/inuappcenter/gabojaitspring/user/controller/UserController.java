@@ -33,9 +33,11 @@ import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static com.inuappcenter.gabojaitspring.common.SuccessCode.*;
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.TOKEN_AUTHENTICATION_FAIL;
+import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.TOKEN_NOT_ALLOWED;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "회원")
@@ -218,6 +220,68 @@ public class UserController {
                             .data(responseBody)
                             .build());
         }
+    }
+
+    @ApiOperation(value = "본인 정보 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "MY_INFO_FOUND",
+                    content = @Content(schema = @Schema(implementation = UserDefaultResDto.class))),
+            @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @GetMapping
+    public ResponseEntity<DefaultResDto<Object>> findMyInfo(HttpServletRequest servletRequest) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        User user = userService.findOneByUserId(token.get(0));
+
+        UserDefaultResDto responseBody = new UserDefaultResDto(user);
+
+        return ResponseEntity.status(MY_INFO_FOUND.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(MY_INFO_FOUND.name())
+                        .responseMessage(MY_INFO_FOUND.getMessage())
+                        .data(responseBody)
+                        .build());
+    }
+
+    @ApiOperation(value = "단건 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "USER_FOUND",
+                    content = @Content(schema = @Schema(implementation = UserDefaultResDto.class))),
+            @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @GetMapping("/find/{user-id}")
+    public ResponseEntity<DefaultResDto<Object>> findOne(HttpServletRequest servletRequest,
+                                                         @PathVariable(value = "user-id")
+                                                         String userId) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        userService.findOneByUserId(token.get(0));
+
+        User user = userService.findOneByUserId(userId);
+
+        UserDefaultResDto responseBody = new UserDefaultResDto(user);
+
+        return ResponseEntity.status(USER_FOUND.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(USER_FOUND.name())
+                        .responseMessage(USER_FOUND.getMessage())
+                        .data(responseBody)
+                        .build());
     }
 
     @ApiOperation(value = "토큰 재발급")

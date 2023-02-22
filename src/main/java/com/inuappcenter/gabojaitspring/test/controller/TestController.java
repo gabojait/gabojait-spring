@@ -46,7 +46,7 @@ public class TestController {
                         .build());
     }
 
-    @ApiOperation(value = "테스트 계정 토큰 재발급")
+    @ApiOperation(value = "테스트 계정 토큰 재발급", notes = "test-id: 1 || 2 || 3")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "TOKEN_RENEWED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
