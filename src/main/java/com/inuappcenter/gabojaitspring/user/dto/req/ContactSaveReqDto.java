@@ -24,7 +24,7 @@ public class ContactSaveReqDto {
 
     public Contact toEntity(String verificationCode) {
         return Contact.builder()
-                .email(email)
+                .email(this.email)
                 .verificationCode(verificationCode)
                 .build();
     }

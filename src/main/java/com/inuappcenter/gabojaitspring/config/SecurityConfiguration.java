@@ -57,7 +57,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/api/**/user/login",
                         "/api/**/user")
                 .permitAll()
-                .antMatchers("/api/v1/dev") // TODO: Must remove before deployment
+                .antMatchers("/api/**/dev", "/api/**/dev/token/renew/**") // TODO: Must remove before deployment
                 .permitAll()
                 .anyRequest()
                 .authenticated()

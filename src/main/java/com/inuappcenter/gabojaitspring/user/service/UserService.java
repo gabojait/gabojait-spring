@@ -75,8 +75,22 @@ public class UserService {
      * 유저 저장 |
      * 500(SERVER_ERROR)
      */
+    public User save(User user) {
+
+        try {
+            return userRepository.save(user);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * 유저 생성 |
+     * 500(SERVER_ERROR)
+     */
     @Transactional
-    public User save(UserSaveReqDto request, String encodedPassword, Gender gender, Contact contact) {
+    public User create(UserSaveReqDto request, String encodedPassword, Gender gender, Contact contact) {
 
         List<Role> roles = new ArrayList<>();
 
@@ -88,13 +102,7 @@ public class UserService {
         }
         User user = request.toEntity(encodedPassword, gender, contact, roles);
 
-        try {
-            user = userRepository.save(user);
-        } catch (RuntimeException e) {
-            throw new CustomException(SERVER_ERROR);
-        }
-
-        return user;
+        return save(user);
     }
 
     /**

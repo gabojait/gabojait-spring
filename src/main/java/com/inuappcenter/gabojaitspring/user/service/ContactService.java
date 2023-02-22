@@ -48,20 +48,28 @@ public class ContactService {
      * 500(SERVER_ERROR)
      */
     @Transactional
-    public void save(ContactSaveReqDto request) {
+    public Contact save(Contact contact) {
 
         try {
-            Contact contact = contactRepository.save(request.toEntity(generateVerificationCode()));
-
-            emailService.sendEmail(
-                    contact.getEmail(),
-                    "[가보자it] 인증번호",
-                    "회원님 안녕하세요!🙇🏻<br>가입 절차를 계속하기 위해 아래의 번호를 이메일 인증번호란에 입력해주세요.🙏🏻",
-                    contact.getVerificationCode()
-            );
+            return contactRepository.save(contact);
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+    }
+
+    /**
+     * 연락처 생성 |
+     */
+    public void create(ContactSaveReqDto request) {
+
+        Contact contact = save(request.toEntity(generateVerificationCode()));
+
+        emailService.sendEmail(
+                contact.getEmail(),
+                "[가보자it] 인증번호",
+                "회원님 안녕하세요!🙇🏻<br>가입 절차를 계속하기 위해 아래의 번호를 이메일 인증번호란에 입력해주세요.🙏🏻",
+                contact.getVerificationCode()
+        );
     }
 
     /**

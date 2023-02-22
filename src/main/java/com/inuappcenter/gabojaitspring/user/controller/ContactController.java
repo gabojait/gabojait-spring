@@ -42,7 +42,7 @@ public class ContactController {
 
         contactService.isExistingEmail(request.getEmail());
 
-        contactService.save(request);
+        contactService.create(request);
 
         return ResponseEntity.status(EMAIL_NO_DUPLICATE.getHttpStatus())
                 .body(DefaultResDto.builder()

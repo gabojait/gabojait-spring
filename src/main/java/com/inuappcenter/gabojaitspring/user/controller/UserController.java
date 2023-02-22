@@ -101,7 +101,7 @@ public class UserController {
         Contact contact = contactService.findOneUnverifiedByEmail(request.getEmail());
         contactService.register(contact);
 
-        User user = userService.save(request, encodedPassword, gender, contact);
+        User user = userService.create(request, encodedPassword, gender, contact);
 
         String newTokens = jwtProvider.generateJwt(String.valueOf(user.getId()), user.getRoles());
 
@@ -238,7 +238,7 @@ public class UserController {
 
         User user = userService.findOneByUserId(token.get(0));
 
-        List<String> authorities = new ArrayList<>(Collections.singleton(Role.USER.name()));
+        List<String> authorities = new ArrayList<>(List.of(Role.USER.name()));
         String newTokens = jwtProvider.generateJwt(String.valueOf(user.getId()), authorities);
 
         return ResponseEntity.status(USER_TOKEN_RENEWED.getHttpStatus())
