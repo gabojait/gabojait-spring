@@ -1,6 +1,7 @@
 package com.inuappcenter.gabojaitspring.profile.dto.res;
 
 import com.inuappcenter.gabojaitspring.profile.domain.*;
+import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.user.domain.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -48,7 +49,7 @@ public class UserProfileDefaultResDto {
     private String currentTeamId;
 
     @ApiModelProperty(position = 12, required = true, value = "완료한 팀")
-    private List<String> completedTeamIds;
+    private List<String> completedTeamIds = new ArrayList<>();
 
     @ApiModelProperty(position = 13, required = true, value = "공개 여부")
     private Boolean isPublic;
@@ -60,11 +61,15 @@ public class UserProfileDefaultResDto {
         this.userId = user.getId().toString();
         this.nickname = user.getNickname();
         this.description = user.getDescription();
-        this.position = Position.toEnum(user.getPosition()).name();
         this.imageUrl = user.getImageUrl();
-        this.currentTeamId = user.getCurrentTeamId().toString();
         this.rating = user.getRating();
         this.isPublic = user.getIsPublic();
+
+        if (user.getCurrentTeamId() != null)
+            this.currentTeamId = user.getCurrentTeamId().toString();
+
+        if (user.getPosition() != null)
+            this.position = Position.toEnum(user.getPosition()).name();
 
         for (Education education : user.getEducations())
             this.educations.add(new EducationDefaultResDto(education));

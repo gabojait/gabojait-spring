@@ -2,7 +2,7 @@ package com.inuappcenter.gabojaitspring.profile.dto.req;
 
 import com.inuappcenter.gabojaitspring.common.ValidationSequence;
 import com.inuappcenter.gabojaitspring.profile.domain.Portfolio;
-import com.inuappcenter.gabojaitspring.profile.domain.PortfolioType;
+import com.inuappcenter.gabojaitspring.profile.domain.type.PortfolioType;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

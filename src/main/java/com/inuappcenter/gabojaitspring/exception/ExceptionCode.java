@@ -26,6 +26,11 @@ public enum ExceptionCode {
     URL_LENGTH_INVALID(BAD_REQUEST, "URL은 1~1000자만 가능합니다"),
     SKILLNAME_LENGTH_INVALID(BAD_REQUEST, "기술명은 1~20자만 가능합니다."),
 
+    // @PositiveOrZero
+    DESIGNERCNT_POS_ZERO_ONLY(BAD_REQUEST, "디자이너 수는 0 또는 양수만 가능합니다."),
+    BACKENDCNT_POS_ZERO_ONLY(BAD_REQUEST, "백엔드 개발자 수는 0 또는 양수만 가능합니다."),
+    FRONTENDCNT_POS_ZERO_ONLY(BAD_REQUEST, "프론트엔드 개발자 수는 0 또는 양수만 가능합니다."),
+    PLANNERCNT_POS_ZERO_ONLY(BAD_REQUEST, "기획자 수는 0 또는 양수만 가능합니다."),
 
     // @Email @Pattern
     EMAIL_FORMAT_INVALID(BAD_REQUEST, "올바른 이메일 형식이 아닙니다."),
@@ -41,7 +46,7 @@ public enum ExceptionCode {
     PASSWORD_MATCH_INVALID(BAD_REQUEST, "비밀번호와 비밀번호 재입력이 동일하지 않습니다."),
     LEVEL_FORMAT_INVALID(BAD_REQUEST, "레벨은 low, mid, high 중 하나입니다."),
     PORTFOLIOTYPE_FORMAT_INVALID(BAD_REQUEST, "포트폴리오 타입은 file, link 중 하나입니다."),
-    POSITION_FORMAT_INVALID(BAD_REQUEST, "포지션은 designer, backend, frontend, manager 중 하나입니다."),
+    POSITION_FORMAT_INVALID(BAD_REQUEST, "포지션은 designer, backend, frontend, planner 중 하나입니다."),
 
     /**
      * 401 UNAUTHORIZED
@@ -79,6 +84,11 @@ public enum ExceptionCode {
     EXISTING_EMAIL(CONFLICT, "이미 사용중인 이메일입니다."),
     EXISTING_USERNAME(CONFLICT, "이미 사용중인 아이디입니다."),
     EXISTING_NICKNAME(CONFLICT, "이미 사용중인 닉네임입니다."),
+    EXISTING_CURRENT_TEAM(CONFLICT, "현재 소속되어 있는 팀이 존재합니다."),
+    DESIGNER_POSITION_UNAVAILABLE(CONFLICT, "디자이너 포지션은 마감했습니다."),
+    BACKEND_POSITION_UNAVAILABLE(CONFLICT, "백엔드 개발 포지션은 마감했습니다."),
+    FRONTEND_POSITION_UNAVAILABLE(CONFLICT, "프론트엔드 개발자 포지션은 마감했습니다."),
+    PROJECT_MANAGER_POSITION_UNAVAILABLE(CONFLICT, "프로젝트 매니저 포지션은 마감했습니다."),
 
 
     /**

@@ -1,10 +1,11 @@
 package com.inuappcenter.gabojaitspring.profile.service;
 
 import com.inuappcenter.gabojaitspring.exception.CustomException;
-import com.inuappcenter.gabojaitspring.profile.domain.Level;
+import com.inuappcenter.gabojaitspring.profile.domain.type.Level;
 import com.inuappcenter.gabojaitspring.profile.domain.Skill;
 import com.inuappcenter.gabojaitspring.profile.dto.req.SkillDefaultReqDto;
 import com.inuappcenter.gabojaitspring.profile.repository.SkillRepository;
+import com.inuappcenter.gabojaitspring.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,10 @@ public class SkillService {
      * 기술 저장 |
      * 500(SERVER_ERROR)
      */
-    public Skill saveSkill(ObjectId userId, SkillDefaultReqDto request, Level level) {
+    public Skill save(Skill skill) {
 
         try {
-            return skillRepository.save(request.toEntity(userId, level));
+            return skillRepository.save(skill);
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
@@ -36,7 +37,7 @@ public class SkillService {
      * 식별자 기술 조회 |
      * 404(WORK_NOT_FOUND)
      */
-    public Skill findOneSkill(String skillId) {
+    public Skill findOne(String skillId) {
 
         return skillRepository.findById(new ObjectId(skillId))
                 .orElseThrow(() -> {
@@ -45,11 +46,21 @@ public class SkillService {
     }
 
     /**
+     * 권한 검증 |
+     * 403(ROLE_NOT_ALLOWED)
+     */
+    public void validateOwner(Skill skill, User user) {
+
+        if (!user.getSkills().contains(skill))
+            throw new CustomException(ROLE_NOT_ALLOWED);
+    }
+
+    /**
      * 기술 업데이트 |
      * 500(SERVER_ERROR)
      */
     @Transactional
-    public void updateSkill(Skill skill, SkillDefaultReqDto request, Level level) {
+    public void update(Skill skill, SkillDefaultReqDto request, Level level) {
 
         try {
             skill.update(request.getSkillName(),
@@ -58,6 +69,8 @@ public class SkillService {
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+
+        save(skill);
     }
 
     /**
@@ -65,12 +78,14 @@ public class SkillService {
      * 500(SERVER_ERROR)
      */
     @Transactional
-    public void deleteSkill(Skill skill) {
+    public void delete(Skill skill) {
 
         try {
             skill.delete();
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+
+        save(skill);
     }
 }

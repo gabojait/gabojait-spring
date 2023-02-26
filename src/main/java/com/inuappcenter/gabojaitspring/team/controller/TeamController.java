@@ -4,9 +4,12 @@ import com.inuappcenter.gabojaitspring.auth.JwtProvider;
 import com.inuappcenter.gabojaitspring.auth.JwtType;
 import com.inuappcenter.gabojaitspring.common.DefaultResDto;
 import com.inuappcenter.gabojaitspring.exception.CustomException;
-import com.inuappcenter.gabojaitspring.profile.domain.Position;
+import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.profile.dto.res.UserAbstractDefaultResDto;
-import com.inuappcenter.gabojaitspring.profile.dto.res.UserProfileDefaultResDto;
+import com.inuappcenter.gabojaitspring.team.domain.Team;
+import com.inuappcenter.gabojaitspring.team.dto.req.TeamCreateReqDto;
+import com.inuappcenter.gabojaitspring.team.dto.res.TeamDefaultResDto;
+import com.inuappcenter.gabojaitspring.team.service.TeamService;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import com.inuappcenter.gabojaitspring.user.domain.type.Role;
 import com.inuappcenter.gabojaitspring.user.service.UserService;
@@ -18,11 +21,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +44,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 public class TeamController {
 
     private final UserService userService;
+    private final TeamService teamService;
     private final JwtProvider jwtProvider;
 
     @ApiOperation(value = "팀원 찾기")
@@ -87,5 +93,47 @@ public class TeamController {
                             .totalPageNum(users.getTotalPages())
                             .build());
         }
+    }
+
+    @ApiOperation(value = "팀 생성하기")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "TEAM_CREATED",
+                    content = @Content(schema = @Schema(implementation = TeamDefaultResDto.class))),
+            @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
+            @ApiResponse(responseCode = "409",
+                    description = "EXISTING_CURRENT_TEAM / DESIGNER_POSITION_UNAVAILABLE " +
+                            "/ BACKEND_POSITION_UNAVAILABLE / FRONTEND_POSITION_UNAVAILABLE " +
+                            "/ PROJECT_MANAGER_POSITION_UNAVAILABLE"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping
+    public ResponseEntity<DefaultResDto<Object>> createTeam(HttpServletRequest servletRequest,
+                                                            @RequestBody @Valid TeamCreateReqDto request) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        User user = userService.findOneByUserId(token.get(0));
+
+        userService.validateCurrentTeam(user);
+        Team team = request.toEntity(user.getId());
+        teamService.validatePositionAvailability(team, user);
+
+        teamService.joinTeam(team, user);
+        teamService.save(team);
+
+        TeamDefaultResDto responseBody = new TeamDefaultResDto(team);
+
+        return ResponseEntity.status(TEAM_CREATED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(TEAM_CREATED.name())
+                        .responseMessage(TEAM_CREATED.getMessage())
+                        .data(responseBody)
+                        .build());
     }
 }

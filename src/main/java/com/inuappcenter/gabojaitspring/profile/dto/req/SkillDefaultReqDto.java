@@ -1,7 +1,7 @@
 package com.inuappcenter.gabojaitspring.profile.dto.req;
 
 import com.inuappcenter.gabojaitspring.common.ValidationSequence;
-import com.inuappcenter.gabojaitspring.profile.domain.Level;
+import com.inuappcenter.gabojaitspring.profile.domain.type.Level;
 import com.inuappcenter.gabojaitspring.profile.domain.Skill;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

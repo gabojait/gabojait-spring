@@ -4,6 +4,7 @@ import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.profile.domain.Education;
 import com.inuappcenter.gabojaitspring.profile.dto.req.EducationDefaultReqDto;
 import com.inuappcenter.gabojaitspring.profile.repository.EducationRepository;
+import com.inuappcenter.gabojaitspring.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,10 @@ public class EductionService {
      * 500(SERVER_ERROR)
      */
     @Transactional
-    public Education saveEducation(ObjectId userId, EducationDefaultReqDto request) {
+    public Education save(Education education) {
 
         try {
-            return educationRepository.save(request.toEntity(userId));
+            return educationRepository.save(education);
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
@@ -36,7 +37,7 @@ public class EductionService {
      * 식별자 학력 조회 |
      * 404(EDUCATION_NOT_FOUND)
      */
-    public Education findOneEducation(String educationId) {
+    public Education findOne(String educationId) {
 
         return educationRepository.findById(new ObjectId(educationId))
                 .orElseThrow(() -> {
@@ -49,7 +50,7 @@ public class EductionService {
      * 500(SERVER_ERROR)
      */
     @Transactional
-    public void updateEducation(Education education, EducationDefaultReqDto request) {
+    public void update(Education education, EducationDefaultReqDto request) {
 
         try {
             education.update(request.getInstitutionName(),
@@ -59,6 +60,18 @@ public class EductionService {
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+
+        save(education);
+    }
+
+    /**
+     * 권한 검증 |
+     * 403(ROLE_NOT_ALLOWED)
+     */
+    public void validateOwner(Education education, User user) {
+
+        if (!user.getEducations().contains(education))
+            throw new CustomException(ROLE_NOT_ALLOWED);
     }
 
     /**
@@ -66,12 +79,14 @@ public class EductionService {
      * 500(SERVER_ERROR)
      */
     @Transactional
-    public void deleteEducation(Education education) {
+    public void delete(Education education) {
 
         try {
             education.delete();
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+
+        save(education);
     }
 }

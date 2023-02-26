@@ -4,6 +4,7 @@ import com.fasterxml.classmate.TypeResolver;
 import com.inuappcenter.gabojaitspring.common.DefaultResDto;
 import com.inuappcenter.gabojaitspring.exception.DefaultExceptionResDto;
 import com.inuappcenter.gabojaitspring.profile.dto.res.*;
+import com.inuappcenter.gabojaitspring.team.dto.res.TeamDefaultResDto;
 import com.inuappcenter.gabojaitspring.user.dto.res.ContactDefaultResDto;
 import com.inuappcenter.gabojaitspring.user.dto.res.UserDefaultResDto;
 import org.springframework.context.annotation.Bean;
@@ -59,6 +60,7 @@ public class SwaggerConfiguration {
                 .additionalModels(typeResolver.resolve(PortfolioDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(SkillDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(WorkDefaultResDto.class))
+                .additionalModels(typeResolver.resolve(TeamDefaultResDto.class))
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo())
                 .securityContexts(Collections.singletonList(securityContext()))

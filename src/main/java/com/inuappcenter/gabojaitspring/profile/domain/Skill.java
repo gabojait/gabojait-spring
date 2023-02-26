@@ -1,6 +1,7 @@
 package com.inuappcenter.gabojaitspring.profile.domain;
 
 import com.inuappcenter.gabojaitspring.common.BaseTimeEntity;
+import com.inuappcenter.gabojaitspring.profile.domain.type.Level;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

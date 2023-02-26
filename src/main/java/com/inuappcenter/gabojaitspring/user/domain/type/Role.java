@@ -3,5 +3,6 @@ package com.inuappcenter.gabojaitspring.user.domain.type;
 public enum Role {
 
     USER,
-    ADMIN;
+    ADMIN,
+    MASTER;
 }

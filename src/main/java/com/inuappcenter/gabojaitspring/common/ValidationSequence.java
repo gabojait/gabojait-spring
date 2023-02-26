@@ -6,6 +6,7 @@ public abstract class ValidationSequence {
     public interface NotNull {}
     public interface NotEmpty {}
     public interface Positive {}
+    public interface PositiveOrZero {}
     public interface Email {}
     public interface Size {}
     public interface Pattern {}

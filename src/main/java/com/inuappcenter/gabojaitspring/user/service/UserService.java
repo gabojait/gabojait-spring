@@ -3,6 +3,7 @@ package com.inuappcenter.gabojaitspring.user.service;
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.email.service.EmailService;
 import com.inuappcenter.gabojaitspring.profile.domain.*;
+import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.user.domain.Contact;
 import com.inuappcenter.gabojaitspring.user.domain.type.Gender;
 import com.inuappcenter.gabojaitspring.user.domain.User;
@@ -135,15 +136,15 @@ public class UserService {
      * 500(SERVER_ERROR)
      */
     @Transactional
-    public User updateNickname(User user, String nickname) {
+    public void updateNickname(User user, String nickname) {
 
         try {
             user.updateNickname(nickname);
+
+            save(user);
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
-
-        return user;
     }
 
     /**
@@ -212,6 +213,8 @@ public class UserService {
             user.updatePassword(passwordEncoder.encode(tempPassword));
             user.updateIsTemporaryPassword(true);
 
+            save(user);
+
             emailService.sendEmail(
                     user.getContact().getEmail(),
                     "[가보자잇] 비밀번호 찾기",
@@ -250,6 +253,31 @@ public class UserService {
     }
 
     /**
+     * 현재 팀 여부 검증 |
+     * 409(EXISTING_CURRENT_TEAM)
+     */
+    public void validateCurrentTeam(User user) {
+        if (user.getCurrentTeamId() != null)
+            throw new CustomException(EXISTING_CURRENT_TEAM);
+    }
+
+    /**
+     * 팀 합류 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void joinTeam(User user, ObjectId teamId) {
+
+        try {
+            user.updateCurrentTeamId(teamId);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(user);
+    }
+
+    /**
      * 비밀번호 업데이트 |
      * 500(SERVER_ERROR)
      */
@@ -264,6 +292,8 @@ public class UserService {
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+
+        save(user);
     }
 
     /**
@@ -277,6 +307,8 @@ public class UserService {
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+
+        save(user);
     }
 
     /**
@@ -291,6 +323,8 @@ public class UserService {
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+
+        save(user);
     }
 
     /**
@@ -305,6 +339,8 @@ public class UserService {
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+
+        save(user);
     }
 
     /**
@@ -319,6 +355,8 @@ public class UserService {
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+
+        save(user);
     }
 
     /**
@@ -333,6 +371,8 @@ public class UserService {
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+
+        save(user);
     }
 
     /**
@@ -347,6 +387,8 @@ public class UserService {
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+
+        save(user);
     }
 
     /**
@@ -361,6 +403,8 @@ public class UserService {
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+
+        save(user);
     }
 
     /**
@@ -375,6 +419,8 @@ public class UserService {
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+
+        save(user);
     }
 
     /**
@@ -389,6 +435,8 @@ public class UserService {
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+
+        save(user);
     }
 
     /**
@@ -403,5 +451,7 @@ public class UserService {
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+
+        save(user);
     }
 }

@@ -1,4 +1,4 @@
-package com.inuappcenter.gabojaitspring.profile.domain;
+package com.inuappcenter.gabojaitspring.profile.domain.type;
 
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import lombok.Getter;
@@ -10,7 +10,7 @@ public enum Position {
     DESIGNER('D'),
     BACKEND('B'),
     FRONTEND('F'),
-    MANAGER('M');
+    PM('P');
 
     @Getter
     Character type;
@@ -37,8 +37,8 @@ public enum Position {
                 return Position.BACKEND;
             case 'F':
                 return Position.FRONTEND;
-            case 'M':
-                return Position.MANAGER;
+            case 'P':
+                return Position.PM;
             default:
                 throw new CustomException(SERVER_ERROR);
         }

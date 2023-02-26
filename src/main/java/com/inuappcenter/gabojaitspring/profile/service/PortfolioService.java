@@ -7,11 +7,13 @@ import com.inuappcenter.gabojaitspring.profile.dto.req.PortfolioFileSaveReqDto;
 import com.inuappcenter.gabojaitspring.profile.dto.req.PortfolioFileUpdateReqDto;
 import com.inuappcenter.gabojaitspring.profile.dto.req.PortfolioLinkDefaultReqDto;
 import com.inuappcenter.gabojaitspring.profile.repository.PortfolioRepository;
+import com.inuappcenter.gabojaitspring.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -34,26 +36,28 @@ public class PortfolioService {
      * 500(SERVER_ERROR)
      */
     @Transactional
-    public Portfolio savePortfolioFile(ObjectId userId, String username, PortfolioFileSaveReqDto request) {
-
-        String url = fileService.upload(bucketName,
-                username + "@" + userId.toString(),
-                LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
-                request.getFile());
+    public Portfolio save(Portfolio portfolio) {
 
         try {
-            return portfolioRepository.save(request.toEntity(userId, url));
+            return portfolioRepository.save(portfolio);
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
     }
 
+    public String uploadToS3(ObjectId userId, String username, MultipartFile multipartFile) {
+
+        return fileService.upload(bucketName,
+                username + "@" + userId.toString(),
+                LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
+                multipartFile);
+    }
+
     /**
      * 식별자 포트폴리오 조회 |
      * 404(PORTFOLIO_NOT_FOUND)
-     * 500(SERVER_ERROR)
      */
-    public Portfolio findOnePortfolio(String portfolioId) {
+    public Portfolio findOne(String portfolioId) {
 
         return portfolioRepository.findById(new ObjectId(portfolioId))
                 .orElseThrow(() -> {
@@ -62,55 +66,29 @@ public class PortfolioService {
     }
 
     /**
-     * 포트폴리오 파일 업데이터 |
-     * 500(SERVER_ERROR)
+     * 권한 검증 |
+     * 403(ROLE_NOT_ALLOWED)
      */
-    @Transactional
-    public void updatePortfolioFile(ObjectId userId,
-                                    String username,
-                                    Portfolio portfolio,
-                                    PortfolioFileUpdateReqDto request) {
+    public void validateOwner(Portfolio portfolio, User user) {
 
-        String url = fileService.upload(bucketName,
-                username + "@" + userId.toString(),
-                LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
-                request.getFile());
-
-        try {
-            portfolio.update(request.getPortfolioName(), url);
-        } catch (RuntimeException e) {
-            throw new CustomException(SERVER_ERROR);
-        }
+        if (user.getPortfolios().contains(portfolio))
+            throw new CustomException(ROLE_NOT_ALLOWED);
     }
 
     /**
-     * 포트폴리오 링크 저장 |
+     * 포트폴리오 업데이터 |
      * 500(SERVER_ERROR)
      */
     @Transactional
-    public Portfolio savePortfolioLink(ObjectId userId, PortfolioLinkDefaultReqDto request) {
+    public void update(Portfolio portfolio, String portfolioName, String portfolioUrl) {
 
         try {
-            return portfolioRepository.save(request.toEntity(userId));
+            portfolio.update(portfolioName, portfolioUrl);
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
-    }
 
-    /**
-     * 포트폴리오 링크 업데이터 |
-     * 500(SERVER_ERROR)
-     */
-    @Transactional
-    public void updatePortfolioLink(ObjectId userId,
-                                    Portfolio portfolio,
-                                    PortfolioLinkDefaultReqDto request) {
-
-        try {
-            portfolio.update(request.getPortfolioName(), request.getUrl());
-        } catch (RuntimeException e) {
-            throw new CustomException(SERVER_ERROR);
-        }
+        save(portfolio);
     }
 
     /**
@@ -118,12 +96,14 @@ public class PortfolioService {
      * 500(SERVER_ERROR)
      */
     @Transactional
-    public void deletePortfolio(Portfolio portfolio) {
+    public void delete(Portfolio portfolio) {
 
         try {
             portfolio.delete();
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+
+        save(portfolio);
     }
 }

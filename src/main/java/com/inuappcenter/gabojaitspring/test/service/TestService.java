@@ -5,6 +5,7 @@ import com.inuappcenter.gabojaitspring.profile.repository.EducationRepository;
 import com.inuappcenter.gabojaitspring.profile.repository.PortfolioRepository;
 import com.inuappcenter.gabojaitspring.profile.repository.SkillRepository;
 import com.inuappcenter.gabojaitspring.profile.repository.WorkRepository;
+import com.inuappcenter.gabojaitspring.team.repository.TeamRepository;
 import com.inuappcenter.gabojaitspring.user.domain.Contact;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import com.inuappcenter.gabojaitspring.user.domain.type.Gender;
@@ -35,6 +36,7 @@ public class TestService {
     private final PortfolioRepository portfolioRepository;
     private final SkillRepository skillRepository;
     private final WorkRepository workRepository;
+    private final TeamRepository teamRepository;
     private final UserService userService;
     private final ContactService contactService;
     private final PasswordEncoder passwordEncoder;
@@ -53,6 +55,7 @@ public class TestService {
             portfolioRepository.deleteAll();
             skillRepository.deleteAll();
             workRepository.deleteAll();
+            teamRepository.deleteAll();
 
             injectTestAccounts();
         } catch (RuntimeException e) {

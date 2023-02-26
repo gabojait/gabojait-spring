@@ -2,6 +2,7 @@ package com.inuappcenter.gabojaitspring.user.domain;
 
 import com.inuappcenter.gabojaitspring.common.BaseTimeEntity;
 import com.inuappcenter.gabojaitspring.profile.domain.*;
+import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.review.domain.ReviewComment;
 import com.inuappcenter.gabojaitspring.user.domain.type.Gender;
 import com.inuappcenter.gabojaitspring.user.domain.type.Role;
@@ -104,6 +105,10 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void updateNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public void updateCurrentTeamId(ObjectId teamId) {
+        this.currentTeamId = teamId;
     }
 
     public void addEducation(Education education) {

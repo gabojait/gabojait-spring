@@ -109,6 +109,8 @@ public class ContactService {
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+
+        save(contact);
     }
 
     /**
@@ -125,6 +127,8 @@ public class ContactService {
                     if (contact.getVerificationCode().equals(request.getVerificationCode())) {
                         try {
                             contact.verified();
+
+                            save(contact);
                         } catch (RuntimeException e) {
                             throw new CustomException(SERVER_ERROR);
                         }
@@ -160,5 +164,7 @@ public class ContactService {
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+
+        save(contact);
     }
 }

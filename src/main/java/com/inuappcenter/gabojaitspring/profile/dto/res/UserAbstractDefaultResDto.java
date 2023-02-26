@@ -1,6 +1,6 @@
 package com.inuappcenter.gabojaitspring.profile.dto.res;
 
-import com.inuappcenter.gabojaitspring.profile.domain.Position;
+import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

@@ -1,4 +1,4 @@
-package com.inuappcenter.gabojaitspring.profile.domain;
+package com.inuappcenter.gabojaitspring.profile.domain.type;
 
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import lombok.Getter;

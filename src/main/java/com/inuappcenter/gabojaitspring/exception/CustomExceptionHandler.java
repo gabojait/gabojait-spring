@@ -50,7 +50,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         } else if (responseMessage.contains("형식")) {
             responseCode = exception.getFieldError().getField().toUpperCase().concat("_FORMAT_INVALID");
         } else if (responseMessage.contains("양수")) {
-            responseCode = exception.getFieldError().getField().toUpperCase().concat("_NEGATIVEORZERO_INVALID");
+            responseCode = exception.getFieldError().getField().toUpperCase().concat("_POS_ZERO_ONLY");
         } else {
             responseCode = exception.getFieldError().getField().toUpperCase();
         }

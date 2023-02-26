@@ -56,13 +56,12 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "NO_DUPLICATE_USERNAME",
                     content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400",
-                    description = "FIELD_REQUIRED / USERNAME_LENGTH_INVALID / USERNAME_FORMAT_INVALID"),
+                    description = "USERNAME_LENGTH_INVALID / USERNAME_FORMAT_INVALID"),
             @ApiResponse(responseCode = "409", description = "EXISTING_USERNAME")
     })
     @GetMapping("/username/duplicate/{username}")
     public ResponseEntity<DefaultResDto<Object>> duplicateUsername(
             @PathVariable
-            @NotBlank(message = "아이디를 입력해주세요.")
             @Size(min = 5, max = 15, message = "아이디는 5~15자만 가능합니다.")
             @Pattern(regexp = "^(?=.*[A-z0-9])[A-z0-9]+$", message = "아이디는 영문과 숫자의 형식만 가능합니다.")
             String username) {
@@ -122,13 +121,12 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "NO_DUPLICATE_NICKNAME",
                     content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400",
-                    description = "FIELD_REQUIRED / NICKNAME_LENGTH_INVALID / NICKNAME_PATTERN_INVALID"),
+                    description = "NICKNAME_LENGTH_INVALID / NICKNAME_PATTERN_INVALID"),
             @ApiResponse(responseCode = "409", description = "EXISTING_NICKNAME")
     })
     @GetMapping("/nickname/duplicate/{nickname}")
     public ResponseEntity<DefaultResDto<Object>> duplicateNickname(
             @PathVariable
-            @NotBlank(message = "모든 필수 정보를 입력해주세요.")
             @Size(min = 2, max = 8, message = "닉네임은 2~8자만 가능합니다.")
             @Pattern(regexp = "^[가-힣]+$", message = "닉네임은 한글 형식만 가능합니다.")
             String nickname
@@ -146,7 +144,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "NICKNAME_UPDATED",
                     content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
-            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED / NICKNAME_LENGTH_INVALID / " +
+            @ApiResponse(responseCode = "400", description = "NICKNAME_LENGTH_INVALID / " +
                     "NICKNAME_FORMAT_INVALID"),
             @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
@@ -158,7 +156,6 @@ public class UserController {
     public ResponseEntity<DefaultResDto<Object>> updateNickname(
             HttpServletRequest servletRequest,
             @PathVariable
-            @NotBlank(message = "모든 필수 정보를 입력해주세요.")
             @Size(min = 2, max = 8, message = "닉네임은 2~8자만 가능합니다.")
             @Pattern(regexp = "^[가-힣]+$", message = "닉네임은 한글 형식만 가능합니다.")
             String nickname
@@ -172,7 +169,7 @@ public class UserController {
 
         userService.isExistingNickname(nickname);
 
-        user = userService.updateNickname(user, nickname);
+        userService.updateNickname(user, nickname);
 
         UserProfileDefaultResDto response = new UserProfileDefaultResDto(user);
 
@@ -200,16 +197,17 @@ public class UserController {
 
         String newTokens = jwtProvider.generateJwt(user.getId().toString(), authorities);
 
+        UserDefaultResDto responseBody = new UserDefaultResDto(user);
+
         if (user.getIsTemporaryPassword()) {
 
             return ResponseEntity.status(PASSWORD_FORCE_UPDATE.getHttpStatus())
                     .body(DefaultResDto.builder()
                             .responseCode(PASSWORD_FORCE_UPDATE.name())
                             .responseMessage(PASSWORD_FORCE_UPDATE.getMessage())
+                            .data(responseBody)
                             .build());
         } else {
-
-            UserDefaultResDto responseBody = new UserDefaultResDto(user);
 
             return ResponseEntity.status(USER_LOGGED_IN.getHttpStatus())
                     .header(AUTHORIZATION, newTokens)
