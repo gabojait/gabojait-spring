@@ -273,6 +273,21 @@ public class UserService {
     }
 
     /**
+     * 자기소개 업데이트 |
+     * 500(SERVER_ERROR)
+     */
+    public void updateDescription(User user, String description) {
+
+        try {
+            user.updateDescription(description);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(user);
+    }
+
+    /**
      * 팀 합류 |
      * 500(SERVER_ERROR)
      */

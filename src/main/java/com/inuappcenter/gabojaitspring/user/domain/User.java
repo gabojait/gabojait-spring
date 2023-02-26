@@ -4,7 +4,6 @@ import com.inuappcenter.gabojaitspring.common.BaseTimeEntity;
 import com.inuappcenter.gabojaitspring.profile.domain.*;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.review.domain.ReviewComment;
-import com.inuappcenter.gabojaitspring.team.domain.Offer;
 import com.inuappcenter.gabojaitspring.user.domain.type.Gender;
 import com.inuappcenter.gabojaitspring.user.domain.type.Role;
 import lombok.AccessLevel;
@@ -49,7 +48,6 @@ public class User extends BaseTimeEntity implements UserDetails {
     private String password;
     private Character gender;
     private LocalDate birthdate;
-
     private List<String> roles = new ArrayList<>();
     private Contact contact;
     private String nickname;
@@ -62,7 +60,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     private List<Skill> skills = new ArrayList<>();
     private List<Portfolio> portfolios = new ArrayList<>();
     private List<ObjectId> offerIds = new ArrayList<>();
-    private List<ReviewComment> reviewComments = new ArrayList<>();
+    private List<ReviewComment> reviews = new ArrayList<>();
 
     @Builder
     public User(String username,
@@ -95,6 +93,10 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void updatePosition(Position position) {
         this.position = position.getType();
+    }
+
+    public void updateImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public void updateIsTemporaryPassword(boolean isTemporaryPassword) {

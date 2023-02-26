@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 import static com.inuappcenter.gabojaitspring.common.SuccessCode.*;
@@ -141,6 +140,37 @@ public class ProfileController {
                         .responseCode(POSITION_UPDATED.name())
                         .responseMessage(POSITION_UPDATED.getMessage())
                         .build());
+    }
+
+    @ApiOperation(value = "자기소개 수정")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "DESCRIPTION_UPDATED",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "400", description = "DESCRIPTION_LENGTH_INVALID"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @PatchMapping("/description")
+    public ResponseEntity<DefaultResDto<Object>> updateDescription(HttpServletRequest servletRequest,
+                                                                   @RequestBody @Valid
+                                                                   UserDescriptionDefaultReqDto request) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
+
+        User user = userService.findOneByUserId(token.get(0));
+
+        userService.updateDescription(user, request.getDescription());
+
+        return ResponseEntity.status(PROFILE_DESCRIPTION_UPDATED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(PROFILE_DESCRIPTION_UPDATED.name())
+                        .responseMessage(PROFILE_DESCRIPTION_UPDATED.getMessage())
+                        .build());
+
     }
 
     @ApiOperation(value = "학력 생성")

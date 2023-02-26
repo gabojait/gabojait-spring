@@ -26,6 +26,7 @@ public enum SuccessCode {
      * Profile
      */
     // 200 OK
+    PROFILE_DESCRIPTION_UPDATED(OK, "자기소개 업데이트를 완료 했습니다."),
     EDUCATION_UPDATED(OK, "학력 업데이트를 완료 했습니다."),
     EDUCATION_DELETED(OK, "학력 제거를 완료 했습니다"),
     WORK_UPDATED(OK, "경력 업데이트를 완료 했습니다"),
