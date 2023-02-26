@@ -257,8 +257,19 @@ public class UserService {
      * 409(EXISTING_CURRENT_TEAM)
      */
     public void validateCurrentTeam(User user) {
+
         if (user.getCurrentTeamId() != null)
             throw new CustomException(EXISTING_CURRENT_TEAM);
+    }
+
+    /**
+     * 포지션 선택 여부 검증 |
+     * 409(POSITION_UNSELECTED)
+     */
+    public void isPositionSelected(User user) {
+
+        if (user.getPosition() == null)
+            throw new CustomException(POSITION_UNSELECTED);
     }
 
     /**

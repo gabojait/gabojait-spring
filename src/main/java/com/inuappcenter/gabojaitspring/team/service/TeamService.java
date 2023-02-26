@@ -4,7 +4,10 @@ import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
 import com.inuappcenter.gabojaitspring.team.repository.TeamRepository;
 import com.inuappcenter.gabojaitspring.user.domain.User;
+import com.inuappcenter.gabojaitspring.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +19,7 @@ import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 public class TeamService {
 
     private final TeamRepository teamRepository;
+    private final UserService userService;
 
     /**
      * 저장 |
@@ -30,20 +34,49 @@ public class TeamService {
         }
     }
 
-    public void joinTeam(Team team, User leader) {
+    /**
+     * 팀 합류 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void join(Team team, User user) {
 
+        Character position = user.getPosition();
 
+        switch (position) {
+            case 'D':
+                team.addDesigner(user);
+                userService.joinTeam(user, team.getId());
+                break;
+            case 'B':
+                team.addBackend(user);
+                userService.joinTeam(user, team.getId());
+                break;
+            case 'F':
+                team.addFrontend(user);
+                userService.joinTeam(user, team.getId());
+                break;
+            case 'P':
+                team.addProjectManager(user);
+                userService.joinTeam(user, team.getId());
+                break;
+            default:
+                throw new CustomException(SERVER_ERROR);
+        }
+
+        save(team);
     }
 
     /**
      * 포지션 여유 검증 |
+     * 409(POSITION_UNSELECTED)
      * 409(DESIGNER_POSITION_UNAVAILABLE)
      * 409(BACKEND_POSITION_UNAVAILABLE)
      * 409(FRONTEND_POSITION_UNAVAILABLE)
      * 409(PROJECT_MANAGER_POSITION_UNAVAILABLE)
      * 500(SERVER_ERROR)
      */
-    public void validatePositionAvailability (Team team, User user) {
+    public void validatePositionAvailability(Team team, User user) {
 
         switch (user.getPosition()) {
             case 'D':
@@ -64,6 +97,17 @@ public class TeamService {
                 break;
             default:
                 throw new CustomException(SERVER_ERROR);
+        }
+    }
+
+    public Page<Team> findMany(Integer pageFrom, Integer pageNum) {
+        if (pageNum == null)
+            pageNum = 20;
+
+        try {
+            return teamRepository.findTeamsByIsDeletedIsFalseOrderByModifiedDateDesc(PageRequest.of(pageFrom, pageNum));
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
         }
     }
 }

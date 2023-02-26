@@ -15,7 +15,9 @@ public enum SuccessCode {
      */
     // 200 OK
     TEAMMATES_FOUND(OK, "팀원 찾기를 완료 했습니다."),
-    TEAMMATES_ZERO(OK, "더이상 팀원을 찾을 수 없습니다."),
+    TEAMMATES_ZERO(OK, "더이상 찾을 수 잇는 팀원이 없습니다."),
+    TEAMS_FOUND(OK, "팀 찾기를 완료 했습니다."),
+    TEAMS_ZERO(OK, "더이상 찾을 수 있는 팀이 없습니다."),
 
     // 201 CREATED
     TEAM_CREATED(CREATED, "팀 생성을 완료 했습니다."),

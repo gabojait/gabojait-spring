@@ -1,5 +1,6 @@
 package com.inuappcenter.gabojaitspring.team.dto.res;
 
+import com.inuappcenter.gabojaitspring.profile.dto.res.UserAbstractDefaultResDto;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
@@ -41,16 +42,16 @@ public class TeamDefaultResDto {
     private String expectation;
 
     @ApiModelProperty(position = 10, required = true, value = "현재 디자이너 팀원")
-    private List<User> designers = new ArrayList<>();
+    private List<UserAbstractDefaultResDto> designers = new ArrayList<>();
 
     @ApiModelProperty(position = 11, required = true, value = "현재 백엔드 개발자 팀원")
-    private List<User> backends = new ArrayList<>();
+    private List<UserAbstractDefaultResDto> backends = new ArrayList<>();
 
     @ApiModelProperty(position = 12, required = true, value = "현재 프론트엔드 개발자 팀원")
-    private List<User> frontends = new ArrayList<>();
+    private List<UserAbstractDefaultResDto> frontends = new ArrayList<>();
 
     @ApiModelProperty(position = 13, required = true, value = "현재 기획자 팀원")
-    private List<User> planners = new ArrayList<>();
+    private List<UserAbstractDefaultResDto> projectManagers = new ArrayList<>();
 
     public TeamDefaultResDto(Team team) {
         this.teamId = team.getId().toString();
@@ -63,9 +64,13 @@ public class TeamDefaultResDto {
         this.openChatUrl = team.getOpenChatUrl();
         this.expectation = team.getExpectation();
 
-        this.designers.addAll(team.getDesigners());
-        this.backends.addAll(team.getBackends());
-        this.frontends.addAll(team.getFrontends());
-        this.planners.addAll(team.getProjectManagers());
+        for (User d : team.getDesigners())
+            designers.add(new UserAbstractDefaultResDto(d));
+        for (User b : team.getBackends())
+            backends.add(new UserAbstractDefaultResDto(b));
+        for (User f : team.getFrontends())
+            frontends.add(new UserAbstractDefaultResDto(f));
+        for (User p : team.getProjectManagers())
+            projectManagers.add(new UserAbstractDefaultResDto(p));
     }
 }

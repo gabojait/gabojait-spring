@@ -40,13 +40,15 @@ public class Team extends BaseTimeEntity {
     private Short projectManagerTotalRecruitCnt;
 
     @Field(name = "open_chat_url")
-    private String openChatUrl; //
+    private String openChatUrl;
 
     private List<User> designers = new ArrayList<>();
     private List<User> backends = new ArrayList<>();
     private List<User> frontends = new ArrayList<>();
     private List<User> projectManagers = new ArrayList<>();
     private String expectation;
+    private List<ObjectId> applications = new ArrayList<>();
+    private List<ObjectId> recruits = new ArrayList<>();
 
     @Builder
     public Team(ObjectId leaderUserId,

@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +48,7 @@ public class TeamController {
 
     @ApiOperation(value = "팀원 찾기")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "TEAMMATES_FOUND",
+            @ApiResponse(responseCode = "200", description = "TEAMMATES_FOUND / TEAMMATES_ZERO",
                     content = @Content(schema = @Schema(implementation = UserAbstractDefaultResDto.class))),
             @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
@@ -59,7 +58,7 @@ public class TeamController {
     @GetMapping("/user/{position}")
     public ResponseEntity<DefaultResDto<Object>> findTeammates(HttpServletRequest servletRequest,
                                                                @PathVariable String position,
-                                                               @RequestParam @NotNull Integer pageFrom,
+                                                               @RequestParam Integer pageFrom,
                                                                @RequestParam(required = false) Integer pageNum) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
@@ -99,6 +98,7 @@ public class TeamController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "TEAM_CREATED",
                     content = @Content(schema = @Schema(implementation = TeamDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "POSITION_UNSELECTED"),
             @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
             @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
@@ -121,10 +121,11 @@ public class TeamController {
         User user = userService.findOneByUserId(token.get(0));
 
         userService.validateCurrentTeam(user);
+        userService.isPositionSelected(user);
         Team team = request.toEntity(user.getId());
         teamService.validatePositionAvailability(team, user);
 
-        teamService.joinTeam(team, user);
+        teamService.join(team, user);
         teamService.save(team);
 
         TeamDefaultResDto responseBody = new TeamDefaultResDto(team);
@@ -135,5 +136,51 @@ public class TeamController {
                         .responseMessage(TEAM_CREATED.getMessage())
                         .data(responseBody)
                         .build());
+    }
+
+    @ApiOperation(value = "팀 찾기")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "TEAMS_FOUND / TEAMS_ZERO",
+                    content = @Content(schema = @Schema(implementation = UserAbstractDefaultResDto.class))),
+            @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @GetMapping
+    public ResponseEntity<DefaultResDto<Object>> findTeams(HttpServletRequest servletRequest,
+                                                           @RequestParam Integer pageFrom,
+                                                           @RequestParam(required = false) Integer pageNum) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        userService.findOneByUserId(token.get(0));
+        Page<Team> teams = teamService.findMany(pageFrom, pageNum);
+
+        if (teams.getSize() == 0) {
+
+            return ResponseEntity.status(TEAMS_ZERO.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(TEAMS_ZERO.name())
+                            .responseMessage(TEAMS_ZERO.getMessage())
+                            .totalPageNum(teams.getTotalPages())
+                            .build());
+        } else {
+
+            List<TeamDefaultResDto> responseBodies = new ArrayList<>();
+            for (Team t : teams)
+                responseBodies.add(new TeamDefaultResDto(t));
+
+            return ResponseEntity.status(TEAMS_FOUND.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(TEAM_CREATED.name())
+                            .responseMessage(TEAM_CREATED.getMessage())
+                            .data(responseBodies)
+                            .totalPageNum(teams.getTotalPages())
+                            .build());
+        }
     }
 }

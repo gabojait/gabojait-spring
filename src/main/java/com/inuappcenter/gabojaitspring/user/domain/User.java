@@ -4,6 +4,7 @@ import com.inuappcenter.gabojaitspring.common.BaseTimeEntity;
 import com.inuappcenter.gabojaitspring.profile.domain.*;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.review.domain.ReviewComment;
+import com.inuappcenter.gabojaitspring.team.domain.Offer;
 import com.inuappcenter.gabojaitspring.user.domain.type.Gender;
 import com.inuappcenter.gabojaitspring.user.domain.type.Role;
 import lombok.AccessLevel;
@@ -60,6 +61,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     private List<Work> works = new ArrayList<>();
     private List<Skill> skills = new ArrayList<>();
     private List<Portfolio> portfolios = new ArrayList<>();
+    private List<ObjectId> offerIds = new ArrayList<>();
     private List<ReviewComment> reviewComments = new ArrayList<>();
 
     @Builder

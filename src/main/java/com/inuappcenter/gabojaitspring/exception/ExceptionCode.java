@@ -46,7 +46,8 @@ public enum ExceptionCode {
     PASSWORD_MATCH_INVALID(BAD_REQUEST, "비밀번호와 비밀번호 재입력이 동일하지 않습니다."),
     LEVEL_FORMAT_INVALID(BAD_REQUEST, "레벨은 low, mid, high 중 하나입니다."),
     PORTFOLIOTYPE_FORMAT_INVALID(BAD_REQUEST, "포트폴리오 타입은 file, link 중 하나입니다."),
-    POSITION_FORMAT_INVALID(BAD_REQUEST, "포지션은 designer, backend, frontend, planner 중 하나입니다."),
+    POSITION_FORMAT_INVALID(BAD_REQUEST, "포지션은 designer, backend, frontend, pm 중 하나입니다."),
+    POSITION_UNSELECTED(BAD_REQUEST, "본인의 포지션을 먼저 선택해주세요."),
 
     /**
      * 401 UNAUTHORIZED
