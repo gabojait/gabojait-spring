@@ -45,6 +45,9 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Field(name = "completed_team_ids")
     private List<ObjectId> completedTeamIds = new ArrayList<>();
 
+    @Field(name = "is_public")
+    private Boolean isPublic;
+
     private String password;
     private Character gender;
     private LocalDate birthdate;
@@ -54,7 +57,6 @@ public class User extends BaseTimeEntity implements UserDetails {
     private String description;
     private Character position;
     private Float rating;
-    private Boolean isPublic;
     private List<Education> educations = new ArrayList<>();
     private List<Work> works = new ArrayList<>();
     private List<Skill> skills = new ArrayList<>();
@@ -81,6 +83,11 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.rating = 0F;
         this.nickname = nickname;
         this.isPublic = false;
+        this.imageUrl = null;
+        this.currentTeamId = null;
+        this.position = null;
+        this.description = null;
+
         this.isDeleted = false;
 
         for (Role role : roles)
@@ -97,6 +104,10 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void updateImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public void updateIsPublic(Boolean isPublic) {
+        this.isPublic = isPublic;
     }
 
     public void updateIsTemporaryPassword(boolean isTemporaryPassword) {

@@ -46,7 +46,7 @@ public class TeamController {
     private final TeamService teamService;
     private final JwtProvider jwtProvider;
 
-    @ApiOperation(value = "팀원 찾기")
+    @ApiOperation(value = "팀원 찾기", notes = "position = designer || backend || frontend || pm")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "TEAMMATES_FOUND / TEAMMATES_ZERO",
                     content = @Content(schema = @Schema(implementation = UserAbstractDefaultResDto.class))),
@@ -70,7 +70,7 @@ public class TeamController {
 
         Page<User> users = userService.findManyByPosition(Position.fromString(position), pageFrom, pageNum);
 
-        if (users.getSize() == 0) {
+        if (users.getNumberOfElements() == 0) {
 
             return ResponseEntity.status(TEAMMATES_ZERO.getHttpStatus())
                     .body(DefaultResDto.builder()
@@ -160,7 +160,7 @@ public class TeamController {
         userService.findOneByUserId(token.get(0));
         Page<Team> teams = teamService.findMany(pageFrom, pageNum);
 
-        if (teams.getSize() == 0) {
+        if (teams.getNumberOfElements() == 0) {
 
             return ResponseEntity.status(TEAMS_ZERO.getHttpStatus())
                     .body(DefaultResDto.builder()

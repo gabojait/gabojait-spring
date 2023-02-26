@@ -28,9 +28,11 @@ public class UserAbstractDefaultResDto {
     public UserAbstractDefaultResDto(User user) {
         this.userId = user.getId().toString();
         this.nickname = user.getNickname();
-        this.position = Position.toEnum(user.getPosition()).name();
         this.rating = user.getRating();
         this.schemaVersion = user.getSchemaVersion();
+
+        if (user.getPosition() != null)
+            this.position = Position.toEnum(user.getPosition()).name();
     }
 
 }

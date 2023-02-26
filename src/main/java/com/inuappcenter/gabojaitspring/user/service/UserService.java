@@ -140,11 +140,23 @@ public class UserService {
 
         try {
             user.updateNickname(nickname);
-
-            save(user);
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+
+        save(user);
+    }
+
+    @Transactional
+    public void updateIsPublic(User user, Boolean isPublic) {
+
+        try {
+            user.updateIsPublic(isPublic);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(user);
     }
 
     /**

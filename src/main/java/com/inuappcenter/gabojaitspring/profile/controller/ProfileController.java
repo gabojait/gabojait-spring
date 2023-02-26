@@ -144,7 +144,7 @@ public class ProfileController {
 
     @ApiOperation(value = "자기소개 수정")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "DESCRIPTION_UPDATED",
+            @ApiResponse(responseCode = "200", description = "PROFILE_DESCRIPTION_UPDATED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400", description = "DESCRIPTION_LENGTH_INVALID"),
             @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
@@ -155,7 +155,7 @@ public class ProfileController {
     @PatchMapping("/description")
     public ResponseEntity<DefaultResDto<Object>> updateDescription(HttpServletRequest servletRequest,
                                                                    @RequestBody @Valid
-                                                                   UserDescriptionDefaultReqDto request) {
+                                                                   UserProfileDescriptionDefaultReqDto request) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
         if (!token.get(1).equals(JwtType.ACCESS.name()))
@@ -627,6 +627,31 @@ public class ProfileController {
                 .body(DefaultResDto.builder()
                         .responseCode(PORTFOLIO_LINK_UPDATED.name())
                         .responseMessage(PORTFOLIO_LINK_UPDATED.getMessage())
+                        .build());
+    }
+
+    @ApiOperation(value = "공개 여부 수정")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "PROFILE_VISIBILITY_UPDATED",
+                    content = @Content(schema = @Schema(implementation = Object.class)))
+    })
+    @PatchMapping("/public")
+    public ResponseEntity<DefaultResDto<Object>> updatePublic(HttpServletRequest servletRequest,
+                                                              @RequestBody @Valid
+                                                              UserProfileVisibilityDefaultReqDto request) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
+
+        User user = userService.findOneByUserId(token.get(0));
+
+        userService.updateIsPublic(user, request.getIsPublic());
+
+        return ResponseEntity.status(PROFILE_VISIBILITY_UPDATED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(PROFILE_VISIBILITY_UPDATED.name())
+                        .responseMessage(PROFILE_VISIBILITY_UPDATED.getMessage())
                         .build());
     }
 }
