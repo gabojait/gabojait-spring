@@ -42,6 +42,9 @@ public class Team extends BaseTimeEntity {
     @Field(name = "open_chat_url")
     private String openChatUrl;
 
+    @Field(name = "is_public")
+    private Boolean isPublic;
+
     private List<User> designers = new ArrayList<>();
     private List<User> backends = new ArrayList<>();
     private List<User> frontends = new ArrayList<>();
@@ -69,6 +72,7 @@ public class Team extends BaseTimeEntity {
         this.projectManagerTotalRecruitCnt = projectManagerTotalRecruitCnt;
         this.openChatUrl = openChatUrl;
         this.expectation = expectation;
+        this.isPublic = true;
         this.isDeleted = false;
     }
 
@@ -102,6 +106,10 @@ public class Team extends BaseTimeEntity {
 
     public void removeProjectManagers(User user) {
         this.projectManagers.remove(user);
+    }
+
+    public void updateIsPublic(Boolean isPublic) {
+        this.isPublic = isPublic;
     }
 
     public void delete() {

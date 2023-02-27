@@ -14,5 +14,5 @@ public interface TeamRepository extends MongoRepository<Team, ObjectId> {
 
     Optional<Team> findByLeaderUserIdAndIsDeletedIsFalse(ObjectId leaderUserId);
 
-    Page<Team> findTeamsByIsDeletedIsFalseOrderByModifiedDateDesc(Pageable pageable);
+    Page<Team> findTeamsByIsPublicIsTrueAndIsDeletedIsFalseOrderByModifiedDateDesc(Pageable pageable);
 }

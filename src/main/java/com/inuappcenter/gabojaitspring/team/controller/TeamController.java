@@ -9,6 +9,7 @@ import com.inuappcenter.gabojaitspring.profile.dto.res.UserProfileAbstractResDto
 import com.inuappcenter.gabojaitspring.team.domain.Team;
 import com.inuappcenter.gabojaitspring.team.dto.req.OfferDefaultReqDto;
 import com.inuappcenter.gabojaitspring.team.dto.req.TeamDefaultReqDto;
+import com.inuappcenter.gabojaitspring.team.dto.req.TeamVisibilityUpdateReqDto;
 import com.inuappcenter.gabojaitspring.team.dto.res.TeamDefaultResDto;
 import com.inuappcenter.gabojaitspring.team.service.OfferService;
 import com.inuappcenter.gabojaitspring.team.service.TeamService;
@@ -101,14 +102,12 @@ public class TeamController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "TEAM_CREATED",
                     content = @Content(schema = @Schema(implementation = TeamDefaultResDto.class))),
-            @ApiResponse(responseCode = "400", description = "POSITION_UNSELECTED"),
+            @ApiResponse(responseCode = "400",
+                    description = "FIELD_REQUIRED / *_LENGTH_INVALID / *_POS_ZERO_ONLY / POSITION_UNSELECTED"),
             @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
             @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
-            @ApiResponse(responseCode = "409",
-                    description = "EXISTING_CURRENT_TEAM / DESIGNER_POSITION_UNAVAILABLE " +
-                            "/ BACKEND_POSITION_UNAVAILABLE / FRONTEND_POSITION_UNAVAILABLE " +
-                            "/ PROJECT_MANAGER_POSITION_UNAVAILABLE"),
+            @ApiResponse(responseCode = "409", description = "EXISTING_CURRENT_TEAM / *_POSITION_UNAVAILABLE"),
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
     @ResponseStatus(HttpStatus.CREATED)
@@ -129,7 +128,7 @@ public class TeamController {
         teamService.validatePositionAvailability(team, Position.toEnum(user.getPosition()));
 
         teamService.save(team);
-        teamService.join(team, user);
+        teamService.join(team, user, Position.toEnum(user.getPosition()));
 
         TeamDefaultResDto responseBody = new TeamDefaultResDto(team);
 
@@ -191,7 +190,7 @@ public class TeamController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "OFFER_CREATED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "POSITION_FORMAT_INVALID"),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED / POSITION_FORMAT_INVALID"),
             @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
             @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
@@ -226,7 +225,7 @@ public class TeamController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "OFFER_CREATED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "POSITION_FORMAT_INVALID"),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED / POSITION_FORMAT_INVALID"),
             @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
             @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
@@ -256,6 +255,39 @@ public class TeamController {
                 .body(DefaultResDto.builder()
                         .responseCode(OFFER_CREATED.name())
                         .responseMessage(OFFER_CREATED.getMessage())
+                        .build());
+    }
+
+    @ApiOperation(value = "팀 공개여부 수정")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "TEAM_VISIBILITY_UPDATED",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED / ROLE_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @PatchMapping("/team/visibility")
+    public ResponseEntity<DefaultResDto<Object>> updateVisibility(HttpServletRequest servletRequest,
+                                                                  @RequestBody @Valid
+                                                                  TeamVisibilityUpdateReqDto request) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        User leader = userService.findOneByUserId(token.get(0));
+        Team team = teamService.findOne(leader.getCurrentTeamId().toString());
+        teamService.validateLeader(team, leader);
+
+        teamService.updateIsPublic(team, request.getIsPublic());
+
+        return ResponseEntity.status(TEAM_VISIBILITY_UPDATED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(TEAM_VISIBILITY_UPDATED.name())
+                        .responseMessage(TEAM_VISIBILITY_UPDATED.getMessage())
                         .build());
     }
 }

@@ -41,11 +41,11 @@ public class TeamService {
      * 500(SERVER_ERROR)
      */
     @Transactional
-    public void join(Team team, User user) {
+    public void join(Team team, User user, Position position) {
 
-        Character position = user.getPosition();
+        Character p = position.getType();
 
-        switch (position) {
+        switch (p) {
             case 'D':
                 team.addDesigner(user);
                 userService.joinTeam(user, team.getId());
@@ -122,14 +122,36 @@ public class TeamService {
         }
     }
 
+    /**
+     * 팀 다건 조회 |
+     * 500(SERVER_ERROR)
+     */
     public Page<Team> findMany(Integer pageFrom, Integer pageNum) {
         if (pageNum == null)
             pageNum = 20;
 
         try {
-            return teamRepository.findTeamsByIsDeletedIsFalseOrderByModifiedDateDesc(PageRequest.of(pageFrom, pageNum));
+            return teamRepository.findTeamsByIsPublicIsTrueAndIsDeletedIsFalseOrderByModifiedDateDesc(
+                    PageRequest.of(pageFrom, pageNum)
+            );
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+    }
+
+    /**
+     * 팀 공개 여부 수정 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void updateIsPublic(Team team, boolean isPublic) {
+
+        try {
+            team.updateIsPublic(isPublic);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(team);
     }
 }

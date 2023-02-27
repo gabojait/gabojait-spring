@@ -633,12 +633,17 @@ public class ProfileController {
     @ApiOperation(value = "공개 여부 수정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "PROFILE_VISIBILITY_UPDATED",
-                    content = @Content(schema = @Schema(implementation = Object.class)))
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
-    @PatchMapping("/public")
-    public ResponseEntity<DefaultResDto<Object>> updatePublic(HttpServletRequest servletRequest,
-                                                              @RequestBody @Valid
-                                                              UserProfileVisibilityDefaultReqDto request) {
+    @PatchMapping("/visibility")
+    public ResponseEntity<DefaultResDto<Object>> updateVisibility(HttpServletRequest servletRequest,
+                                                                  @RequestBody @Valid
+                                                                  UserProfileVisibilityUpdateReqDto request) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
         if (!token.get(1).equals(JwtType.ACCESS.name()))

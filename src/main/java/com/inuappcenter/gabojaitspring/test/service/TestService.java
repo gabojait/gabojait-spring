@@ -1,11 +1,15 @@
 package com.inuappcenter.gabojaitspring.test.service;
 
 import com.inuappcenter.gabojaitspring.exception.CustomException;
+import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.profile.repository.EducationRepository;
 import com.inuappcenter.gabojaitspring.profile.repository.PortfolioRepository;
 import com.inuappcenter.gabojaitspring.profile.repository.SkillRepository;
 import com.inuappcenter.gabojaitspring.profile.repository.WorkRepository;
+import com.inuappcenter.gabojaitspring.team.domain.Team;
+import com.inuappcenter.gabojaitspring.team.repository.OfferRepository;
 import com.inuappcenter.gabojaitspring.team.repository.TeamRepository;
+import com.inuappcenter.gabojaitspring.team.service.TeamService;
 import com.inuappcenter.gabojaitspring.user.domain.Contact;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import com.inuappcenter.gabojaitspring.user.domain.type.Gender;
@@ -37,8 +41,10 @@ public class TestService {
     private final SkillRepository skillRepository;
     private final WorkRepository workRepository;
     private final TeamRepository teamRepository;
+    private final OfferRepository offerRepository;
     private final UserService userService;
     private final ContactService contactService;
+    private final TeamService teamService;
     private final PasswordEncoder passwordEncoder;
 
     /**
@@ -56,6 +62,7 @@ public class TestService {
             skillRepository.deleteAll();
             workRepository.deleteAll();
             teamRepository.deleteAll();
+            offerRepository.deleteAll();
 
             injectTestAccounts();
         } catch (RuntimeException e) {
@@ -87,7 +94,29 @@ public class TestService {
                     .roles(new ArrayList<>(List.of(Role.USER, Role.ADMIN)))
                     .build();
 
+            if (user.getUsername().equals("test1"))
+                user.updatePosition(Position.PM);
+
             userService.save(user);
+
+            if (user.getUsername().equals("test1")) {
+                user.updatePosition(Position.PM);
+
+                Team team = Team.builder()
+                        .projectName("Gabojait")
+                        .projectDescription("가보자잇 설명입니다.")
+                        .leaderUserId(user.getId())
+                        .designerTotalRecruitCnt(Short.valueOf("2"))
+                        .backendTotalRecruitCnt(Short.valueOf("2"))
+                        .frontendTotalRecruitCnt(Short.valueOf("2"))
+                        .projectManagerTotalRecruitCnt(Short.valueOf("2"))
+                        .expectation("열정적인 태도를 원해요.")
+                        .openChatUrl("/o/TEST")
+                        .build();
+
+                teamService.save(team);
+                teamService.join(team, user, Position.PM);
+            }
         }
     }
 }

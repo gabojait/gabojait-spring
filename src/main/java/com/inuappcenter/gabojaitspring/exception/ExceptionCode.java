@@ -26,6 +26,10 @@ public enum ExceptionCode {
     PORTFOLIONAME_LENGTH_INVALID(BAD_REQUEST, "포트폴리오명은 1~10자만 가능합니다."),
     URL_LENGTH_INVALID(BAD_REQUEST, "URL은 1~1000자만 가능합니다"),
     SKILLNAME_LENGTH_INVALID(BAD_REQUEST, "기술명은 1~20자만 가능합니다."),
+    PROJECTNAME_LENGTH_INVALID(BAD_REQUEST, "프로젝트 이름은 1~20자만 가능합니다."),
+    PROJECTDESCRIPTION_LENGTH_INVALID(BAD_REQUEST, "프로젝트 설명은 1~500자만 가능합니다."),
+    EXPECTATION_LENGTH_INVALID(BAD_REQUEST, "바라는 점은 1~200자만 가능합니다."),
+    OPENCHATURL_LENGTH_INVALID(BAD_REQUEST, "오픈채팅 링크는 1~100자만 가능합니다."),
 
     // @PositiveOrZero
     DESIGNERCNT_POS_ZERO_ONLY(BAD_REQUEST, "디자이너 수는 0 또는 양수만 가능합니다."),
