@@ -1,11 +1,13 @@
 package com.inuappcenter.gabojaitspring.team.service;
 
 import com.inuappcenter.gabojaitspring.exception.CustomException;
+import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
 import com.inuappcenter.gabojaitspring.team.repository.TeamRepository;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import com.inuappcenter.gabojaitspring.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -68,17 +70,37 @@ public class TeamService {
     }
 
     /**
+     * 팀 리더 검증 |
+     * 403(ROLE_NOT_ALLOWED)
+     */
+    public void validateLeader(Team team, User leader) {
+        if (!team.getLeaderUserId().equals(leader.getId()))
+            throw new CustomException(ROLE_NOT_ALLOWED);
+    }
+
+    /**
+     * 단건 조회 |
+     * 404(TEAM_NOT_FOUND)
+     */
+    public Team findOne(String teamId) {
+
+        return teamRepository.findById(new ObjectId(teamId))
+                .orElseThrow(() -> {
+                    throw new CustomException(TEAM_NOT_FOUND);
+                });
+    }
+
+    /**
      * 포지션 여유 검증 |
-     * 409(POSITION_UNSELECTED)
      * 409(DESIGNER_POSITION_UNAVAILABLE)
      * 409(BACKEND_POSITION_UNAVAILABLE)
      * 409(FRONTEND_POSITION_UNAVAILABLE)
      * 409(PROJECT_MANAGER_POSITION_UNAVAILABLE)
      * 500(SERVER_ERROR)
      */
-    public void validatePositionAvailability(Team team, User user) {
+    public void validatePositionAvailability(Team team, Position position) {
 
-        switch (user.getPosition()) {
+        switch (position.getType()) {
             case 'D':
                 if (team.getDesignerTotalRecruitCnt() <= team.getDesigners().size())
                     throw new CustomException(DESIGNER_POSITION_UNAVAILABLE);

@@ -74,6 +74,7 @@ public enum ExceptionCode {
     WORK_NOT_FOUND(NOT_FOUND, "존재하지 않는 경력입니다."),
     SKILL_NOT_FOUND(NOT_FOUND, "존재하지 않은 기술입니다."),
     PORTFOLIO_NOT_FOUND(NOT_FOUND, "존재하지 않은 포트폴리오입니다."),
+    TEAM_NOT_FOUND(NOT_FOUND, "존재하지 않은 팀입니다."),
 
     /**
      * 405 METHOD_NOT_ALLOWED

@@ -16,8 +16,8 @@ public class Offer extends BaseTimeEntity {
     private User applicant;
     private Team team;
 
-    @Builder()
-    public Offer(User applicant, Team team, Boolean isByApplicant) {
+    @Builder
+    public Offer(User applicant, Team team, boolean isByApplicant) {
         this.applicant = applicant;
         this.team = team;
         this.isByApplicant = isByApplicant;

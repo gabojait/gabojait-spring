@@ -3,7 +3,7 @@ package com.inuappcenter.gabojaitspring.user.domain;
 import com.inuappcenter.gabojaitspring.common.BaseTimeEntity;
 import com.inuappcenter.gabojaitspring.profile.domain.*;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
-import com.inuappcenter.gabojaitspring.review.domain.ReviewComment;
+import com.inuappcenter.gabojaitspring.review.domain.Review;
 import com.inuappcenter.gabojaitspring.user.domain.type.Gender;
 import com.inuappcenter.gabojaitspring.user.domain.type.Role;
 import lombok.AccessLevel;
@@ -48,6 +48,9 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Field(name = "is_public")
     private Boolean isPublic;
 
+    @Field(name = "offer_ids")
+    private List<ObjectId> offerIds = new ArrayList<>();
+
     private String password;
     private Character gender;
     private LocalDate birthdate;
@@ -61,8 +64,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     private List<Work> works = new ArrayList<>();
     private List<Skill> skills = new ArrayList<>();
     private List<Portfolio> portfolios = new ArrayList<>();
-    private List<ObjectId> offerIds = new ArrayList<>();
-    private List<ReviewComment> reviews = new ArrayList<>();
+    private List<Review> reviews = new ArrayList<>();
 
     @Builder
     public User(String username,

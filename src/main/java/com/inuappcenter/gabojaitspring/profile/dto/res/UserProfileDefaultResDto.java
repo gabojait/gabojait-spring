@@ -2,6 +2,8 @@ package com.inuappcenter.gabojaitspring.profile.dto.res;
 
 import com.inuappcenter.gabojaitspring.profile.domain.*;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
+import com.inuappcenter.gabojaitspring.review.domain.Review;
+import com.inuappcenter.gabojaitspring.review.dto.res.ReviewDefaultResDto;
 import com.inuappcenter.gabojaitspring.user.domain.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -32,6 +34,9 @@ public class UserProfileDefaultResDto {
 
     @ApiModelProperty(position = 6, required = true, value = "평점")
     private Float rating;
+
+    @ApiModelProperty(position = 7, required = true, value = "리뷰")
+    private List<ReviewDefaultResDto> reviews = new ArrayList<>();
 
     @ApiModelProperty(position = 7, required = true, value = "학력")
     private List<EducationDefaultResDto> educations = new ArrayList<>();
@@ -70,6 +75,9 @@ public class UserProfileDefaultResDto {
 
         if (user.getPosition() != null)
             this.position = Position.toEnum(user.getPosition()).name();
+
+        for (Review review : user.getReviews())
+            this.reviews.add(new ReviewDefaultResDto(review));
 
         for (Education education : user.getEducations())
             this.educations.add(new EducationDefaultResDto(education));

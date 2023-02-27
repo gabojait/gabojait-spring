@@ -21,6 +21,7 @@ public enum SuccessCode {
 
     // 201 CREATED
     TEAM_CREATED(CREATED, "팀 생성을 완료 했습니다."),
+    OFFER_CREATED(CREATED, "제안 생성을 완료했습니다."),
 
     /**
      * Profile
