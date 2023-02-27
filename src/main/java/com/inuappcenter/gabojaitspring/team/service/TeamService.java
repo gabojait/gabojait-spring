@@ -13,6 +13,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 
 @Service
@@ -88,6 +91,27 @@ public class TeamService {
                 .orElseThrow(() -> {
                     throw new CustomException(TEAM_NOT_FOUND);
                 });
+    }
+
+    /**
+     * 완료한 팀 전체 조회 |
+     * 404(TEAM_NOT_FOUND)
+     */
+    public List<Team> findAllPrevious(User user) {
+
+        if (user.getCompletedTeamIds().size() == 0)
+            return null;
+        else {
+            List<Team> teams = new ArrayList<>();
+
+            for (ObjectId teamId : user.getCompletedTeamIds())
+                teams.add(teamRepository.findById(teamId)
+                        .orElseThrow(() -> {
+                            throw new CustomException(TEAM_NOT_FOUND);
+                        }));
+
+            return teams;
+        }
     }
 
     /**

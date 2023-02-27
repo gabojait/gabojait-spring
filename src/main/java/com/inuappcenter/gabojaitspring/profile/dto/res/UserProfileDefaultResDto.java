@@ -4,6 +4,7 @@ import com.inuappcenter.gabojaitspring.profile.domain.*;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.review.domain.Review;
 import com.inuappcenter.gabojaitspring.review.dto.res.ReviewDefaultResDto;
+import com.inuappcenter.gabojaitspring.team.domain.Team;
 import com.inuappcenter.gabojaitspring.user.domain.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -54,7 +55,7 @@ public class UserProfileDefaultResDto {
     private String currentTeamId;
 
     @ApiModelProperty(position = 12, required = true, value = "완료한 팀")
-    private List<String> completedTeamIds = new ArrayList<>();
+    private List<UserTeamAbstractResDto> completedTeams = new ArrayList<>();
 
     @ApiModelProperty(position = 13, required = true, value = "공개 여부")
     private Boolean isPublic;
@@ -62,7 +63,7 @@ public class UserProfileDefaultResDto {
     @ApiModelProperty(position = 13, required = true, value = "스키마버전")
     private String schemaVersion;
 
-    public UserProfileDefaultResDto(User user) {
+    public UserProfileDefaultResDto(User user, List<Team> completedTeams) {
         this.userId = user.getId().toString();
         this.nickname = user.getNickname();
         this.description = user.getDescription();
@@ -91,8 +92,9 @@ public class UserProfileDefaultResDto {
         for (Portfolio portfolio : user.getPortfolios())
             this.portfolios.add(new PortfolioDefaultResDto(portfolio));
 
-        for (ObjectId projectId : user.getCompletedTeamIds())
-            this.completedTeamIds.add(projectId.toString());
+        if (completedTeams != null)
+            for (Team team : completedTeams)
+                this.completedTeams.add(new UserTeamAbstractResDto(team, user));
 
         this.schemaVersion = user.getSchemaVersion();
     }

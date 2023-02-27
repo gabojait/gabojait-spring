@@ -11,6 +11,8 @@ import com.inuappcenter.gabojaitspring.profile.dto.req.*;
 import com.inuappcenter.gabojaitspring.profile.service.PortfolioService;
 import com.inuappcenter.gabojaitspring.profile.service.SkillService;
 import com.inuappcenter.gabojaitspring.profile.service.WorkService;
+import com.inuappcenter.gabojaitspring.team.domain.Team;
+import com.inuappcenter.gabojaitspring.team.service.TeamService;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import com.inuappcenter.gabojaitspring.user.domain.type.Role;
 import com.inuappcenter.gabojaitspring.profile.dto.res.UserProfileDefaultResDto;
@@ -48,6 +50,7 @@ public class ProfileController {
     private final WorkService workService;
     private final SkillService skillService;
     private final PortfolioService portfolioService;
+    private final TeamService teamService;
     private final JwtProvider jwtProvider;
     private final UserService userService;
 
@@ -68,8 +71,9 @@ public class ProfileController {
             throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
 
         User user = userService.findOneByUserId(token.get(0));
+        List<Team> teams = teamService.findAllPrevious(user);
 
-        UserProfileDefaultResDto responseBody = new UserProfileDefaultResDto(user);
+        UserProfileDefaultResDto responseBody = new UserProfileDefaultResDto(user, teams);
 
         return ResponseEntity.status(MY_PROFILE_FOUND.getHttpStatus())
                 .body(DefaultResDto.builder()
@@ -101,8 +105,9 @@ public class ProfileController {
         userService.findOneByUserId(token.get(0));
 
         User user = userService.findOneByUserId(userId);
+        List<Team> teams = teamService.findAllPrevious(user);
 
-        UserProfileDefaultResDto responseBody = new UserProfileDefaultResDto(user);
+        UserProfileDefaultResDto responseBody = new UserProfileDefaultResDto(user, teams);
 
         return ResponseEntity.status(PROFILE_FOUND.getHttpStatus())
                 .body(DefaultResDto.builder()

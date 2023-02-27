@@ -143,7 +143,7 @@ public class UserController {
     @ApiOperation(value = "닉네임 수정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "NICKNAME_UPDATED",
-                    content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
+                    content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400", description = "NICKNAME_LENGTH_INVALID / " +
                     "NICKNAME_FORMAT_INVALID"),
             @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
@@ -171,13 +171,10 @@ public class UserController {
 
         userService.updateNickname(user, nickname);
 
-        UserProfileDefaultResDto response = new UserProfileDefaultResDto(user);
-
         return ResponseEntity.status(NICKNAME_UPDATED.getHttpStatus())
                 .body(DefaultResDto.builder()
                         .responseCode(NICKNAME_UPDATED.name())
                         .responseMessage(NICKNAME_UPDATED.getMessage())
-                        .data(response)
                         .build());
     }
 
