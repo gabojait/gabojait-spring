@@ -31,7 +31,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException, JWTVerificationException {
 
-        log.info(">>>>>>>>>>>>>>> {} <<<<<<<<<<<<<<<", request.getRequestURI());
+        log.info(">>>>>>>>>>>>>>> {} - {} <<<<<<<<<<<<<<<", request.getMethod(), request.getRequestURI());
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
@@ -44,6 +44,6 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
 
-        log.info("<<<<<<<<<<<<<<< {} >>>>>>>>>>>>>>>", request.getRequestURI());
+        log.info("<<<<<<<<<<<<<<< {} - {} >>>>>>>>>>>>>>>", request.getMethod(), request.getRequestURI());
     }
 }

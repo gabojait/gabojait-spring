@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseTimeEntity implements UserDetails {
 
-    @Indexed(unique = true)
     private String username;
 
     @Field(name = "legal_name")

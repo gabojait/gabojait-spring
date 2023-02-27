@@ -29,7 +29,7 @@ public enum ExceptionCode {
     PROJECTNAME_LENGTH_INVALID(BAD_REQUEST, "프로젝트 이름은 1~20자만 가능합니다."),
     PROJECTDESCRIPTION_LENGTH_INVALID(BAD_REQUEST, "프로젝트 설명은 1~500자만 가능합니다."),
     EXPECTATION_LENGTH_INVALID(BAD_REQUEST, "바라는 점은 1~200자만 가능합니다."),
-    OPENCHATURL_LENGTH_INVALID(BAD_REQUEST, "오픈채팅 링크는 1~100자만 가능합니다."),
+    OPENCHATURL_LENGTH_INVALID(BAD_REQUEST, "오픈채팅 링크는 25~100자만 가능합니다."),
 
     // @PositiveOrZero
     DESIGNERCNT_POS_ZERO_ONLY(BAD_REQUEST, "디자이너 수는 0 또는 양수만 가능합니다."),
@@ -43,6 +43,7 @@ public enum ExceptionCode {
     NICKNAME_FORMAT_INVALID(BAD_REQUEST, "닉네임은 한글 형식만 가능합니다."),
     PASSWORD_FORMAT_INVALID(BAD_REQUEST, "비밀번호는 영문, 숫자, 특수문자(#$@!%&*?)의 조합의 형식만 가능합니다."),
     LEGALNAME_FORMAT_INVALID(BAD_REQUEST, "실명은 한글 형식만 가능합니다."),
+    OPENCHATURL_FORMAT_INVALID(BAD_REQUEST, "오픈채팅 링크는 카카오 오픈채팅 URL 형식만 가능합니다."),
 
     // Custom
     EMAIL_VERIFICATION_INVALID(BAD_REQUEST, "이메일 인증을 먼저 해주세요."),

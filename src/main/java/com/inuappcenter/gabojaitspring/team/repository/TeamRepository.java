@@ -7,12 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
 @Repository
 public interface TeamRepository extends MongoRepository<Team, ObjectId> {
-
-    Optional<Team> findByLeaderUserIdAndIsDeletedIsFalse(ObjectId leaderUserId);
 
     Page<Team> findTeamsByIsPublicIsTrueAndIsDeletedIsFalseOrderByModifiedDateDesc(Pageable pageable);
 }

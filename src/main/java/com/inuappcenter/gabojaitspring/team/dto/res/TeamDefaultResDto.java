@@ -6,6 +6,7 @@ import com.inuappcenter.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +54,7 @@ public class TeamDefaultResDto {
     @ApiModelProperty(position = 13, required = true, value = "현재 프론트엔드 개발자 팀원")
     private List<UserProfileAbstractResDto> frontends = new ArrayList<>();
 
-    @ApiModelProperty(position = 14, required = true, value = "현재 기획자 팀원")
+    @ApiModelProperty(position = 14, required = true, value = "현재 프로젝트 매니저 팀원")
     private List<UserProfileAbstractResDto> projectManagers = new ArrayList<>();
 
     public TeamDefaultResDto(Team team) {

@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -19,36 +20,45 @@ import java.util.List;
 public class Team extends BaseTimeEntity {
 
     @Field(name = "leader_user_id")
+    @Indexed(unique = false)
     private ObjectId leaderUserId;
 
     @Field(name = "project_name")
+    @Indexed(unique = false)
     private String projectName;
 
     @Field(name = "project_description")
+    @Indexed(unique = false)
     private String projectDescription;
 
     @Field(name = "designer_total_recruit_cnt")
+    @Indexed(unique = false)
     private Short designerTotalRecruitCnt;
 
     @Field(name = "backend_total_recruit_cnt")
+    @Indexed(unique = false)
     private Short backendTotalRecruitCnt;
 
     @Field(name = "frontend_total_recruit_cnt")
+    @Indexed(unique = false)
     private Short frontendTotalRecruitCnt;
 
     @Field(name = "project_manager_total_recruit_cnt")
+    @Indexed(unique = false)
     private Short projectManagerTotalRecruitCnt;
 
     @Field(name = "open_chat_url")
+    @Indexed(unique = false)
     private String openChatUrl;
 
     @Field(name = "is_public")
     private Boolean isPublic;
 
+    @Field(name = "project_managers")
+    private List<User> projectManagers = new ArrayList<>();
     private List<User> designers = new ArrayList<>();
     private List<User> backends = new ArrayList<>();
     private List<User> frontends = new ArrayList<>();
-    private List<User> projectManagers = new ArrayList<>();
     private String expectation;
     private List<ObjectId> applications = new ArrayList<>();
     private List<ObjectId> recruits = new ArrayList<>();

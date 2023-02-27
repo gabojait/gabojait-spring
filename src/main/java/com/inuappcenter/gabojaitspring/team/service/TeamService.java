@@ -27,11 +27,13 @@ public class TeamService {
      * 저장 |
      * 500(SERVER_ERROR)
      */
+    @Transactional
     public Team save(Team team) {
 
         try {
             return teamRepository.save(team);
         } catch (RuntimeException e) {
+            e.printStackTrace();
             throw new CustomException(SERVER_ERROR);
         }
     }
@@ -43,9 +45,7 @@ public class TeamService {
     @Transactional
     public void join(Team team, User user, Position position) {
 
-        Character p = position.getType();
-
-        switch (p) {
+        switch (position.getType()) {
             case 'D':
                 team.addDesigner(user);
                 userService.joinTeam(user, team.getId());

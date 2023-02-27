@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Contact extends BaseTimeEntity {
 
-    @Indexed(unique = true)
     private String email;
 
     @Field(name = "verification_code")

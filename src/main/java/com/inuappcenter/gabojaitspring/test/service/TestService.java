@@ -66,10 +66,12 @@ public class TestService {
 
             injectTestAccounts();
         } catch (RuntimeException e) {
+            e.printStackTrace();
             throw new CustomException(SERVER_ERROR);
         }
     }
 
+    @Transactional
     public void injectTestAccounts() {
 
         for (int i = 1; i <= 3; i++) {
@@ -111,7 +113,7 @@ public class TestService {
                         .frontendTotalRecruitCnt(Short.valueOf("2"))
                         .projectManagerTotalRecruitCnt(Short.valueOf("2"))
                         .expectation("열정적인 태도를 원해요.")
-                        .openChatUrl("/o/TEST")
+                        .openChatUrl("https://open.kakao.com/o/test")
                         .build();
 
                 teamService.save(team);
