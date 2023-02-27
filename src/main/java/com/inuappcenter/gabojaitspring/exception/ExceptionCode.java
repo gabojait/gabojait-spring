@@ -79,6 +79,7 @@ public enum ExceptionCode {
     SKILL_NOT_FOUND(NOT_FOUND, "존재하지 않은 기술입니다."),
     PORTFOLIO_NOT_FOUND(NOT_FOUND, "존재하지 않은 포트폴리오입니다."),
     TEAM_NOT_FOUND(NOT_FOUND, "존재하지 않은 팀입니다."),
+    CURRENT_TEAM_NOT_FOUND(NOT_FOUND, "현재 소속된 팀이 존재하지 않습니다."),
 
     /**
      * 405 METHOD_NOT_ALLOWED
@@ -96,7 +97,7 @@ public enum ExceptionCode {
     BACKEND_POSITION_UNAVAILABLE(CONFLICT, "백엔드 개발 포지션은 마감했습니다."),
     FRONTEND_POSITION_UNAVAILABLE(CONFLICT, "프론트엔드 개발자 포지션은 마감했습니다."),
     PROJECT_MANAGER_POSITION_UNAVAILABLE(CONFLICT, "프로젝트 매니저 포지션은 마감했습니다."),
-
+    EXISTING_OFFER(CONFLICT, "이미 요청한 지원 정보입니다."),
 
     /**
      * 413 PAYLOAD_TOO_LARGE

@@ -275,6 +275,16 @@ public class UserService {
     }
 
     /**
+     * 현재 팀 미여부 검증 |
+     * 404(CURRENT_TEAM_NOT_FOUND)
+     */
+    public void isNonExistingCurrentTeam(User user) {
+
+        if (user.getCurrentTeamId() == null)
+            throw new CustomException(CURRENT_TEAM_NOT_FOUND);
+    }
+
+    /**
      * 포지션 선택 여부 검증 |
      * 409(POSITION_UNSELECTED)
      */

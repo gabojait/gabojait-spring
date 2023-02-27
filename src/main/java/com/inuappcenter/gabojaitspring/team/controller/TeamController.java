@@ -6,10 +6,12 @@ import com.inuappcenter.gabojaitspring.common.DefaultResDto;
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.profile.dto.res.UserProfileAbstractResDto;
+import com.inuappcenter.gabojaitspring.team.domain.Offer;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
 import com.inuappcenter.gabojaitspring.team.dto.req.OfferDefaultReqDto;
 import com.inuappcenter.gabojaitspring.team.dto.req.TeamDefaultReqDto;
 import com.inuappcenter.gabojaitspring.team.dto.req.TeamVisibilityUpdateReqDto;
+import com.inuappcenter.gabojaitspring.team.dto.res.OfferDefaultResDto;
 import com.inuappcenter.gabojaitspring.team.dto.res.TeamDefaultResDto;
 import com.inuappcenter.gabojaitspring.team.service.OfferService;
 import com.inuappcenter.gabojaitspring.team.service.TeamService;
@@ -50,7 +52,7 @@ public class TeamController {
     private final OfferService offerService;
     private final JwtProvider jwtProvider;
 
-    @ApiOperation(value = "팀원 찾기", notes = "position = designer || backend || frontend || pm")
+    @ApiOperation(value = "팀원 다건 조회", notes = "position = designer || backend || frontend || pm")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "TEAMMATES_FOUND / TEAMMATES_ZERO",
                     content = @Content(schema = @Schema(implementation = UserProfileAbstractResDto.class))),
@@ -140,9 +142,9 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation(value = "팀 찾기")
+    @ApiOperation(value = "팀 다건 조회")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "TEAMS_FOUND / TEAMS_ZERO",
+            @ApiResponse(responseCode = "200", description = "TEAMS_FOUND / TEAM_ZERO",
                     content = @Content(schema = @Schema(implementation = UserProfileAbstractResDto.class))),
             @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
@@ -150,7 +152,7 @@ public class TeamController {
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
     @GetMapping("/team")
-    public ResponseEntity<DefaultResDto<Object>> findTeams(HttpServletRequest servletRequest,
+    public ResponseEntity<DefaultResDto<Object>> findManyTeams(HttpServletRequest servletRequest,
                                                            @RequestParam Integer pageFrom,
                                                            @RequestParam(required = false) Integer pageNum) {
 
@@ -164,10 +166,10 @@ public class TeamController {
 
         if (teams.getNumberOfElements() == 0) {
 
-            return ResponseEntity.status(TEAMS_ZERO.getHttpStatus())
+            return ResponseEntity.status(TEAM_ZERO.getHttpStatus())
                     .body(DefaultResDto.builder()
-                            .responseCode(TEAMS_ZERO.name())
-                            .responseMessage(TEAMS_ZERO.getMessage())
+                            .responseCode(TEAM_ZERO.name())
+                            .responseMessage(TEAM_ZERO.getMessage())
                             .totalPageNum(teams.getTotalPages())
                             .build());
         } else {
@@ -194,7 +196,7 @@ public class TeamController {
             @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
             @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
-            @ApiResponse(responseCode = "409", description = "EXISTING_CURRENT_TEAM")
+            @ApiResponse(responseCode = "409", description = "EXISTING_CURRENT_TEAM / EXISTING_OFFER")
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/team/offer/{team-id}")
@@ -211,8 +213,9 @@ public class TeamController {
         Team team = teamService.findOne(teamId);
         userService.validateCurrentTeam(user);
         teamService.validatePositionAvailability(team, Position.fromString(request.getPosition()));
+        offerService.isExistingOffer(user.getId(), team.getId());
 
-        offerService.save(request.userOfferToEntity(user, team));
+        offerService.save(request.userOfferToEntity(user.getId(), team.getId()));
 
         return ResponseEntity.status(OFFER_CREATED.getHttpStatus())
                 .body(DefaultResDto.builder()
@@ -228,7 +231,7 @@ public class TeamController {
             @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED / POSITION_FORMAT_INVALID"),
             @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
-            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND / CURRENT_TEAM_NOT_FOUND"),
             @ApiResponse(responseCode = "409", description = "EXISTING_CURRENT_TEAM")
     })
     @ResponseStatus(HttpStatus.CREATED)
@@ -243,13 +246,14 @@ public class TeamController {
             throw new CustomException(TOKEN_NOT_ALLOWED);
 
         User leader = userService.findOneByUserId(token.get(0));
+        userService.isNonExistingCurrentTeam(leader);
         Team team = teamService.findOne(leader.getCurrentTeamId().toString());
         User user = userService.findOneByUserId(userId);
         userService.validateCurrentTeam(user);
         teamService.validatePositionAvailability(team, Position.fromString(request.getPosition()));
         teamService.validateLeader(team, leader);
 
-        offerService.save(request.teamOfferToEntity(user, team));
+        offerService.save(request.teamOfferToEntity(user.getId(), team.getId()));
 
         return ResponseEntity.status(OFFER_CREATED.getHttpStatus())
                 .body(DefaultResDto.builder()
@@ -265,7 +269,7 @@ public class TeamController {
             @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED"),
             @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED / ROLE_NOT_ALLOWED"),
-            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND / CURRENT_TEAM_NOT_FOUND"),
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
     @PatchMapping("/team/visibility")
@@ -279,6 +283,7 @@ public class TeamController {
             throw new CustomException(TOKEN_NOT_ALLOWED);
 
         User leader = userService.findOneByUserId(token.get(0));
+        userService.isNonExistingCurrentTeam(leader);
         Team team = teamService.findOne(leader.getCurrentTeamId().toString());
         teamService.validateLeader(team, leader);
 
@@ -289,5 +294,61 @@ public class TeamController {
                         .responseCode(TEAM_VISIBILITY_UPDATED.name())
                         .responseMessage(TEAM_VISIBILITY_UPDATED.getMessage())
                         .build());
+    }
+
+    @ApiOperation(value = "지원자 제안 다건 조회", notes = "position = designer || backend || frontend || pm")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OFFERS_FOUND / OFFER_ZERO",
+                    content = @Content(schema = @Schema(implementation = OfferDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "POSITION_FORMAT_INVALID"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED / ROLE_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND / CURRENT_TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @GetMapping("/team/offer")
+    public ResponseEntity<DefaultResDto<Object>> findManyApplicantOffer(HttpServletRequest servletRequest,
+                                                                        @RequestParam Integer pageFrom,
+                                                                        @RequestParam(required = false) Integer pageNum,
+                                                                        @RequestParam String position) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        User leader = userService.findOneByUserId(token.get(0));
+        userService.isNonExistingCurrentTeam(leader);
+        Team team = teamService.findOne(leader.getCurrentTeamId().toString());
+        teamService.validateLeader(team, leader);
+
+        Page<Offer> offers = offerService.findManyByTeamAndPosition(team.getId(),
+                Position.fromString(position),
+                true,
+                pageFrom,
+                pageNum);
+
+        if (offers.getNumberOfElements() == 0) {
+
+            return ResponseEntity.status(OFFER_ZERO.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(OFFER_ZERO.name())
+                            .responseMessage(OFFER_ZERO.getMessage())
+                            .totalPageNum(offers.getTotalPages())
+                            .build());
+        } else {
+
+            List<OfferDefaultResDto> responseBodies = new ArrayList<>();
+            for (Offer o : offers)
+                responseBodies.add(new OfferDefaultResDto(o));
+
+            return ResponseEntity.status(OFFERS_FOUND.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(OFFERS_FOUND.name())
+                            .responseMessage(OFFERS_FOUND.getMessage())
+                            .data(responseBodies)
+                            .totalPageNum(offers.getTotalPages())
+                            .build());
+        }
     }
 }

@@ -1,11 +1,24 @@
 package com.inuappcenter.gabojaitspring.team.domain;
 
 import com.inuappcenter.gabojaitspring.common.BaseTimeEntity;
-import com.inuappcenter.gabojaitspring.user.domain.User;
+import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+@Getter
+@Document(collection = "offer")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Offer extends BaseTimeEntity {
+
+    @Field(name = "applicant_id")
+    private ObjectId applicantId;
+
+    @Field(name = "team_id")
+    private ObjectId teamId;
 
     @Field(name = "is_accepted")
     private Boolean isAccepted;
@@ -13,14 +26,14 @@ public class Offer extends BaseTimeEntity {
     @Field(name = "is_by_applicant")
     private Boolean isByApplicant;
 
-    private User applicant;
-    private Team team;
+    private Character position;
 
     @Builder
-    public Offer(User applicant, Team team, boolean isByApplicant) {
-        this.applicant = applicant;
-        this.team = team;
+    public Offer(ObjectId applicantId, ObjectId teamId, char position, boolean isByApplicant) {
+        this.applicantId = applicantId;
+        this.teamId = teamId;
         this.isByApplicant = isByApplicant;
+        this.position = position;
         this.isDeleted = false;
     }
 

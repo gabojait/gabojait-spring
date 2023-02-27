@@ -1,13 +1,13 @@
 package com.inuappcenter.gabojaitspring.team.dto.req;
 
 import com.inuappcenter.gabojaitspring.common.ValidationSequence;
+import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.team.domain.Offer;
-import com.inuappcenter.gabojaitspring.team.domain.Team;
-import com.inuappcenter.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
@@ -23,18 +23,20 @@ public class OfferDefaultReqDto {
     @NotBlank(message = "포지션을 입력해주세요.", groups = ValidationSequence.NotBlank.class)
     private String position;
 
-    public Offer userOfferToEntity(User user, Team team) {
+    public Offer userOfferToEntity(ObjectId applicantId, ObjectId teamId) {
         return Offer.builder()
-                .applicant(user)
-                .team(team)
+                .applicantId(applicantId)
+                .teamId(teamId)
+                .position(Position.fromString(this.position).getType())
                 .isByApplicant(true)
                 .build();
     }
 
-    public Offer teamOfferToEntity(User user, Team team) {
+    public Offer teamOfferToEntity(ObjectId applicantId, ObjectId teamId) {
         return Offer.builder()
-                .team(team)
-                .applicant(user)
+                .teamId(teamId)
+                .applicantId(applicantId)
+                .position(Position.fromString(this.position).getType())
                 .isByApplicant(false)
                 .build();
     }
