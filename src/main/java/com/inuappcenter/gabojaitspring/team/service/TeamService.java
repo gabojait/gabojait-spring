@@ -1,6 +1,7 @@
 package com.inuappcenter.gabojaitspring.team.service;
 
 import com.inuappcenter.gabojaitspring.exception.CustomException;
+import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
 import com.inuappcenter.gabojaitspring.team.repository.TeamRepository;
 import com.inuappcenter.gabojaitspring.user.domain.User;
@@ -78,6 +79,15 @@ public class TeamService {
     public void validateLeader(Team team, User leader) {
         if (!team.getLeaderUserId().equals(leader.getId()))
             throw new CustomException(ROLE_NOT_ALLOWED);
+    }
+
+    /**
+     * 팀원 검증 |
+     * 409(TEAM_LEADER_CONFLICT)
+     */
+    public void validateNonLeader(Team team, User user) {
+        if (team.getLeaderUserId().equals(user.getId()))
+            throw new CustomException(TEAM_LEADER_CONFLICT);
     }
 
     /**
@@ -182,6 +192,7 @@ public class TeamService {
      * 지원자 제안 추가 |
      * 500(SERVER_ERROR)
      */
+    @Transactional
     public void addApplication(Team team, ObjectId offerId) {
 
         try {
@@ -197,6 +208,7 @@ public class TeamService {
      * 지원자 제안 제거 |
      * 500(SERVER_ERROR)
      */
+    @Transactional
     public void removeApplication(Team team, ObjectId offerId) {
 
         try {
@@ -212,6 +224,7 @@ public class TeamService {
      * 팀 제안 추가 |
      * 500(SERVER_ERROR)
      */
+    @Transactional
     public void addRecruit(Team team, ObjectId offerId) {
 
         try {
@@ -227,10 +240,89 @@ public class TeamService {
      * 팀 제안 제거 |
      * 500(SERVER_ERROR)
      */
+    @Transactional
     public void removeRecruit(Team team, ObjectId offerId) {
 
         try {
             team.removeRecruitId(offerId);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(team);
+    }
+
+    /**
+     * 현재 소속 팀의 포지션 검증 |
+     * 500(SERVER_ERROR)
+     */
+    public Position validatePositionInCurrentTeam(Team team, User user) {
+
+        if (team.getDesigners().contains(user))
+            return Position.DESIGNER;
+        else if (team.getBackends().contains(user))
+            return Position.BACKEND;
+        else if (team.getFrontends().contains(user))
+            return Position.FRONTEND;
+        else if (team.getProjectManagers().contains(user))
+            return Position.PM;
+        else
+            throw new CustomException(SERVER_ERROR);
+    }
+
+    /**
+     * 팀 탈퇴 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void leaveTeam(Team team, User user, Position position) {
+
+        try {
+            switch (position.getType()) {
+                case 'D':
+                    userService.quitTeam(user);
+                    team.removeDesigner(user);
+                    break;
+                case 'B':
+                    userService.quitTeam(user);
+                    team.removeBackend(user);
+                    break;
+                case 'F':
+                    userService.quitTeam(user);
+                    team.removeFrontend(user);
+                    break;
+                case 'P':
+                    userService.quitTeam(user);
+                    team.removeProjectManager(user);
+                    break;
+                default:
+                    throw new CustomException(SERVER_ERROR);
+            }
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(team);
+    }
+
+    /**
+     * 팀 삭제 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void delete(Team team) {
+
+        for (User designer : team.getDesigners())
+            userService.quitTeam(designer);
+        for (User backend : team.getBackends())
+            userService.quitTeam(backend);
+        for (User frontend : team.getFrontends())
+            userService.quitTeam(frontend);
+        for (User projectManager : team.getProjectManagers())
+            userService.quitTeam(projectManager);
+
+        try {
+            team.delete();
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }

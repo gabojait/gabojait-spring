@@ -326,6 +326,21 @@ public class UserService {
     }
 
     /**
+     * 팀 탈퇴 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void quitTeam(User user) {
+        try {
+            user.updateCurrentTeamId(null);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(user);
+    }
+
+    /**
      * 비밀번호 업데이트 |
      * 500(SERVER_ERROR)
      */

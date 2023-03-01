@@ -155,7 +155,7 @@ public class TeamController {
     })
     @GetMapping("/team/{team-id}")
     public ResponseEntity<DefaultResDto<Object>> findOneTeam(HttpServletRequest servletRequest,
-                                                             @PathVariable(name = "team-id") String teamId) {
+                                                             @PathVariable(value = "team-id") String teamId) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
 
@@ -222,7 +222,7 @@ public class TeamController {
         }
     }
 
-    @ApiOperation("팀 지원하기")
+    @ApiOperation("팀 지원")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "OFFER_CREATED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
@@ -260,7 +260,7 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation("팀원 스카웃하기")
+    @ApiOperation("팀원 스카웃 제안")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "OFFER_CREATED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
@@ -334,7 +334,7 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation(value = "지원자 제안 다건 조회", notes = "position = designer || backend || frontend || pm")
+    @ApiOperation(value = "지원자에게 받은 제안 다건 조회", notes = "position = designer || backend || frontend || pm")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OFFERS_FOUND / OFFER_ZERO",
                     content = @Content(schema = @Schema(implementation = OfferDefaultResDto.class))),
@@ -390,7 +390,7 @@ public class TeamController {
         }
     }
 
-    @ApiOperation(value = "팀 제안 다건 조회")
+    @ApiOperation(value = "팀에게 받은 제안 다건 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OFFERS_FOUND / OFFER_ZERO",
                     content = @Content(schema = @Schema(implementation = OfferDefaultResDto.class))),
@@ -437,7 +437,7 @@ public class TeamController {
         }
     }
 
-    @ApiOperation(value = "지원자 제안 결정")
+    @ApiOperation(value = "지원자로부터 온 제안 결정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OFFER_RESULT_UPDATED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
@@ -451,7 +451,7 @@ public class TeamController {
     })
     @PatchMapping("/team/offer/{offer-id}")
     public ResponseEntity<DefaultResDto<Object>> decideApplicantOffer(HttpServletRequest servletRequest,
-                                                                      @PathVariable(name = "offer-id") String offerId,
+                                                                      @PathVariable(value = "offer-id") String offerId,
                                                                       @RequestBody @Valid OfferUpdateReqDto request) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
@@ -487,14 +487,20 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation(value = "팀 제안 결정")
+    @ApiOperation(value = "팀으로부터 온 제안 결정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OFFER_RESULT_UPDATED",
-                    content = @Content)
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND / OFFER_NOT_FOUND"),
+            @ApiResponse(responseCode = "409", description = "EXISTING_CURRENT_TEAM"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
     @PatchMapping("/user/offer/{offer-id}")
     public ResponseEntity<DefaultResDto<Object>> decideTeamOffer(HttpServletRequest servletRequest,
-                                                                 @PathVariable(name = "offer-id") String offerId,
+                                                                 @PathVariable(value = "offer-id") String offerId,
                                                                  @RequestBody @Valid OfferUpdateReqDto request) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
@@ -522,6 +528,104 @@ public class TeamController {
                 .body(DefaultResDto.builder()
                         .responseCode(OFFER_RESULT_UPDATED.name())
                         .responseMessage(OFFER_RESULT_UPDATED.getMessage())
+                        .build());
+    }
+
+    @ApiOperation(value = "팀 삭제")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "TEAM_DELETED",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED / ROLE_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @DeleteMapping("/team")
+    public ResponseEntity<DefaultResDto<Object>> deleteTeam(HttpServletRequest servletRequest) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        User leader = userService.findOneByUserId(token.get(0));
+        userService.isNonExistingCurrentTeam(leader);
+        Team team = teamService.findOne(leader.getCurrentTeamId().toString());
+        teamService.validateLeader(team, leader);
+
+        teamService.delete(team);
+
+        return ResponseEntity.status(TEAM_DELETED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(TEAM_DELETED.name())
+                        .responseMessage(TEAM_DELETED.getMessage())
+                        .build());
+    }
+
+    @ApiOperation(value = "팀원 추방")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "TEAMMATE_FIRED",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED / ROLE_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @PatchMapping("/team/user/{user-id}/fire")
+    public ResponseEntity<DefaultResDto<Object>> fireTeammate(HttpServletRequest servletRequest,
+                                                              @PathVariable(value = "user-id") String userId) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        User leader = userService.findOneByUserId(token.get(0));
+        userService.isNonExistingCurrentTeam(leader);
+        Team team = teamService.findOne(leader.getCurrentTeamId().toString());
+        teamService.validateLeader(team, leader);
+        User teammate = userService.findOneByUserId(userId);
+        Position position = teamService.validatePositionInCurrentTeam(team, teammate);
+
+        teamService.leaveTeam(team, teammate, position);
+
+        return ResponseEntity.status(TEAMMATE_FIRED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(TEAMMATE_FIRED.name())
+                        .responseMessage(TEAMMATES_FOUND.getMessage())
+                        .build());
+    }
+
+    @ApiOperation(value = "팀 탈퇴")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "TEAM_LEFT",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "409", description = "TEAM_LEADER_CONFLICT"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @PatchMapping("/user/team/leave")
+    public ResponseEntity<DefaultResDto<Object>> leaveTeam(HttpServletRequest servletRequest) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        User user = userService.findOneByUserId(token.get(0));
+        userService.isNonExistingCurrentTeam(user);
+        Team team = teamService.findOne(user.getCurrentTeamId().toString());
+        teamService.validateNonLeader(team, user);
+        Position position = teamService.validatePositionInCurrentTeam(team, user);
+
+        teamService.leaveTeam(team, user, position);
+
+        return ResponseEntity.status(TEAM_LEFT.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(TEAM_LEFT.name())
+                        .responseMessage(TEAM_LEFT.getMessage())
                         .build());
     }
 }

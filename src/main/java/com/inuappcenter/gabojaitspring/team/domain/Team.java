@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -147,6 +146,7 @@ public class Team extends BaseTimeEntity {
     }
 
     public void delete() {
+        this.isPublic = false;
         this.isDeleted = true;
     }
 }

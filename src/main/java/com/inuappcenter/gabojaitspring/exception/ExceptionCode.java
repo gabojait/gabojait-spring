@@ -100,6 +100,7 @@ public enum ExceptionCode {
     FRONTEND_POSITION_UNAVAILABLE(CONFLICT, "프론트엔드 개발자 포지션은 마감했습니다."),
     PROJECT_MANAGER_POSITION_UNAVAILABLE(CONFLICT, "프로젝트 매니저 포지션은 마감했습니다."),
     EXISTING_OFFER(CONFLICT, "이미 요청한 지원 정보입니다."),
+    TEAM_LEADER_CONFLICT(CONFLICT, "팀 리더는 팀 탈퇴를 할 수 없습니다."),
 
     /**
      * 413 PAYLOAD_TOO_LARGE
