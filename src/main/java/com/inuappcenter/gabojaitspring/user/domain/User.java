@@ -177,6 +177,10 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.applicationIds.remove(offerId);
     }
 
+    public void addCompletedTeamId(ObjectId teamId) {
+        this.completedTeamIds.add(teamId);
+    }
+
     public void delete() {
         this.isDeleted = true;
     }

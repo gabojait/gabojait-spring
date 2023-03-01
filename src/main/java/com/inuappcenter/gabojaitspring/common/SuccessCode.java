@@ -26,6 +26,7 @@ public enum SuccessCode {
     TEAM_DELETED(OK, "팀 삭제를 완료 했습니다."),
     TEAM_LEFT(OK, "팀 탈퇴를 완료 했습니다."),
     TEAMMATE_FIRED(OK, "팀원 추방을 완료 했습니다."),
+    TEAM_PROJECT_COMPLETE(OK, "팀 프로젝트를 성공하셨습니다."),
 
     // 201 CREATED
     TEAM_CREATED(CREATED, "팀 생성을 완료 했습니다."),

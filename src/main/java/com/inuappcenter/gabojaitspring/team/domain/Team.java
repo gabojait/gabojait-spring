@@ -138,6 +138,7 @@ public class Team extends BaseTimeEntity {
 
     public void complete(String projectUrl) {
         this.projectUrl = projectUrl;
+        this.isPublic = false;
         this.isComplete = true;
     }
 

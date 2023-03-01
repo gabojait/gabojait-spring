@@ -8,10 +8,7 @@ import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.profile.dto.res.UserProfileAbstractResDto;
 import com.inuappcenter.gabojaitspring.team.domain.Offer;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
-import com.inuappcenter.gabojaitspring.team.dto.req.OfferSaveReqDto;
-import com.inuappcenter.gabojaitspring.team.dto.req.OfferUpdateReqDto;
-import com.inuappcenter.gabojaitspring.team.dto.req.TeamDefaultReqDto;
-import com.inuappcenter.gabojaitspring.team.dto.req.TeamVisibilityUpdateReqDto;
+import com.inuappcenter.gabojaitspring.team.dto.req.*;
 import com.inuappcenter.gabojaitspring.team.dto.res.OfferDefaultResDto;
 import com.inuappcenter.gabojaitspring.team.dto.res.TeamDefaultResDto;
 import com.inuappcenter.gabojaitspring.team.service.OfferService;
@@ -117,7 +114,7 @@ public class TeamController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/team")
     public ResponseEntity<DefaultResDto<Object>> createTeam(HttpServletRequest servletRequest,
-                                                            @RequestBody @Valid TeamDefaultReqDto request) {
+                                                            @RequestBody @Valid TeamSaveReqDto request) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
 
@@ -626,6 +623,39 @@ public class TeamController {
                 .body(DefaultResDto.builder()
                         .responseCode(TEAM_LEFT.name())
                         .responseMessage(TEAM_LEFT.getMessage())
+                        .build());
+    }
+
+    @ApiOperation(value = "프로젝트 완료")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "PROJECT_COMPLETED",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED / PROJECTURL_LENGTH_INVALID"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED / ROLE_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @PatchMapping("/team/complete")
+    public ResponseEntity<DefaultResDto<Object>> complete(HttpServletRequest servletRequest,
+                                                          @RequestBody @Valid TeamCompleteUpdateReqDto request) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        User leader = userService.findOneByUserId(token.get(0));
+        userService.isNonExistingCurrentTeam(leader);
+        Team team = teamService.findOne(leader.getCurrentTeamId().toString());
+        teamService.validateLeader(team, leader);
+
+        teamService.projectComplete(team, request.getProjectUrl());
+
+        return ResponseEntity.status(TEAM_PROJECT_COMPLETE.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(TEAM_PROJECT_COMPLETE.name())
+                        .responseMessage(TEAM_VISIBILITY_UPDATED.getMessage())
                         .build());
     }
 }

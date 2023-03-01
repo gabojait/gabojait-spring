@@ -306,6 +306,31 @@ public class TeamService {
     }
 
     /**
+     * 프로젝트 완료 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void projectComplete(Team team, String projectUrl) {
+
+        for (User designer : team.getDesigners())
+            userService.completeTeam(designer);
+        for (User backend : team.getBackends())
+            userService.completeTeam(backend);
+        for (User frontend : team.getFrontends())
+            userService.completeTeam(frontend);
+        for (User projectManager : team.getProjectManagers())
+            userService.completeTeam(projectManager);
+
+        try {
+            team.complete(projectUrl);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(team);
+    }
+
+    /**
      * 팀 삭제 |
      * 500(SERVER_ERROR)
      */

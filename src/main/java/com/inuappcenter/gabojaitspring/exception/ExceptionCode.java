@@ -30,6 +30,7 @@ public enum ExceptionCode {
     PROJECTDESCRIPTION_LENGTH_INVALID(BAD_REQUEST, "프로젝트 설명은 1~500자만 가능합니다."),
     EXPECTATION_LENGTH_INVALID(BAD_REQUEST, "바라는 점은 1~200자만 가능합니다."),
     OPENCHATURL_LENGTH_INVALID(BAD_REQUEST, "오픈채팅 링크는 25~100자만 가능합니다."),
+    PROJECTURL_LENGTH_INVALID(BAD_REQUEST, "프로젝트 링크는 1~1000자만 가능합니다."),
 
     // @PositiveOrZero
     DESIGNERCNT_POS_ZERO_ONLY(BAD_REQUEST, "디자이너 수는 0 또는 양수만 가능합니다."),
