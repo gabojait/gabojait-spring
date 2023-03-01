@@ -256,8 +256,7 @@ public class UserController {
     })
     @GetMapping("/find/{user-id}")
     public ResponseEntity<DefaultResDto<Object>> findOne(HttpServletRequest servletRequest,
-                                                         @PathVariable(value = "user-id")
-                                                         String userId) {
+                                                         @PathVariable(value = "user-id") String userId) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
 

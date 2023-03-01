@@ -1,7 +1,6 @@
 package com.inuappcenter.gabojaitspring.team.service;
 
 import com.inuappcenter.gabojaitspring.exception.CustomException;
-import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
 import com.inuappcenter.gabojaitspring.team.repository.TeamRepository;
 import com.inuappcenter.gabojaitspring.user.domain.User;
@@ -46,9 +45,9 @@ public class TeamService {
      * 500(SERVER_ERROR)
      */
     @Transactional
-    public void join(Team team, User user, Position position) {
+    public void join(Team team, User user, char position) {
 
-        switch (position.getType()) {
+        switch (position) {
             case 'D':
                 team.addDesigner(user);
                 userService.joinTeam(user, team.getId());
@@ -122,9 +121,9 @@ public class TeamService {
      * 409(PROJECT_MANAGER_POSITION_UNAVAILABLE)
      * 500(SERVER_ERROR)
      */
-    public void validatePositionAvailability(Team team, Position position) {
+    public void validatePositionAvailability(Team team, char position) {
 
-        switch (position.getType()) {
+        switch (position) {
             case 'D':
                 if (team.getDesignerTotalRecruitCnt() <= team.getDesigners().size())
                     throw new CustomException(DESIGNER_POSITION_UNAVAILABLE);
@@ -172,6 +171,66 @@ public class TeamService {
 
         try {
             team.updateIsPublic(isPublic);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(team);
+    }
+
+    /**
+     * 지원자 제안 추가 |
+     * 500(SERVER_ERROR)
+     */
+    public void addApplication(Team team, ObjectId offerId) {
+
+        try {
+            team.addApplicationId(offerId);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(team);
+    }
+
+    /**
+     * 지원자 제안 제거 |
+     * 500(SERVER_ERROR)
+     */
+    public void removeApplication(Team team, ObjectId offerId) {
+
+        try {
+            team.removeApplicationId(offerId);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(team);
+    }
+
+    /**
+     * 팀 제안 추가 |
+     * 500(SERVER_ERROR)
+     */
+    public void addRecruit(Team team, ObjectId offerId) {
+
+        try {
+            team.addRecruitId(offerId);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(team);
+    }
+
+    /**
+     * 팀 제안 제거 |
+     * 500(SERVER_ERROR)
+     */
+    public void removeRecruit(Team team, ObjectId offerId) {
+
+        try {
+            team.removeRecruitId(offerId);
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }

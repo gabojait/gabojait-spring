@@ -14,9 +14,9 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 @NoArgsConstructor
-@GroupSequence({OfferDefaultReqDto.class, ValidationSequence.NotBlank.class})
-@ApiModel(value = "Offer 기본 요청")
-public class OfferDefaultReqDto {
+@GroupSequence({OfferSaveReqDto.class, ValidationSequence.NotBlank.class})
+@ApiModel(value = "Offer 생성 요청")
+public class OfferSaveReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "포지션", example = "backend",
             allowableValues = "designer, backend, frontend, pm")

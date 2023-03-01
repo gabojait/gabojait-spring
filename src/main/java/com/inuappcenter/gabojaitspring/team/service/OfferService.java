@@ -12,6 +12,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 
 @Service
@@ -71,5 +73,67 @@ public class OfferService {
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
+    }
+
+    /**
+     * 지원자로 제안 다건 조회 |
+     * 500(SERVER_ERROR)
+     */
+    public Page<Offer> findManyByApplicant(ObjectId applicantId, boolean isByApplicant, Integer pageFrom, Integer pageNum) {
+
+        if (pageNum == null)
+            pageNum = 20;
+
+        try {
+            return offerRepository.findOffersByApplicantIdAndIsByApplicantAndIsDeletedIsFalseOrderByModifiedDateDesc(
+                    applicantId,
+                    isByApplicant,
+                    PageRequest.of(pageFrom, pageNum)
+            );
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+    }
+
+    /**
+     * 단건 조회 |
+     * 404(OFFER_NOT_FOUND)
+     */
+    public Offer findOne(String offerId) {
+
+        return offerRepository.findById(new ObjectId(offerId))
+                .orElseThrow(() -> {
+                    throw new CustomException(OFFER_NOT_FOUND);
+                });
+    }
+
+    /**
+     * 제안 권한 검증 |
+     * 403(ROLE_NOT_ALLOWED)
+     */
+    public void validateOfferRole(ObjectId offerId, List<ObjectId> offerIds) {
+
+        if (!offerIds.contains(offerId))
+            throw new CustomException(ROLE_NOT_ALLOWED);
+    }
+
+    /**
+     * 제안 결과 업데이트 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void updateIsAccepted(Offer offer, boolean isAccepted) {
+
+        try {
+            if (isAccepted)
+                offer.accept();
+            else
+                offer.decline();
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(offer);
     }
 }

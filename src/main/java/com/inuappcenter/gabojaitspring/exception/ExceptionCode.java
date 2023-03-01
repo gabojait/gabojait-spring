@@ -77,10 +77,11 @@ public enum ExceptionCode {
     EMAIL_NOT_FOUND(NOT_FOUND, "존재하지 않는 이메일입니다."),
     EDUCATION_NOT_FOUND(NOT_FOUND, "존재하지 않는 학력입니다."),
     WORK_NOT_FOUND(NOT_FOUND, "존재하지 않는 경력입니다."),
-    SKILL_NOT_FOUND(NOT_FOUND, "존재하지 않은 기술입니다."),
-    PORTFOLIO_NOT_FOUND(NOT_FOUND, "존재하지 않은 포트폴리오입니다."),
-    TEAM_NOT_FOUND(NOT_FOUND, "존재하지 않은 팀입니다."),
+    SKILL_NOT_FOUND(NOT_FOUND, "존재하지 않는 기술입니다."),
+    PORTFOLIO_NOT_FOUND(NOT_FOUND, "존재하지 않는 포트폴리오입니다."),
+    TEAM_NOT_FOUND(NOT_FOUND, "존재하지 않는 팀입니다."),
     CURRENT_TEAM_NOT_FOUND(NOT_FOUND, "현재 소속된 팀이 존재하지 않습니다."),
+    OFFER_NOT_FOUND(NOT_FOUND, "존재하지 않는 제안입니다."),
 
     /**
      * 405 METHOD_NOT_ALLOWED

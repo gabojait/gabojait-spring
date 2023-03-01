@@ -502,4 +502,68 @@ public class UserService {
 
         save(user);
     }
+
+    /**
+     * 팀 제안 추가 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void addRecruit(User user, ObjectId offerId) {
+
+        try {
+            user.addRecruitId(offerId);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(user);
+    }
+
+    /**
+     * 팀 제안 제거 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void removeRecruit(User user, ObjectId offerId) {
+
+        try {
+            user.removeRecruitId(offerId);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(user);
+    }
+
+    /**
+     * 지원자 제안 추가 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void addApplication(User user, ObjectId offerId) {
+
+        try {
+            user.addApplicationId(offerId);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(user);
+    }
+
+    /**
+     * 지원자 제안 추가 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void removeApplication(User user, ObjectId offerId) {
+
+        try {
+            user.removeApplicationId(offerId);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(user);
+    }
 }

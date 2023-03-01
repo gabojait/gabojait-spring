@@ -22,6 +22,7 @@ public enum SuccessCode {
     OFFERS_FOUND(OK, "제안 찾기를 완료 했습니다."),
     OFFER_ZERO(OK, "더이상 찾을 수 있는 제안이 없습니다."),
     TEAM_FOUND(OK, "팀 단건 조회를 완료 했습니다."),
+    OFFER_RESULT_UPDATED(OK, "제안 업데이트를 완료 했습니다."),
 
     // 201 CREATED
     TEAM_CREATED(CREATED, "팀 생성을 완료 했습니다."),

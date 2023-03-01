@@ -8,7 +8,8 @@ import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.profile.dto.res.UserProfileAbstractResDto;
 import com.inuappcenter.gabojaitspring.team.domain.Offer;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
-import com.inuappcenter.gabojaitspring.team.dto.req.OfferDefaultReqDto;
+import com.inuappcenter.gabojaitspring.team.dto.req.OfferSaveReqDto;
+import com.inuappcenter.gabojaitspring.team.dto.req.OfferUpdateReqDto;
 import com.inuappcenter.gabojaitspring.team.dto.req.TeamDefaultReqDto;
 import com.inuappcenter.gabojaitspring.team.dto.req.TeamVisibilityUpdateReqDto;
 import com.inuappcenter.gabojaitspring.team.dto.res.OfferDefaultResDto;
@@ -128,10 +129,10 @@ public class TeamController {
         userService.validateCurrentTeam(user);
         userService.isPositionSelected(user);
         Team team = request.toEntity(user.getId());
-        teamService.validatePositionAvailability(team, Position.toEnum(user.getPosition()));
+        teamService.validatePositionAvailability(team, Position.toEnum(user.getPosition()).getType());
 
         teamService.save(team);
-        teamService.join(team, user, Position.toEnum(user.getPosition()));
+        teamService.join(team, user, user.getPosition());
 
         TeamDefaultResDto responseBody = new TeamDefaultResDto(team);
 
@@ -232,10 +233,10 @@ public class TeamController {
             @ApiResponse(responseCode = "409", description = "EXISTING_CURRENT_TEAM / EXISTING_OFFER")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/team/offer/{team-id}")
+    @PostMapping("/user/team/{team-id}/offer")
     public ResponseEntity<DefaultResDto<Object>> userOffer(HttpServletRequest servletRequest,
                                                            @PathVariable(value = "team-id") String teamId,
-                                                           @RequestBody @Valid OfferDefaultReqDto request) {
+                                                           @RequestBody @Valid OfferSaveReqDto request) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
 
@@ -245,10 +246,12 @@ public class TeamController {
         User user = userService.findOneByUserId(token.get(0));
         Team team = teamService.findOne(teamId);
         userService.validateCurrentTeam(user);
-        teamService.validatePositionAvailability(team, Position.fromString(request.getPosition()));
+        teamService.validatePositionAvailability(team, Position.fromString(request.getPosition()).getType());
         offerService.isExistingOffer(user.getId(), team.getId());
 
-        offerService.save(request.userOfferToEntity(user.getId(), team.getId()));
+        Offer offer = offerService.save(request.userOfferToEntity(user.getId(), team.getId()));
+        userService.addApplication(user, offer.getId());
+        teamService.addApplication(team, offer.getId());
 
         return ResponseEntity.status(OFFER_CREATED.getHttpStatus())
                 .body(DefaultResDto.builder()
@@ -268,10 +271,10 @@ public class TeamController {
             @ApiResponse(responseCode = "409", description = "EXISTING_CURRENT_TEAM")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/user/offer/{user-id}")
+    @PostMapping("/team/user/{user-id}/offer")
     public ResponseEntity<DefaultResDto<Object>> teamOffer(HttpServletRequest servletRequest,
                                                            @PathVariable(value = "user-id") String userId,
-                                                           @RequestBody @Valid OfferDefaultReqDto request) {
+                                                           @RequestBody @Valid OfferSaveReqDto request) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
 
@@ -283,10 +286,12 @@ public class TeamController {
         Team team = teamService.findOne(leader.getCurrentTeamId().toString());
         User user = userService.findOneByUserId(userId);
         userService.validateCurrentTeam(user);
-        teamService.validatePositionAvailability(team, Position.fromString(request.getPosition()));
+        teamService.validatePositionAvailability(team, Position.fromString(request.getPosition()).getType());
         teamService.validateLeader(team, leader);
 
-        offerService.save(request.teamOfferToEntity(user.getId(), team.getId()));
+        Offer offer = offerService.save(request.teamOfferToEntity(user.getId(), team.getId()));
+        userService.addRecruit(user, offer.getId());
+        teamService.addRecruit(team, offer.getId());
 
         return ResponseEntity.status(OFFER_CREATED.getHttpStatus())
                 .body(DefaultResDto.builder()
@@ -383,5 +388,140 @@ public class TeamController {
                             .totalPageNum(offers.getTotalPages())
                             .build());
         }
+    }
+
+    @ApiOperation(value = "팀 제안 다건 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OFFERS_FOUND / OFFER_ZERO",
+                    content = @Content(schema = @Schema(implementation = OfferDefaultResDto.class))),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED / ROLE_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @GetMapping("/user/offer")
+    public ResponseEntity<DefaultResDto<Object>> findManyTeamOffer(HttpServletRequest servletRequest,
+                                                                   @RequestParam Integer pageFrom,
+                                                                   @RequestParam(required = false) Integer pageNum) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        User user = userService.findOneByUserId(token.get(0));
+
+        Page<Offer> offers = offerService.findManyByApplicant(user.getId(),false, pageFrom, pageNum);
+
+        if (offers.getNumberOfElements() == 0) {
+
+            return ResponseEntity.status(OFFER_ZERO.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(OFFER_ZERO.name())
+                            .responseMessage(OFFER_ZERO.getMessage())
+                            .totalPageNum(offers.getTotalPages())
+                            .build());
+        } else {
+
+            List<OfferDefaultResDto> responseBodies = new ArrayList<>();
+            for (Offer o : offers)
+                responseBodies.add(new OfferDefaultResDto(o));
+
+            return ResponseEntity.status(OFFERS_FOUND.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(OFFERS_FOUND.name())
+                            .responseMessage(OFFERS_FOUND.getMessage())
+                            .data(responseBodies)
+                            .totalPageNum(offers.getTotalPages())
+                            .build());
+        }
+    }
+
+    @ApiOperation(value = "지원자 제안 결정")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OFFER_RESULT_UPDATED",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED / ROLE_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404",
+                    description = "USER_NOT_FOUND / TEAM_NOT_FOUND / CURRENT_TEAM_NOT_FOUND / OFFER_NOT_FOUND"),
+            @ApiResponse(responseCode = "409", description = "EXISTING_CURRENT_TEAM"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @PatchMapping("/team/offer/{offer-id}")
+    public ResponseEntity<DefaultResDto<Object>> decideApplicantOffer(HttpServletRequest servletRequest,
+                                                                      @PathVariable(name = "offer-id") String offerId,
+                                                                      @RequestBody @Valid OfferUpdateReqDto request) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        User leader = userService.findOneByUserId(token.get(0));
+        userService.isNonExistingCurrentTeam(leader);
+        Team team = teamService.findOne(leader.getCurrentTeamId().toString());
+        teamService.validateLeader(team, leader);
+        Offer offer = offerService.findOne(offerId);
+        offerService.validateOfferRole(offer.getId(), team.getApplicationIds());
+        User applicant = userService.findOneByUserId(offer.getApplicantId().toString());
+
+        offerService.updateIsAccepted(offer, request.getIsAccepted());
+
+        if (request.getIsAccepted()) {
+
+            userService.validateCurrentTeam(applicant);
+            teamService.validatePositionAvailability(team, offer.getPosition());
+
+            teamService.join(team, applicant, offer.getPosition());
+        }
+
+        userService.removeApplication(applicant, offer.getId());
+        teamService.removeApplication(team, offer.getId());
+
+        return ResponseEntity.status(OFFER_RESULT_UPDATED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(OFFER_RESULT_UPDATED.name())
+                        .responseMessage(OFFER_RESULT_UPDATED.getMessage())
+                        .build());
+    }
+
+    @ApiOperation(value = "팀 제안 결정")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OFFER_RESULT_UPDATED",
+                    content = @Content)
+    })
+    @PatchMapping("/user/offer/{offer-id}")
+    public ResponseEntity<DefaultResDto<Object>> decideTeamOffer(HttpServletRequest servletRequest,
+                                                                 @PathVariable(name = "offer-id") String offerId,
+                                                                 @RequestBody @Valid OfferUpdateReqDto request) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        User applicant = userService.findOneByUserId(token.get(0));
+        Offer offer = offerService.findOne(offerId);
+        Team team = teamService.findOne(offer.getTeamId().toString());
+
+        offerService.updateIsAccepted(offer, request.getIsAccepted());
+        if (request.getIsAccepted()) {
+
+            userService.validateCurrentTeam(applicant);
+            teamService.validatePositionAvailability(team, offer.getPosition());
+
+            teamService.join(team, applicant, offer.getPosition());
+        }
+
+        userService.removeRecruit(applicant, offer.getId());
+        teamService.removeRecruit(team, offer.getId());
+
+        return ResponseEntity.status(OFFER_RESULT_UPDATED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(OFFER_RESULT_UPDATED.name())
+                        .responseMessage(OFFER_RESULT_UPDATED.getMessage())
+                        .build());
     }
 }

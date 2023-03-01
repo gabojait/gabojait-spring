@@ -55,14 +55,14 @@ public class TestService {
     public void resetDatabase() {
 
         try {
-            userRepository.deleteAll();
-            contactRepository.deleteAll();
             educationRepository.deleteAll();
             portfolioRepository.deleteAll();
             skillRepository.deleteAll();
             workRepository.deleteAll();
             teamRepository.deleteAll();
             offerRepository.deleteAll();
+            userRepository.deleteAll();
+            contactRepository.deleteAll();
 
             injectTestAccounts();
         } catch (RuntimeException e) {
@@ -117,7 +117,7 @@ public class TestService {
                         .build();
 
                 teamService.save(team);
-                teamService.join(team, user, Position.PM);
+                teamService.join(team, user, Position.PM.getType());
             }
         }
     }

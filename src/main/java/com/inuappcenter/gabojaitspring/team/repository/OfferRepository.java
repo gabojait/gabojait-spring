@@ -18,4 +18,8 @@ public interface OfferRepository extends MongoRepository<Offer, ObjectId> {
                                                                                                         char position,
                                                                                                         boolean isByApplicant,
                                                                                                         Pageable pageable);
+
+    Page<Offer> findOffersByApplicantIdAndIsByApplicantAndIsDeletedIsFalseOrderByModifiedDateDesc(ObjectId userId,
+                                                                                                  boolean isByApplicant,
+                                                                                                  Pageable pageable);
 }

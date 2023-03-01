@@ -20,39 +20,43 @@ import java.util.List;
 public class Team extends BaseTimeEntity {
 
     @Field(name = "leader_user_id")
-    @Indexed(unique = false)
     private ObjectId leaderUserId;
 
     @Field(name = "project_name")
-    @Indexed(unique = false)
     private String projectName;
 
     @Field(name = "project_description")
-    @Indexed(unique = false)
     private String projectDescription;
 
     @Field(name = "designer_total_recruit_cnt")
-    @Indexed(unique = false)
     private Short designerTotalRecruitCnt;
 
     @Field(name = "backend_total_recruit_cnt")
-    @Indexed(unique = false)
     private Short backendTotalRecruitCnt;
 
     @Field(name = "frontend_total_recruit_cnt")
-    @Indexed(unique = false)
     private Short frontendTotalRecruitCnt;
 
     @Field(name = "project_manager_total_recruit_cnt")
-    @Indexed(unique = false)
     private Short projectManagerTotalRecruitCnt;
 
     @Field(name = "open_chat_url")
-    @Indexed(unique = false)
     private String openChatUrl;
 
     @Field(name = "is_public")
     private Boolean isPublic;
+
+    @Field(name = "is_complete")
+    private Boolean isComplete;
+
+    @Field(name = "project_url")
+    private String projectUrl;
+
+    @Field(name = "application_ids")
+    private List<ObjectId> applicationIds = new ArrayList<>();
+
+    @Field(name = "recruit_ids")
+    private List<ObjectId> recruitIds = new ArrayList<>();
 
     @Field(name = "project_managers")
     private List<User> projectManagers = new ArrayList<>();
@@ -60,8 +64,6 @@ public class Team extends BaseTimeEntity {
     private List<User> backends = new ArrayList<>();
     private List<User> frontends = new ArrayList<>();
     private String expectation;
-    private List<ObjectId> applications = new ArrayList<>();
-    private List<ObjectId> recruits = new ArrayList<>();
 
     @Builder
     public Team(ObjectId leaderUserId,
@@ -82,6 +84,7 @@ public class Team extends BaseTimeEntity {
         this.projectManagerTotalRecruitCnt = projectManagerTotalRecruitCnt;
         this.openChatUrl = openChatUrl;
         this.expectation = expectation;
+        this.isComplete = false;
         this.isPublic = true;
         this.isDeleted = false;
     }
@@ -114,8 +117,29 @@ public class Team extends BaseTimeEntity {
         this.projectManagers.add(user);
     }
 
-    public void removeProjectManagers(User user) {
+    public void removeProjectManager(User user) {
         this.projectManagers.remove(user);
+    }
+
+    public void addApplicationId(ObjectId offerId) {
+        this.applicationIds.add(offerId);
+    }
+
+    public void removeApplicationId(ObjectId offerId) {
+        this.applicationIds.remove(offerId);
+    }
+
+    public void addRecruitId(ObjectId offerId) {
+        this.recruitIds.add(offerId);
+    }
+
+    public void removeRecruitId(ObjectId offerId) {
+        this.recruitIds.remove(offerId);
+    }
+
+    public void complete(String projectUrl) {
+        this.projectUrl = projectUrl;
+        this.isComplete = true;
     }
 
     public void updateIsPublic(Boolean isPublic) {

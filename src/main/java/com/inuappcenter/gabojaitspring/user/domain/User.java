@@ -11,7 +11,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.security.core.GrantedAuthority;
@@ -47,8 +46,11 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Field(name = "is_public")
     private Boolean isPublic;
 
-    @Field(name = "offer_ids")
-    private List<ObjectId> offerIds = new ArrayList<>();
+    @Field(name = "recruit_ids")
+    private List<ObjectId> recruitIds = new ArrayList<>();
+
+    @Field(name = "application_ids")
+    private List<ObjectId> applicationIds = new ArrayList<>();
 
     private String password;
     private Character gender;
@@ -157,6 +159,22 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void removeWork(Work work) {
         this.works.remove(work);
+    }
+
+    public void addRecruitId(ObjectId offerId) {
+        this.recruitIds.add(offerId);
+    }
+
+    public void removeRecruitId(ObjectId offerId) {
+        this.recruitIds.remove(offerId);
+    }
+
+    public void addApplicationId(ObjectId offerId) {
+        this.applicationIds.add(offerId);
+    }
+
+    public void removeApplicationId(ObjectId offerId) {
+        this.applicationIds.remove(offerId);
     }
 
     public void delete() {
