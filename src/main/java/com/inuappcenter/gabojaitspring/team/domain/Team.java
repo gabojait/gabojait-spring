@@ -10,6 +10,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +49,9 @@ public class Team extends BaseTimeEntity {
     @Field(name = "is_complete")
     private Boolean isComplete;
 
+    @Field(name = "completed_date")
+    private LocalDateTime completedDate;
+
     @Field(name = "project_url")
     private String projectUrl;
 
@@ -84,6 +88,7 @@ public class Team extends BaseTimeEntity {
         this.openChatUrl = openChatUrl;
         this.expectation = expectation;
         this.isComplete = false;
+        this.completedDate = null;
         this.isPublic = true;
         this.isDeleted = false;
     }
@@ -138,6 +143,7 @@ public class Team extends BaseTimeEntity {
 
     public void complete(String projectUrl) {
         this.projectUrl = projectUrl;
+        this.completedDate = LocalDateTime.now();
         this.isPublic = false;
         this.isComplete = true;
     }

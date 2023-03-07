@@ -17,6 +17,8 @@ public enum SuccessCode {
     ALL_REVIEWS_FOUND(OK, "한 회원의 리뷰 전체 조회를 완료 했습니다."),
     ZERO_REVIEW_FOUND(OK, "한 회원의 리뷰가 현재 없습니다."),
     CURRENT_REVIEW_QUESTIONS_FOUND(OK, "현재 리뷰 질문들 전체 조회를 완료 했습니다."),
+    AVAILABLE_REVIEWS_FOUND(OK, "리뷰 작성 가능한 팀 조회를 완료 했습니다."),
+    ZERO_AVAILABLE_REVIEW_FOUND(OK, "리뷰 작성 가능한 팀이 현재 없습니다."),
 
     // 201 CREATED
     REVIEWS_CREATED(CREATED, "리뷰 다건 생성을 완료 되었습니다."),

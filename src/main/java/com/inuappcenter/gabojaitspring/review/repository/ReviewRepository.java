@@ -18,4 +18,6 @@ public interface ReviewRepository extends MongoRepository<Review, ObjectId> {
                                                                                                   ObjectId revieweeUserId,
                                                                                                   ObjectId teamId,
                                                                                                   Question question);
+
+    List<Review> findByReviewerUserIdAndTeamIdAndIsDeletedIsFalse(ObjectId reviewerUserId, ObjectId teamId);
 }

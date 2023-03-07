@@ -7,6 +7,7 @@ import com.inuappcenter.gabojaitspring.profile.dto.res.*;
 import com.inuappcenter.gabojaitspring.review.dto.res.QuestionDefaultResDto;
 import com.inuappcenter.gabojaitspring.review.dto.res.ReviewDefaultResDto;
 import com.inuappcenter.gabojaitspring.team.dto.res.OfferDefaultResDto;
+import com.inuappcenter.gabojaitspring.team.dto.res.TeamAbstractResDto;
 import com.inuappcenter.gabojaitspring.team.dto.res.TeamDefaultResDto;
 import com.inuappcenter.gabojaitspring.user.dto.res.ContactDefaultResDto;
 import com.inuappcenter.gabojaitspring.user.dto.res.UserDefaultResDto;
@@ -64,6 +65,7 @@ public class SwaggerConfiguration {
                 .additionalModels(typeResolver.resolve(SkillDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(WorkDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(TeamDefaultResDto.class))
+                .additionalModels(typeResolver.resolve(TeamAbstractResDto.class))
                 .additionalModels(typeResolver.resolve(OfferDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(ReviewDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(QuestionDefaultResDto.class))

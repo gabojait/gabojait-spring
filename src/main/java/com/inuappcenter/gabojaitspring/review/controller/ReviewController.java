@@ -13,6 +13,7 @@ import com.inuappcenter.gabojaitspring.review.dto.res.ReviewDefaultResDto;
 import com.inuappcenter.gabojaitspring.review.service.QuestionService;
 import com.inuappcenter.gabojaitspring.review.service.ReviewService;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
+import com.inuappcenter.gabojaitspring.team.dto.res.TeamAbstractResDto;
 import com.inuappcenter.gabojaitspring.team.service.TeamService;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import com.inuappcenter.gabojaitspring.user.domain.type.Role;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -170,5 +172,47 @@ public class ReviewController {
                         .responseCode(REVIEWS_CREATED.name())
                         .responseMessage(REVIEWS_CREATED.getMessage())
                         .build());
+    }
+
+    @ApiOperation(value = "본인 리뷰 작성 가능한 팀 조회", notes = "리뷰 작성 가능 기간 = 프로젝트 완료 후 4주 동안")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "AVAILABLE_REVIEWS",
+                    content = @Content(schema = @Schema(implementation = TeamAbstractResDto.class))),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @GetMapping("/user/reviews")
+    public ResponseEntity<DefaultResDto<Object>> findAvailableReview(HttpServletRequest servletRequest) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
+
+        User user = userService.findOneByUserId(token.get(0));
+        List<Team> completedTeams = teamService.findAllPrevious(user);
+        List<Team> undoneTeams = reviewService.findUndoneTeam(completedTeams);
+
+        if (undoneTeams.isEmpty()) {
+
+            return ResponseEntity.status(ZERO_AVAILABLE_REVIEW_FOUND.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(ZERO_AVAILABLE_REVIEW_FOUND.name())
+                            .responseMessage(ZERO_AVAILABLE_REVIEW_FOUND.getMessage())
+                            .build());
+        } else {
+
+            List<TeamAbstractResDto> responseBodies = new ArrayList<>();
+            for (Team team : undoneTeams)
+                responseBodies.add(new TeamAbstractResDto(team));
+
+            return ResponseEntity.status(AVAILABLE_REVIEWS_FOUND.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(AVAILABLE_REVIEWS_FOUND.name())
+                            .responseMessage(AVAILABLE_REVIEWS_FOUND.getMessage())
+                            .data(responseBodies)
+                            .build());
+        }
     }
 }

@@ -6,7 +6,6 @@ import com.inuappcenter.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 import java.util.List;
