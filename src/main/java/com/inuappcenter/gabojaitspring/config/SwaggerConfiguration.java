@@ -4,6 +4,7 @@ import com.fasterxml.classmate.TypeResolver;
 import com.inuappcenter.gabojaitspring.common.DefaultResDto;
 import com.inuappcenter.gabojaitspring.exception.DefaultExceptionResDto;
 import com.inuappcenter.gabojaitspring.profile.dto.res.*;
+import com.inuappcenter.gabojaitspring.review.dto.res.QuestionDefaultResDto;
 import com.inuappcenter.gabojaitspring.review.dto.res.ReviewDefaultResDto;
 import com.inuappcenter.gabojaitspring.team.dto.res.OfferDefaultResDto;
 import com.inuappcenter.gabojaitspring.team.dto.res.TeamDefaultResDto;
@@ -65,6 +66,7 @@ public class SwaggerConfiguration {
                 .additionalModels(typeResolver.resolve(TeamDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(OfferDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(ReviewDefaultResDto.class))
+                .additionalModels(typeResolver.resolve(QuestionDefaultResDto.class))
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo())
                 .securityContexts(Collections.singletonList(securityContext()))
@@ -78,7 +80,7 @@ public class SwaggerConfiguration {
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("Gabojait API")
-                .version("1.0")
+                .version("1.0.0")
                 .build();
     }
 }

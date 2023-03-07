@@ -1,10 +1,14 @@
 package com.inuappcenter.gabojaitspring.review.dto.res;
 
 import com.inuappcenter.gabojaitspring.review.domain.Review;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+@Getter
+@ApiModel(value = "Review 기본 응답")
 public class ReviewDefaultResDto {
 
     @ApiModelProperty(position = 1, required = true, value = "리뷰 식별자")

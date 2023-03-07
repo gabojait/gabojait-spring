@@ -32,6 +32,10 @@ public class ReviewService {
         }
     }
 
+    /**
+     * 리뷰 전체 조회 |
+     * 500(SERVER_ERROR)
+     */
     public List<Review> findAll(String revieweeUserId) {
 
         try {
