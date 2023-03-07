@@ -5,6 +5,7 @@ import com.inuappcenter.gabojaitspring.email.service.EmailService;
 import com.inuappcenter.gabojaitspring.profile.domain.*;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.review.domain.Review;
+import com.inuappcenter.gabojaitspring.team.domain.Team;
 import com.inuappcenter.gabojaitspring.user.domain.Contact;
 import com.inuappcenter.gabojaitspring.user.domain.type.Gender;
 import com.inuappcenter.gabojaitspring.user.domain.User;
@@ -308,6 +309,32 @@ public class UserService {
         }
 
         save(user);
+    }
+
+    /**
+     * 팀으로 팀원의 유저 식별자 전체 조회 |
+     * 500(SERVER_ERROR)
+     */
+    public List<ObjectId> findAllByTeam(User reviewer, Team team) {
+
+        List<ObjectId> userIds = new ArrayList<>();
+
+        try {
+            for (User d : team.getDesigners())
+                userIds.add(d.getId());
+            for (User b : team.getBackends())
+                userIds.add(b.getId());
+            for (User f : team.getFrontends())
+                userIds.add(f.getId());
+            for (User p : team.getProjectManagers())
+                userIds.add(p.getId());
+
+            userIds.remove(reviewer.getId());
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        return userIds;
     }
 
     /**

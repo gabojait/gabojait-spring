@@ -7,6 +7,7 @@ import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.review.domain.Question;
 import com.inuappcenter.gabojaitspring.review.domain.Review;
 import com.inuappcenter.gabojaitspring.review.dto.req.ReviewSaveManyReqDto;
+import com.inuappcenter.gabojaitspring.review.dto.req.ReviewSaveOneReqDto;
 import com.inuappcenter.gabojaitspring.review.dto.res.QuestionDefaultResDto;
 import com.inuappcenter.gabojaitspring.review.dto.res.ReviewDefaultResDto;
 import com.inuappcenter.gabojaitspring.review.service.QuestionService;
@@ -23,6 +24,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -122,7 +124,7 @@ public class ReviewController {
                         .build());
     }
 
-    @ApiOperation(value = "리뷰 작성")
+    @ApiOperation(value = "리뷰 생성")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "REVIEWS_CREATED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
@@ -131,13 +133,14 @@ public class ReviewController {
                             "REVIEW_ANSWER_FORMAT_INVALID"),
             @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
-            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND / QUESTION_NOT_FOUND"),
+            @ApiResponse(responseCode = "404",
+                    description = "USER_NOT_FOUND / TEAM_NOT_FOUND / QUESTION_NOT_FOUND / REVIEWEE_NOT_FOUND"),
             @ApiResponse(responseCode = "409", description = "EXISTING_REVIEW"),
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
-    @PostMapping("/user/{user-id}/review")
+    @PostMapping("/user/team/{team-id}/review")
     public ResponseEntity<DefaultResDto<Object>> create(HttpServletRequest servletRequest,
-                                                        @PathVariable(value = "user-id") String userId,
+                                                        @PathVariable(value = "team-id") String teamId,
                                                         @RequestBody @Valid ReviewSaveManyReqDto request) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
@@ -145,16 +148,20 @@ public class ReviewController {
             throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
 
         User reviewer = userService.findOneByUserId(token.get(0));
-        User reviewee = userService.findOneByUserId(userId);
-        String teamId = teamService.validatePreviouslyTeammates(reviewer, reviewee);
         Team team = teamService.findOne(teamId);
-        List<Question> questions = questionService.findAndValidateCurrentQuestionAndReviewType(request.getReviews());
+        List<ObjectId> revieweeUserIds = userService.findAllByTeam(reviewer, team);
 
-        reviewService.isExistingReview(reviewer.getId(), reviewee.getId(), team.getId(), questions);
+        for (ReviewSaveOneReqDto r : request.getReviews()) {
+            reviewService.validateReviewee(revieweeUserIds, r.getRevieweeUserId());
+            Question question = questionService.findById(r.getQuestionId());
+            questionService.validateReviewType(question, r.getRate(), r.getAnswer());
+            reviewService.isExistingReview(reviewer.getId(), r.getRevieweeUserId(), team.getId(), question);
+        }
 
-        List<Review> reviews = request.toEntities(reviewer.getId(), reviewee.getId(), team.getId(), questions);
-        for (Review review : reviews) {
-            reviewService.save(review);
+        for (ReviewSaveOneReqDto r : request.getReviews()) {
+            Question question = questionService.findById(r.getQuestionId());
+            Review review = reviewService.save(r.toEntity(reviewer.getId(), team.getId(), question));
+            User reviewee = userService.findOneByUserId(review.getRevieweeUserId().toString());
             userService.addReview(reviewee, review);
         }
 

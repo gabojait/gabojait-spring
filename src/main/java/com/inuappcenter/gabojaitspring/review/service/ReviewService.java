@@ -53,23 +53,26 @@ public class ReviewService {
      * 500(SERVER_ERROR)
      */
     public void isExistingReview(ObjectId reviewerUserId,
-                                 ObjectId revieweeUserId,
+                                 String revieweeUserId,
                                  ObjectId teamId,
-                                 List<Question> questions) {
+                                 Question question) {
 
-        try {
-            for (Question question : questions)
-                reviewRepository.findByReviewerUserIdAndRevieweeUserIdAndTeamIdAndQuestionAndIsDeletedIsFalse(
-                        reviewerUserId,
-                        revieweeUserId,
-                        teamId,
-                        question)
-                        .ifPresent((r) -> {
-                            throw new CustomException(EXISTING_REVIEW);
-                        });
+        reviewRepository.findByReviewerUserIdAndRevieweeUserIdAndTeamIdAndQuestionAndIsDeletedIsFalse(
+                reviewerUserId,
+                new ObjectId(revieweeUserId),
+                teamId,
+                question).ifPresent((r) -> {
+                    throw new CustomException(EXISTING_REVIEW);
+                });
+    }
 
-        } catch (RuntimeException e) {
-            throw new CustomException(SERVER_ERROR);
-        }
+    /**
+     * 리뷰 대상자 검증 |
+     * REVIEWEE_NOT_FOUND
+     */
+    public void validateReviewee(List<ObjectId> revieweesUserId, String revieweeUserId) {
+
+        if (!revieweesUserId.contains(new ObjectId(revieweeUserId)))
+            throw new CustomException(REVIEWEE_NOT_FOUND);
     }
 }

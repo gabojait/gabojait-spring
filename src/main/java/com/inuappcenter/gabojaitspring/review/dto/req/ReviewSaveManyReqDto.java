@@ -20,19 +20,4 @@ public class ReviewSaveManyReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "리뷰")
     List<ReviewSaveOneReqDto> reviews = new ArrayList<>();
-
-    public List<Review> toEntities(ObjectId reviewerUserId,
-                                   ObjectId revieweeUserId,
-                                   ObjectId teamId,
-                                   List<Question> questions) {
-        List<Review> reviews = new ArrayList<>();
-        for (ReviewSaveOneReqDto review : this.reviews)
-            for (Question question : questions)
-                if (question.getId().toString().equals(review.getQuestionId())) {
-                    reviews.add(review.toEntity(reviewerUserId, revieweeUserId, teamId, question));
-                    break;
-                }
-
-        return reviews;
-    }
 }

@@ -19,21 +19,25 @@ import javax.validation.constraints.Size;
 @ApiModel(value = "Review 단건 생성 요청")
 public class ReviewSaveOneReqDto {
 
-    @ApiModelProperty(position = 1, required = true, value = "질문 식별자들")
+    @ApiModelProperty(position = 1, required = true, value = "질문 식별자")
     @NotBlank(message = "모든 필수 정보를 입력해 주세요.", groups = ValidationSequence.NotBlank.class)
     private String questionId;
 
-    @ApiModelProperty(position = 2, required = true, value = "평점")
+    @ApiModelProperty(position = 2, required = true, value = "리뷰 대상 유저 식별자")
+    @NotBlank(message = "모든 필수 정보를 입력해 주세요.", groups = ValidationSequence.NotBlank.class)
+    private String revieweeUserId;
+
+    @ApiModelProperty(position = 3, required = true, value = "평점")
     private Byte rate;
 
-    @ApiModelProperty(position = 3, required = true, value = "응답")
+    @ApiModelProperty(position = 4, required = true, value = "응답")
     @Size(max = 200, message = "리뷰 응답은 0~200자만 가능합니다.")
     private String answer;
 
-    public Review toEntity(ObjectId reviewerUserId, ObjectId revieweeUserId, ObjectId teamId, Question question) {
+    public Review toEntity(ObjectId reviewerUserId, ObjectId teamId, Question question) {
         return Review.builder()
                 .reviewerUserId(reviewerUserId)
-                .revieweeUserId(revieweeUserId)
+                .revieweeUserId(new ObjectId(this.revieweeUserId))
                 .teamId(teamId)
                 .question(question)
                 .rate(this.rate)

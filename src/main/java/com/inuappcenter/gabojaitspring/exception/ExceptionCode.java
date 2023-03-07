@@ -88,6 +88,7 @@ public enum ExceptionCode {
     CURRENT_TEAM_NOT_FOUND(NOT_FOUND, "현재 소속된 팀이 존재하지 않습니다."),
     OFFER_NOT_FOUND(NOT_FOUND, "존재하지 않는 제안입니다."),
     QUESTION_NOT_FOUND(NOT_FOUND, "존재하지 않는 리뷰 질문입니다."),
+    REVIEWEE_NOT_FOUND(NOT_FOUND, "존재하지 않은 리뷰 대상자 입니다."),
 
     /**
      * 405 METHOD_NOT_ALLOWED
