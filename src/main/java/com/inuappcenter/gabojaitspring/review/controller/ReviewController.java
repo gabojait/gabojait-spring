@@ -176,7 +176,7 @@ public class ReviewController {
 
     @ApiOperation(value = "본인 리뷰 작성 가능한 팀 조회", notes = "리뷰 작성 가능 기간 = 프로젝트 완료 후 4주 동안")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "AVAILABLE_REVIEWS",
+            @ApiResponse(responseCode = "200", description = "AVAILABLE_REVIEWS / ZERO_AVAILABLE_REVIEW_FOUND",
                     content = @Content(schema = @Schema(implementation = TeamAbstractResDto.class))),
             @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
