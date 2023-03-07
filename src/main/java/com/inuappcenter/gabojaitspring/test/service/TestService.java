@@ -6,6 +6,11 @@ import com.inuappcenter.gabojaitspring.profile.repository.EducationRepository;
 import com.inuappcenter.gabojaitspring.profile.repository.PortfolioRepository;
 import com.inuappcenter.gabojaitspring.profile.repository.SkillRepository;
 import com.inuappcenter.gabojaitspring.profile.repository.WorkRepository;
+import com.inuappcenter.gabojaitspring.review.domain.Question;
+import com.inuappcenter.gabojaitspring.review.domain.type.ReviewType;
+import com.inuappcenter.gabojaitspring.review.repository.QuestionRepository;
+import com.inuappcenter.gabojaitspring.review.repository.ReviewRepository;
+import com.inuappcenter.gabojaitspring.review.service.QuestionService;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
 import com.inuappcenter.gabojaitspring.team.repository.OfferRepository;
 import com.inuappcenter.gabojaitspring.team.repository.TeamRepository;
@@ -45,7 +50,10 @@ public class TestService {
     private final UserService userService;
     private final ContactService contactService;
     private final TeamService teamService;
+    private final QuestionService questionService;
     private final PasswordEncoder passwordEncoder;
+    private final QuestionRepository questionRepository;
+    private final ReviewRepository reviewRepository;
 
     /**
      * 데이터베이스 초기화 |
@@ -63,8 +71,10 @@ public class TestService {
             offerRepository.deleteAll();
             userRepository.deleteAll();
             contactRepository.deleteAll();
+            reviewRepository.deleteAll();
+            questionRepository.deleteAll();
 
-            injectTestAccounts();
+            injectTestData();
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw new CustomException(SERVER_ERROR);
@@ -72,7 +82,7 @@ public class TestService {
     }
 
     @Transactional
-    public void injectTestAccounts() {
+    public void injectTestData() {
 
         for (int i = 1; i <= 3; i++) {
             Contact contact = Contact.builder()
@@ -119,6 +129,13 @@ public class TestService {
                 teamService.save(team);
                 teamService.join(team, user, Position.PM.getType());
             }
+
+            Question question = Question.builder()
+                                .context("질문 " + i + "번입니다.")
+                                .reviewType(ReviewType.RATING)
+                                .build();
+
+            questionService.save(question);
         }
     }
 }

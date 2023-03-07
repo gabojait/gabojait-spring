@@ -181,6 +181,10 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.completedTeamIds.add(teamId);
     }
 
+    public void addReview(Review review) {
+        this.reviews.add(review);
+    }
+
     public void delete() {
         this.isDeleted = true;
     }

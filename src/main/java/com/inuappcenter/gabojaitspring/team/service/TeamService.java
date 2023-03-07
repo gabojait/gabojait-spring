@@ -331,6 +331,40 @@ public class TeamService {
     }
 
     /**
+     * 프로젝트 완료 여부 검증 |
+     * 409(INCOMPLETE_PROJECT)
+     * 500(SERVER_ERROR)
+     */
+    public void validateProjectComplete(Team team) {
+
+        try {
+            if (!team.getIsComplete())
+                throw new CustomException(INCOMPLETE_PROJECT);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 과거 팀원 여부 검증 |
+     * 500(SERVER_ERROR)
+     */
+    public String validatePreviouslyTeammates(User userOne, User userTwo) {
+
+        try {
+            List<ObjectId> userOneTeamId = userOne.getCompletedTeamIds();
+
+            for (ObjectId teamId : userOneTeamId)
+                if (userTwo.getCompletedTeamIds().contains(teamId))
+                    return teamId.toString();
+
+            throw new CustomException(SERVER_ERROR);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+    }
+
+    /**
      * 팀 삭제 |
      * 500(SERVER_ERROR)
      */

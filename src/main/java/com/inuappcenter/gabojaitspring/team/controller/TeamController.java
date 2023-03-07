@@ -125,7 +125,7 @@ public class TeamController {
 
         userService.validateCurrentTeam(user);
         userService.isPositionSelected(user);
-        Team team = request.toEntity(user.getId());
+        Team team = request.toEntity(user.getId(), user.getPosition());
         teamService.validatePositionAvailability(team, Position.toEnum(user.getPosition()).getType());
 
         teamService.save(team);

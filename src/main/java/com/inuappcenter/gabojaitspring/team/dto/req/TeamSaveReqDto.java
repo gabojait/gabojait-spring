@@ -1,6 +1,7 @@
 package com.inuappcenter.gabojaitspring.team.dto.req;
 
 import com.inuappcenter.gabojaitspring.common.ValidationSequence;
+import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -10,6 +11,8 @@ import org.bson.types.ObjectId;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.*;
+
+import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.SERVER_ERROR;
 
 @Getter
 @NoArgsConstructor
@@ -64,7 +67,24 @@ public class TeamSaveReqDto {
             groups = ValidationSequence.Pattern.class)
     private String openChatUrl;
 
-    public Team toEntity(ObjectId userId) {
+    public Team toEntity(ObjectId userId, char position) {
+        switch (position) {
+            case 'D':
+                this.designerTotalRecruitCnt++;
+                break;
+            case 'B':
+                this.backendTotalRecruitCnt++;
+                break;
+            case 'F':
+                this.frontendTotalRecruitCnt++;
+                break;
+            case 'P':
+                this.projectManagerTotalRecruitCnt++;
+                break;
+            default:
+                throw new CustomException(SERVER_ERROR);
+        }
+
         return Team.builder()
                 .leaderUserId(userId)
                 .projectName(this.projectName)

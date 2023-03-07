@@ -4,6 +4,7 @@ import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.email.service.EmailService;
 import com.inuappcenter.gabojaitspring.profile.domain.*;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
+import com.inuappcenter.gabojaitspring.review.domain.Review;
 import com.inuappcenter.gabojaitspring.user.domain.Contact;
 import com.inuappcenter.gabojaitspring.user.domain.type.Gender;
 import com.inuappcenter.gabojaitspring.user.domain.User;
@@ -560,6 +561,22 @@ public class UserService {
 
         try {
             user.removeRecruitId(offerId);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(user);
+    }
+
+    /**
+     * 리뷰 추가 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void addReview(User user, Review review) {
+
+        try {
+            user.addReview(review);
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }

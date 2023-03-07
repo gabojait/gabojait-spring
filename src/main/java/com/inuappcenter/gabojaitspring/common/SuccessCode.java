@@ -19,6 +19,7 @@ public enum SuccessCode {
     CURRENT_REVIEW_QUESTIONS_FOUND(OK, "현재 리뷰 질문들 전체 조회를 완료 했습니다."),
 
     // 201 CREATED
+    REVIEWS_CREATED(CREATED, "리뷰 다건 생성을 완료 되었습니다."),
 
     /**
      * Team

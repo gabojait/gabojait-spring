@@ -41,6 +41,8 @@ public class Review extends BaseTimeEntity {
         this.rate = rate;
         this.answer = answer;
 
+        this.question.incrementUsedCnt();
+
         this.isDeleted = false;
     }
 }

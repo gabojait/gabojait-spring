@@ -1,6 +1,7 @@
 package com.inuappcenter.gabojaitspring.review.dto.res;
 
 import com.inuappcenter.gabojaitspring.review.domain.Question;
+import com.inuappcenter.gabojaitspring.review.domain.type.ReviewType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -17,18 +18,22 @@ public class QuestionDefaultResDto {
     @ApiModelProperty(position = 2, required = true, value = "질문 내용")
     private String context;
 
-    @ApiModelProperty(position = 3, required = true, value = "생성일")
+    @ApiModelProperty(position = 3, required = true, value = "리뷰 타입")
+    private String reviewType;
+
+    @ApiModelProperty(position = 4, required = true, value = "생성일")
     private LocalDateTime createdDate;
 
-    @ApiModelProperty(position = 4, required = true, value = "수정일")
+    @ApiModelProperty(position = 5, required = true, value = "수정일")
     private LocalDateTime modifiedDate;
 
-    @ApiModelProperty(position = 5, required = true, value = "스키마 버전")
+    @ApiModelProperty(position = 6, required = true, value = "스키마 버전")
     private String schemaVersion;
 
     public QuestionDefaultResDto(Question question) {
         this.questionId = question.getId().toString();
         this.context = question.getContext();
+        this.reviewType = ReviewType.toEnum(question.getReviewType()).name();
         this.createdDate = question.getCreatedDate();
         this.modifiedDate = question.getModifiedDate();
         this.schemaVersion = question.getSchemaVersion();

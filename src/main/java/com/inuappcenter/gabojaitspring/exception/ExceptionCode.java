@@ -31,6 +31,7 @@ public enum ExceptionCode {
     EXPECTATION_LENGTH_INVALID(BAD_REQUEST, "바라는 점은 1~200자만 가능합니다."),
     OPENCHATURL_LENGTH_INVALID(BAD_REQUEST, "오픈채팅 링크는 25~100자만 가능합니다."),
     PROJECTURL_LENGTH_INVALID(BAD_REQUEST, "프로젝트 링크는 1~1000자만 가능합니다."),
+    ANSWER_LENGTH_INVALID(BAD_REQUEST, "리뷰 응답은 0~200자만 가능합니다."),
 
     // @PositiveOrZero
     DESIGNERCNT_POS_ZERO_ONLY(BAD_REQUEST, "디자이너 수는 0 또는 양수만 가능합니다."),
@@ -55,6 +56,9 @@ public enum ExceptionCode {
     PORTFOLIOTYPE_FORMAT_INVALID(BAD_REQUEST, "포트폴리오 타입은 file, link 중 하나입니다."),
     POSITION_FORMAT_INVALID(BAD_REQUEST, "포지션은 designer, backend, frontend, pm 중 하나입니다."),
     POSITION_UNSELECTED(BAD_REQUEST, "본인의 포지션을 먼저 선택해주세요."),
+    REVIEWTYPE_FORMAT_INVALID(BAD_REQUEST, "리뷰는 answer, rating 중 하나 입니다."),
+    REVIEW_RATING_FORMAT_INVALID(BAD_REQUEST, "해당 질문은 평점을 입력해야 됩니다."),
+    REVIEW_ANSWER_FORMAT_INVALID(BAD_REQUEST, "해당 질문은 답변을 입력해야 됩니다."),
 
     /**
      * 401 UNAUTHORIZED
@@ -83,6 +87,7 @@ public enum ExceptionCode {
     TEAM_NOT_FOUND(NOT_FOUND, "존재하지 않는 팀입니다."),
     CURRENT_TEAM_NOT_FOUND(NOT_FOUND, "현재 소속된 팀이 존재하지 않습니다."),
     OFFER_NOT_FOUND(NOT_FOUND, "존재하지 않는 제안입니다."),
+    QUESTION_NOT_FOUND(NOT_FOUND, "존재하지 않는 리뷰 질문입니다."),
 
     /**
      * 405 METHOD_NOT_ALLOWED
@@ -102,6 +107,8 @@ public enum ExceptionCode {
     PROJECT_MANAGER_POSITION_UNAVAILABLE(CONFLICT, "프로젝트 매니저 포지션은 마감했습니다."),
     EXISTING_OFFER(CONFLICT, "이미 요청한 지원 정보입니다."),
     TEAM_LEADER_CONFLICT(CONFLICT, "팀 리더는 팀 탈퇴를 할 수 없습니다."),
+    INCOMPLETE_PROJECT(CONFLICT, "프로젝트가 완료되지 않았습니다."),
+    EXISTING_REVIEW(CONFLICT, "이미 작성이 완료된 리뷰입니다."),
 
     /**
      * 413 PAYLOAD_TOO_LARGE
