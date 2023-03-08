@@ -103,7 +103,7 @@ public enum SuccessCode {
     EMAIL_VERIFIED(OK, "이메일 인증번호 확인을 완료 했습니다."),
 
     // 201 CREATED
-    EMAIL_NO_DUPLICATE(CREATED, "이메일 중복 확인을 완료 했습니다.");
+    EMAIL_VERIFICATION_CODE_SENT(CREATED, "인증코드를 이메일로 전송 완료 했습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

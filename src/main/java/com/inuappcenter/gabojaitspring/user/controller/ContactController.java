@@ -17,8 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-import static com.inuappcenter.gabojaitspring.common.SuccessCode.EMAIL_NO_DUPLICATE;
-import static com.inuappcenter.gabojaitspring.common.SuccessCode.EMAIL_VERIFIED;
+import static com.inuappcenter.gabojaitspring.common.SuccessCode.*;
 
 @Api(tags = "연락처")
 @RestController
@@ -30,7 +29,7 @@ public class ContactController {
 
     @ApiOperation(value = "이메일 인증번호 요청")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "NO_DUPLICATE_EMAIL",
+            @ApiResponse(responseCode = "201", description = "EMAIL_VERIFICATION_CODE_SENT",
                     content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400", description = "FIELD_REQUIRED / EMAIL_FORMAT_INVALID"),
             @ApiResponse(responseCode = "409", description = "EXISTING_EMAIL"),
@@ -44,10 +43,10 @@ public class ContactController {
 
         contactService.create(request);
 
-        return ResponseEntity.status(EMAIL_NO_DUPLICATE.getHttpStatus())
+        return ResponseEntity.status(EMAIL_VERIFICATION_CODE_SENT.getHttpStatus())
                 .body(DefaultResDto.builder()
-                        .responseCode(EMAIL_NO_DUPLICATE.name())
-                        .responseMessage(EMAIL_NO_DUPLICATE.getMessage())
+                        .responseCode(EMAIL_VERIFICATION_CODE_SENT.name())
+                        .responseMessage(EMAIL_VERIFICATION_CODE_SENT.getMessage())
                         .build());
     }
 
