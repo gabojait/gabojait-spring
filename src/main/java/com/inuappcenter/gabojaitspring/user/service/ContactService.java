@@ -86,12 +86,12 @@ public class ContactService {
     }
 
     /**
-     * 이메일로 인증안된 연락처 단건 조회 |
+     * 이메일로 미가입 연락처 단건 조회 |
      * 409(EMAIL_VERIFICATION_INVALID)
      */
-    public Contact findOneUnverifiedByEmail(String email) {
+    public Contact findOneUnregisteredByEmail(String email) {
 
-        return contactRepository.findByEmailAndIsVerifiedIsFalseAndIsDeletedIsFalse(email)
+        return contactRepository.findByEmailAndIsRegisteredIsFalseAndIsVerifiedIsTrueAndIsDeletedIsFalse(email)
                 .orElseThrow(() -> {
                     throw new CustomException(EMAIL_VERIFICATION_INVALID);
                 });

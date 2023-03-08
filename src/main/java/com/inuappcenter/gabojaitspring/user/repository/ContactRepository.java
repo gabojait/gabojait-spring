@@ -15,4 +15,6 @@ public interface ContactRepository extends MongoRepository<Contact, ObjectId> {
     Optional<Contact> findByEmailAndIsVerifiedIsFalseAndIsDeletedIsFalse(String email);
 
     Optional<Contact> findByEmailAndIsDeletedIsFalseAndIsRegisteredIsTrue(String email);
+
+    Optional<Contact> findByEmailAndIsRegisteredIsFalseAndIsVerifiedIsTrueAndIsDeletedIsFalse(String email);
 }

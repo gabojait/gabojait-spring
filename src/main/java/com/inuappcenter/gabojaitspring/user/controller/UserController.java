@@ -98,7 +98,7 @@ public class UserController {
         );
 
 
-        Contact contact = contactService.findOneUnverifiedByEmail(request.getEmail());
+        Contact contact = contactService.findOneUnregisteredByEmail(request.getEmail());
         contactService.register(contact);
 
         User user = userService.create(request, encodedPassword, gender, contact);
