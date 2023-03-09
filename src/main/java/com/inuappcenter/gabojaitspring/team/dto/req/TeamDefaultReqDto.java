@@ -16,14 +16,14 @@ import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.SERVER_ERR
 
 @Getter
 @NoArgsConstructor
-@GroupSequence({TeamSaveReqDto.class,
+@GroupSequence({TeamDefaultReqDto.class,
         ValidationSequence.NotBlank.class,
         ValidationSequence.NotNull.class,
         ValidationSequence.Size.class,
         ValidationSequence.PositiveOrZero.class,
         ValidationSequence.Pattern.class})
-@ApiModel(value = "Team 생성 요청")
-public class TeamSaveReqDto {
+@ApiModel(value = "Team 기본 요청")
+public class TeamDefaultReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "프로젝트 이름", example = "Gabojait")
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)

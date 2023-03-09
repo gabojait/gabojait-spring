@@ -63,7 +63,7 @@ public class TeamController {
     public ResponseEntity<DefaultResDto<Object>> findTeammates(HttpServletRequest servletRequest,
                                                                @PathVariable String position,
                                                                @RequestParam Integer pageFrom,
-                                                               @RequestParam(required = false) Integer pageNum) {
+                                                               @RequestParam(required = false) Integer pageSize) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
 
@@ -72,7 +72,7 @@ public class TeamController {
 
         userService.findOneByUserId(token.get(0));
 
-        Page<User> users = userService.findManyByPosition(Position.fromString(position), pageFrom, pageNum);
+        Page<User> users = userService.findManyByPosition(Position.fromString(position), pageFrom, pageSize);
 
         if (users.getNumberOfElements() == 0) {
 
@@ -80,7 +80,7 @@ public class TeamController {
                     .body(DefaultResDto.builder()
                             .responseCode(TEAMMATES_ZERO.name())
                             .responseMessage(TEAMMATES_ZERO.getMessage())
-                            .totalPageNum(users.getTotalPages())
+                            .totalPageSize(users.getTotalPages())
                             .build());
         } else {
 
@@ -93,12 +93,12 @@ public class TeamController {
                             .responseCode(TEAMMATES_FOUND.name())
                             .responseMessage(TEAMMATES_FOUND.getMessage())
                             .data(responseBodies)
-                            .totalPageNum(users.getTotalPages())
+                            .totalPageSize(users.getTotalPages())
                             .build());
         }
     }
 
-    @ApiOperation(value = "팀 생성하기")
+    @ApiOperation(value = "팀 생성")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "TEAM_CREATED",
                     content = @Content(schema = @Schema(implementation = TeamDefaultResDto.class))),
@@ -108,13 +108,13 @@ public class TeamController {
             @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
             @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
-            @ApiResponse(responseCode = "409", description = "EXISTING_CURRENT_TEAM / *_POSITION_UNAVAILABLE"),
+            @ApiResponse(responseCode = "409", description = "EXISTING_CURRENT_TEAM"),
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/team")
     public ResponseEntity<DefaultResDto<Object>> createTeam(HttpServletRequest servletRequest,
-                                                            @RequestBody @Valid TeamSaveReqDto request) {
+                                                            @RequestBody @Valid TeamDefaultReqDto request) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
 
@@ -137,6 +137,47 @@ public class TeamController {
                 .body(DefaultResDto.builder()
                         .responseCode(TEAM_CREATED.name())
                         .responseMessage(TEAM_CREATED.getMessage())
+                        .data(responseBody)
+                        .build());
+    }
+
+    @ApiOperation(value = "팀 정보 수정")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "TEAM_UPDATED",
+                    content = @Content(schema = @Schema(implementation = TeamDefaultResDto.class))),
+            @ApiResponse(responseCode = "400",
+                    description = "FIELD_REQUIRED / *_LENGTH_INVALID / *_POS_ZERO_ONLY / *_LIMIT_INVALID / " +
+                            "OPENCHATURL_FORMAT_INVALID"),
+            @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED / ROLE_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "409", description = "EXISTING_CURRENT_TEAM"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @PatchMapping("/team")
+    public ResponseEntity<DefaultResDto<Object>> updateTeam(HttpServletRequest servletRequest,
+                                                            @RequestBody @Valid TeamDefaultReqDto request) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        User leader = userService.findOneByUserId(token.get(0));
+        userService.isNonExistingCurrentTeam(leader);
+        Team team = teamService.findOne(leader.getCurrentTeamId().toString());
+        Position position = teamService.getPositionInCurrentTeam(team, leader);
+        teamService.validateLeader(team, leader);
+        teamService.validateUpdatePositionAvailability(team, request, position);
+
+        teamService.update(team, request, position);
+
+        TeamDefaultResDto responseBody = new TeamDefaultResDto(team);
+
+        return ResponseEntity.status(TEAM_UPDATED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(TEAM_UPDATED.name())
+                        .responseMessage(TEAM_UPDATED.getMessage())
                         .data(responseBody)
                         .build());
     }
@@ -185,7 +226,7 @@ public class TeamController {
     @GetMapping("/team/find")
     public ResponseEntity<DefaultResDto<Object>> findManyTeams(HttpServletRequest servletRequest,
                                                                @RequestParam Integer pageFrom,
-                                                               @RequestParam(required = false) Integer pageNum) {
+                                                               @RequestParam(required = false) Integer pageSize) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
 
@@ -193,7 +234,7 @@ public class TeamController {
             throw new CustomException(TOKEN_NOT_ALLOWED);
 
         userService.findOneByUserId(token.get(0));
-        Page<Team> teams = teamService.findMany(pageFrom, pageNum);
+        Page<Team> teams = teamService.findMany(pageFrom, pageSize);
 
         if (teams.getNumberOfElements() == 0) {
 
@@ -201,7 +242,7 @@ public class TeamController {
                     .body(DefaultResDto.builder()
                             .responseCode(TEAM_ZERO.name())
                             .responseMessage(TEAM_ZERO.getMessage())
-                            .totalPageNum(teams.getTotalPages())
+                            .totalPageSize(teams.getTotalPages())
                             .build());
         } else {
 
@@ -214,7 +255,7 @@ public class TeamController {
                             .responseCode(TEAM_CREATED.name())
                             .responseMessage(TEAM_CREATED.getMessage())
                             .data(responseBodies)
-                            .totalPageNum(teams.getTotalPages())
+                            .totalPageSize(teams.getTotalPages())
                             .build());
         }
     }
@@ -344,7 +385,7 @@ public class TeamController {
     @GetMapping("/team/offer")
     public ResponseEntity<DefaultResDto<Object>> findManyApplicantOffer(HttpServletRequest servletRequest,
                                                                         @RequestParam Integer pageFrom,
-                                                                        @RequestParam(required = false) Integer pageNum,
+                                                                        @RequestParam(required = false) Integer pageSize,
                                                                         @RequestParam String position) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
@@ -361,7 +402,7 @@ public class TeamController {
                 Position.fromString(position),
                 true,
                 pageFrom,
-                pageNum);
+                pageSize);
 
         if (offers.getNumberOfElements() == 0) {
 
@@ -369,7 +410,7 @@ public class TeamController {
                     .body(DefaultResDto.builder()
                             .responseCode(OFFER_ZERO.name())
                             .responseMessage(OFFER_ZERO.getMessage())
-                            .totalPageNum(offers.getTotalPages())
+                            .totalPageSize(offers.getTotalPages())
                             .build());
         } else {
 
@@ -382,7 +423,7 @@ public class TeamController {
                             .responseCode(OFFERS_FOUND.name())
                             .responseMessage(OFFERS_FOUND.getMessage())
                             .data(responseBodies)
-                            .totalPageNum(offers.getTotalPages())
+                            .totalPageSize(offers.getTotalPages())
                             .build());
         }
     }
@@ -399,7 +440,7 @@ public class TeamController {
     @GetMapping("/user/offer")
     public ResponseEntity<DefaultResDto<Object>> findManyTeamOffer(HttpServletRequest servletRequest,
                                                                    @RequestParam Integer pageFrom,
-                                                                   @RequestParam(required = false) Integer pageNum) {
+                                                                   @RequestParam(required = false) Integer pageSize) {
 
         List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
 
@@ -408,7 +449,7 @@ public class TeamController {
 
         User user = userService.findOneByUserId(token.get(0));
 
-        Page<Offer> offers = offerService.findManyByApplicant(user.getId(),false, pageFrom, pageNum);
+        Page<Offer> offers = offerService.findManyByApplicant(user.getId(),false, pageFrom, pageSize);
 
         if (offers.getNumberOfElements() == 0) {
 
@@ -416,7 +457,7 @@ public class TeamController {
                     .body(DefaultResDto.builder()
                             .responseCode(OFFER_ZERO.name())
                             .responseMessage(OFFER_ZERO.getMessage())
-                            .totalPageNum(offers.getTotalPages())
+                            .totalPageSize(offers.getTotalPages())
                             .build());
         } else {
 
@@ -429,7 +470,7 @@ public class TeamController {
                             .responseCode(OFFERS_FOUND.name())
                             .responseMessage(OFFERS_FOUND.getMessage())
                             .data(responseBodies)
-                            .totalPageNum(offers.getTotalPages())
+                            .totalPageSize(offers.getTotalPages())
                             .build());
         }
     }
@@ -582,7 +623,7 @@ public class TeamController {
         Team team = teamService.findOne(leader.getCurrentTeamId().toString());
         teamService.validateLeader(team, leader);
         User teammate = userService.findOneByUserId(userId);
-        Position position = teamService.validatePositionInCurrentTeam(team, teammate);
+        Position position = teamService.getPositionInCurrentTeam(team, teammate);
 
         teamService.leaveTeam(team, teammate, position);
 
@@ -615,7 +656,7 @@ public class TeamController {
         userService.isNonExistingCurrentTeam(user);
         Team team = teamService.findOne(user.getCurrentTeamId().toString());
         teamService.validateNonLeader(team, user);
-        Position position = teamService.validatePositionInCurrentTeam(team, user);
+        Position position = teamService.getPositionInCurrentTeam(team, user);
 
         teamService.leaveTeam(team, user, position);
 

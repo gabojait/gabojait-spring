@@ -22,20 +22,20 @@ public class DefaultResDto<T> {
     private T data;
 
     @ApiModelProperty(position = 4, dataType = "Integer", value = "총 페이지 수", example = "100")
-    private Integer totalPageNum;
+    private Integer totalPageSize;
 
     public DefaultResDto(final String responseCode, final String responseMessage) {
         this.responseCode = responseCode;
         this.responseMessage = responseMessage;
         this.data = null;
-        this.totalPageNum = null;
+        this.totalPageSize = null;
     }
 
     public DefaultResDto(final String responseCode, final String responseMessage, final Integer totalPageNum) {
         this.responseCode = responseCode;
         this.responseMessage = responseMessage;
         this.data = null;
-        this.totalPageNum = totalPageNum;
+        this.totalPageSize = totalPageNum;
     }
 
     public static <T> DefaultResDto<T> response(final String responseCode,
@@ -63,12 +63,12 @@ public class DefaultResDto<T> {
     public static <T> DefaultResDto<T> response(final String responseCode,
                                                 final String responseMessage,
                                                 final T data,
-                                                final Integer totalPageNum) {
+                                                final Integer totalPageSize) {
         return DefaultResDto.<T>builder()
                 .responseCode(responseCode)
                 .responseMessage(responseMessage)
                 .data(data)
-                .totalPageNum(totalPageNum)
+                .totalPageSize(totalPageSize)
                 .build();
     }
 }

@@ -3,6 +3,7 @@ package com.inuappcenter.gabojaitspring.team.service;
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
+import com.inuappcenter.gabojaitspring.team.dto.req.TeamDefaultReqDto;
 import com.inuappcenter.gabojaitspring.team.repository.TeamRepository;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import com.inuappcenter.gabojaitspring.user.service.UserService;
@@ -12,9 +13,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 
@@ -159,13 +163,13 @@ public class TeamService {
      * 팀 다건 조회 |
      * 500(SERVER_ERROR)
      */
-    public Page<Team> findMany(Integer pageFrom, Integer pageNum) {
-        if (pageNum == null)
-            pageNum = 20;
+    public Page<Team> findMany(Integer pageFrom, Integer pageSize) {
+        if (pageSize == null)
+            pageSize = 20;
 
         try {
             return teamRepository.findTeamsByIsPublicIsTrueAndIsDeletedIsFalseOrderByModifiedDateDesc(
-                    PageRequest.of(pageFrom, pageNum)
+                    PageRequest.of(pageFrom, pageSize)
             );
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
@@ -256,18 +260,111 @@ public class TeamService {
      * 현재 소속 팀의 포지션 검증 |
      * 500(SERVER_ERROR)
      */
-    public Position validatePositionInCurrentTeam(Team team, User user) {
+    public Position getPositionInCurrentTeam(Team team, User user) {
 
-        if (team.getDesigners().contains(user))
-            return Position.DESIGNER;
-        else if (team.getBackends().contains(user))
-            return Position.BACKEND;
-        else if (team.getFrontends().contains(user))
-            return Position.FRONTEND;
-        else if (team.getProjectManagers().contains(user))
-            return Position.PM;
-        else
+        for (User designer : team.getDesigners())
+            if (designer.getId().equals(user.getId()))
+                return Position.DESIGNER;
+
+        for (User backend : team.getBackends())
+            if (backend.getId().equals(user.getId()))
+                return Position.BACKEND;
+
+        for (User frontend : team.getFrontends())
+            if (frontend.getId().equals(user.getId()))
+                return Position.FRONTEND;
+
+        for (User projectManager : team.getProjectManagers())
+            if (projectManager.getId().equals(user.getId()))
+                return Position.PM;
+
+        throw new CustomException(SERVER_ERROR);
+    }
+
+    /**
+     * 업데이트될 포지션 여유 검증 |
+     * 400(DESIGNER_LIMIT_INVALID)
+     * 400(BACKEND_LIMIT_INVALID)
+     * 400(FRONTEND_LIMIT_INVALID)
+     * 400(PROJECT_MANAGER_LIMIT_INVALID)
+     */
+    public void validateUpdatePositionAvailability(Team team, TeamDefaultReqDto request, Position position) {
+
+        Map<Character, Short> totalRecruitCnt = new HashMap<>();
+        totalRecruitCnt.put(Position.DESIGNER.getType(), request.getDesignerTotalRecruitCnt());
+        totalRecruitCnt.put(Position.BACKEND.getType(), request.getBackendTotalRecruitCnt());
+        totalRecruitCnt.put(Position.FRONTEND.getType(), request.getFrontendTotalRecruitCnt());
+        totalRecruitCnt.put(Position.PM.getType(), request.getProjectManagerTotalRecruitCnt());
+
+        incrementLeaderPosition(position, totalRecruitCnt);
+
+        if (team.getDesigners().size() > totalRecruitCnt.get(Position.DESIGNER.getType()))
+            throw new CustomException(DESIGNER_LIMIT_INVALID);
+        if (team.getBackends().size() > totalRecruitCnt.get(Position.BACKEND.getType()))
+            throw new CustomException(BACKEND_LIMIT_INVALID);
+        if (team.getFrontends().size() > totalRecruitCnt.get(Position.FRONTEND.getType()))
+            throw new CustomException(FRONTEND_LIMIT_INVALID);
+        if (team.getProjectManagers().size() > totalRecruitCnt.get(Position.PM.getType()))
+            throw new CustomException(PROJECT_MANAGER_LIMIT_INVALID);
+    }
+
+    /**
+     * 리더 포지션 추가 |
+     * 500(SERVER_ERROR)
+     */
+    private void incrementLeaderPosition(Position position, Map<Character, Short> totalRecruitCnt) {
+
+        switch (position.getType()) {
+            case 'D':
+                totalRecruitCnt.replace(Position.DESIGNER.getType(),
+                        (short) (totalRecruitCnt.get(Position.DESIGNER.getType()) + 1));
+                break;
+            case 'B':
+                totalRecruitCnt.replace(Position.BACKEND.getType(),
+                        (short) (totalRecruitCnt.get(Position.BACKEND.getType()) + 1));
+                break;
+            case 'F':
+                totalRecruitCnt.replace(Position.FRONTEND.getType(),
+                        (short) (totalRecruitCnt.get(Position.FRONTEND.getType()) + 1));
+                break;
+            case 'P':
+                totalRecruitCnt.replace(Position.PM.getType(),
+                        (short) (totalRecruitCnt.get(Position.PM.getType()) + 1));
+                break;
+            default:
+                throw new CustomException(SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 팀 정보 수정 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void update(Team team, TeamDefaultReqDto request, Position position) {
+
+        Map<Character, Short> totalRecruitCnt = new HashMap<>();
+        totalRecruitCnt.put(Position.DESIGNER.getType(), request.getDesignerTotalRecruitCnt());
+        totalRecruitCnt.put(Position.BACKEND.getType(), request.getBackendTotalRecruitCnt());
+        totalRecruitCnt.put(Position.FRONTEND.getType(), request.getFrontendTotalRecruitCnt());
+        totalRecruitCnt.put(Position.PM.getType(), request.getProjectManagerTotalRecruitCnt());
+
+        incrementLeaderPosition(position, totalRecruitCnt);
+
+        try {
+            team.updateInfo(request.getProjectName(),
+                    request.getProjectDescription(),
+                    totalRecruitCnt.get(Position.DESIGNER.getType()),
+                    totalRecruitCnt.get(Position.BACKEND.getType()),
+                    totalRecruitCnt.get(Position.FRONTEND.getType()),
+                    totalRecruitCnt.get(Position.PM.getType()),
+                    request.getExpectation(),
+                    request.getOpenChatUrl());
+        } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
+        }
+
+        save(team);
     }
 
     /**

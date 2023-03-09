@@ -148,6 +148,24 @@ public class Team extends BaseTimeEntity {
         this.isComplete = true;
     }
 
+    public void updateInfo(String projectName,
+                           String projectDescription,
+                           Short designerTotalRecruitCnt,
+                           Short backendTotalRecruitCnt,
+                           Short frontendTotalRecruitCnt,
+                           Short projectManagerTotalRecruitCnt,
+                           String expectation,
+                           String openChatUrl) {
+        this.projectName = projectName;
+        this.projectDescription = projectDescription;
+        this.designerTotalRecruitCnt = designerTotalRecruitCnt;
+        this.backendTotalRecruitCnt = backendTotalRecruitCnt;
+        this.frontendTotalRecruitCnt = frontendTotalRecruitCnt;
+        this.projectManagerTotalRecruitCnt = projectManagerTotalRecruitCnt;
+        this.expectation = expectation;
+        this.openChatUrl = openChatUrl;
+    }
+
     public void updateIsPublic(Boolean isPublic) {
         this.isPublic = isPublic;
     }

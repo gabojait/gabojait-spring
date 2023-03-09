@@ -34,10 +34,10 @@ public enum ExceptionCode {
     ANSWER_LENGTH_INVALID(BAD_REQUEST, "리뷰 응답은 0~200자만 가능합니다."),
 
     // @PositiveOrZero
-    DESIGNERCNT_POS_ZERO_ONLY(BAD_REQUEST, "디자이너 수는 0 또는 양수만 가능합니다."),
-    BACKENDCNT_POS_ZERO_ONLY(BAD_REQUEST, "백엔드 개발자 수는 0 또는 양수만 가능합니다."),
-    FRONTENDCNT_POS_ZERO_ONLY(BAD_REQUEST, "프론트엔드 개발자 수는 0 또는 양수만 가능합니다."),
-    PLANNERCNT_POS_ZERO_ONLY(BAD_REQUEST, "기획자 수는 0 또는 양수만 가능합니다."),
+    DESIGNERTOTALRECRUITCNT_POS_ZERO_ONLY(BAD_REQUEST, "디자이너 수는 0 또는 양수만 가능합니다."),
+    BACKENDTOTALRECRUITCNT_POS_ZERO_ONLY(BAD_REQUEST, "백엔드 개발자 수는 0 또는 양수만 가능합니다."),
+    FRONTENDTOTALRECRUITCNT_POS_ZERO_ONLY(BAD_REQUEST, "프론트엔드 개발자 수는 0 또는 양수만 가능합니다."),
+    PROJECTMANAGERTOTALRECRUITCNT_POS_ZERO_ONLY(BAD_REQUEST, "기획자 수는 0 또는 양수만 가능합니다."),
 
     // @Email @Pattern
     EMAIL_FORMAT_INVALID(BAD_REQUEST, "올바른 이메일 형식이 아닙니다."),
@@ -59,6 +59,12 @@ public enum ExceptionCode {
     REVIEWTYPE_FORMAT_INVALID(BAD_REQUEST, "리뷰는 answer, rating 중 하나 입니다."),
     REVIEW_RATING_FORMAT_INVALID(BAD_REQUEST, "해당 질문은 평점을 입력해야 됩니다."),
     REVIEW_ANSWER_FORMAT_INVALID(BAD_REQUEST, "해당 질문은 답변을 입력해야 됩니다."),
+    DESIGNER_LIMIT_INVALID(BAD_REQUEST, "현존하는 디자이너 수가 수정한 디자이너의 수 보다 많습니다."),
+    BACKEND_LIMIT_INVALID(BAD_REQUEST, "현존하는 백엔드 개발자 수가 수정한 디자이너의 수 보다 많습니다."),
+    FRONTEND_LIMIT_INVALID(BAD_REQUEST, "현존하는 프론트엔드 개발자 수가 수정한 디자이너의 수 보다 많습니다."),
+    PROJECT_MANAGER_LIMIT_INVALID(BAD_REQUEST, "현존하는 기획자 수가 수정한 디자이너의 수 보다 많습니다."),
+
+
 
     /**
      * 401 UNAUTHORIZED
