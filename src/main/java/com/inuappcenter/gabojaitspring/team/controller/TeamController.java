@@ -182,6 +182,45 @@ public class TeamController {
                         .build());
     }
 
+    @ApiOperation(value = "본인 팀 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "MY_TEAM_FOUND / NOT_IN_TEAM",
+                    content = @Content(schema = @Schema(implementation = TeamDefaultResDto.class))),
+            @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @GetMapping("/team")
+    public ResponseEntity<DefaultResDto<Object>> findMyTeam(HttpServletRequest servletRequest) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        User user = userService.findOneByUserId(token.get(0));
+
+        if (user.getCurrentTeamId() == null) {
+            return ResponseEntity.status(NOT_IN_TEAM.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(NOT_IN_TEAM.name())
+                            .responseMessage(NOT_IN_TEAM.getMessage())
+                            .build());
+        } else {
+            Team team = teamService.findOne(user.getCurrentTeamId().toString());
+
+            TeamDefaultResDto responseBody = new TeamDefaultResDto(team);
+
+            return ResponseEntity.status(MY_TEAM_FOUND.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(MY_TEAM_FOUND.name())
+                            .responseMessage(MY_TEAM_FOUND.getMessage())
+                            .data(responseBody)
+                            .build());
+        }
+    }
+
     @ApiOperation(value = "팀 단건 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "TEAM_FOUND",
@@ -191,7 +230,7 @@ public class TeamController {
             @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
-    @GetMapping("/team/{team-id}")
+    @GetMapping("/team/find/{team-id}")
     public ResponseEntity<DefaultResDto<Object>> findOneTeam(HttpServletRequest servletRequest,
                                                              @PathVariable(value = "team-id") String teamId) {
 
