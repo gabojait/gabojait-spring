@@ -13,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
 
@@ -280,6 +279,36 @@ public class TeamService {
 
         try {
             team.removeRecruitId(offerId);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(team);
+    }
+
+    /**
+     * 유저 찜 추가 |
+     * 500(SERVER_ERROR)
+     */
+    public void addFavoriteUser(Team team, ObjectId userId) {
+
+        try {
+            team.addFavoriteUserId(userId);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(team);
+    }
+
+    /**
+     * 유저 찜 제거 |
+     * 500(SERVER_ERROR)
+     */
+    public void removeFavoriteUser(Team team, ObjectId userId) {
+
+        try {
+            team.removeFavoriteUserId(userId);
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }

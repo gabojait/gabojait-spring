@@ -43,10 +43,10 @@ public enum SuccessCode {
     TEAMMATE_FIRED(OK, "팀원 추방을 완료 했습니다."),
     TEAM_PROJECT_COMPLETE(OK, "팀 프로젝트를 성공하셨습니다."),
     TEAM_UPDATED(OK, "팀 정보 수정을 완료 했습니다."),
-    TEAM_FAVORITE_ADDED(OK, "찜 목록에 팀 추가하기를 완료했습니다."),
-    TEAM_FAVORITE_REMOVED(OK, "찜 목록에 팀 제거하기를 완료했습니다."),
-    FOUND_FAVORITE_TEAMS(OK, "찜한 팀 조회를 완료 했습니다."),
-    ZERO_FAVORITE_TEAM(OK, "더이상 조회할 수 있는 찜한 팀이 없습니다."),
+    USER_FAVORITE_ADDED(OK, "찜 목록에 유저 추가하기를 완료했습니다."),
+    USER_FAVORITE_REMOVED(OK, "찜 목록에 유저 제거하기를 완료했습니다."),
+    FOUND_FAVORITE_USERS(OK, "찜한 유저 조회를 완료 했습니다."),
+    ZERO_FAVORITE_USER(OK, "더이상 조회할 수 있는 찜한 유저가 없습니다."),
 
     // 201 CREATED
     TEAM_CREATED(CREATED, "팀 생성을 완료 했습니다."),
@@ -70,6 +70,11 @@ public enum SuccessCode {
     POSITION_UPDATED(OK, "포지션 업데이트를 완료 했습니다."),
     PROFILE_FOUND(OK, "프로필 단건 조회를 완료 했습니다."),
     MY_PROFILE_FOUND(OK, "본인 프로필 정보 조회를 완료 했습니다."),
+
+    TEAM_FAVORITE_ADDED(OK, "찜 목록에 팀 추가하기를 완료했습니다."),
+    TEAM_FAVORITE_REMOVED(OK, "찜 목록에 팀 제거하기를 완료했습니다."),
+    FOUND_FAVORITE_TEAMS(OK, "찜한 팀 조회를 완료 했습니다."),
+    ZERO_FAVORITE_TEAM(OK, "더이상 조회할 수 있는 찜한 팀이 없습니다."),
 
 
     // 201 CREATED

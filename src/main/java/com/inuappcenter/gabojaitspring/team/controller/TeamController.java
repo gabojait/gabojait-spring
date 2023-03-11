@@ -5,6 +5,7 @@ import com.inuappcenter.gabojaitspring.auth.JwtType;
 import com.inuappcenter.gabojaitspring.common.DefaultResDto;
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
+import com.inuappcenter.gabojaitspring.profile.dto.res.UserProfileAbstractResDto;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
 import com.inuappcenter.gabojaitspring.team.dto.req.*;
 import com.inuappcenter.gabojaitspring.team.dto.res.TeamDefaultResDto;
@@ -19,6 +20,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.inuappcenter.gabojaitspring.common.SuccessCode.*;
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
@@ -337,5 +340,100 @@ public class TeamController {
                         .responseCode(TEAM_PROJECT_COMPLETE.name())
                         .responseMessage(TEAM_VISIBILITY_UPDATED.getMessage())
                         .build());
+    }
+
+    @ApiOperation(value = "유저 찜하기 추가 / 제거")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "USER_FAVORITE_ADDED / USER_FAVORITE_REMOVED",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+    })
+    @PatchMapping("/user/{user-id}/favorite")
+    public ResponseEntity<DefaultResDto<Object>> addOrRemoveFavoriteUser(HttpServletRequest servletRequest,
+                                                                         @PathVariable(value = "user-id") String userId,
+                                                                         @RequestBody @Valid
+                                                                         TeamUserFavoriteDefaultReqDto request) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        User leader = userService.findOneByUserId(token.get(0));
+        userService.isNonExistingCurrentTeam(leader);
+        Team team = teamService.findOne(leader.getCurrentTeamId().toString());
+        teamService.validateLeader(team, leader);
+
+        if (request.getIsAdd()) {
+
+            User user = userService.findOneByUserId(userId);
+
+            teamService.addFavoriteUser(team, user.getId());
+
+            return ResponseEntity.status(USER_FAVORITE_ADDED.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(USER_FAVORITE_ADDED.name())
+                            .responseMessage(USER_FAVORITE_ADDED.getMessage())
+                            .build());
+        } else {
+
+            teamService.removeFavoriteUser(team, new ObjectId(userId));
+
+            return ResponseEntity.status(USER_FAVORITE_REMOVED.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(USER_FAVORITE_REMOVED.name())
+                            .responseMessage(USER_FAVORITE_REMOVED.getMessage())
+                            .build());
+        }
+    }
+
+    @ApiOperation(value = "유저 찜한 목록 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "FOUND_FAVORITE_USERS / ZERO_FAVORITE_USER",
+                    content = @Content(schema = @Schema(implementation = UserProfileAbstractResDto.class))),
+    })
+    @GetMapping("/user/favorites")
+    public ResponseEntity<DefaultResDto<Object>> findFavoriteUsers(HttpServletRequest servletRequest,
+                                                                   @RequestParam Integer pageFrom,
+                                                                   @RequestParam(required = false) Integer pageSize) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        User leader = userService.findOneByUserId(token.get(0));
+        userService.isNonExistingCurrentTeam(leader);
+        Team team = teamService.findOne(leader.getCurrentTeamId().toString());
+        teamService.validateLeader(team, leader);
+
+        Map<String, List<User>> users = userService
+                .findManyTeamFavoriteUsersAndRemoveIfDeleted(team, pageFrom, pageSize);
+
+        if (!users.get("deletedUsers").isEmpty())
+            for (User user : users.get("deletedUsers"))
+                teamService.removeFavoriteUser(team, user.getId());
+
+        if (users.get("favoriteUsers").isEmpty()) {
+
+            return ResponseEntity.status(ZERO_FAVORITE_USER.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(ZERO_FAVORITE_USER.name())
+                            .responseMessage(ZERO_FAVORITE_USER.getMessage())
+                            .totalPageSize(team.getFavoriteUserIds().size())
+                            .build());
+        } else {
+
+            List<UserProfileAbstractResDto> responseBodies = new ArrayList<>();
+            for (User user : users.get("favoriteUsers"))
+                responseBodies.add(new UserProfileAbstractResDto(user));
+
+            return ResponseEntity.status(FOUND_FAVORITE_USERS.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(FOUND_FAVORITE_USERS.name())
+                            .responseMessage(FOUND_FAVORITE_USERS.getMessage())
+                            .data(responseBodies)
+                            .totalPageSize(team.getFavoriteUserIds().size())
+                            .build());
+        }
     }
 }

@@ -61,6 +61,9 @@ public class Team extends BaseTimeEntity {
     @Field(name = "recruit_ids")
     private List<ObjectId> recruitIds = new ArrayList<>();
 
+    @Field(name = "favorite_user_ids")
+    private List<ObjectId> favoriteUserIds = new ArrayList<>();
+
     @Field(name = "project_managers")
     private List<User> projectManagers = new ArrayList<>();
     private List<User> designers = new ArrayList<>();
@@ -139,6 +142,29 @@ public class Team extends BaseTimeEntity {
 
     public void removeRecruitId(ObjectId offerId) {
         this.recruitIds.remove(offerId);
+    }
+
+    public void addFavoriteUserId(ObjectId userId) {
+        this.favoriteUserIds.add(userId);
+    }
+
+    public void removeFavoriteUserId(ObjectId userId) {
+        this.favoriteUserIds.remove(userId);
+    }
+
+    public List<ObjectId> getFavoriteUserIdsByPaging(int from, int size) {
+        List<ObjectId> userIds = new ArrayList<>();
+        int to;
+
+        if (from >= getFavoriteUserIds().size())
+            return userIds;
+        else
+            to = Math.min(from + size, getFavoriteUserIds().size());
+
+        for (int i = from; i < to; i++)
+            userIds.add(getFavoriteUserIds().get(i));
+
+        return userIds;
     }
 
     public void complete(String projectUrl) {

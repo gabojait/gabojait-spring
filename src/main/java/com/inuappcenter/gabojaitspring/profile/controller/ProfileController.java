@@ -668,7 +668,7 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "팀원 다건 조회", notes = "position = designer || backend || frontend || pm")
+    @ApiOperation(value = "팀 구하는 유저 다건 조회", notes = "position = designer || backend || frontend || pm")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "TEAMMATES_FOUND / TEAMMATES_ZERO",
                     content = @Content(schema = @Schema(implementation = UserProfileAbstractResDto.class))),
@@ -678,7 +678,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
     @GetMapping("/{position}")
-    public ResponseEntity<DefaultResDto<Object>> findTeammates(HttpServletRequest servletRequest,
+    public ResponseEntity<DefaultResDto<Object>> findUsersLookingForTeam(HttpServletRequest servletRequest,
                                                                @PathVariable String position,
                                                                @RequestParam Integer pageFrom,
                                                                @RequestParam(required = false) Integer pageSize) {

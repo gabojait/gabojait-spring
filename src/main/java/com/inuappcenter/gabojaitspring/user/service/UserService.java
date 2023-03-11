@@ -405,6 +405,42 @@ public class UserService {
     }
 
     /**
+     * 팀이 찜한 유저 다건 조회 |
+     * 삭제된 유저일 경우 찜한 목록에서 삭제 |
+     * 500(SERVER_ERROR)
+     */
+    public Map<String, List<User>> findManyTeamFavoriteUsersAndRemoveIfDeleted(Team team, Integer pageFrom, Integer pageSize) {
+
+        if (pageSize == null)
+            pageSize = 20;
+
+        List<ObjectId> favoriteUserIds = team.getFavoriteUserIdsByPaging(pageFrom, pageSize);
+        List<User> favoriteUsers = new ArrayList<>();
+        List<User> deleteUsers = new ArrayList<>();
+        Map<String, List<User>> users = new HashMap<>();
+
+        if (!favoriteUserIds.isEmpty()) {
+            for (ObjectId userId : favoriteUserIds) {
+                User user = userRepository.findById(userId)
+                        .orElseThrow(() -> {
+                            throw new CustomException(USER_NOT_FOUND);
+                        });
+
+                if (user.getIsDeleted()) {
+                    deleteUsers.add(user);
+                } else {
+                    favoriteUsers.add(user);
+                }
+            }
+        }
+
+        users.put("deletedUsers", deleteUsers);
+        users.put("favoriteUsers", favoriteUsers);
+
+        return users;
+    }
+
+    /**
      * 탈퇴 |
      * 500(SERVER_ERROR)
      */
