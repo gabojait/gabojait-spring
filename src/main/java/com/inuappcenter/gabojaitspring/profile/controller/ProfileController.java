@@ -28,9 +28,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -116,6 +118,70 @@ public class ProfileController {
                 .body(DefaultResDto.builder()
                         .responseCode(PROFILE_FOUND.name())
                         .responseMessage(PROFILE_FOUND.getMessage())
+                        .data(responseBody)
+                        .build());
+    }
+
+    @ApiOperation(value = "프로필 사진 업로드")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "PROFILE_IMG_UPDATED",
+                    content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<DefaultResDto<Object>> uploadProfileImage(HttpServletRequest servletRequest,
+                                                                    @RequestPart(name = "image") MultipartFile image) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
+
+        User user = userService.findOneByUserId(token.get(0));
+        List<Team> teams = teamService.findAllPrevious(user);
+
+        String url = userService.uploadToS3(user.getId(), user.getUsername(), image);
+        userService.updateImageUrl(user, url);
+
+        UserProfileDefaultResDto responseBody = new UserProfileDefaultResDto(user, teams);
+
+        return ResponseEntity.status(PROFILE_IMG_UPDATED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(PROFILE_IMG_UPDATED.name())
+                        .responseMessage(PROFILE_IMG_UPDATED.getMessage())
+                        .data(responseBody)
+                        .build());
+    }
+
+    @ApiOperation(value = "프로필 사진 삭제")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "PROFILE_IMG_DELETED",
+                    content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @DeleteMapping(value = "/image")
+    public ResponseEntity<DefaultResDto<Object>> deleteProfileImage(HttpServletRequest servletRequest) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
+
+        User user = userService.findOneByUserId(token.get(0));
+        List<Team> teams = teamService.findAllPrevious(user);
+
+        userService.updateImageUrl(user, null);
+
+        UserProfileDefaultResDto responseBody = new UserProfileDefaultResDto(user, teams);
+
+        return ResponseEntity.status(PROFILE_IMG_DELETED.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(PROFILE_IMG_DELETED.name())
+                        .responseMessage(PROFILE_IMG_DELETED.getMessage())
                         .data(responseBody)
                         .build());
     }

@@ -2,8 +2,10 @@ package com.inuappcenter.gabojaitspring.user.service;
 
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.email.service.EmailService;
+import com.inuappcenter.gabojaitspring.file.service.FileService;
 import com.inuappcenter.gabojaitspring.profile.domain.*;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
+import com.inuappcenter.gabojaitspring.profile.domain.type.TeamMemberStatus;
 import com.inuappcenter.gabojaitspring.review.domain.Review;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
 import com.inuappcenter.gabojaitspring.user.domain.Contact;
@@ -15,11 +17,13 @@ import com.inuappcenter.gabojaitspring.user.dto.req.UserSaveReqDto;
 import com.inuappcenter.gabojaitspring.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
@@ -30,8 +34,12 @@ import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 @Transactional(readOnly = true)
 public class UserService {
 
+    @Value(value = "${s3.bucketName.profileImg}")
+    private String bucketName;
+
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final FileService fileService;
     private final PasswordEncoder passwordEncoder;
 
     /**
@@ -150,7 +158,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateIsPublic(User user, Boolean isPublic) {
+    public void updateIsPublic(User user, boolean isPublic) {
 
         try {
             user.updateIsPublic(isPublic);
@@ -342,10 +350,10 @@ public class UserService {
      * 500(SERVER_ERROR)
      */
     @Transactional
-    public void joinTeam(User user, ObjectId teamId) {
+    public void joinTeam(User user, ObjectId teamId, TeamMemberStatus teamMemberStatus) {
 
         try {
-            user.updateCurrentTeamId(teamId);
+            user.joinTeam(teamId, teamMemberStatus);
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
@@ -360,7 +368,7 @@ public class UserService {
     @Transactional
     public void quitTeam(User user) {
         try {
-            user.updateCurrentTeamId(null);
+            user.quitTeam();
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
@@ -438,6 +446,33 @@ public class UserService {
         users.put("favoriteUsers", favoriteUsers);
 
         return users;
+    }
+
+    /**
+     * 프로필 사진 S3 업로드
+     */
+    public String uploadToS3(ObjectId userId, String username, MultipartFile multipartFile) {
+
+        return fileService.upload(bucketName,
+                username + "-" + userId.toString(),
+                UUID.randomUUID().toString(),
+                multipartFile);
+    }
+
+    /**
+     * 프로필 사진 수정 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void updateImageUrl(User user, String url) {
+
+        try {
+            user.updateImageUrl(url);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(user);
     }
 
     /**

@@ -70,7 +70,8 @@ public enum SuccessCode {
     POSITION_UPDATED(OK, "포지션 업데이트를 완료 했습니다."),
     PROFILE_FOUND(OK, "프로필 단건 조회를 완료 했습니다."),
     MY_PROFILE_FOUND(OK, "본인 프로필 정보 조회를 완료 했습니다."),
-
+    PROFILE_IMG_UPDATED(OK, "프로필 사진 업로드를 완료 했습니다."),
+    PROFILE_IMG_DELETED(OK, "프로필 사진 삭제를 완료 했습니다."),
     TEAM_FAVORITE_ADDED(OK, "찜 목록에 팀 추가하기를 완료했습니다."),
     TEAM_FAVORITE_REMOVED(OK, "찜 목록에 팀 제거하기를 완료했습니다."),
     FOUND_FAVORITE_TEAMS(OK, "찜한 팀 조회를 완료 했습니다."),

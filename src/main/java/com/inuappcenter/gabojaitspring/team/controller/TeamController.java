@@ -5,6 +5,7 @@ import com.inuappcenter.gabojaitspring.auth.JwtType;
 import com.inuappcenter.gabojaitspring.common.DefaultResDto;
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
+import com.inuappcenter.gabojaitspring.profile.domain.type.TeamMemberStatus;
 import com.inuappcenter.gabojaitspring.profile.dto.res.UserProfileAbstractResDto;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
 import com.inuappcenter.gabojaitspring.team.dto.req.*;
@@ -79,7 +80,7 @@ public class TeamController {
         teamService.validatePositionAvailability(team, Position.toEnum(user.getPosition()).getType());
 
         teamService.save(team);
-        teamService.join(team, user, user.getPosition());
+        teamService.join(team, user, user.getPosition(), TeamMemberStatus.LEADER);
 
         TeamDefaultResDto responseBody = new TeamDefaultResDto(team);
 

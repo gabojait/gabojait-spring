@@ -2,6 +2,7 @@ package com.inuappcenter.gabojaitspring.test.service;
 
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
+import com.inuappcenter.gabojaitspring.profile.domain.type.TeamMemberStatus;
 import com.inuappcenter.gabojaitspring.profile.repository.EducationRepository;
 import com.inuappcenter.gabojaitspring.profile.repository.PortfolioRepository;
 import com.inuappcenter.gabojaitspring.profile.repository.SkillRepository;
@@ -127,7 +128,7 @@ public class TestService {
                         .build();
 
                 teamService.save(team);
-                teamService.join(team, user, Position.PM.getType());
+                teamService.join(team, user, Position.PM.getType(), TeamMemberStatus.LEADER);
             }
 
             Question question = Question.builder()

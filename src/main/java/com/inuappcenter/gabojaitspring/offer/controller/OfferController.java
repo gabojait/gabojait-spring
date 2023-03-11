@@ -6,6 +6,7 @@ import com.inuappcenter.gabojaitspring.common.DefaultResDto;
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.offer.domain.Offer;
+import com.inuappcenter.gabojaitspring.profile.domain.type.TeamMemberStatus;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
 import com.inuappcenter.gabojaitspring.offer.dto.req.OfferSaveReqDto;
 import com.inuappcenter.gabojaitspring.offer.dto.req.OfferUpdateReqDto;
@@ -159,7 +160,7 @@ public class OfferController {
             userService.validateCurrentTeam(applicant);
             teamService.validatePositionAvailability(team, offer.getPosition());
 
-            teamService.join(team, applicant, offer.getPosition());
+            teamService.join(team, applicant, offer.getPosition(), TeamMemberStatus.MEMBER);
         }
 
         userService.removeRecruit(applicant, offer.getId());
@@ -312,7 +313,7 @@ public class OfferController {
             userService.validateCurrentTeam(applicant);
             teamService.validatePositionAvailability(team, offer.getPosition());
 
-            teamService.join(team, applicant, offer.getPosition());
+            teamService.join(team, applicant, offer.getPosition(), TeamMemberStatus.MEMBER);
         }
 
         userService.removeApplication(applicant, offer.getId());

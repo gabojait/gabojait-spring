@@ -2,6 +2,7 @@ package com.inuappcenter.gabojaitspring.profile.dto.res;
 
 import com.inuappcenter.gabojaitspring.profile.domain.*;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
+import com.inuappcenter.gabojaitspring.profile.domain.type.TeamMemberStatus;
 import com.inuappcenter.gabojaitspring.review.domain.Review;
 import com.inuappcenter.gabojaitspring.review.dto.res.ReviewDefaultResDto;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
@@ -57,10 +58,13 @@ public class UserProfileDefaultResDto {
     @ApiModelProperty(position = 12, required = true, value = "완료한 팀")
     private List<UserTeamAbstractResDto> completedTeams = new ArrayList<>();
 
-    @ApiModelProperty(position = 13, required = true, value = "공개 여부")
+    @ApiModelProperty(position = 13, required = true, value = "팀 멤버 상태")
+    private String teamMemberStatus;
+
+    @ApiModelProperty(position = 14, required = true, value = "공개 여부")
     private Boolean isPublic;
 
-    @ApiModelProperty(position = 13, required = true, value = "스키마버전")
+    @ApiModelProperty(position = 15, required = true, value = "스키마버전")
     private String schemaVersion;
 
     public UserProfileDefaultResDto(User user, List<Team> completedTeams) {
@@ -69,6 +73,7 @@ public class UserProfileDefaultResDto {
         this.description = user.getDescription();
         this.imageUrl = user.getImageUrl();
         this.rating = user.getRating();
+        this.teamMemberStatus = TeamMemberStatus.toEnum(user.getTeamMemberStatus()).name();
         this.isPublic = user.getIsPublic();
 
         if (user.getCurrentTeamId() != null)

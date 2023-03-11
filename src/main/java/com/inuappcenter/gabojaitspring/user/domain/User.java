@@ -3,6 +3,7 @@ package com.inuappcenter.gabojaitspring.user.domain;
 import com.inuappcenter.gabojaitspring.common.BaseTimeEntity;
 import com.inuappcenter.gabojaitspring.profile.domain.*;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
+import com.inuappcenter.gabojaitspring.profile.domain.type.TeamMemberStatus;
 import com.inuappcenter.gabojaitspring.review.domain.Review;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
 import com.inuappcenter.gabojaitspring.user.domain.type.Gender;
@@ -43,6 +44,9 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     @Field(name = "completed_team_ids")
     private List<ObjectId> completedTeamIds = new ArrayList<>();
+
+    @Field(name = "team_member_status")
+    private Character teamMemberStatus;
 
     @Field(name = "is_public")
     private Boolean isPublic;
@@ -89,6 +93,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.nickname = nickname;
         this.isPublic = false;
         this.imageUrl = null;
+        this.teamMemberStatus = TeamMemberStatus.NULL.getType();
         this.currentTeamId = null;
         this.position = null;
         this.description = null;
@@ -111,7 +116,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.imageUrl = imageUrl;
     }
 
-    public void updateIsPublic(Boolean isPublic) {
+    public void updateIsPublic(boolean isPublic) {
         this.isPublic = isPublic;
     }
 
@@ -132,6 +137,22 @@ public class User extends BaseTimeEntity implements UserDetails {
             teamIds.add(getFavoriteTeamIds().get(i));
 
         return teamIds;
+    }
+
+    public void joinTeam(ObjectId teamId, TeamMemberStatus teamMemberStatus) {
+        this.currentTeamId = teamId;
+        this.teamMemberStatus = teamMemberStatus.getType();
+    }
+
+    public void completeTeam() {
+        this.teamMemberStatus = TeamMemberStatus.NULL.getType();
+        this.completedTeamIds.add(this.currentTeamId);
+        this.currentTeamId = null;
+    }
+
+    public void quitTeam() {
+        this.currentTeamId = null;
+        this.teamMemberStatus = TeamMemberStatus.NULL.getType();
     }
 
     public void updatePassword(String password) {

@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 
@@ -25,7 +26,7 @@ import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 @Transactional(readOnly = true)
 public class PortfolioService {
 
-    @Value(value = "${s3.portfolioFileBucketName}")
+    @Value(value = "${s3.bucketName.portfolioFile}")
     private String bucketName;
 
     private final PortfolioRepository portfolioRepository;
@@ -45,11 +46,14 @@ public class PortfolioService {
         }
     }
 
+    /**
+     * 포트폴리오 S3 업로드
+     */
     public String uploadToS3(ObjectId userId, String username, MultipartFile multipartFile) {
 
         return fileService.upload(bucketName,
-                username + "@" + userId.toString(),
-                LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
+                username + "-" + userId.toString(),
+                UUID.randomUUID().toString(),
                 multipartFile);
     }
 

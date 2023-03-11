@@ -2,6 +2,7 @@ package com.inuappcenter.gabojaitspring.team.service;
 
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
+import com.inuappcenter.gabojaitspring.profile.domain.type.TeamMemberStatus;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
 import com.inuappcenter.gabojaitspring.team.dto.req.TeamDefaultReqDto;
 import com.inuappcenter.gabojaitspring.team.repository.TeamRepository;
@@ -46,24 +47,24 @@ public class TeamService {
      * 500(SERVER_ERROR)
      */
     @Transactional
-    public void join(Team team, User user, char position) {
+    public void join(Team team, User user, char position, TeamMemberStatus teamMemberStatus) {
 
         switch (position) {
             case 'D':
                 team.addDesigner(user);
-                userService.joinTeam(user, team.getId());
+                userService.joinTeam(user, team.getId(), teamMemberStatus);
                 break;
             case 'B':
                 team.addBackend(user);
-                userService.joinTeam(user, team.getId());
+                userService.joinTeam(user, team.getId(), teamMemberStatus);
                 break;
             case 'F':
                 team.addFrontend(user);
-                userService.joinTeam(user, team.getId());
+                userService.joinTeam(user, team.getId(), teamMemberStatus);
                 break;
             case 'P':
                 team.addProjectManager(user);
-                userService.joinTeam(user, team.getId());
+                userService.joinTeam(user, team.getId(), teamMemberStatus);
                 break;
             default:
                 throw new CustomException(SERVER_ERROR);
