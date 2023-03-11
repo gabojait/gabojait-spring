@@ -583,7 +583,7 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
     @GetMapping("/team/favorites")
-    public ResponseEntity<DefaultResDto<Object>> findTeamFavorites(HttpServletRequest servletRequest,
+    public ResponseEntity<DefaultResDto<Object>> findFavoriteTeams(HttpServletRequest servletRequest,
                                                                    @RequestParam Integer pageFrom,
                                                                    @RequestParam(required = false) Integer pageSize) {
 
