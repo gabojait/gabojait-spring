@@ -1,6 +1,6 @@
-package com.inuappcenter.gabojaitspring.team.repository;
+package com.inuappcenter.gabojaitspring.offer.repository;
 
-import com.inuappcenter.gabojaitspring.team.domain.Offer;
+import com.inuappcenter.gabojaitspring.offer.domain.Offer;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

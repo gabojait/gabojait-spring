@@ -8,6 +8,7 @@ import com.inuappcenter.gabojaitspring.profile.domain.*;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Level;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.profile.dto.req.*;
+import com.inuappcenter.gabojaitspring.profile.dto.res.UserProfileAbstractResDto;
 import com.inuappcenter.gabojaitspring.profile.service.PortfolioService;
 import com.inuappcenter.gabojaitspring.profile.service.SkillService;
 import com.inuappcenter.gabojaitspring.profile.service.WorkService;
@@ -25,6 +26,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -32,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.inuappcenter.gabojaitspring.common.SuccessCode.*;
@@ -663,5 +666,53 @@ public class ProfileController {
                         .responseCode(PROFILE_VISIBILITY_UPDATED.name())
                         .responseMessage(PROFILE_VISIBILITY_UPDATED.getMessage())
                         .build());
+    }
+
+    @ApiOperation(value = "팀원 다건 조회", notes = "position = designer || backend || frontend || pm")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "TEAMMATES_FOUND / TEAMMATES_ZERO",
+                    content = @Content(schema = @Schema(implementation = UserProfileAbstractResDto.class))),
+            @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @GetMapping("/{position}")
+    public ResponseEntity<DefaultResDto<Object>> findTeammates(HttpServletRequest servletRequest,
+                                                               @PathVariable String position,
+                                                               @RequestParam Integer pageFrom,
+                                                               @RequestParam(required = false) Integer pageSize) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        userService.findOneByUserId(token.get(0));
+
+        Page<User> users = userService.findManyByPosition(Position.fromString(position), pageFrom, pageSize);
+
+        if (users.getNumberOfElements() == 0) {
+
+            return ResponseEntity.status(TEAMMATES_ZERO.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(TEAMMATES_ZERO.name())
+                            .responseMessage(TEAMMATES_ZERO.getMessage())
+                            .totalPageSize(users.getTotalPages())
+                            .build());
+        } else {
+
+            List<UserProfileAbstractResDto> responseBodies = new ArrayList<>();
+            for (User u : users)
+                responseBodies.add(new UserProfileAbstractResDto(u));
+
+            return ResponseEntity.status(TEAMMATES_FOUND.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(TEAMMATES_FOUND.name())
+                            .responseMessage(TEAMMATES_FOUND.getMessage())
+                            .data(responseBodies)
+                            .totalPageSize(users.getTotalPages())
+                            .build());
+        }
     }
 }

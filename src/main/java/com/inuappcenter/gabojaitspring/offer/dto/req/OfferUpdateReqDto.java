@@ -1,4 +1,4 @@
-package com.inuappcenter.gabojaitspring.team.dto.req;
+package com.inuappcenter.gabojaitspring.offer.dto.req;
 
 import com.inuappcenter.gabojaitspring.common.ValidationSequence;
 import io.swagger.annotations.ApiModel;

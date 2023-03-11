@@ -642,4 +642,36 @@ public class UserService {
 
         save(user);
     }
+
+    /**
+     * 팀 찜 추가 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void addFavoriteTeam(User user, ObjectId teamId) {
+
+        try {
+            user.addFavoriteTeamIds(teamId);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(user);
+    }
+
+    /**
+     * 팀 찜 제거 |
+     * 500(SERVER_ERROR)
+     */
+    @Transactional
+    public void removeFavoriteTeam(User user, ObjectId teamId) {
+
+        try {
+            user.removeFavoriteTeamIds(teamId);
+        } catch (RuntimeException e) {
+            throw new CustomException(SERVER_ERROR);
+        }
+
+        save(user);
+    }
 }

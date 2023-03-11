@@ -1,4 +1,4 @@
-package com.inuappcenter.gabojaitspring.team.domain;
+package com.inuappcenter.gabojaitspring.offer.domain;
 
 import com.inuappcenter.gabojaitspring.common.BaseTimeEntity;
 import lombok.AccessLevel;

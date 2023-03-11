@@ -6,7 +6,7 @@ import com.inuappcenter.gabojaitspring.profile.repository.SkillRepository;
 import com.inuappcenter.gabojaitspring.profile.repository.WorkRepository;
 import com.inuappcenter.gabojaitspring.review.repository.QuestionRepository;
 import com.inuappcenter.gabojaitspring.review.repository.ReviewRepository;
-import com.inuappcenter.gabojaitspring.team.repository.OfferRepository;
+import com.inuappcenter.gabojaitspring.offer.repository.OfferRepository;
 import com.inuappcenter.gabojaitspring.team.repository.TeamRepository;
 import com.inuappcenter.gabojaitspring.user.repository.ContactRepository;
 import com.inuappcenter.gabojaitspring.user.repository.UserRepository;
@@ -19,7 +19,8 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableMongoRepositories(basePackageClasses = {
 		ContactRepository.class, UserRepository.class,
 		EducationRepository.class, WorkRepository.class, SkillRepository.class, PortfolioRepository.class,
-		TeamRepository.class, OfferRepository.class,
+		TeamRepository.class,
+		OfferRepository.class,
 		ReviewRepository.class, QuestionRepository.class
 })
 @EnableMongoAuditing

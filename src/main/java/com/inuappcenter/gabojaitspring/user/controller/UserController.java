@@ -4,7 +4,12 @@ import com.inuappcenter.gabojaitspring.auth.JwtProvider;
 import com.inuappcenter.gabojaitspring.auth.JwtType;
 import com.inuappcenter.gabojaitspring.common.DefaultResDto;
 import com.inuappcenter.gabojaitspring.exception.CustomException;
-import com.inuappcenter.gabojaitspring.profile.dto.res.UserProfileDefaultResDto;
+import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
+import com.inuappcenter.gabojaitspring.team.domain.Team;
+import com.inuappcenter.gabojaitspring.team.dto.res.TeamAbstractResDto;
+import com.inuappcenter.gabojaitspring.team.dto.res.TeamDefaultResDto;
+import com.inuappcenter.gabojaitspring.offer.service.OfferService;
+import com.inuappcenter.gabojaitspring.team.service.TeamService;
 import com.inuappcenter.gabojaitspring.user.domain.Contact;
 import com.inuappcenter.gabojaitspring.user.domain.type.Gender;
 import com.inuappcenter.gabojaitspring.user.domain.type.Role;
@@ -20,6 +25,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -27,13 +33,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import static com.inuappcenter.gabojaitspring.common.SuccessCode.*;
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.TOKEN_AUTHENTICATION_FAIL;
@@ -50,6 +53,8 @@ public class UserController {
     private final ContactService contactService;
     private final UserService userService;
     private final JwtProvider jwtProvider;
+    private final TeamService teamService;
+    private final OfferService offerService;
 
     @ApiOperation(value = "아이디 중복여부 확인")
     @ApiResponses(value = {
@@ -451,5 +456,167 @@ public class UserController {
                         .build());
     }
 
+    @ApiOperation(value = "본인 팀 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "MY_TEAM_FOUND / NOT_IN_TEAM",
+                    content = @Content(schema = @Schema(implementation = TeamDefaultResDto.class))),
+            @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @GetMapping("/team")
+    public ResponseEntity<DefaultResDto<Object>> findMyTeam(HttpServletRequest servletRequest) {
 
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        User user = userService.findOneByUserId(token.get(0));
+
+        if (user.getCurrentTeamId() == null) {
+            return ResponseEntity.status(NOT_IN_TEAM.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(NOT_IN_TEAM.name())
+                            .responseMessage(NOT_IN_TEAM.getMessage())
+                            .build());
+        } else {
+            Team team = teamService.findOne(user.getCurrentTeamId().toString());
+
+            TeamDefaultResDto responseBody = new TeamDefaultResDto(team);
+
+            return ResponseEntity.status(MY_TEAM_FOUND.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(MY_TEAM_FOUND.name())
+                            .responseMessage(MY_TEAM_FOUND.getMessage())
+                            .data(responseBody)
+                            .build());
+        }
+    }
+
+    @ApiOperation(value = "팀 탈퇴")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "TEAM_LEFT",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "409", description = "TEAM_LEADER_CONFLICT"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @PatchMapping("/team/leave")
+    public ResponseEntity<DefaultResDto<Object>> leaveTeam(HttpServletRequest servletRequest) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        User user = userService.findOneByUserId(token.get(0));
+        userService.isNonExistingCurrentTeam(user);
+        Team team = teamService.findOne(user.getCurrentTeamId().toString());
+        teamService.validateNonLeader(team, user);
+        Position position = teamService.getPositionInCurrentTeam(team, user);
+
+        teamService.leaveTeam(team, user, position);
+
+        return ResponseEntity.status(TEAM_LEFT.getHttpStatus())
+                .body(DefaultResDto.builder()
+                        .responseCode(TEAM_LEFT.name())
+                        .responseMessage(TEAM_LEFT.getMessage())
+                        .build());
+    }
+
+    @ApiOperation(value = "팀 찜하기 추가 / 제거")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "TEAM_FAVORITE_ADDED / TEAM_FAVORITE_REMOVED",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @PatchMapping("/team/{team-id}/favorite")
+    public ResponseEntity<DefaultResDto<Object>> addOrRemoveFavoriteTeam(HttpServletRequest servletRequest,
+                                                                 @PathVariable(value = "team-id") String teamId,
+                                                                 @RequestBody @Valid
+                                                                 UserTeamFavoriteDefaultReqDto request) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        User user = userService.findOneByUserId(token.get(0));
+
+        if (request.getIsAdd()) {
+
+            Team team = teamService.findOne(teamId);
+
+            userService.addFavoriteTeam(user, team.getId());
+
+            return ResponseEntity.status(TEAM_FAVORITE_ADDED.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(TEAM_FAVORITE_ADDED.name())
+                            .responseMessage(TEAM_FAVORITE_ADDED.getMessage())
+                            .build());
+        } else {
+
+            userService.removeFavoriteTeam(user, new ObjectId(teamId));
+
+            return ResponseEntity.status(TEAM_FAVORITE_REMOVED.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(TEAM_FAVORITE_REMOVED.name())
+                            .responseMessage(TEAM_FAVORITE_REMOVED.getMessage())
+                            .build());
+        }
+    }
+
+    @ApiOperation(value = "팀 찜한 목록 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "FOUND_FAVORITE_TEAMS / ZERO_FAVORITE_TEAM",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @GetMapping("/team/favorites")
+    public ResponseEntity<DefaultResDto<Object>> findTeamFavorites(HttpServletRequest servletRequest,
+                                                                   @RequestParam Integer pageFrom,
+                                                                   @RequestParam(required = false) Integer pageSize) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_NOT_ALLOWED);
+
+        User user = userService.findOneByUserId(token.get(0));
+
+        List<Team> teams = teamService.findManyUserFavoriteTeamsAndRemoveIfDeleted(user, pageFrom, pageSize);
+
+        if (teams.isEmpty()) {
+
+            return ResponseEntity.status(ZERO_FAVORITE_TEAM.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(ZERO_FAVORITE_TEAM.name())
+                            .responseMessage(ZERO_FAVORITE_TEAM.getMessage())
+                            .totalPageSize(user.getFavoriteTeamIds().size())
+                            .build());
+        } else {
+
+            List<TeamAbstractResDto> responseBodies = new ArrayList<>();
+            for (Team team : teams)
+                responseBodies.add(new TeamAbstractResDto(team));
+
+            return ResponseEntity.status(FOUND_FAVORITE_TEAMS.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(FOUND_FAVORITE_TEAMS.name())
+                            .responseMessage(FOUND_FAVORITE_TEAMS.getMessage())
+                            .data(responseBodies)
+                            .totalPageSize(user.getFavoriteTeamIds().size())
+                            .build());
+        }
+    }
 }

@@ -15,10 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 
@@ -157,6 +154,40 @@ public class TeamService {
             default:
                 throw new CustomException(SERVER_ERROR);
         }
+    }
+
+    /**
+     * 유저가 찜한 팀 다건 조회 |
+     * 삭제된 팀일 경우 찜한 목록에서 삭제 |
+     * 500(SERVER_ERROR)
+     */
+    public List<Team> findManyUserFavoriteTeamsAndRemoveIfDeleted(User user, Integer pageFrom, Integer pageSize) {
+
+        if (pageSize == null)
+            pageSize = 20;
+
+        List<ObjectId> favoriteTeamIds = user.getFavoriteTeamIdsByPaging(pageFrom, pageSize);
+        List<Team> teams = new ArrayList<>();
+
+        if (favoriteTeamIds.isEmpty()) {
+            return teams;
+        } else {
+            try {
+                for (ObjectId favoriteTeamId : favoriteTeamIds) {
+                    Optional<Team> team = teamRepository.findByIdAndIsDeletedIsFalse(favoriteTeamId);
+
+                    if (team.isEmpty()) {
+                        userService.removeFavoriteTeam(user, favoriteTeamId);
+                    } else {
+                        teams.add(team.get());
+                    }
+                }
+            } catch (RuntimeException e) {
+                throw new CustomException(SERVER_ERROR);
+            }
+        }
+
+        return teams;
     }
 
     /**

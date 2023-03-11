@@ -1,8 +1,8 @@
-package com.inuappcenter.gabojaitspring.team.dto.req;
+package com.inuappcenter.gabojaitspring.offer.dto.req;
 
 import com.inuappcenter.gabojaitspring.common.ValidationSequence;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
-import com.inuappcenter.gabojaitspring.team.domain.Offer;
+import com.inuappcenter.gabojaitspring.offer.domain.Offer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;

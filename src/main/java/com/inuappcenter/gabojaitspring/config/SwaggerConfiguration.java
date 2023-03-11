@@ -6,7 +6,7 @@ import com.inuappcenter.gabojaitspring.exception.DefaultExceptionResDto;
 import com.inuappcenter.gabojaitspring.profile.dto.res.*;
 import com.inuappcenter.gabojaitspring.review.dto.res.QuestionDefaultResDto;
 import com.inuappcenter.gabojaitspring.review.dto.res.ReviewDefaultResDto;
-import com.inuappcenter.gabojaitspring.team.dto.res.OfferDefaultResDto;
+import com.inuappcenter.gabojaitspring.offer.dto.res.OfferDefaultResDto;
 import com.inuappcenter.gabojaitspring.team.dto.res.TeamAbstractResDto;
 import com.inuappcenter.gabojaitspring.team.dto.res.TeamDefaultResDto;
 import com.inuappcenter.gabojaitspring.user.dto.res.ContactDefaultResDto;

@@ -17,7 +17,7 @@ import javax.validation.constraints.Size;
 public class TeamCompleteUpdateReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "프로젝트 링크", example = "https://www.google.com/")
-    @NotBlank(message = "프로젝트 링크는 입력해주세요.", groups = ValidationSequence.NotBlank.class)
+    @NotBlank(message = "프로젝트 링크는 입력해 주세요.", groups = ValidationSequence.NotBlank.class)
     @Size(min = 1, max = 1000, message = "프로젝트 링크는 1~1000자만 가능합니다.", groups = ValidationSequence.Size.class)
     private String projectUrl;
 }

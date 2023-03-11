@@ -43,6 +43,10 @@ public enum SuccessCode {
     TEAMMATE_FIRED(OK, "팀원 추방을 완료 했습니다."),
     TEAM_PROJECT_COMPLETE(OK, "팀 프로젝트를 성공하셨습니다."),
     TEAM_UPDATED(OK, "팀 정보 수정을 완료 했습니다."),
+    TEAM_FAVORITE_ADDED(OK, "찜 목록에 팀 추가하기를 완료했습니다."),
+    TEAM_FAVORITE_REMOVED(OK, "찜 목록에 팀 제거하기를 완료했습니다."),
+    FOUND_FAVORITE_TEAMS(OK, "찜한 팀 조회를 완료 했습니다."),
+    ZERO_FAVORITE_TEAM(OK, "더이상 조회할 수 있는 찜한 팀이 없습니다."),
 
     // 201 CREATED
     TEAM_CREATED(CREATED, "팀 생성을 완료 했습니다."),

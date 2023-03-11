@@ -12,7 +12,7 @@ import com.inuappcenter.gabojaitspring.review.repository.QuestionRepository;
 import com.inuappcenter.gabojaitspring.review.repository.ReviewRepository;
 import com.inuappcenter.gabojaitspring.review.service.QuestionService;
 import com.inuappcenter.gabojaitspring.team.domain.Team;
-import com.inuappcenter.gabojaitspring.team.repository.OfferRepository;
+import com.inuappcenter.gabojaitspring.offer.repository.OfferRepository;
 import com.inuappcenter.gabojaitspring.team.repository.TeamRepository;
 import com.inuappcenter.gabojaitspring.team.service.TeamService;
 import com.inuappcenter.gabojaitspring.user.domain.Contact;

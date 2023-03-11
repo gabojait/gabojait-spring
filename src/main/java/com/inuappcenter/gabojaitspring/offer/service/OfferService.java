@@ -1,10 +1,9 @@
-package com.inuappcenter.gabojaitspring.team.service;
+package com.inuappcenter.gabojaitspring.offer.service;
 
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
-import com.inuappcenter.gabojaitspring.team.domain.Offer;
-import com.inuappcenter.gabojaitspring.team.domain.Team;
-import com.inuappcenter.gabojaitspring.team.repository.OfferRepository;
+import com.inuappcenter.gabojaitspring.offer.domain.Offer;
+import com.inuappcenter.gabojaitspring.offer.repository.OfferRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;

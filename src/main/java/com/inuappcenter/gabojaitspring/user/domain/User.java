@@ -4,6 +4,7 @@ import com.inuappcenter.gabojaitspring.common.BaseTimeEntity;
 import com.inuappcenter.gabojaitspring.profile.domain.*;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.review.domain.Review;
+import com.inuappcenter.gabojaitspring.team.domain.Team;
 import com.inuappcenter.gabojaitspring.user.domain.type.Gender;
 import com.inuappcenter.gabojaitspring.user.domain.type.Role;
 import lombok.AccessLevel;
@@ -66,6 +67,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     private List<Skill> skills = new ArrayList<>();
     private List<Portfolio> portfolios = new ArrayList<>();
     private List<Review> reviews = new ArrayList<>();
+    private List<ObjectId> favoriteTeamIds = new ArrayList<>();
 
     @Builder
     public User(String username,
@@ -115,6 +117,21 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void updateIsTemporaryPassword(boolean isTemporaryPassword) {
         this.isTemporaryPassword = isTemporaryPassword;
+    }
+
+    public List<ObjectId> getFavoriteTeamIdsByPaging(int from, int size) {
+        List<ObjectId> teamIds = new ArrayList<>();
+        int to;
+
+        if (from >= getFavoriteTeamIds().size())
+            return teamIds;
+        else
+            to = Math.min(from + size, getFavoriteTeamIds().size());
+
+        for (int i = from; i < to; i++)
+            teamIds.add(getFavoriteTeamIds().get(i));
+
+        return teamIds;
     }
 
     public void updatePassword(String password) {
@@ -183,6 +200,14 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void addReview(Review review) {
         this.reviews.add(review);
+    }
+
+    public void addFavoriteTeamIds(ObjectId teamId) {
+        this.favoriteTeamIds.add(teamId);
+    }
+
+    public void removeFavoriteTeamIds(ObjectId teamId) {
+        this.favoriteTeamIds.remove(teamId);
     }
 
     public void delete() {
