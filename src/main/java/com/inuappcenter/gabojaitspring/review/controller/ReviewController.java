@@ -173,7 +173,7 @@ public class ReviewController {
                         .build());
     }
 
-    @ApiOperation(value = "본인 리뷰 작성 가능한 팀 조회", notes = "리뷰 작성 가능 기간 = 프로젝트 완료 후 4주 동안")
+    @ApiOperation(value = "본인 리뷰 작성 가능한 팀 전체 조회", notes = "리뷰 작성 가능 기간 = 프로젝트 완료 후 4주 동안")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "AVAILABLE_REVIEWS / ZERO_AVAILABLE_REVIEW_FOUND",
                     content = @Content(schema = @Schema(implementation = TeamAbstractResDto.class))),
@@ -213,5 +213,56 @@ public class ReviewController {
                             .data(responseBodies)
                             .build());
         }
+    }
+
+    @ApiOperation(value = "본인 리뷰 작성 가능한 팀 단건 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "AVAILABLE_REVIEW_FOUND",
+                    content = @Content(schema = @Schema(implementation = TeamAbstractResDto.class))),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
+    })
+    @GetMapping("/user/team/{team-id}/review")
+    public ResponseEntity<DefaultResDto<Object>> findOneReview(HttpServletRequest servletRequest,
+                                                               @PathVariable(value = "team-id") String teamId) {
+
+        List<String> token = jwtProvider.authorizeJwt(servletRequest.getHeader(AUTHORIZATION), Role.USER);
+        if (!token.get(1).equals(JwtType.ACCESS.name()))
+            throw new CustomException(TOKEN_AUTHENTICATION_FAIL);
+
+        User user = userService.findOneByUserId(token.get(0));
+        List<Team> completedTeams = teamService.findAllPrevious(user);
+        List<Team> undoneTeams = reviewService.findUndoneTeam(completedTeams);
+        Team team = teamService.findOne(teamId);
+
+        boolean isUnDone = false;
+
+        for (Team t : undoneTeams)
+            if (t.getId().equals(team.getId())) {
+                isUnDone = true;
+                break;
+            }
+
+        if (isUnDone) {
+
+            TeamAbstractResDto responseBody = new TeamAbstractResDto(team);
+
+            return ResponseEntity.status(AVAILABLE_REVIEW_FOUND.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(AVAILABLE_REVIEW_FOUND.name())
+                            .responseMessage(AVAILABLE_REVIEW_FOUND.getMessage())
+                            .data(responseBody)
+                            .build());
+        } else {
+
+            return ResponseEntity.status(REVIEW_NOT_AVAILABLE.getHttpStatus())
+                    .body(DefaultResDto.builder()
+                            .responseCode(REVIEW_NOT_AVAILABLE.name())
+                            .responseMessage(REVIEW_NOT_AVAILABLE.getMessage())
+                            .build());
+        }
+
     }
 }

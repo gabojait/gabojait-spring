@@ -131,10 +131,18 @@ public class TestService {
                 teamService.join(team, user, Position.PM.getType(), TeamMemberStatus.LEADER);
             }
 
-            Question question = Question.builder()
-                                .context("질문 " + i + "번입니다.")
-                                .reviewType(ReviewType.RATING)
-                                .build();
+            Question question;
+            if (i == 3) {
+                question = Question.builder()
+                        .context("질문 " + i + "번입니다.")
+                        .reviewType(ReviewType.ANSWER)
+                        .build();
+            } else {
+                question = Question.builder()
+                        .context("질문 " + i + "번입니다.")
+                        .reviewType(ReviewType.RATING)
+                        .build();
+            }
 
             questionService.save(question);
         }

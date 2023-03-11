@@ -1,5 +1,6 @@
 package com.inuappcenter.gabojaitspring.review.dto.res;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.inuappcenter.gabojaitspring.review.domain.Review;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -27,6 +28,7 @@ public class ReviewDefaultResDto {
     private String answer;
 
     @ApiModelProperty(position = 6, required = true, value = "생성일")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdDate;
 
     @ApiModelProperty(position = 7, required = true, value = "스키마 버전")
