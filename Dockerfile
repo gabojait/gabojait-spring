@@ -1,8 +1,7 @@
 FROM openjdk:11
 
-RUN apt-get update
-
 RUN apt-get update && \
+    apt-get upgrade -y && \
     apt-get install -yq tzdata && \
     ln -fs /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
     dpkg-reconfigure -f noninteractive tzdata
