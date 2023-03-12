@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface QuestionRepository extends MongoRepository<Question, ObjectId> {
 
-    List<Question> findQuestionsByIsDeletedIsFalseOrderByCreatedDateDesc();
+    List<Question> findQuestionsByIsDeletedIsFalseOrderByCreatedDateAsc();
 
     Optional<Question> findByIdAndIsDeletedIsFalse(ObjectId questionId);
 }

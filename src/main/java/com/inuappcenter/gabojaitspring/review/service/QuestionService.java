@@ -39,7 +39,7 @@ public class QuestionService {
     public List<Question> findAllCurrentQuestions() {
 
         try {
-            return questionRepository.findQuestionsByIsDeletedIsFalseOrderByCreatedDateDesc();
+            return questionRepository.findQuestionsByIsDeletedIsFalseOrderByCreatedDateAsc();
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
