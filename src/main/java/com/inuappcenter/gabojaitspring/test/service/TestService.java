@@ -85,7 +85,7 @@ public class TestService {
     @Transactional
     public void injectTestData() {
 
-        for (int i = 1; i <= 3; i++) {
+        for (int i = 1; i <= 10; i++) {
             Contact contact = Contact.builder()
                     .email("test" + i + "@gabojait.com")
                     .verificationCode("000000")
@@ -130,7 +130,9 @@ public class TestService {
                 teamService.save(team);
                 teamService.join(team, user, Position.PM.getType(), TeamMemberStatus.LEADER);
             }
+        }
 
+        for (int i = 1; i <= 3; i++) {
             Question question;
             if (i == 3) {
                 question = Question.builder()
