@@ -15,11 +15,11 @@ import javax.validation.constraints.Size;
 
 @Getter
 @NoArgsConstructor
-@GroupSequence({PortfolioLinkDefaultReqDto.class,
+@GroupSequence({PortfolioLinkCreateReqDto.class,
         ValidationSequence.NotBlank.class,
         ValidationSequence.Size.class})
-@ApiModel(value = "Portfolio 링크 기본 요청")
-public class PortfolioLinkDefaultReqDto {
+@ApiModel(value = "Portfolio 링크 생성 요청")
+public class PortfolioLinkCreateReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "이름", example = "깃허브")
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)

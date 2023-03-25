@@ -3,7 +3,7 @@ package com.inuappcenter.gabojaitspring.profile.service;
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Level;
 import com.inuappcenter.gabojaitspring.profile.domain.Skill;
-import com.inuappcenter.gabojaitspring.profile.dto.req.SkillDefaultReqDto;
+import com.inuappcenter.gabojaitspring.profile.dto.req.SkillUpdateReqDto;
 import com.inuappcenter.gabojaitspring.profile.repository.SkillRepository;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +60,7 @@ public class SkillService {
      * 500(SERVER_ERROR)
      */
     @Transactional
-    public void update(Skill skill, SkillDefaultReqDto request, Level level) {
+    public void update(Skill skill, SkillUpdateReqDto request, Level level) {
 
         try {
             skill.update(request.getSkillName(),

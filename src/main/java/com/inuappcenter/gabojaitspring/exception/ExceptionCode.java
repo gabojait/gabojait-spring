@@ -63,6 +63,8 @@ public enum ExceptionCode {
     BACKEND_LIMIT_INVALID(BAD_REQUEST, "현존하는 백엔드 개발자 수가 수정한 디자이너의 수 보다 많습니다."),
     FRONTEND_LIMIT_INVALID(BAD_REQUEST, "현존하는 프론트엔드 개발자 수가 수정한 디자이너의 수 보다 많습니다."),
     PROJECT_MANAGER_LIMIT_INVALID(BAD_REQUEST, "현존하는 기획자 수가 수정한 디자이너의 수 보다 많습니다."),
+    EDUCATION_DATE_INVALID(BAD_REQUEST, "학력 시작일이 종료일 이후일 수 없습니다."),
+    WORK_DATE_INVALID(BAD_REQUEST, "경력 시작일이 종료일 이후일 수 없습니다."),
 
 
 
@@ -122,6 +124,11 @@ public enum ExceptionCode {
      */
     FILE_SIZE_EXCEED(PAYLOAD_TOO_LARGE, "파일 용량이 초과되었습니다"),
     FILE_COUNT_EXCEED(PAYLOAD_TOO_LARGE, "파일 개수가 초과되었습니다"),
+
+    /**
+     * 415
+     */
+    FILE_TYPE_UNSUPPORTED(UNSUPPORTED_MEDIA_TYPE, "파일 타입은 .pdf, .jpg, .jpeg, .png 만 가능합니다."),
 
     /**
      * 500 INTERNAL_SERVER_ERROR

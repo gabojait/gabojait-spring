@@ -3,9 +3,6 @@ package com.inuappcenter.gabojaitspring.profile.service;
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.file.service.FileService;
 import com.inuappcenter.gabojaitspring.profile.domain.Portfolio;
-import com.inuappcenter.gabojaitspring.profile.dto.req.PortfolioFileSaveReqDto;
-import com.inuappcenter.gabojaitspring.profile.dto.req.PortfolioFileUpdateReqDto;
-import com.inuappcenter.gabojaitspring.profile.dto.req.PortfolioLinkDefaultReqDto;
 import com.inuappcenter.gabojaitspring.profile.repository.PortfolioRepository;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
@@ -77,6 +72,15 @@ public class PortfolioService {
 
         if (user.getPortfolios().contains(portfolio))
             throw new CustomException(ROLE_NOT_ALLOWED);
+    }
+
+    public void validateFileType(MultipartFile file) {
+
+        String type = file.getContentType().split("/")[1];
+
+        if (!type.equals("pdf") && !type.equals("jpg") && !type.equals("jpeg") && !type.equals("png")) {
+            throw new CustomException(FILE_TYPE_UNSUPPORTED);
+        }
     }
 
     /**

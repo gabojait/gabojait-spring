@@ -17,13 +17,13 @@ import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
-@GroupSequence({EducationDefaultReqDto.class,
+@GroupSequence({EducationCreateReqDto.class,
         ValidationSequence.NotBlank.class,
         ValidationSequence.NotNull.class,
         ValidationSequence.Size.class,
         ValidationSequence.Pattern.class})
-@ApiModel(value = "Education 기본 요청")
-public class EducationDefaultReqDto {
+@ApiModel(value = "Education 생성 요청")
+public class EducationCreateReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "학교명", example = "가보자잇대학교")
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)

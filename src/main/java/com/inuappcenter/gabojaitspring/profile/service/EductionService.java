@@ -2,13 +2,15 @@ package com.inuappcenter.gabojaitspring.profile.service;
 
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.profile.domain.Education;
-import com.inuappcenter.gabojaitspring.profile.dto.req.EducationDefaultReqDto;
+import com.inuappcenter.gabojaitspring.profile.dto.req.EducationUpdateReqDto;
 import com.inuappcenter.gabojaitspring.profile.repository.EducationRepository;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 
@@ -50,7 +52,7 @@ public class EductionService {
      * 500(SERVER_ERROR)
      */
     @Transactional
-    public void update(Education education, EducationDefaultReqDto request) {
+    public void update(Education education, EducationUpdateReqDto request) {
 
         try {
             education.update(request.getInstitutionName(),
@@ -72,6 +74,16 @@ public class EductionService {
 
         if (!user.getEducations().contains(education))
             throw new CustomException(ROLE_NOT_ALLOWED);
+    }
+
+    /**
+     * 기간 검증 |
+     * 400(EDUCATION_DATE_INVALID)
+     */
+    public void validateDate(LocalDate startedDate, LocalDate endedDate) {
+
+        if (startedDate.isAfter(endedDate))
+            throw new CustomException(EDUCATION_DATE_INVALID);
     }
 
     /**

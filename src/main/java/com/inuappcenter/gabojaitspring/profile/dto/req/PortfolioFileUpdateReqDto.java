@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.GroupSequence;
@@ -23,7 +24,7 @@ public class PortfolioFileUpdateReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "포트폴리오 식별자", example = "1")
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)
-    private String PortfolioId;
+    private String portfolioId;
 
     @ApiModelProperty(position = 1, required = true, value = "이름", example = "이력서")
     @NotBlank(message = "모든 필수 정보를 입력해주세요.", groups = ValidationSequence.NotBlank.class)

@@ -80,6 +80,11 @@ public enum SuccessCode {
     ZERO_FAVORITE_TEAM(OK, "더이상 조회할 수 있는 찜한 팀이 없습니다."),
 
 
+    POSITION_AND_SKILL_UPDATED(OK, "포지션과 기술 업데이트를 완료 했습니다."),
+    EDUCATION_AND_WORK_UPDATED(OK, "학력과 경력 업데이트를 완료 했습니다."),
+    PORTFOLIO_UPDATED(OK, "링크과 파일 포트폴리오 업데이트를 완료 했습니다."),
+
+
     // 201 CREATED
     EDUCATION_CREATED(CREATED, "학력 생성을 완료 했습니다."),
     WORK_CREATED(CREATED, "경력 생성을 완료 했습니다."),

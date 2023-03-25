@@ -2,13 +2,15 @@ package com.inuappcenter.gabojaitspring.profile.service;
 
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.profile.domain.Work;
-import com.inuappcenter.gabojaitspring.profile.dto.req.WorkDefaultReqDto;
+import com.inuappcenter.gabojaitspring.profile.dto.req.WorkUpdateReqDto;
 import com.inuappcenter.gabojaitspring.profile.repository.WorkRepository;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 
@@ -50,7 +52,7 @@ public class WorkService {
      * 500(SERVER_ERROR)
      */
     @Transactional
-    public void update(Work work, WorkDefaultReqDto request) {
+    public void update(Work work, WorkUpdateReqDto request) {
 
         try {
             work.update(request.getCorporationName(),
@@ -73,6 +75,16 @@ public class WorkService {
 
         if (!user.getWorks().contains(work))
             throw new CustomException(ROLE_NOT_ALLOWED);
+    }
+
+    /**
+     * 기간 검증 |
+     * 400(WORK_DATE_INVALID)
+     */
+    public void validateDate(LocalDate startedDate, LocalDate endedDate) {
+
+        if (startedDate.isAfter(endedDate))
+            throw new CustomException(WORK_DATE_INVALID);
     }
 
     /**
