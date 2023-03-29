@@ -9,8 +9,10 @@ import com.inuappcenter.gabojaitspring.review.dto.res.ReviewDefaultResDto;
 import com.inuappcenter.gabojaitspring.offer.dto.res.OfferDefaultResDto;
 import com.inuappcenter.gabojaitspring.team.dto.res.TeamAbstractResDto;
 import com.inuappcenter.gabojaitspring.team.dto.res.TeamDefaultResDto;
+import com.inuappcenter.gabojaitspring.team.dto.res.TeamDetailResDto;
 import com.inuappcenter.gabojaitspring.user.dto.res.ContactDefaultResDto;
 import com.inuappcenter.gabojaitspring.user.dto.res.UserDefaultResDto;
+import com.inuappcenter.gabojaitspring.user.dto.res.UserDetailResDto;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -58,6 +60,7 @@ public class SwaggerConfiguration {
                 .additionalModels(typeResolver.resolve(DefaultExceptionResDto.class))
                 .additionalModels(typeResolver.resolve(ContactDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(UserDefaultResDto.class))
+                .additionalModels(typeResolver.resolve(UserDetailResDto.class))
                 .additionalModels(typeResolver.resolve(UserProfileDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(UserProfileAbstractResDto.class))
                 .additionalModels(typeResolver.resolve(EducationDefaultResDto.class))
@@ -66,6 +69,7 @@ public class SwaggerConfiguration {
                 .additionalModels(typeResolver.resolve(WorkDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(TeamDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(TeamAbstractResDto.class))
+                .additionalModels(typeResolver.resolve(TeamDetailResDto.class))
                 .additionalModels(typeResolver.resolve(OfferDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(ReviewDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(QuestionDefaultResDto.class))
@@ -82,7 +86,7 @@ public class SwaggerConfiguration {
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("Gabojait API")
-                .version("1.0.0")
+                .version("V1.0.0")
                 .build();
     }
 }

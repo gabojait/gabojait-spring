@@ -83,6 +83,29 @@ public class TeamService {
     }
 
     /**
+     * 팀 리더 확인
+     */
+    public boolean isLeader(Team team, User user) {
+
+        if (team.getLeaderUserId().equals(user.getId()))
+            return true;
+        else
+            return false;
+
+    }
+
+    /**
+     * 유저 찜 여부 확인
+     */
+    public boolean isFavoriteUser(Team team, ObjectId userId) {
+
+        if (team.getFavoriteUserIds().contains(userId))
+            return true;
+        else
+            return false;
+    }
+
+    /**
      * 팀원 검증 |
      * 409(TEAM_LEADER_CONFLICT)
      */

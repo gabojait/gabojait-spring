@@ -79,6 +79,17 @@ public class UserService {
         }
     }
 
+    /**
+     * 팀 찜 여부 확인
+     */
+    public boolean isFavoriteTeam(User user, ObjectId teamId) {
+
+        if (user.getFavoriteTeamIds().contains(teamId))
+            return true;
+        else
+            return false;
+    }
+
 
     /**
      * 유저 생성 |

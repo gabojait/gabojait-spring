@@ -10,6 +10,7 @@ import com.inuappcenter.gabojaitspring.profile.dto.res.UserProfileAbstractResDto
 import com.inuappcenter.gabojaitspring.team.domain.Team;
 import com.inuappcenter.gabojaitspring.team.dto.req.*;
 import com.inuappcenter.gabojaitspring.team.dto.res.TeamDefaultResDto;
+import com.inuappcenter.gabojaitspring.team.dto.res.TeamDetailResDto;
 import com.inuappcenter.gabojaitspring.team.service.TeamService;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import com.inuappcenter.gabojaitspring.user.domain.type.Role;
@@ -151,11 +152,12 @@ public class TeamController {
         if (!token.get(1).equals(JwtType.ACCESS.name()))
             throw new CustomException(TOKEN_NOT_ALLOWED);
 
-        userService.findOneByUserId(token.get(0));
+        User user = userService.findOneByUserId(token.get(0));
 
         Team team = teamService.findOne(teamId);
+        boolean isFavorite = userService.isFavoriteTeam(user, team.getId());
 
-        TeamDefaultResDto responseBody = new TeamDefaultResDto(team);
+        TeamDetailResDto responseBody = new TeamDetailResDto(team, isFavorite);
 
         return ResponseEntity.status(TEAM_FOUND.getHttpStatus())
                 .body(DefaultResDto.SingleDataBuilder()

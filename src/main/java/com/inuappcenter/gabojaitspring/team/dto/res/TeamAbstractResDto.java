@@ -32,6 +32,9 @@ public class TeamAbstractResDto {
     @ApiModelProperty(position = 6, required = true, value = "프로젝트 매니저")
     private List<UserProfileAbstractResDto> projectManagers = new ArrayList<>();
 
+    @ApiModelProperty(position = 7, required = true, value = "스키마 버전")
+    private String schemaVersion;
+
     public TeamAbstractResDto(Team team) {
         this.teamId = team.getId().toString();
         this.projectName = team.getProjectName();
@@ -44,5 +47,7 @@ public class TeamAbstractResDto {
             frontends.add(new UserProfileAbstractResDto(f));
         for (User p : team.getProjectManagers())
             projectManagers.add(new UserProfileAbstractResDto(p));
+
+        this.schemaVersion = team.getSchemaVersion();
     }
 }
