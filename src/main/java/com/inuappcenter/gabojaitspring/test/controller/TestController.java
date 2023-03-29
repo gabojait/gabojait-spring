@@ -42,7 +42,7 @@ public class TestController {
         testService.resetDatabase();
 
         return ResponseEntity.status(204)
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .build());
     }
 
@@ -62,7 +62,7 @@ public class TestController {
 
         return ResponseEntity.status(USER_TOKEN_RENEWED.getHttpStatus())
                 .header(AUTHORIZATION, newTokens)
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(USER_TOKEN_RENEWED.name())
                         .responseMessage(USER_TOKEN_RENEWED.getMessage())
                         .build());

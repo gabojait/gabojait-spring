@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="doc/img/gabojait-logo.png" alt="gabojait-logo.png" width=300 height=300>
+<img src="docs/img/gabojait-logo.png" alt="gabojait-logo.png" width=300 height=300>
 
 ### 가보자it으로 사이드 프로젝트를 함께할 팀원을 찾다.
 
@@ -26,24 +26,24 @@ Play Store:
 ---
 
 ## Database 
-### [Database 문서](doc/database.md)
+### [Database 문서](docs/database.md)
 
 ---
 
 ## [API Documentation](https://gabojait-dev.nogamsung.com/swagger-ui/index.html)
-#### [API 문서 관련 설명](doc/api_document_explanation.md)
+#### [API 문서 관련 설명](docs/api_document_explanation.md)
 
 ---
 
 ## Architecture
 
-![Architecture Diagram](doc/img/architecture-diagram.png)
+![Architecture Diagram](docs/img/architecture-diagram.png)
 
 ---
 
 ## CI/CD Pipeline
 
-![CI/CD Pipeline Diagram](doc/img/cicd-pipeline-diagram.png)
+![CI/CD Pipeline Diagram](docs/img/cicd-pipeline-diagram.png)
 
 ---
 

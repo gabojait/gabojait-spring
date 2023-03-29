@@ -79,14 +79,14 @@ public class ReviewController {
                 responseBodies.add(new ReviewDefaultResDto(review));
 
             return ResponseEntity.status(ALL_REVIEWS_FOUND.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.SingleDataBuilder()
                             .responseCode(ALL_REVIEWS_FOUND.name())
                             .responseMessage(ALL_REVIEWS_FOUND.getMessage())
                             .data(responseBodies)
                             .build());
         } else {
             return ResponseEntity.status(ZERO_REVIEW_FOUND.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.NoDataBuilder()
                             .responseCode(ZERO_REVIEW_FOUND.name())
                             .responseMessage(ZERO_REVIEW_FOUND.getMessage())
                             .build());
@@ -118,10 +118,11 @@ public class ReviewController {
             responseBodies.add(new QuestionDefaultResDto(question));
 
         return ResponseEntity.status(CURRENT_REVIEW_QUESTIONS_FOUND.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.MultiDataBuilder()
                         .responseCode(CURRENT_REVIEW_QUESTIONS_FOUND.name())
                         .responseMessage(CURRENT_REVIEW_QUESTIONS_FOUND.getMessage())
                         .data(responseBodies)
+                        .size(responseBodies.size())
                         .build());
     }
 
@@ -167,7 +168,7 @@ public class ReviewController {
         }
 
         return ResponseEntity.status(REVIEWS_CREATED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(REVIEWS_CREATED.name())
                         .responseMessage(REVIEWS_CREATED.getMessage())
                         .build());
@@ -196,7 +197,7 @@ public class ReviewController {
         if (undoneTeams.isEmpty()) {
 
             return ResponseEntity.status(ZERO_AVAILABLE_REVIEW_FOUND.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.NoDataBuilder()
                             .responseCode(ZERO_AVAILABLE_REVIEW_FOUND.name())
                             .responseMessage(ZERO_AVAILABLE_REVIEW_FOUND.getMessage())
                             .build());
@@ -207,7 +208,7 @@ public class ReviewController {
                 responseBodies.add(new TeamAbstractResDto(team));
 
             return ResponseEntity.status(AVAILABLE_REVIEWS_FOUND.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.SingleDataBuilder()
                             .responseCode(AVAILABLE_REVIEWS_FOUND.name())
                             .responseMessage(AVAILABLE_REVIEWS_FOUND.getMessage())
                             .data(responseBodies)
@@ -250,7 +251,7 @@ public class ReviewController {
             TeamAbstractResDto responseBody = new TeamAbstractResDto(team);
 
             return ResponseEntity.status(AVAILABLE_REVIEW_FOUND.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.SingleDataBuilder()
                             .responseCode(AVAILABLE_REVIEW_FOUND.name())
                             .responseMessage(AVAILABLE_REVIEW_FOUND.getMessage())
                             .data(responseBody)
@@ -258,7 +259,7 @@ public class ReviewController {
         } else {
 
             return ResponseEntity.status(REVIEW_NOT_AVAILABLE.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.NoDataBuilder()
                             .responseCode(REVIEW_NOT_AVAILABLE.name())
                             .responseMessage(REVIEW_NOT_AVAILABLE.getMessage())
                             .build());

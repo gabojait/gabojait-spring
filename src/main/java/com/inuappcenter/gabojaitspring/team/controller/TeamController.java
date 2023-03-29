@@ -85,7 +85,7 @@ public class TeamController {
         TeamDefaultResDto responseBody = new TeamDefaultResDto(team);
 
         return ResponseEntity.status(TEAM_CREATED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.SingleDataBuilder()
                         .responseCode(TEAM_CREATED.name())
                         .responseMessage(TEAM_CREATED.getMessage())
                         .data(responseBody)
@@ -126,7 +126,7 @@ public class TeamController {
         TeamDefaultResDto responseBody = new TeamDefaultResDto(team);
 
         return ResponseEntity.status(TEAM_UPDATED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.SingleDataBuilder()
                         .responseCode(TEAM_UPDATED.name())
                         .responseMessage(TEAM_UPDATED.getMessage())
                         .data(responseBody)
@@ -158,7 +158,7 @@ public class TeamController {
         TeamDefaultResDto responseBody = new TeamDefaultResDto(team);
 
         return ResponseEntity.status(TEAM_FOUND.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.SingleDataBuilder()
                         .responseCode(TEAM_FOUND.name())
                         .responseMessage(TEAM_FOUND.getMessage())
                         .data(responseBody)
@@ -190,10 +190,11 @@ public class TeamController {
         if (teams.getNumberOfElements() == 0) {
 
             return ResponseEntity.status(TEAM_ZERO.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.MultiDataBuilder()
                             .responseCode(TEAM_ZERO.name())
                             .responseMessage(TEAM_ZERO.getMessage())
-                            .totalPageSize(teams.getTotalPages())
+                            .data(null)
+                            .size(teams.getTotalPages())
                             .build());
         } else {
 
@@ -202,11 +203,11 @@ public class TeamController {
                 responseBodies.add(new TeamDefaultResDto(t));
 
             return ResponseEntity.status(TEAMS_FOUND.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.MultiDataBuilder()
                             .responseCode(TEAM_CREATED.name())
                             .responseMessage(TEAM_CREATED.getMessage())
                             .data(responseBodies)
-                            .totalPageSize(teams.getTotalPages())
+                            .size(teams.getTotalPages())
                             .build());
         }
     }
@@ -239,7 +240,7 @@ public class TeamController {
         teamService.updateIsPublic(team, request.getIsPublic());
 
         return ResponseEntity.status(TEAM_VISIBILITY_UPDATED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(TEAM_VISIBILITY_UPDATED.name())
                         .responseMessage(TEAM_VISIBILITY_UPDATED.getMessage())
                         .build());
@@ -270,7 +271,7 @@ public class TeamController {
         teamService.delete(team);
 
         return ResponseEntity.status(TEAM_DELETED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(TEAM_DELETED.name())
                         .responseMessage(TEAM_DELETED.getMessage())
                         .build());
@@ -304,7 +305,7 @@ public class TeamController {
         teamService.leaveTeam(team, teammate, position);
 
         return ResponseEntity.status(TEAMMATE_FIRED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(TEAMMATE_FIRED.name())
                         .responseMessage(TEAMMATES_FOUND.getMessage())
                         .build());
@@ -337,7 +338,7 @@ public class TeamController {
         teamService.projectComplete(team, request.getProjectUrl());
 
         return ResponseEntity.status(TEAM_PROJECT_COMPLETE.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(TEAM_PROJECT_COMPLETE.name())
                         .responseMessage(TEAM_VISIBILITY_UPDATED.getMessage())
                         .build());
@@ -371,7 +372,7 @@ public class TeamController {
             teamService.addFavoriteUser(team, user.getId());
 
             return ResponseEntity.status(USER_FAVORITE_ADDED.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.NoDataBuilder()
                             .responseCode(USER_FAVORITE_ADDED.name())
                             .responseMessage(USER_FAVORITE_ADDED.getMessage())
                             .build());
@@ -380,7 +381,7 @@ public class TeamController {
             teamService.removeFavoriteUser(team, new ObjectId(userId));
 
             return ResponseEntity.status(USER_FAVORITE_REMOVED.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.NoDataBuilder()
                             .responseCode(USER_FAVORITE_REMOVED.name())
                             .responseMessage(USER_FAVORITE_REMOVED.getMessage())
                             .build());
@@ -417,10 +418,11 @@ public class TeamController {
         if (users.get("favoriteUsers").isEmpty()) {
 
             return ResponseEntity.status(ZERO_FAVORITE_USER.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.MultiDataBuilder()
                             .responseCode(ZERO_FAVORITE_USER.name())
                             .responseMessage(ZERO_FAVORITE_USER.getMessage())
-                            .totalPageSize(team.getFavoriteUserIds().size())
+                            .data(null)
+                            .size(team.getFavoriteUserIds().size())
                             .build());
         } else {
 
@@ -429,11 +431,11 @@ public class TeamController {
                 responseBodies.add(new UserProfileAbstractResDto(user));
 
             return ResponseEntity.status(FOUND_FAVORITE_USERS.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.MultiDataBuilder()
                             .responseCode(FOUND_FAVORITE_USERS.name())
                             .responseMessage(FOUND_FAVORITE_USERS.getMessage())
                             .data(responseBodies)
-                            .totalPageSize(team.getFavoriteUserIds().size())
+                            .size(team.getFavoriteUserIds().size())
                             .build());
         }
     }

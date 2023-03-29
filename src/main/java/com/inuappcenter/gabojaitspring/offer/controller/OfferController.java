@@ -83,7 +83,7 @@ public class OfferController {
         teamService.addApplication(team, offer.getId());
 
         return ResponseEntity.status(OFFER_CREATED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(OFFER_CREATED.name())
                         .responseMessage(OFFER_CREATED.getMessage())
                         .build());
@@ -123,7 +123,7 @@ public class OfferController {
         teamService.addRecruit(team, offer.getId());
 
         return ResponseEntity.status(OFFER_CREATED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(OFFER_CREATED.name())
                         .responseMessage(OFFER_CREATED.getMessage())
                         .build());
@@ -167,7 +167,7 @@ public class OfferController {
         teamService.removeRecruit(team, offer.getId());
 
         return ResponseEntity.status(OFFER_RESULT_UPDATED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(OFFER_RESULT_UPDATED.name())
                         .responseMessage(OFFER_RESULT_UPDATED.getMessage())
                         .build());
@@ -208,10 +208,11 @@ public class OfferController {
         if (offers.getNumberOfElements() == 0) {
 
             return ResponseEntity.status(OFFER_ZERO.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.MultiDataBuilder()
                             .responseCode(OFFER_ZERO.name())
                             .responseMessage(OFFER_ZERO.getMessage())
-                            .totalPageSize(offers.getTotalPages())
+                            .data(null)
+                            .size(offers.getTotalPages())
                             .build());
         } else {
 
@@ -220,11 +221,11 @@ public class OfferController {
                 responseBodies.add(new OfferDefaultResDto(o));
 
             return ResponseEntity.status(OFFERS_FOUND.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.MultiDataBuilder()
                             .responseCode(OFFERS_FOUND.name())
                             .responseMessage(OFFERS_FOUND.getMessage())
                             .data(responseBodies)
-                            .totalPageSize(offers.getTotalPages())
+                            .size(offers.getTotalPages())
                             .build());
         }
     }
@@ -255,10 +256,11 @@ public class OfferController {
         if (offers.getNumberOfElements() == 0) {
 
             return ResponseEntity.status(OFFER_ZERO.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.MultiDataBuilder()
                             .responseCode(OFFER_ZERO.name())
                             .responseMessage(OFFER_ZERO.getMessage())
-                            .totalPageSize(offers.getTotalPages())
+                            .data(null)
+                            .size(offers.getTotalPages())
                             .build());
         } else {
 
@@ -267,11 +269,11 @@ public class OfferController {
                 responseBodies.add(new OfferDefaultResDto(o));
 
             return ResponseEntity.status(OFFERS_FOUND.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.MultiDataBuilder()
                             .responseCode(OFFERS_FOUND.name())
                             .responseMessage(OFFERS_FOUND.getMessage())
                             .data(responseBodies)
-                            .totalPageSize(offers.getTotalPages())
+                            .size(offers.getTotalPages())
                             .build());
         }
     }
@@ -320,7 +322,7 @@ public class OfferController {
         teamService.removeApplication(team, offer.getId());
 
         return ResponseEntity.status(OFFER_RESULT_UPDATED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(OFFER_RESULT_UPDATED.name())
                         .responseMessage(OFFER_RESULT_UPDATED.getMessage())
                         .build());

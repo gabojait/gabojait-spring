@@ -82,7 +82,7 @@ public class ProfileController {
         UserProfileDefaultResDto responseBody = new UserProfileDefaultResDto(user, teams);
 
         return ResponseEntity.status(MY_PROFILE_FOUND.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.SingleDataBuilder()
                         .responseCode(MY_PROFILE_FOUND.name())
                         .responseMessage(MY_PROFILE_FOUND.getMessage())
                         .data(responseBody)
@@ -116,7 +116,7 @@ public class ProfileController {
         UserProfileDefaultResDto responseBody = new UserProfileDefaultResDto(user, teams);
 
         return ResponseEntity.status(PROFILE_FOUND.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.SingleDataBuilder()
                         .responseCode(PROFILE_FOUND.name())
                         .responseMessage(PROFILE_FOUND.getMessage())
                         .data(responseBody)
@@ -149,7 +149,7 @@ public class ProfileController {
         UserProfileDefaultResDto responseBody = new UserProfileDefaultResDto(user, teams);
 
         return ResponseEntity.status(PROFILE_IMG_UPDATED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.SingleDataBuilder()
                         .responseCode(PROFILE_IMG_UPDATED.name())
                         .responseMessage(PROFILE_IMG_UPDATED.getMessage())
                         .data(responseBody)
@@ -180,7 +180,7 @@ public class ProfileController {
         UserProfileDefaultResDto responseBody = new UserProfileDefaultResDto(user, teams);
 
         return ResponseEntity.status(PROFILE_IMG_DELETED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.SingleDataBuilder()
                         .responseCode(PROFILE_IMG_DELETED.name())
                         .responseMessage(PROFILE_IMG_DELETED.getMessage())
                         .data(responseBody)
@@ -211,7 +211,7 @@ public class ProfileController {
         userService.updateIsPublic(user, request.getIsPublic());
 
         return ResponseEntity.status(PROFILE_VISIBILITY_UPDATED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(PROFILE_VISIBILITY_UPDATED.name())
                         .responseMessage(PROFILE_VISIBILITY_UPDATED.getMessage())
                         .build());
@@ -241,7 +241,7 @@ public class ProfileController {
         userService.updateDescription(user, request.getDescription());
 
         return ResponseEntity.status(PROFILE_DESCRIPTION_UPDATED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(PROFILE_DESCRIPTION_UPDATED.name())
                         .responseMessage(PROFILE_DESCRIPTION_UPDATED.getMessage())
                         .build());
@@ -307,7 +307,7 @@ public class ProfileController {
         }
 
         return ResponseEntity.status(POSITION_AND_SKILL_UPDATED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(POSITION_AND_SKILL_UPDATED.name())
                         .responseMessage(POSITION_AND_SKILL_UPDATED.getMessage())
                         .build());
@@ -387,7 +387,7 @@ public class ProfileController {
         }
 
         return ResponseEntity.status(EDUCATION_AND_WORK_UPDATED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(EDUCATION_AND_WORK_UPDATED.name())
                         .responseMessage(EDUCATION_AND_WORK_UPDATED.getMessage())
                         .build());
@@ -440,7 +440,7 @@ public class ProfileController {
         }
 
         return ResponseEntity.status(LINK_PORTFOLIO_UPDATED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(LINK_PORTFOLIO_UPDATED.name())
                         .responseMessage(LINK_PORTFOLIO_UPDATED.getMessage())
                         .build());
@@ -475,10 +475,9 @@ public class ProfileController {
         userService.addPortfolio(user, portfolio);
 
         return ResponseEntity.status(FILE_PORTFOLIO_CREATED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(FILE_PORTFOLIO_CREATED.name())
                         .responseMessage(FILE_PORTFOLIO_CREATED.getMessage())
-                        .data(Object.class)
                         .build());
     }
 
@@ -515,7 +514,7 @@ public class ProfileController {
         portfolioService.update(portfolio, request.getPortfolioName(), url);
 
         return ResponseEntity.status(FILE_PORTFOLIO_UPDATED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(FILE_PORTFOLIO_UPDATED.name())
                         .responseMessage(FILE_PORTFOLIO_UPDATED.getMessage())
                         .build());
@@ -548,10 +547,11 @@ public class ProfileController {
         if (users.getNumberOfElements() == 0) {
 
             return ResponseEntity.status(TEAMMATES_ZERO.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.MultiDataBuilder()
                             .responseCode(TEAMMATES_ZERO.name())
                             .responseMessage(TEAMMATES_ZERO.getMessage())
-                            .totalPageSize(users.getTotalPages())
+                            .data(null)
+                            .size(users.getTotalPages())
                             .build());
         } else {
 
@@ -560,11 +560,11 @@ public class ProfileController {
                 responseBodies.add(new UserProfileAbstractResDto(u));
 
             return ResponseEntity.status(TEAMMATES_FOUND.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.MultiDataBuilder()
                             .responseCode(TEAMMATES_FOUND.name())
                             .responseMessage(TEAMMATES_FOUND.getMessage())
                             .data(responseBodies)
-                            .totalPageSize(users.getTotalPages())
+                            .size(users.getTotalPages())
                             .build());
         }
     }

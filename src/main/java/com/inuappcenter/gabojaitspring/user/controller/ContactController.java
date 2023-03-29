@@ -44,7 +44,7 @@ public class ContactController {
         contactService.create(request);
 
         return ResponseEntity.status(EMAIL_VERIFICATION_CODE_SENT.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(EMAIL_VERIFICATION_CODE_SENT.name())
                         .responseMessage(EMAIL_VERIFICATION_CODE_SENT.getMessage())
                         .build());
@@ -65,7 +65,7 @@ public class ContactController {
         contactService.verification(request);
 
         return ResponseEntity.status(EMAIL_VERIFIED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(EMAIL_VERIFIED.name())
                         .responseMessage(EMAIL_VERIFIED.getMessage())
                         .build());

@@ -74,7 +74,7 @@ public class UserController {
         userService.isExistingUsername(username);
 
         return ResponseEntity.status(USERNAME_NO_DUPLICATE.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(USERNAME_NO_DUPLICATE.name())
                         .responseMessage(USERNAME_NO_DUPLICATE.getMessage())
                         .build());
@@ -114,7 +114,7 @@ public class UserController {
 
         return ResponseEntity.status(USER_REGISTERED.getHttpStatus())
                 .header(AUTHORIZATION, newTokens)
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.SingleDataBuilder()
                         .responseCode(USER_REGISTERED.name())
                         .responseMessage(USER_REGISTERED.getMessage())
                         .data(responseBody)
@@ -139,7 +139,7 @@ public class UserController {
         userService.isExistingUsername(nickname);
 
         return ResponseEntity.status(NICKNAME_NO_DUPLICATE.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(NICKNAME_NO_DUPLICATE.name())
                         .responseMessage(NICKNAME_NO_DUPLICATE.getMessage())
                         .build());
@@ -177,7 +177,7 @@ public class UserController {
         userService.updateNickname(user, nickname);
 
         return ResponseEntity.status(NICKNAME_UPDATED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(NICKNAME_UPDATED.name())
                         .responseMessage(NICKNAME_UPDATED.getMessage())
                         .build());
@@ -204,7 +204,7 @@ public class UserController {
         if (user.getIsTemporaryPassword()) {
 
             return ResponseEntity.status(PASSWORD_FORCE_UPDATE.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.SingleDataBuilder()
                             .responseCode(PASSWORD_FORCE_UPDATE.name())
                             .responseMessage(PASSWORD_FORCE_UPDATE.getMessage())
                             .data(responseBody)
@@ -213,7 +213,7 @@ public class UserController {
 
             return ResponseEntity.status(USER_LOGGED_IN.getHttpStatus())
                     .header(AUTHORIZATION, newTokens)
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.SingleDataBuilder()
                             .responseCode(USER_LOGGED_IN.name())
                             .responseMessage(USER_LOGGED_IN.getMessage())
                             .data(responseBody)
@@ -243,7 +243,7 @@ public class UserController {
         UserDefaultResDto responseBody = new UserDefaultResDto(user);
 
         return ResponseEntity.status(MY_USER_FOUND.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.SingleDataBuilder()
                         .responseCode(MY_USER_FOUND.name())
                         .responseMessage(MY_USER_FOUND.getMessage())
                         .data(responseBody)
@@ -275,7 +275,7 @@ public class UserController {
         UserDefaultResDto responseBody = new UserDefaultResDto(user);
 
         return ResponseEntity.status(USER_FOUND.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.SingleDataBuilder()
                         .responseCode(USER_FOUND.name())
                         .responseMessage(USER_FOUND.getMessage())
                         .data(responseBody)
@@ -305,7 +305,7 @@ public class UserController {
 
         return ResponseEntity.status(USER_TOKEN_RENEWED.getHttpStatus())
                 .header(AUTHORIZATION, newTokens)
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(USER_TOKEN_RENEWED.name())
                         .responseMessage(USER_TOKEN_RENEWED.getMessage())
                         .build());
@@ -329,7 +329,7 @@ public class UserController {
         userService.sendUsernameEmail(user);
 
         return ResponseEntity.status(USERNAME_EMAIL_SENT.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(USERNAME_EMAIL_SENT.name())
                         .responseMessage(USERNAME_EMAIL_SENT.getMessage())
                         .build());
@@ -354,7 +354,7 @@ public class UserController {
         userService.resetPasswordAndSendEmail(user, contact.getEmail());
 
         return ResponseEntity.status(PASSWORD_EMAIL_SENT.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(PASSWORD_EMAIL_SENT.name())
                         .responseMessage(PASSWORD_EMAIL_SENT.getMessage())
                         .build());
@@ -384,7 +384,7 @@ public class UserController {
         userService.validatePassword(user.getPassword(), request.getPassword());
 
         return ResponseEntity.status(PASSWORD_VERIFIED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(PASSWORD_VERIFIED.name())
                         .responseMessage(PASSWORD_VERIFIED.getMessage())
                         .build());
@@ -421,7 +421,7 @@ public class UserController {
         userService.updatePassword(user, encodedPassword, request.getIsTemporaryPassword());
 
         return ResponseEntity.status(PASSWORD_UPDATED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(PASSWORD_UPDATED.name())
                         .responseMessage(PASSWORD_UPDATED.getMessage())
                         .build());
@@ -450,7 +450,7 @@ public class UserController {
         // TODO: Must deactivate Profile, etc. after implementation.
 
         return ResponseEntity.status(USER_DEACTIVATED.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(USER_DEACTIVATED.name())
                         .responseMessage(USER_DEACTIVATED.getMessage())
                         .build());
@@ -477,7 +477,7 @@ public class UserController {
 
         if (user.getCurrentTeamId() == null) {
             return ResponseEntity.status(NOT_IN_TEAM.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.NoDataBuilder()
                             .responseCode(NOT_IN_TEAM.name())
                             .responseMessage(NOT_IN_TEAM.getMessage())
                             .build());
@@ -487,7 +487,7 @@ public class UserController {
             TeamDefaultResDto responseBody = new TeamDefaultResDto(team);
 
             return ResponseEntity.status(MY_TEAM_FOUND.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.SingleDataBuilder()
                             .responseCode(MY_TEAM_FOUND.name())
                             .responseMessage(MY_TEAM_FOUND.getMessage())
                             .data(responseBody)
@@ -522,7 +522,7 @@ public class UserController {
         teamService.leaveTeam(team, user, position);
 
         return ResponseEntity.status(TEAM_LEFT.getHttpStatus())
-                .body(DefaultResDto.builder()
+                .body(DefaultResDto.NoDataBuilder()
                         .responseCode(TEAM_LEFT.name())
                         .responseMessage(TEAM_LEFT.getMessage())
                         .build());
@@ -557,7 +557,7 @@ public class UserController {
             userService.addFavoriteTeam(user, team.getId());
 
             return ResponseEntity.status(TEAM_FAVORITE_ADDED.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.NoDataBuilder()
                             .responseCode(TEAM_FAVORITE_ADDED.name())
                             .responseMessage(TEAM_FAVORITE_ADDED.getMessage())
                             .build());
@@ -566,7 +566,7 @@ public class UserController {
             userService.removeFavoriteTeam(user, new ObjectId(teamId));
 
             return ResponseEntity.status(TEAM_FAVORITE_REMOVED.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.NoDataBuilder()
                             .responseCode(TEAM_FAVORITE_REMOVED.name())
                             .responseMessage(TEAM_FAVORITE_REMOVED.getMessage())
                             .build());
@@ -599,10 +599,11 @@ public class UserController {
         if (teams.isEmpty()) {
 
             return ResponseEntity.status(ZERO_FAVORITE_TEAM.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.MultiDataBuilder()
                             .responseCode(ZERO_FAVORITE_TEAM.name())
                             .responseMessage(ZERO_FAVORITE_TEAM.getMessage())
-                            .totalPageSize(user.getFavoriteTeamIds().size())
+                            .data(null)
+                            .size(user.getFavoriteTeamIds().size())
                             .build());
         } else {
 
@@ -611,11 +612,11 @@ public class UserController {
                 responseBodies.add(new TeamAbstractResDto(team));
 
             return ResponseEntity.status(FOUND_FAVORITE_TEAMS.getHttpStatus())
-                    .body(DefaultResDto.builder()
+                    .body(DefaultResDto.MultiDataBuilder()
                             .responseCode(FOUND_FAVORITE_TEAMS.name())
                             .responseMessage(FOUND_FAVORITE_TEAMS.getMessage())
                             .data(responseBodies)
-                            .totalPageSize(user.getFavoriteTeamIds().size())
+                            .size(user.getFavoriteTeamIds().size())
                             .build());
         }
     }
