@@ -183,15 +183,6 @@ public class TeamController {
                             .data(responseBody)
                             .build());
         }
-
-        TeamDetailResDto responseBody = new TeamDetailResDto(team, isFavorite);
-
-        return ResponseEntity.status(TEAM_FOUND.getHttpStatus())
-                .body(DefaultResDto.SingleDataBuilder()
-                        .responseCode(TEAM_FOUND.name())
-                        .responseMessage(TEAM_FOUND.getMessage())
-                        .data(responseBody)
-                        .build());
     }
 
     @ApiOperation(value = "팀 다건 조회")
