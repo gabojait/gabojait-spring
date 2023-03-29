@@ -137,7 +137,7 @@ public class TeamController {
     @ApiOperation(value = "팀 단건 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "TEAM_FOUND",
-                    content = @Content(schema = @Schema(implementation = TeamDefaultResDto.class))),
+                    content = @Content(schema = @Schema(implementation = TeamDetailResDto.class))),
             @ApiResponse(responseCode = "401", description = " TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
             @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
@@ -155,7 +155,34 @@ public class TeamController {
         User user = userService.findOneByUserId(token.get(0));
 
         Team team = teamService.findOne(teamId);
-        boolean isFavorite = userService.isFavoriteTeam(user, team.getId());
+
+        boolean isLeader = false;
+        boolean isFavorite = false;
+        if (user.getCurrentTeamId() != null) {
+            isLeader = teamService.isLeader(team, user);
+            if (!isLeader)
+                isFavorite = userService.isFavoriteTeam(user, team.getId());
+        }
+
+        if (!isLeader) {
+            TeamDetailResDto responseBody = new TeamDetailResDto(team, isFavorite);
+
+            return ResponseEntity.status(TEAM_FOUND.getHttpStatus())
+                    .body(DefaultResDto.SingleDataBuilder()
+                            .responseCode(TEAM_FOUND.name())
+                            .responseMessage(TEAM_FOUND.getMessage())
+                            .data(responseBody)
+                            .build());
+        } else {
+            TeamDefaultResDto responseBody = new TeamDefaultResDto(team);
+
+            return ResponseEntity.status(TEAM_FOUND.getHttpStatus())
+                    .body(DefaultResDto.SingleDataBuilder()
+                            .responseCode(TEAM_FOUND.name())
+                            .responseMessage(TEAM_FOUND.getMessage())
+                            .data(responseBody)
+                            .build());
+        }
 
         TeamDetailResDto responseBody = new TeamDetailResDto(team, isFavorite);
 

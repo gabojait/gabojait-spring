@@ -15,7 +15,6 @@ import com.inuappcenter.gabojaitspring.user.domain.type.Role;
 import com.inuappcenter.gabojaitspring.user.domain.User;
 import com.inuappcenter.gabojaitspring.user.dto.req.*;
 import com.inuappcenter.gabojaitspring.user.dto.res.UserDefaultResDto;
-import com.inuappcenter.gabojaitspring.user.dto.res.UserDetailResDto;
 import com.inuappcenter.gabojaitspring.user.service.ContactService;
 import com.inuappcenter.gabojaitspring.user.service.UserService;
 import io.swagger.annotations.Api;
@@ -267,39 +266,18 @@ public class UserController {
         if (!token.get(1).equals(JwtType.ACCESS.name()))
             throw new CustomException(TOKEN_NOT_ALLOWED);
 
-        User user = userService.findOneByUserId(token.get(0));
+        userService.findOneByUserId(token.get(0));
 
-        User otherUser = userService.findOneByUserId(userId);
+        User user = userService.findOneByUserId(userId);
 
-        boolean isLeader = false;
-        boolean isFavorite = false;
-        if (user.getCurrentTeamId() != null) {
-            Team team = teamService.findOne(user.getCurrentTeamId().toString());
-            isLeader = teamService.isLeader(team, user);
-            if (isLeader)
-                isFavorite = teamService.isFavoriteUser(team, otherUser.getId());
-        }
+        UserDefaultResDto responseBody = new UserDefaultResDto(user);
 
-        if (isLeader) {
-            UserDetailResDto responseBody = new UserDetailResDto(otherUser, isFavorite);
-
-            return ResponseEntity.status(USER_FOUND.getHttpStatus())
-                    .body(DefaultResDto.SingleDataBuilder()
-                            .responseCode(USER_FOUND.name())
-                            .responseMessage(USER_FOUND.getMessage())
-                            .data(responseBody)
-                            .build());
-        } else {
-            UserDefaultResDto responseBody = new UserDefaultResDto(otherUser);
-
-            return ResponseEntity.status(USER_FOUND.getHttpStatus())
-                    .body(DefaultResDto.SingleDataBuilder()
-                            .responseCode(USER_FOUND.getMessage())
-                            .responseMessage(USER_FOUND.getMessage())
-                            .data(responseBody)
-                            .build());
-
-        }
+        return ResponseEntity.status(USER_FOUND.getHttpStatus())
+                .body(DefaultResDto.SingleDataBuilder()
+                        .responseCode(USER_FOUND.getMessage())
+                        .responseMessage(USER_FOUND.getMessage())
+                        .data(responseBody)
+                        .build());
     }
 
     @ApiOperation(value = "토큰 재발급")

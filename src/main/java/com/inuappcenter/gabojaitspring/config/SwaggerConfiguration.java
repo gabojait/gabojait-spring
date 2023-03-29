@@ -12,7 +12,6 @@ import com.inuappcenter.gabojaitspring.team.dto.res.TeamDefaultResDto;
 import com.inuappcenter.gabojaitspring.team.dto.res.TeamDetailResDto;
 import com.inuappcenter.gabojaitspring.user.dto.res.ContactDefaultResDto;
 import com.inuappcenter.gabojaitspring.user.dto.res.UserDefaultResDto;
-import com.inuappcenter.gabojaitspring.user.dto.res.UserDetailResDto;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;

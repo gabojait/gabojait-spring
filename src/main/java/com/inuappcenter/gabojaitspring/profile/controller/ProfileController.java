@@ -6,10 +6,10 @@ import com.inuappcenter.gabojaitspring.common.DefaultResDto;
 import com.inuappcenter.gabojaitspring.exception.CustomException;
 import com.inuappcenter.gabojaitspring.profile.domain.*;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Level;
-import com.inuappcenter.gabojaitspring.profile.domain.type.PortfolioType;
 import com.inuappcenter.gabojaitspring.profile.domain.type.Position;
 import com.inuappcenter.gabojaitspring.profile.dto.req.*;
 import com.inuappcenter.gabojaitspring.profile.dto.res.UserProfileAbstractResDto;
+import com.inuappcenter.gabojaitspring.profile.dto.res.UserProfileDetailResDto;
 import com.inuappcenter.gabojaitspring.profile.service.PortfolioService;
 import com.inuappcenter.gabojaitspring.profile.service.SkillService;
 import com.inuappcenter.gabojaitspring.profile.service.WorkService;
@@ -92,7 +92,7 @@ public class ProfileController {
     @ApiOperation(value = "단건 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "PROFILE_FOUND",
-                    content = @Content(schema = @Schema(implementation = UserProfileDefaultResDto.class))),
+                    content = @Content(schema = @Schema(implementation = UserProfileDetailResDto.class))),
             @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
             @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
@@ -108,19 +108,39 @@ public class ProfileController {
         if (!token.get(1).equals(JwtType.ACCESS.name()))
             throw new CustomException(TOKEN_NOT_ALLOWED);
 
-        userService.findOneByUserId(token.get(0));
+        User user = userService.findOneByUserId(token.get(0));
 
-        User user = userService.findOneByUserId(userId);
-        List<Team> teams = teamService.findAllPrevious(user);
+        User otherUser = userService.findOneByUserId(userId);
+        List<Team> teams = teamService.findAllPrevious(otherUser);
 
-        UserProfileDefaultResDto responseBody = new UserProfileDefaultResDto(user, teams);
+        boolean isLeader = false;
+        boolean isFavorite = false;
+        if (user.getCurrentTeamId() != null) {
+            Team team = teamService.findOne(user.getCurrentTeamId().toString());
+            isLeader = teamService.isLeader(team, user);
+            if (isLeader)
+                isFavorite = teamService.isFavoriteUser(team, otherUser.getId());
+        }
 
-        return ResponseEntity.status(PROFILE_FOUND.getHttpStatus())
-                .body(DefaultResDto.SingleDataBuilder()
-                        .responseCode(PROFILE_FOUND.name())
-                        .responseMessage(PROFILE_FOUND.getMessage())
-                        .data(responseBody)
-                        .build());
+        if (isLeader) {
+            UserProfileDetailResDto responseBody = new UserProfileDetailResDto(otherUser, teams, isFavorite);
+
+            return ResponseEntity.status(PROFILE_FOUND.getHttpStatus())
+                    .body(DefaultResDto.SingleDataBuilder()
+                            .responseCode(PROFILE_FOUND.name())
+                            .responseMessage(PROFILE_FOUND.getMessage())
+                            .data(responseBody)
+                            .build());
+        } else {
+            UserProfileDefaultResDto responseBody = new UserProfileDefaultResDto(otherUser, teams);
+
+            return ResponseEntity.status(PROFILE_FOUND.getHttpStatus())
+                    .body(DefaultResDto.SingleDataBuilder()
+                            .responseCode(PROFILE_FOUND.name())
+                            .responseMessage(PROFILE_FOUND.getMessage())
+                            .data(responseBody)
+                            .build());
+        }
     }
 
     @ApiOperation(value = "프로필 사진 업로드/수정")
