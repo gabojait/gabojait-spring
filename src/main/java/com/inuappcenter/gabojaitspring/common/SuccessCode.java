@@ -60,16 +60,6 @@ public enum SuccessCode {
     // 200 OK
     PROFILE_VISIBILITY_UPDATED(OK, "프로필 공개 여부 업데이트를 완료 했습니다."),
     PROFILE_DESCRIPTION_UPDATED(OK, "자기소개 업데이트를 완료 했습니다."),
-    EDUCATION_UPDATED(OK, "학력 업데이트를 완료 했습니다."),
-    EDUCATION_DELETED(OK, "학력 제거를 완료 했습니다"),
-    WORK_UPDATED(OK, "경력 업데이트를 완료 했습니다"),
-    WORK_DELETED(OK, "경력 제거를 완료 했습니다."),
-    SKILL_UPDATED(OK, "기술 업데이트 완료 했습니다"),
-    SKILL_DELETED(OK, "기술 제거를 완료 했습니다."),
-    PORTFOLIO_FILE_UPDATED(OK, "포트폴리오 파일 업데이트를 완료 했습니다"),
-    PORTFOLIO_LINK_UPDATED(OK, "포트폴리오 링크 업데이트를 완료 했습니다"),
-    PORTFOLIO_DELETED(OK, "포트폴리오 제거를 완료 했습니다."),
-    POSITION_UPDATED(OK, "포지션 업데이트를 완료 했습니다."),
     PROFILE_FOUND(OK, "프로필 단건 조회를 완료 했습니다."),
     MY_PROFILE_FOUND(OK, "본인 프로필 정보 조회를 완료 했습니다."),
     PROFILE_IMG_UPDATED(OK, "프로필 사진 업로드를 완료 했습니다."),
@@ -78,20 +68,14 @@ public enum SuccessCode {
     TEAM_FAVORITE_REMOVED(OK, "찜 목록에 팀 제거하기를 완료했습니다."),
     FOUND_FAVORITE_TEAMS(OK, "찜한 팀 조회를 완료 했습니다."),
     ZERO_FAVORITE_TEAM(OK, "더이상 조회할 수 있는 찜한 팀이 없습니다."),
-
-
     POSITION_AND_SKILL_UPDATED(OK, "포지션과 기술 업데이트를 완료 했습니다."),
     EDUCATION_AND_WORK_UPDATED(OK, "학력과 경력 업데이트를 완료 했습니다."),
-    PORTFOLIO_UPDATED(OK, "링크과 파일 포트폴리오 업데이트를 완료 했습니다."),
+    LINK_PORTFOLIO_UPDATED(OK, "링크 포트폴리오 업데이트를 완료 했습니다."),
+    FILE_PORTFOLIO_UPDATED(OK, "파일 포트폴리오 업데이트를 완료 했습니다"),
 
 
     // 201 CREATED
-    EDUCATION_CREATED(CREATED, "학력 생성을 완료 했습니다."),
-    WORK_CREATED(CREATED, "경력 생성을 완료 했습니다."),
-    SKILL_CREATED(CREATED, "기술 생성을 완료 했습니다."),
-    PORTFOLIO_FILE_CREATED(CREATED, "포트폴리오 파일 생성을 완료 했습니다."),
-    PORTFOLIO_LINK_CREATED(CREATED, "포트폴리오 링크 생성을 완료 했습니다."),
-
+    FILE_PORTFOLIO_CREATED(CREATED, "파일 포트폴리오 생성을 완료 했습니다."),
 
 
     /**

@@ -138,7 +138,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * 415 Payload Too Large
+     * 413 Payload Too Large
      */
     @ExceptionHandler(value = { MaxUploadSizeExceededException.class })
     @ResponseStatus(PAYLOAD_TOO_LARGE)

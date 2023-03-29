@@ -122,7 +122,7 @@ public class TestService {
                     .birthdate(LocalDate.of(2000, 1, i))
                     .contact(contact)
                     .nickname("테스트" + i)
-                    .roles(new ArrayList<>(List.of(Role.USER, Role.ADMIN)))
+                    .roles(new ArrayList<>(List.of(Role.USER)))
                     .build();
 
             userService.save(user);

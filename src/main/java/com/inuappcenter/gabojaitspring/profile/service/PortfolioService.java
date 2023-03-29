@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
@@ -74,6 +75,10 @@ public class PortfolioService {
             throw new CustomException(ROLE_NOT_ALLOWED);
     }
 
+    /**
+     * 파일 타입 검증 |
+     * 415(FILE_TYPE_UNSUPPORTED)
+     */
     public void validateFileType(MultipartFile file) {
 
         String type = file.getContentType().split("/")[1];
