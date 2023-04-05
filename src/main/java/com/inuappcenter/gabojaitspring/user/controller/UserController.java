@@ -38,8 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.inuappcenter.gabojaitspring.common.SuccessCode.*;
-import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.TOKEN_AUTHENTICATION_FAIL;
-import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.TOKEN_NOT_ALLOWED;
+import static com.inuappcenter.gabojaitspring.exception.ExceptionCode.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "회원")
@@ -531,7 +530,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "TEAM_FAVORITE_ADDED / TEAM_FAVORITE_REMOVED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED / ROLE_NOT_ALLOWED"),
             @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
@@ -547,6 +546,13 @@ public class UserController {
             throw new CustomException(TOKEN_NOT_ALLOWED);
 
         User user = userService.findOneByUserId(token.get(0));
+
+        if (user.getCurrentTeamId() != null) {
+            Team team = teamService.findOne(user.getCurrentTeamId().toString());
+
+            if (teamService.isLeader(team, user))
+                throw new CustomException(ROLE_NOT_ALLOWED);
+        }
 
         if (request.getIsAdd()) {
 
@@ -576,7 +582,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "FOUND_FAVORITE_TEAMS / ZERO_FAVORITE_TEAM",
                     content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL / TOKEN_REQUIRED_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_NOT_ALLOWED / ROLE_NOT_ALLOWED"),
             @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR")
     })
@@ -591,6 +597,13 @@ public class UserController {
             throw new CustomException(TOKEN_NOT_ALLOWED);
 
         User user = userService.findOneByUserId(token.get(0));
+
+        if (user.getCurrentTeamId() != null) {
+            Team team = teamService.findOne(user.getCurrentTeamId().toString());
+
+            if (teamService.isLeader(team, user))
+                throw new CustomException(ROLE_NOT_ALLOWED);
+        }
 
         List<Team> teams = teamService.findManyUserFavoriteTeamsAndRemoveIfDeleted(user, pageFrom, pageSize);
 
