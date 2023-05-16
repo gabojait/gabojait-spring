@@ -6,8 +6,8 @@
     <conversionRule conversionWord="wEx" converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
 
     <property resource="application.yml" />
-    <property name="ROLLING_LOG_FILEPATH" value="${LOGGING_FILE_PATH}/rolling" />
-    <property name="ERROR_LOG_FILEPATH" value="${LOGGING_FILE_PATH}/error" />
+    <property name="ROLLING_LOG_FILEPATH" value="${LOG_FILE_PATH}/rolling" />
+    <property name="ERROR_LOG_FILEPATH" value="${LOG_FILE_PATH}/error" />
     <property name="ROLLING_LOG_FILENAME" value="gabojait-rolling" />
     <property name="ERROR_LOG_FILENAME" value="gabojait-error" />
     <property name="FILE_LOG_LEVEL" value="info" />
