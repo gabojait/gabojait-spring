@@ -39,7 +39,7 @@ public class ReviewDefaultResDto {
         this.reviewerId = review.getReviewerId().toString();
         this.revieweeId = review.getRevieweeId().toString();
         this.rating = review.getRate();
-        this.writing = review.getAnswer();
+        this.writing = review.getWriting();
         this.createdDate = review.getCreatedDate();
         this.schemaVersion = review.getSchemaVersion();
     }
