@@ -4,8 +4,8 @@ plugins {
 	id 'java'
 }
 
-group = 'com.inuappcenter'
-version = '0.0.1'
+group = 'com.gabojait'
+version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
 bootJar {
@@ -23,22 +23,26 @@ repositories {
 }
 
 dependencies {
-	implementation 'io.springfox:springfox-boot-starter:3.0.0'
-	implementation 'io.springfox:springfox-swagger-ui:3.0.0'
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-mail'
-	implementation 'org.springframework.boot:spring-boot-starter-security:2.6.3'
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 	implementation 'com.auth0:java-jwt:3.18.2'
+	implementation 'io.springfox:springfox-boot-starter:3.0.0'
+	implementation 'io.springfox:springfox-swagger-ui:3.0.0'
 	implementation 'com.amazonaws:aws-java-sdk-s3'
 	implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.1000')
-	implementation 'javax.xml.bind:jaxb-api:2.3.1'
-//	implementation 'io.sentry:sentry-spring-boot-starter:6.4.0'
+
 	compileOnly 'org.projectlombok:lombok'
+
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
 	annotationProcessor 'org.projectlombok:lombok'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
 }
 
 tasks.named('test') {

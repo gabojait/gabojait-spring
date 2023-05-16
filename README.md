@@ -26,12 +26,6 @@ Play Store:
 ---
 
 ## Database 
-### [Database 문서](docs/database.md)
-
----
-
-## [API Documentation](https://gabojait-dev.nogamsung.com/swagger-ui/index.html)
-#### [API 문서 관련 설명](docs/api_document_explanation.md)
 
 ---
 

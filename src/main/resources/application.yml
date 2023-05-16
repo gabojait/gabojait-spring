@@ -1,0 +1,58 @@
+spring:
+  # DB
+  data:
+    mongodb:
+      host: ${DB_HOST}
+      port: ${DB_PORT}
+      database: ${DB_NAME}
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
+      auto-index-creation: true
+      authentication-database: admin
+
+  # Mail
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  # File
+  servlet:
+    multipart:
+      max-file-size: ${MAX_FILE_SIZE}
+
+  profiles:
+    active: ${PROFILES_ACTIVE}
+
+api:
+  name: ${PROFILES_ACTIVE}
+  # Log
+  log:
+    config: classpath:logback/${PROFILES_ACTIVE}-logback.xml
+    file:
+      path: ${LOG_FILE_PATH}
+      name: gabojait-rolling.log
+
+  # JWT
+  jwt:
+    secret: ${JWT_SECRET}
+    domain: ${JWT_DOMAIN}
+
+  master:
+    id: ${MASTER_ID}
+
+s3:
+  access-key: ${S3_ACCESS_KEY}
+  secret-key: ${S3_SECRET_KEY}
+  bucket:
+    profile-img: ${S3_PROFILE_IMG_BUCKET}
+    portfolio-file: ${S3_PORTFOLIO_FILE_BUCKET}
+  region: ${S3_REGION}
