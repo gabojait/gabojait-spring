@@ -24,8 +24,7 @@ public enum ErrorCode {
     LEGAL_NAME_FIELD_REQUIRED(BAD_REQUEST, "실명을 입력해 주세요."),
     NICKNAME_FIELD_REQUIRED(BAD_REQUEST, "닉네임을 입력해 주세요."),
     GENDER_FIELD_REQUIRED(BAD_REQUEST, "성별을 입력해 주세요."),
-    BIRTHDATE_FIELD_REQUIRED(BAD_REQUEST, "생년월일을 입력해 주세요."),
-    IS_PUBLIC_FIELD_REQUIRED(BAD_REQUEST, "공개 여부를 입력해 주세요."),
+    IS_SEEKING_TEAM_FIELD_REQUIRED(BAD_REQUEST, "팀 찾기 여부를 입력해 주세요."),
     SKILL_ID_FIELD_REQUIRED(BAD_REQUEST, "기술 식별자를 입력해 주세요."),
     SKILL_NAME_FIELD_REQUIRED(BAD_REQUEST, "기술명을 입력해 주세요."),
     IS_EXPERIENCED_FIELD_REQUIRED(BAD_REQUEST, "경험 여부를 입력해 주세요."),
@@ -82,13 +81,13 @@ public enum ErrorCode {
     OPEN_CHAT_URL_FORMAT_INVALID(BAD_REQUEST, "오픈 채팅 링크는 카카오 오픈 채팅 URL 형식만 가능합니다."),
 
     // @Pattern - type
-    GENDER_TYPE_INVALID(BAD_REQUEST, "성별은 'MALE', 'FEMALE', 또는 'NONE' 중 하나여야 됩니다."),
-    POSITION_TYPE_INVALID(BAD_REQUEST, "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다."),
-    LEVEL_TYPE_INVALID(BAD_REQUEST, "레벨은 'LOW', 'MID', 또는 'HIGH' 중 하나여야 됩니다."),
-    MEDIA_TYPE_INVALID(BAD_REQUEST, "미디어는 'LINK' 또는 'FILE' 중 하나여야 됩니다."),
-    REVIEW_CATEGORY_TYPE_INVALID(BAD_REQUEST, "리뷰는 'NUMERIC' 또는 'VERBAL' 중 하나여야 됩니다."),
-    PROFILE_ORDER_TYPE_INVALID(BAD_REQUEST, "순서는 'ACTIVE', 'POPULARITY', 또는 'RATING' 중 하나여야 됩니다."),
-    TEAM_ORDER_TYPE_INVALID(BAD_REQUEST, "순서는 'CREATED', 'ACTIVE', 또는 'POPULARITY' 중 하나여야 됩니다."),
+    GENDER_TYPE_INVALID(BAD_REQUEST, "성별은 'male', 'female', 또는 'none' 중 하나여야 됩니다."),
+    POSITION_TYPE_INVALID(BAD_REQUEST, "포지션은 'designer', 'backend', 'frontend', 'manager', 또는 'none' 중 하나여야 됩니다."),
+    LEVEL_TYPE_INVALID(BAD_REQUEST, "레벨은 'low', 'mid', 또는 'high' 중 하나여야 됩니다."),
+    MEDIA_TYPE_INVALID(BAD_REQUEST, "미디어는 'link' 또는 'file' 중 하나여야 됩니다."),
+    REVIEW_CATEGORY_TYPE_INVALID(BAD_REQUEST, "리뷰는 'numeric' 또는 'writing' 중 하나여야 됩니다."),
+    PROFILE_ORDER_TYPE_INVALID(BAD_REQUEST, "순서는 'active', 'popularity', 또는 'rating' 중 하나여야 됩니다."),
+    TEAM_ORDER_TYPE_INVALID(BAD_REQUEST, "순서는 'created', 'active', 또는 'popularity' 중 하나여야 됩니다."),
 
     // @Positive, @PositiveOrZero
     PAGE_FROM_POS_OR_ZERO_ONLY(BAD_REQUEST, "페이지 시작점은 0 또는 양수만 가능합니다."),

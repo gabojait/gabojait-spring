@@ -15,7 +15,7 @@ public enum TeamMemberStatus {
         this.type = type;
     }
 
-    public static TeamMemberStatus toEnum(Character type) {
+    public static TeamMemberStatus fromChar(Character type) {
         TeamMemberStatus teamMemberStatus;
 
         switch (type) {

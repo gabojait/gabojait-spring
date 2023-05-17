@@ -12,11 +12,10 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @ApiModel(value = "회원 로그인 요청")
 @NoArgsConstructor
-@GroupSequence({UserLoginReqDto.class,
-        ValidationSequence.Blank.class})
+@GroupSequence({UserLoginReqDto.class, ValidationSequence.Blank.class})
 public class UserLoginReqDto {
 
-    @ApiModelProperty(position = 1, required = true, value = "아이디", example = "username")
+    @ApiModelProperty(position = 1, required = true, value = "아이디", example = "test1")
     @NotBlank(message = "아이디를 입력해 주세요.", groups = ValidationSequence.Blank.class)
     private String username;
 

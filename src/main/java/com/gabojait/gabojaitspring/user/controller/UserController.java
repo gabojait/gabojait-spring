@@ -115,7 +115,7 @@ public class UserController {
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping
     public ResponseEntity<DefaultResDto<Object>> register(HttpServletRequest servletRequest,
-                                                          @RequestBody @Valid UserSaveReqDto request) {
+                                                          @RequestBody @Valid UserRegisterReqDto request) {
         // auth
         jwtProvider.authorizeGuestAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 

@@ -14,7 +14,7 @@ import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.Contact;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.dto.req.UserLoginReqDto;
-import com.gabojait.gabojaitspring.user.dto.req.UserSaveReqDto;
+import com.gabojait.gabojaitspring.user.dto.req.UserRegisterReqDto;
 import com.gabojait.gabojaitspring.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -71,7 +71,7 @@ public class UserService {
      * 가입 | main |
      * 500(SERVER_ERROR)
      */
-    public User register(UserSaveReqDto request, Contact contact) {
+    public User register(UserRegisterReqDto request, Contact contact) {
         String password = utilityProvider.encodePassword(request.getPassword());
 
         return save(request.toEntity(password, contact));
@@ -197,11 +197,11 @@ public class UserService {
     }
 
     /**
-     * 공개 여부 업데이트 | main |
+     * 팀 찾기 여부 업데이트 | main |
      * 500(SERVER_ERROR)
      */
-    public void updateIsPublic(User user, Boolean isPublic) {
-        user.updateIsPublic(isPublic);
+    public void updateIsSeekingTeam(User user, Boolean isPublic) {
+        user.updateIsSeekingTeam(isPublic);
 
         save(user);
     }
@@ -380,7 +380,7 @@ public class UserService {
      * 가입 전 검증 | sub |
      * 409(EXISTING_USERNAME / UNAVAILABLE_NICKNAME / EXISTING_NICKNAME)
      */
-    public void validatePreRegister(UserSaveReqDto request) {
+    public void validatePreRegister(UserRegisterReqDto request) {
         isExistingUsername(request.getUsername());
         isMatchingPassword(request.getPassword(), request.getPasswordReEntered());
         validateNickname(request.getNickname());
@@ -495,7 +495,7 @@ public class UserService {
      */
     private Page<User> findPagePositionByActive(Position position, Pageable pageable) {
         try {
-            return userRepository.findAllByPositionAndIsPublicIsTrueAndIsDeletedIsFalseOrderByLastRequestDateDesc(
+            return userRepository.findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByLastRequestDateDesc(
                     position.getType(),
                     pageable
             );
@@ -510,7 +510,7 @@ public class UserService {
      */
     private Page<User> findPageByActive(Pageable pageable) {
         try {
-            return userRepository.findAllByIsPublicIsTrueAndIsDeletedIsFalseOrderByLastRequestDateDesc(pageable);
+            return userRepository.findAllByIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByLastRequestDateDesc(pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -522,7 +522,7 @@ public class UserService {
      */
     private Page<User> findPagePositionByPopularity(Position position, Pageable pageable) {
         try {
-            return userRepository.findAllByPositionAndIsPublicIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
+            return userRepository.findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
                     position.getType(),
                     pageable);
         } catch (RuntimeException e) {
@@ -536,7 +536,7 @@ public class UserService {
      */
     private Page<User> findPageByPopularity(Pageable pageable) {
         try {
-            return userRepository.findAllByIsPublicIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(pageable);
+            return userRepository.findAllByIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -548,7 +548,7 @@ public class UserService {
      */
     private Page<User> findPagePositionByRating(Position position, Pageable pageable) {
         try {
-            return userRepository.findAllByPositionAndIsPublicIsTrueAndIsDeletedIsFalseOrderByRatingDesc(
+            return userRepository.findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByRatingDesc(
                     position.getType(),
                     pageable
             );
@@ -563,7 +563,7 @@ public class UserService {
      */
     private Page<User> findPageByRating(Pageable pageable) {
         try {
-            return userRepository.findAllByIsPublicIsTrueAndIsDeletedIsFalseOrderByRatingDesc(pageable);
+            return userRepository.findAllByIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByRatingDesc(pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }

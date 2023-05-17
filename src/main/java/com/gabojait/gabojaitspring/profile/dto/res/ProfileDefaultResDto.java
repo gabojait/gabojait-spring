@@ -43,31 +43,31 @@ public class ProfileDefaultResDto extends ProfileAbstractResDto {
     @ApiModelProperty(position = 15, required = true, value = "현재 팀 식별자")
     private String currentTeamId;
 
-    @ApiModelProperty(position = 16, required = true, value = "팀 멤버 상태")
+    @ApiModelProperty(position = 16, required = true, value = "팀 멤버 상태", allowableValues = "leader, member, null")
     private String teamMemberStatus;
 
-    @ApiModelProperty(position = 17, required = true, value = "공개 여부")
-    private Boolean isPublic;
+    @ApiModelProperty(position = 17, required = true, value = "팀 찾기 여부")
+    private Boolean isSeekingTeam;
 
     public ProfileDefaultResDto(User user, List<Team> completedTeams) {
         super(user);
 
         this.profileDescription = user.getProfileDescription();
         this.imageUrl = user.getImageUrl();
-        this.teamMemberStatus = TeamMemberStatus.toEnum(user.getTeamMemberStatus()).name();
-        this.isPublic = user.getIsPublic();
+        this.teamMemberStatus = TeamMemberStatus.fromChar(user.getTeamMemberStatus()).name().toLowerCase();
+        this.isSeekingTeam = user.getIsSeekingTeam();
 
-        if (user.getReviews() != null)
+        if (!user.getReviews().isEmpty())
             user.getReviews().forEach(r -> this.reviews.add(new ReviewDefaultResDto(r)));
-        if (user.getEducations() != null)
+        if (!user.getEducations().isEmpty())
             user.getEducations().forEach(e -> this.educations.add(new EducationDefaultResDto(e)));
-        if (user.getWorks() != null)
+        if (!user.getWorks().isEmpty())
             user.getWorks().forEach(w -> this.works.add(new WorkDefaultResDto(w)));
-        if (user.getSkills() != null)
+        if (!user.getSkills().isEmpty())
             user.getSkills().forEach(s -> this.skills.add(new SkillDefaultResDto(s)));
-        if (user.getPortfolios() != null)
+        if (!user.getPortfolios().isEmpty())
             user.getPortfolios().forEach(p -> this.portfolios.add(new PortfolioDefaultResDto(p)));
-        if (completedTeams != null)
+        if (!completedTeams.isEmpty())
             completedTeams.forEach(t -> this.completedTeams.add(new TeamAbstractResDto(t)));
 
         if (user.getCurrentTeamId() != null)

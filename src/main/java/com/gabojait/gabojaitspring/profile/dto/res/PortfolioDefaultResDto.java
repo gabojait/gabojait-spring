@@ -27,7 +27,7 @@ public class PortfolioDefaultResDto {
 
     public PortfolioDefaultResDto(Portfolio portfolio) {
         this.portfolioId = portfolio.getId().toString();
-        this.media = Media.fromChar(portfolio.getMedia()).name();
+        this.media = Media.fromChar(portfolio.getMedia()).name().toLowerCase();
         this.portfolioName = portfolio.getPortfolioName();
         this.url = portfolio.getUrl();
         this.schemaVersion = portfolio.getSchemaVersion();

@@ -38,16 +38,15 @@ public class TeamAbstractResDto {
     public TeamAbstractResDto(Team team) {
         this.teamId = team.getId().toString();
         this.projectName = team.getProjectName();
-
-        for (User d : team.getDesigners())
-            designers.add(new ProfileAbstractResDto(d));
-        for (User b : team.getBackends())
-            backends.add(new ProfileAbstractResDto(b));
-        for (User f : team.getFrontends())
-            frontends.add(new ProfileAbstractResDto(f));
-        for (User p : team.getManagers())
-            managers.add(new ProfileAbstractResDto(p));
-
         this.schemaVersion = team.getSchemaVersion();
+
+        if (!team.getDesigners().isEmpty())
+            team.getDesigners().forEach(d -> this.designers.add(new ProfileAbstractResDto(d)));
+        if (!team.getBackends().isEmpty())
+            team.getBackends().forEach(b -> this.backends.add(new ProfileAbstractResDto(b)));
+        if (!team.getFrontends().isEmpty())
+            team.getFrontends().forEach(f -> this.frontends.add(new ProfileAbstractResDto(f)));
+        if (!team.getManagers().isEmpty())
+            team.getManagers().forEach(m -> this.managers.add(new ProfileAbstractResDto(m)));
     }
 }

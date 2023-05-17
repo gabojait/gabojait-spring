@@ -6,10 +6,7 @@ import com.gabojait.gabojaitspring.profile.domain.Education;
 import com.gabojait.gabojaitspring.profile.domain.Portfolio;
 import com.gabojait.gabojaitspring.profile.domain.Skill;
 import com.gabojait.gabojaitspring.profile.domain.Work;
-import com.gabojait.gabojaitspring.profile.dto.req.EducationAndWorkDefaultReqDto;
-import com.gabojait.gabojaitspring.profile.dto.req.PortfolioLinkDefaultReqDto;
-import com.gabojait.gabojaitspring.profile.dto.req.PositionAndSkillDefaultReqDto;
-import com.gabojait.gabojaitspring.profile.dto.req.ProfileDescriptionUpdateReqDto;
+import com.gabojait.gabojaitspring.profile.dto.req.*;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileAbstractResDto;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileDefaultResDto;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileDetailResDto;
@@ -138,7 +135,7 @@ public class ProfileController {
     })
     @PostMapping(value = "/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DefaultResDto<Object>> uploadProfileImage(HttpServletRequest servletRequest,
-                                                                    @RequestPart(name = "image")
+                                                                    @RequestPart(value = "image")
                                                                     MultipartFile image) {
         // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
@@ -190,7 +187,7 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "공개 여부 수정", notes = "* is-public = NotNull")
+    @ApiOperation(value = "팀 찾기 여부 수정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "PROFILE_VISIBILITY_UPDATED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
@@ -200,16 +197,15 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
             @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
     })
-    @PatchMapping("/profile/visibility")
-    public ResponseEntity<DefaultResDto<Object>> updateVisibility(HttpServletRequest servletRequest,
-                                                                  @RequestParam(value = "is-public")
-                                                                  @NotNull(message = "공개 여부를 입력해 주세요.")
-                                                                  Boolean isPublic) {
+    @PatchMapping("/profile/is-seeking-team")
+    public ResponseEntity<DefaultResDto<Object>> updateIsSeekingTeam(HttpServletRequest servletRequest,
+                                                                  @RequestBody @Valid
+                                                                  ProfileIsSeekingTeamUpdateReqDto request) {
         // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // main
-        userService.updateIsPublic(user, isPublic);
+        userService.updateIsSeekingTeam(user, request.getIsSeekingTeam());
 
         return ResponseEntity.status(PROFILE_VISIBILITY_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -363,17 +359,17 @@ public class ProfileController {
     @PostMapping(value = "/portfolio/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DefaultResDto<Object>> updateFilePortfolio(
             HttpServletRequest servletRequest,
-            @RequestParam(value = "create-portfolio-names", required = false)
+            @RequestPart(value = "create-portfolio-names", required = false)
             List<String> createPortfolioNames,
             @RequestPart(name = "create-portfolio-files", required = false)
             List<MultipartFile> createPortfolioFiles,
-            @RequestParam(value = "update-portfolio-ids", required = false)
+            @RequestPart(value = "update-portfolio-ids", required = false)
             List<String> updatePortfolioIds,
-            @RequestParam(value = "update-portfolio-names", required = false)
+            @RequestPart(value = "update-portfolio-names", required = false)
             List<String> updatePortfolioNames,
             @RequestPart(name = "update-portfolio-files", required = false)
             List<MultipartFile> updatePortfolioFiles,
-            @RequestParam(value = "delete-portfolio-ids", required = false)
+            @RequestPart(value = "delete-portfolio-ids", required = false)
             List<String> deletePortfolioIds
     ) {
         // auth
@@ -401,11 +397,11 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "팀을 구하는 유저 다건 조회",
-            notes = "* position = NotBlank && Pattern(regex = ^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE))\n" +
-                    "* profileOrder = NotBlank && Pattern(regex = ^(ACTIVE|POPULARITY|RATING))\n" +
-                    "* pageFrom = NotNull && PositiveOrZero\n" +
-                    "* pageSize = Positive")
+    @ApiOperation(value = "팀을 찾는 회원 다건 조회",
+            notes = "* position = NotBlank && Pattern(regex = ^(designer|backend|frontend|manager|none))\n" +
+                    "* profile-order = NotBlank && Pattern(regex = ^(active|popularity|rating))\n" +
+                    "* page-from = NotNull && PositiveOrZero\n" +
+                    "* page-size = Positive")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "USERS_FINDING_TEAM_FOUND",
                     content = @Content(schema = @Schema(implementation = ProfileAbstractResDto.class))),
@@ -420,21 +416,21 @@ public class ProfileController {
     @GetMapping("/profile/finding-team")
     public ResponseEntity<DefaultResDto<Object>> findUsersLookingForTeam(
             HttpServletRequest servletRequest,
-            @RequestParam
+            @RequestParam(value = "position")
             @NotBlank(message = "포지션을 입력해 주세요.")
-            @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE)",
-                    message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다.")
+            @Pattern(regexp = "^(designer|backend|frontend|manager|none)",
+                    message = "포지션은 'designer', 'backend', 'frontend', 'manager', 또는 'none' 중 하나여야 됩니다.")
             String position,
-            @RequestParam
+            @RequestParam(value = "profile-order")
             @NotBlank(message = "프로필 정렬 기준을 입력해 주세요.")
-            @Pattern(regexp = "^(ACTIVE|POPULARITY|RATING)",
-                    message = "정렬 기준은 'ACTIVE', 'POPULARITY', 'RATING' 중 하나여야 됩니다.")
+            @Pattern(regexp = "^(active|popularity|rating)",
+                    message = "정렬 기준은 'active', 'popularity', 'rating' 중 하나여야 됩니다.")
             String profileOrder,
-            @RequestParam
+            @RequestParam(value = "page-from")
             @NotNull(message = "페이지 시작점을 입력해 주세요.")
             @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.")
             Integer pageFrom,
-            @RequestParam(required = false)
+            @RequestParam(value = "page-size", required = false)
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
             Integer pageSize) {
         // auth
@@ -457,9 +453,7 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "팀 찜 추가 또는 제거",
-            notes = "* team-id = NotBlank\n" +
-                    "is-add-favorite = NotNull")
+    @ApiOperation(value = "회원의 팀 찜 업데이트", notes = "* team-id = NotBlank")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "TEAM_FAVORITE_UPDATED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
@@ -470,14 +464,15 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
             @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
     })
-    @PatchMapping("/team/{team-id}/favorite")
-    public ResponseEntity<DefaultResDto<Object>> addOrRemoveFavoriteTeam(
+    @PatchMapping(value = "/team/{team-id}/favorite")
+    public ResponseEntity<DefaultResDto<Object>> updateFavoriteTeam(
             HttpServletRequest servletRequest,
             @PathVariable(value = "team-id")
-            @NotBlank(message = "팀 식별자를 입력해 주세요.") String teamId,
-            @RequestParam(value = "is-add-favorite")
-            @NotNull(message = "찜 추가 여부를 입력해 주세요.")
-            Boolean isAddFavorite
+            @NotBlank(message = "팀 식별자를 입력해 주세요.")
+            String teamId,
+            @RequestBody
+            @Valid
+            ProfileFavoriteUpdateReqDto request
     ) {
         // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
@@ -485,7 +480,7 @@ public class ProfileController {
         // sub
         Team team = teamService.findOneId(teamId);
         // main
-        userService.updateFavoriteTeam(user, team, isAddFavorite);
+        userService.updateFavoriteTeam(user, team, request.getIsAddFavorite());
 
         return ResponseEntity.status(TEAM_FAVORITE_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()

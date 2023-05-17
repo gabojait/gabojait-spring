@@ -46,8 +46,8 @@ public class TeamService {
      * MANAGER_CNT_UPDATE_UNAVAILABLE)
      * 500(SERVER_ERROR)
      */
-    public Team update(TeamDefaultReqDto request, String teamId, User user) {
-        Team team = findOneId(teamId);
+    public Team update(TeamDefaultReqDto request, User user) {
+        Team team = findOneId(user.getCurrentTeamId().toString());
 
         if (!isLeader(team, user))
             throw new CustomException(null, REQUEST_FORBIDDEN);

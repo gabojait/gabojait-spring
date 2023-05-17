@@ -29,7 +29,7 @@ public class SkillDefaultResDto {
         this.skillId = skill.getId().toString();
         this.skillName = skill.getSkillName();
         this.isExperienced = skill.getIsExperienced();
-        this.level = Level.fromChar(skill.getLevel()).name();
+        this.level = Level.fromChar(skill.getLevel()).name().toLowerCase();
         this.schemaVersion = skill.getSchemaVersion();
     }
 }

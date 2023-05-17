@@ -21,18 +21,18 @@ public interface UserRepository extends MongoRepository<User, ObjectId> {
 
     Optional<User> findByContactAndIsDeletedIsFalse(Contact contact);
 
-    Page<User> findAllByPositionAndIsPublicIsTrueAndIsDeletedIsFalseOrderByLastRequestDateDesc(Character position,
+    Page<User> findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByLastRequestDateDesc(Character position,
                                                                                                Pageable pageable);
 
-    Page<User> findAllByIsPublicIsTrueAndIsDeletedIsFalseOrderByLastRequestDateDesc(Pageable pageable);
+    Page<User> findAllByIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByLastRequestDateDesc(Pageable pageable);
 
-    Page<User> findAllByPositionAndIsPublicIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(Character position,
+    Page<User> findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(Character position,
                                                                                                  Pageable pageable);
 
-    Page<User> findAllByIsPublicIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(Pageable pageable);
+    Page<User> findAllByIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(Pageable pageable);
 
-    Page<User> findAllByPositionAndIsPublicIsTrueAndIsDeletedIsFalseOrderByRatingDesc(Character position,
+    Page<User> findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByRatingDesc(Character position,
                                                                                       Pageable pageable);
 
-    Page<User> findAllByIsPublicIsTrueAndIsDeletedIsFalseOrderByRatingDesc(Pageable pageable);
+    Page<User> findAllByIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByRatingDesc(Pageable pageable);
 }

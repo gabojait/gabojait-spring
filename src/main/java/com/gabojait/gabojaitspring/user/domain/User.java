@@ -52,8 +52,8 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Field(name = "team_member_status")
     private Character teamMemberStatus;
 
-    @Field(name = "is_public")
-    private Boolean isPublic;
+    @Field(name = "is_seeking_team")
+    private Boolean isSeekingTeam;
 
     @Field(name = "recruit_ids")
     private List<ObjectId> recruitIds = new ArrayList<>();
@@ -118,7 +118,7 @@ public class User extends BaseTimeEntity implements UserDetails {
 
         this.lastRequestDate = LocalDateTime.now();
         this.isTemporaryPassword = false;
-        this.isPublic = true;
+        this.isSeekingTeam = true;
         this.imageUrl = null;
         this.teamMemberStatus = TeamMemberStatus.NULL.getType();
         this.currentTeamId = null;
@@ -143,8 +143,8 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.profileDescription = profileDescription;
     }
 
-    public void updateIsPublic(Boolean isPublic) {
-        this.isPublic = isPublic;
+    public void updateIsSeekingTeam(Boolean isSeekingTeam) {
+        this.isSeekingTeam = isSeekingTeam;
     }
 
     public void updateImageUrl(String imageUrl) {

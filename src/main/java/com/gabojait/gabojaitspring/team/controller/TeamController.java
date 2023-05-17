@@ -4,7 +4,10 @@ import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileAbstractResDto;
 import com.gabojait.gabojaitspring.team.domain.Team;
+import com.gabojait.gabojaitspring.team.dto.req.TeamCompleteUpdateReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamDefaultReqDto;
+import com.gabojait.gabojaitspring.team.dto.req.TeamFavoriteUpdateReqDto;
+import com.gabojait.gabojaitspring.team.dto.req.TeamIsRecruitingUpdateReqDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamDefaultResDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamDetailResDto;
 import com.gabojait.gabojaitspring.team.service.TeamService;
@@ -81,7 +84,7 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation(value = "팀 정보 수정", notes = "* team-id = NotBlank")
+    @ApiOperation(value = "팀 정보 수정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "TEAM_UPDATED",
                     content = @Content(schema = @Schema(implementation = TeamDefaultResDto.class))),
@@ -96,11 +99,8 @@ public class TeamController {
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
             @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
     })
-    @PutMapping("/{team-id}")
+    @PutMapping
     public ResponseEntity<DefaultResDto<Object>> updateTeam(HttpServletRequest servletRequest,
-                                                            @PathVariable(value = "team-id")
-                                                            @NotBlank(message = "팀 식별자를 입력해 주세요.")
-                                                            String teamId,
                                                             @RequestBody @Valid TeamDefaultReqDto request) {
         // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
@@ -108,7 +108,7 @@ public class TeamController {
         // sub
         userService.hasCurrentTeam(user);
         // main
-        Team team = teamService.update(request, teamId, user);
+        Team team = teamService.update(request, user);
 
         // response
         TeamDefaultResDto response = new TeamDefaultResDto(team);
@@ -155,11 +155,11 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation(value = "팀 다건 조회",
-            notes = "* position = NotBlank && Pattern(regex = ^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE))\n" +
-                    "* teamOrder = NotBlank && Pattern(regex = ^(ACTIVE|POPULARITY|RATING))\n" +
-                    "* pageFrom = NotNull && PositiveOrZero\n" +
-                    "* pageSize = Positive")
+    @ApiOperation(value = "팀원을 찾는 팀 다건 조회",
+            notes = "* position = NotBlank && Pattern(regex = ^(designer|backend|frontend|manager|none))\n" +
+                    "* team-order = NotBlank && Pattern(regex = ^(created|active|popularity))\n" +
+                    "* page-from = NotNull && PositiveOrZero\n" +
+                    "* page-size = Positive")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "TEAMS_FINDING_USERS_FOUND",
                     content = @Content(schema = @Schema(implementation = TeamDefaultResDto.class))),
@@ -174,21 +174,21 @@ public class TeamController {
     @GetMapping("/finding-users")
     public ResponseEntity<DefaultResDto<Object>> findTeamsLookingForUsers(
             HttpServletRequest servletRequest,
-            @RequestParam
+            @RequestParam(value = "position")
             @NotBlank(message = "포지션을 입력해 주세요.")
-            @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE)",
-                    message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다.")
+            @Pattern(regexp = "^(designer|backend|frontend|manager|none)",
+                    message = "포지션은 'designer', 'backend', 'frontend', 'manager', 또는 'none' 중 하나여야 됩니다.")
             String position,
-            @RequestParam
+            @RequestParam(value = "team-order")
             @NotBlank(message = "팀 정렬 기준을 입력해 주세요.")
-            @Pattern(regexp = "^(CREATED|ACTIVE|POPULARITY)",
-                    message = "팀 정렬 기준은 'CREATED', 'ACTIVE', 또는 'POPULARITY', 중 하나여야 됩니다.")
+            @Pattern(regexp = "^(created|active|popularity)",
+                    message = "팀 정렬 기준은 'created', 'active', 또는 'popularity', 중 하나여야 됩니다.")
             String teamOrder,
-            @RequestParam
+            @RequestParam(value = "page-from")
             @NotNull(message = "페이지 시작점을 입력해 주세요.")
             @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.")
             Integer pageFrom,
-            @RequestParam(required = false)
+            @RequestParam(value = "page-size", required = false)
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
             Integer pageSize
     ) {
@@ -212,7 +212,7 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation(value = "팀원 모집 여부 업데이트", notes = "* is-recruiting = NotNull")
+    @ApiOperation(value = "팀원 모집 여부 업데이트")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "TEAM_IS_RECRUITING_UPDATED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
@@ -226,16 +226,15 @@ public class TeamController {
     })
     @PatchMapping
     public ResponseEntity<DefaultResDto<Object>> updateIsRecruiting(HttpServletRequest servletRequest,
-                                                            @RequestParam(value = "is-recruiting")
-                                                            @NotNull(message = "팀원 모집 여부를 입력해 주세요.")
-                                                            Boolean isRecruiting) {
+                                                                    @RequestBody @Valid
+                                                                    TeamIsRecruitingUpdateReqDto request) {
         // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // sub
         userService.hasCurrentTeam(user);
         // main
-        teamService.updateIsRecruiting(user, isRecruiting);
+        teamService.updateIsRecruiting(user, request.getIsRecruiting());
 
         return ResponseEntity.status(TEAM_IS_RECRUITING_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -274,7 +273,7 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation(value = "프로젝트 완료 종료", notes = "* project-url = NotBlank")
+    @ApiOperation(value = "프로젝트 완료 종료")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "PROJECT_COMPLETE",
                     content = @Content(schema = @Schema(implementation = Object.class))),
@@ -289,16 +288,15 @@ public class TeamController {
     })
     @DeleteMapping("/complete")
     public ResponseEntity<DefaultResDto<Object>> quitCompleteProject(HttpServletRequest servletRequest,
-                                                                     @RequestParam(value = "project-url")
-                                                                     @NotBlank(message = "완료된 프로젝트 URL을 입력해 주세요.")
-                                                                     String projectUrl) {
+                                                                     @RequestBody @Valid
+                                                                     TeamCompleteUpdateReqDto request) {
         // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // sub
         userService.hasCurrentTeam(user);
         // main
-        List<User> teamMembers = teamService.quit(user, projectUrl);
+        List<User> teamMembers = teamService.quit(user, request.getProjectUrl());
         userService.exitCurrentTeam(teamMembers, true);
         // TODO set FCM for review
 
@@ -343,9 +341,7 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation(value = "회원 찜 추가 또는 제거",
-            notes = "* user-id = NotBlank\n" +
-                    "* is-add-favorite = NotNull")
+    @ApiOperation(value = "팀의 회원 찜 업데이트", notes = "* user-id = NotBlank")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "USER_FAVORITE_UPDATED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
@@ -358,13 +354,14 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
     })
     @PatchMapping("/user/{user-id}/favorite")
-    public ResponseEntity<DefaultResDto<Object>> addOrRemoveFavoriteUser(
+    public ResponseEntity<DefaultResDto<Object>> updateFavoriteUser(
             HttpServletRequest servletRequest,
             @PathVariable(value = "user-id")
-            @NotBlank(message = "회원 식별자를 입력해 주세요.") String userId,
-            @RequestParam(value = "is-add-favorite")
-            @NotNull(message = "찜 추가 여부를 입력해 주세요.")
-            Boolean isAddFavorite
+            @NotBlank(message = "회원 식별자를 입력해 주세요.")
+            String userId,
+            @RequestBody
+            @Valid
+            TeamFavoriteUpdateReqDto request
     ) {
         // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
@@ -373,7 +370,7 @@ public class TeamController {
         User otherUser = userService.findOne(userId);
         userService.hasCurrentTeam(user);
         // main
-        teamService.updateFavoriteUser(user, otherUser, isAddFavorite);
+        teamService.updateFavoriteUser(user, otherUser, request.getIsAddFavorite());
 
         return ResponseEntity.status(USER_FAVORITE_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()

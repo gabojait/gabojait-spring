@@ -16,12 +16,12 @@ import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
-@GroupSequence({UserSaveReqDto.class,
+@GroupSequence({UserRegisterReqDto.class,
         ValidationSequence.Blank.class,
         ValidationSequence.Size.class,
         ValidationSequence.Format.class})
-@ApiModel(value = "회원 생성 요청")
-public class UserSaveReqDto {
+@ApiModel(value = "회원 가입 요청")
+public class UserRegisterReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "아이디", example = "username")
     @NotBlank(message = "아이디를 입력해 주세요.", groups = ValidationSequence.Blank.class)
@@ -53,14 +53,14 @@ public class UserSaveReqDto {
     @Pattern(regexp = "^[가-힣]+$", message = "닉네임은 한글 조합으로 입력해 주세요.", groups = ValidationSequence.Format.class)
     private String nickname;
 
-    @ApiModelProperty(position = 5, required = true, value = "성별", example = "male", allowableValues = "male, female")
+    @ApiModelProperty(position = 5, required = true, value = "성별", example = "male",
+            allowableValues = "male, female, none")
     @NotBlank(message = "성별을 입력해 주세요.", groups = ValidationSequence.Blank.class)
-    @Pattern(regexp = "^(MALE|FEMALE|NONE)", message = "성별은 'MALE', 'FEMALE', 또는 'NONE' 중 하나여야 됩니다.",
+    @Pattern(regexp = "^(male|female|none)", message = "성별은 'male', 'female', 또는 'none' 중 하나여야 됩니다.",
             groups = ValidationSequence.Format.class)
     private String gender;
 
     @ApiModelProperty(position = 6, required = true, notes = "string", value = "생년월일", example = "2000-01-01")
-    @NotNull(message = "생년월일을 입력해 주세요.", groups = ValidationSequence.Blank.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthdate;
 
