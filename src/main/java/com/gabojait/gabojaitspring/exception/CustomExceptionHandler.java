@@ -49,16 +49,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
                 .toUpperCase();
         String responseMessage = Objects.requireNonNull(exception.getFieldError()).getDefaultMessage();
 
-        System.out.println("========================");
-        System.out.println("Before");
-        System.out.println(responseCode + ": " + responseMessage);
-        System.out.println("========================");
-        responseCode = responseCode.concat(formatResponseCode(responseMessage));
-        System.out.println("========================");
-        System.out.println("After");
-        System.out.println(responseCode + ": " + responseMessage);
-        System.out.println("========================");
-
+        responseCode += formatResponseCode(responseMessage);
         return ResponseEntity.status(status)
                 .body(ExceptionResDto.builder()
                         .responseCode(responseCode)
@@ -81,16 +72,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
                     .toUpperCase();
 
             responseMessage = constraintViolation.getMessageTemplate();
-
-            System.out.println("========================");
-            System.out.println("Before");
-            System.out.println(responseCode + ": " + responseMessage);
-            System.out.println("========================");
             responseCode += formatResponseCode(responseMessage);
-            System.out.println("========================");
-            System.out.println("After");
-            System.out.println(responseCode + ": " + responseMessage);
-            System.out.println("========================");
         } else {
             throw new CustomException(null, SERVER_ERROR);
         }
