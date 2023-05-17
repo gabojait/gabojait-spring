@@ -16,6 +16,6 @@ import javax.validation.constraints.NotBlank;
 public class TeamCompleteUpdateReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "완료한 프로젝트 URL", example = "github.com/gabojait")
-    @NotBlank(message = "완료된 프로젝트 URL을 입력해 주세요.", groups = ValidationSequence.Blank.class)
+    @NotBlank(message = "완료된 프로젝트 URL은 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
     String projectUrl;
 }

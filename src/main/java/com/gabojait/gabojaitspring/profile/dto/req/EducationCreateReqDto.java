@@ -25,22 +25,22 @@ import java.time.LocalDate;
 public class EducationCreateReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "학교명", example = "가보자잇대학교")
-    @NotBlank(message = "학교명을 입력해 주세요.", groups = ValidationSequence.Blank.class)
+    @NotBlank(message = "학교명은 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
     @Size(min = 3, max = 20, message = "학교명은 3~20자만 가능합니다.", groups = ValidationSequence.Size.class)
     private String institutionName;
 
     @ApiModelProperty(position = 2, required = true, value = "시작일", notes = "string", example = "2000-01-01")
-    @NotNull(message = "시작일을 입력해 주세요.", groups = ValidationSequence.Blank.class)
+    @NotNull(message = "시작일은 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate startedDate;
 
     @ApiModelProperty(position = 3, required = true, value = "종료일", notes = "string", example = "2000-01-02")
-    @NotNull(message = "종료일을 입력해 주세요.", groups = ValidationSequence.Blank.class)
+    @NotNull(message = "종료일은 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate endedDate;
 
     @ApiModelProperty(position = 4, required = true, value = "현재 여부", example = "true", allowableValues = "true, false")
-    @NotNull(message = "현재 여부를 입력해 주세요.", groups = ValidationSequence.Blank.class)
+    @NotNull(message = "현재 여부는 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
     private Boolean isCurrent;
 
     public Education toEntity(ObjectId userId) {

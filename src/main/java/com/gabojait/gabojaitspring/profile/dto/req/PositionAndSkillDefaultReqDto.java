@@ -22,11 +22,11 @@ import java.util.List;
 @ApiModel(value = "포지션과 기술 기본 요청")
 public class PositionAndSkillDefaultReqDto {
 
-    @ApiModelProperty(position = 1, required = true, value = "포지션", example = "NONE",
-            allowableValues = "DESIGNER, BACKEND, FRONTEND, PM, NONE")
-    @NotBlank(message = "포지션을 입력해 주세요.", groups = ValidationSequence.Blank.class)
-    @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|PM|NONE)",
-            message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'PM', 또는 'NONE' 중 하나여야 됩니다.",
+    @ApiModelProperty(position = 1, required = true, value = "포지션", example = "none",
+            allowableValues = "designer, backend, frontend, manager, none")
+    @NotBlank(message = "포지션은 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
+    @Pattern(regexp = "^(designer|backend|frontend|manager|none)",
+            message = "포지션은 'designer', 'backend', 'frontend', 'manager', 또는 'none' 중 하나여야 됩니다.",
             groups = ValidationSequence.Format.class)
     private String position;
 

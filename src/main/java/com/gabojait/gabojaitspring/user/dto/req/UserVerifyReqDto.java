@@ -16,6 +16,6 @@ import javax.validation.constraints.NotBlank;
 public class UserVerifyReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "비밀번호", example = "password1!")
-    @NotBlank(message = "비밀번호를 입력해 주세요.", groups = ValidationSequence.Blank.class)
+    @NotBlank(message = "비밀번호는 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
     private String password;
 }

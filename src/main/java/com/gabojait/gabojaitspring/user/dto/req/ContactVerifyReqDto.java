@@ -17,11 +17,11 @@ import javax.validation.constraints.NotBlank;
 public class ContactVerifyReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "이메일", example = "email@domain.com")
-    @NotBlank(message = "이메일을 입력해 주세요.", groups = ValidationSequence.Blank.class)
+    @NotBlank(message = "이메일은 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
     @Email(message = "올바른 이메일 형식을 입력해 주세요.", groups = ValidationSequence.Format.class)
     private String email;
 
     @ApiModelProperty(position = 2, required = true, value = "인증번호")
-    @NotBlank(message = "인증코드를 입력해 주세요.", groups = ValidationSequence.Blank.class)
+    @NotBlank(message = "인증코드는 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
     private String verificationCode;
 }

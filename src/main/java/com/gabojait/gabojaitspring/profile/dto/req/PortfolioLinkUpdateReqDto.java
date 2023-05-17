@@ -20,16 +20,16 @@ import javax.validation.constraints.Size;
 public class PortfolioLinkUpdateReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "포트폴리오 식별자")
-    @NotBlank(message = "포트폴리오 식별자를 입력해 주세요.", groups = ValidationSequence.Blank.class)
+    @NotBlank(message = "포트폴리오 식별자는 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
     private String portfolioId;
 
     @ApiModelProperty(position = 1, required = true, value = "포트폴리오명", example = "깃허브")
-    @NotBlank(message = "포트폴리오명을 입력해 주세요.", groups = ValidationSequence.Blank.class)
+    @NotBlank(message = "포트폴리오명는 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
     @Size(min = 1, max = 10, message = "포트폴리오명은 1~10자만 가능합니다.", groups = ValidationSequence.Size.class)
     private String portfolioName;
 
     @ApiModelProperty(position = 2, required = true, value = "링크", example = "github.com/gabojait")
-    @NotBlank(message = "URL을 입력해 주세요.", groups = ValidationSequence.Blank.class)
+    @NotBlank(message = "URL은 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
     @Size(min = 1, max = 1000, message = "URL은 1~1000자만 가능합니다.", groups = ValidationSequence.Size.class)
     private String url;
 }

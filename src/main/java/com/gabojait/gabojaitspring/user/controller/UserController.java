@@ -46,7 +46,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "USERNAME_AVAILABLE",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "USERNAME_FIELD_REQUIRED / USERNAME_LENGTH_INVALID / USERNAME_FORMAT_INVALID"),
+            @ApiResponse(responseCode = "400", description = "USERNAME_LENGTH_INVALID / USERNAME_FORMAT_INVALID"),
             @ApiResponse(responseCode = "409", description = "UNAVAILABLE_USERNAME / EXISTING_USERNAME"),
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
             @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
@@ -54,7 +54,6 @@ public class UserController {
     @GetMapping("/username")
     public ResponseEntity<DefaultResDto<Object>> duplicateUsername(
             @RequestParam(value = "username")
-            @NotBlank(message = "아이디를 입력해 주세요.")
             @Size(min = 5, max = 15, message = "아이디는 5~15자만 가능합니다.")
             @Pattern(regexp = "^(?=.*[a-z0-9])[a-z0-9]+$", message = "아이디는 소문자 영어와 숫자의 조합으로 입력해 주세요.")
             String username
@@ -74,7 +73,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "NICKNAME_AVAILABLE",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "NICKNAME_FIELD_REQUIRED / NICKNAME_LENGTH_INVALID / NICKNAME_FORMAT_INVALID"),
+            @ApiResponse(responseCode = "400", description = "NICKNAME_LENGTH_INVALID / NICKNAME_FORMAT_INVALID"),
             @ApiResponse(responseCode = "409", description = "UNAVAILABLE_NICKNAME / EXISTING_NICKNAME"),
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
             @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
@@ -82,7 +81,6 @@ public class UserController {
     @GetMapping("/nickname")
     public ResponseEntity<DefaultResDto<Object>> duplicateNickname(
             @RequestParam(value = "nickname")
-            @NotBlank(message = "닉네임을 입력해 주세요.")
             @Size(min = 2, max = 8, message = "닉네임은 2~8자만 가능합니다.")
             @Pattern(regexp = "^[가-힣]+$", message = "닉닉네임은 한글 조합으로 입력해 주세요.")
             String nickname
@@ -194,7 +192,6 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "USER_FOUND",
                     content = @Content(schema = @Schema(implementation = UserDefaultResDto.class))),
-            @ApiResponse(responseCode = "400", description = "회원 식별자를 입력해 주세요."),
             @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
             @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
@@ -204,7 +201,6 @@ public class UserController {
     @GetMapping("/{user-id}")
     public ResponseEntity<DefaultResDto<Object>> findOther(HttpServletRequest servletRequest,
                                                            @PathVariable(value = "user-id")
-                                                           @NotBlank(message = "회원 식별자를 입력해 주세요.")
                                                            String userId) {
         // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));

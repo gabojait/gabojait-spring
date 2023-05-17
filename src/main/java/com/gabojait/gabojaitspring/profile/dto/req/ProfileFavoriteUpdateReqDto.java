@@ -17,6 +17,6 @@ public class ProfileFavoriteUpdateReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "찜 추가 여부", example = "true",
             allowableValues = "true, false")
-    @NotNull(message = "찜 추가 여부를 입력해 주세요.", groups = ValidationSequence.Blank.class)
+    @NotNull(message = "찜 추가 여부는 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
     private Boolean isAddFavorite;
 }

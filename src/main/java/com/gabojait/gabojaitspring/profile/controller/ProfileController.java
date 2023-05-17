@@ -99,7 +99,6 @@ public class ProfileController {
     @GetMapping("/{user-id}/profile")
     public ResponseEntity<DefaultResDto<Object>> findOther(HttpServletRequest servletRequest,
                                                            @PathVariable(value = "user-id")
-                                                           @NotBlank(message = "회원 식별자를 입력해 주세요.")
                                                            String userId) {
         // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
@@ -417,17 +416,14 @@ public class ProfileController {
     public ResponseEntity<DefaultResDto<Object>> findUsersLookingForTeam(
             HttpServletRequest servletRequest,
             @RequestParam(value = "position")
-            @NotBlank(message = "포지션을 입력해 주세요.")
             @Pattern(regexp = "^(designer|backend|frontend|manager|none)",
                     message = "포지션은 'designer', 'backend', 'frontend', 'manager', 또는 'none' 중 하나여야 됩니다.")
             String position,
             @RequestParam(value = "profile-order")
-            @NotBlank(message = "프로필 정렬 기준을 입력해 주세요.")
             @Pattern(regexp = "^(active|popularity|rating)",
                     message = "정렬 기준은 'active', 'popularity', 'rating' 중 하나여야 됩니다.")
             String profileOrder,
             @RequestParam(value = "page-from")
-            @NotNull(message = "페이지 시작점을 입력해 주세요.")
             @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.")
             Integer pageFrom,
             @RequestParam(value = "page-size", required = false)
@@ -457,7 +453,7 @@ public class ProfileController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "TEAM_FAVORITE_UPDATED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "TEAM_ID_FIELD_REQUIRED / IS_ADD_FAVORITE_FIELD_REQUIRED"),
+            @ApiResponse(responseCode = "400", description = "IS_ADD_FAVORITE_FIELD_REQUIRED"),
             @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
             @ApiResponse(responseCode = "404", description = "TEAM_NOT_FOUND"),
@@ -468,7 +464,6 @@ public class ProfileController {
     public ResponseEntity<DefaultResDto<Object>> updateFavoriteTeam(
             HttpServletRequest servletRequest,
             @PathVariable(value = "team-id")
-            @NotBlank(message = "팀 식별자를 입력해 주세요.")
             String teamId,
             @RequestBody
             @Valid

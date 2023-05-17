@@ -49,7 +49,15 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
                 .toUpperCase();
         String responseMessage = Objects.requireNonNull(exception.getFieldError()).getDefaultMessage();
 
+        System.out.println("========================");
+        System.out.println("Before");
+        System.out.println(responseCode + ": " + responseMessage);
+        System.out.println("========================");
         responseCode = responseCode.concat(formatResponseCode(responseMessage));
+        System.out.println("========================");
+        System.out.println("After");
+        System.out.println(responseCode + ": " + responseMessage);
+        System.out.println("========================");
 
         return ResponseEntity.status(status)
                 .body(ExceptionResDto.builder()
@@ -73,7 +81,16 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
                     .toUpperCase();
 
             responseMessage = constraintViolation.getMessageTemplate();
-            responseMessage.concat(formatResponseCode(responseMessage));
+
+            System.out.println("========================");
+            System.out.println("Before");
+            System.out.println(responseCode + ": " + responseMessage);
+            System.out.println("========================");
+            responseCode += formatResponseCode(responseMessage);
+            System.out.println("========================");
+            System.out.println("After");
+            System.out.println(responseCode + ": " + responseMessage);
+            System.out.println("========================");
         } else {
             throw new CustomException(null, SERVER_ERROR);
         }
@@ -88,22 +105,23 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     private String formatResponseCode(String responseMessage) {
         String responseCode = "";
 
-        if (responseMessage.contains("입력해 주세요") || responseMessage.contains("첨부해 주세요")) {
-            responseCode = responseCode.concat("_FIELD_REQUIRED"); // @NotBlank, @NotNull
+        if (responseMessage.contains("필수 입력란입니다.") || responseMessage.contains("첨부해 주세요")) {
+            responseCode = "_FIELD_REQUIRED"; // @NotBlank, @NotNull
         } else if (responseMessage.contains("~")) {
-            responseCode = responseCode.concat("_LENGTH_INVALID"); // @Size
+            responseCode = "_LENGTH_INVALID"; // @Size
         } else if (responseMessage.contains("형식") || responseMessage.contains("조합")) {
-            responseCode = responseCode.concat("_FORMAT_INVALID"); // @Pattern, @Email - format
+            responseCode = "_FORMAT_INVALID"; // @Pattern, @Email - format
         } else if (responseMessage.contains("중 하나여야 됩니다.")) {
-            responseCode = responseCode.concat("_TYPE_INVALID"); // @Pattern - type
-        } else if (responseMessage.contains("양수 또는 0")) {
-            responseCode = responseCode.concat("_POSITIVE_OR_ZERO_ONLY"); // @PositiveOrZero
+            responseCode = "_TYPE_INVALID"; // @Pattern - type
+        } else if (responseMessage.contains("0 또는 양수")) {
+            responseCode = "_POSITIVE_OR_ZERO_ONLY"; // @PositiveOrZero
         } else if (responseMessage.contains("양수")) {
-            responseCode = responseCode.concat("_POSITIVE_ONLY"); // @Positive
+            responseCode = "_POSITIVE_ONLY"; // @Positive
         } else if (responseMessage.contains("요청")) {
-            responseCode = responseCode.concat("REQUEST_INVALID");
+            responseCode = "REQUEST_INVALID";
         }
 
+        System.out.println("formatResponseCode = " + responseCode);
         return responseCode;
     }
 

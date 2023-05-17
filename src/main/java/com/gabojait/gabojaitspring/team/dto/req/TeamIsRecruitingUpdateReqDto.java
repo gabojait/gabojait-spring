@@ -17,6 +17,6 @@ public class TeamIsRecruitingUpdateReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "팀원 모집 여부", example = "true",
             allowableValues = "true, false")
-    @NotNull(message = "팀 모집 여부를 입력해 주세요.", groups = ValidationSequence.Blank.class)
+    @NotNull(message = "팀원 모집 여부는 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
     private Boolean isRecruiting;
 }

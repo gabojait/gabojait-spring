@@ -27,7 +27,7 @@ public class TeamDefaultResDto extends TeamAbstractResDto {
     @ApiModelProperty(position = 13, required = true, value = "매니저 총 팀원 수")
     private Short managerTotalRecruitCnt;
 
-    @ApiModelProperty(position = 14, required = true, value = "오픈 채팅 링크")
+    @ApiModelProperty(position = 14, required = true, value = "오픈 채팅 URL")
     private String openChatUrl;
 
     @ApiModelProperty(position = 15, required = true, value = "바라는 점")
