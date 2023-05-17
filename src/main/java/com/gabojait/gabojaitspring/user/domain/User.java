@@ -156,36 +156,48 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.isTemporaryPassword = isTemporaryPassword;
     }
 
-    public void addEducation(Education education) {
-        this.educations.add(education);
+    public void addAllEducations(List<Education> educations) {
+        this.educations.addAll(educations);
     }
 
-    public void removeEducation(Education education) {
-        this.educations.remove(education);
+    public void removeAllEducations(List<Education> educations) {
+        educations.forEach(education ->
+                this.educations.removeIf(e ->
+                        education.getId().toString().equals(e.getId().toString())
+                ));
     }
 
-    public void addPortfolio(Portfolio portfolio) {
-        this.portfolios.add(portfolio);
+    public void addAllPortfolios(List<Portfolio> portfolios) {
+        this.portfolios.addAll(portfolios);
     }
 
-    public void removePortfolio(Portfolio portfolio) {
-        this.portfolios.remove(portfolio);
+    public void removeAllPortfolios(List<Portfolio> portfolios) {
+        portfolios.forEach(portfolio ->
+                this.portfolios.removeIf(p ->
+                        portfolio.getId().toString().equals(p.getId().toString())
+                ));
     }
 
-    public void addSkill(Skill skill) {
-        this.skills.add(skill);
+    public void addAllSkills(List<Skill> skills) {
+        this.skills.addAll(skills);
     }
 
-    public void removeSkill(Skill skill) {
-        this.skills.remove(skill);
+    public void removeAllSkills(List<Skill> skills) {
+        skills.forEach(skill ->
+                this.skills.removeIf(s ->
+                        skill.getId().toString().equals(s.getId().toString())
+                ));
     }
 
-    public void addWork(Work work) {
-        this.works.add(work);
+    public void addAllWorks(List<Work> works) {
+        this.works.addAll(works);
     }
 
-    public void removeWork(Work work) {
-        this.works.remove(work);
+    public void removeAllWorks(List<Work> works) {
+        works.forEach(work ->
+            this.works.removeIf(w ->
+                    work.getId().toString().equals(w.getId().toString())
+            ));
     }
 
     public void incrementVisitedCnt() {

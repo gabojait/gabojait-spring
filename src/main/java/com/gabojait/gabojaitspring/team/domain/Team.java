@@ -170,19 +170,30 @@ public class Team extends BaseTimeEntity {
             this.teammateJoinCnt++;
         }
 
-        if (this.designers.contains(user)) {
-            this.designers.add(user);
-            this.isDesignerFull = this.designerTotalRecruitCnt <= this.designers.size();
-        } else if (this.backends.contains(user)) {
-            this.backends.add(user);
-            this.isBackendFull = this.backendTotalRecruitCnt <= this.backends.size();
-        } else if (this.frontends.contains(user)) {
-            this.frontends.add(user);
-            this.isFrontendFull = this.frontendTotalRecruitCnt <= this.frontends.size();
-        } else if (this.managers.contains(user)) {
-            this.managers.add(user);
-            this.isManagerFull = this.managerTotalRecruitCnt <= this.managers.size();
-        }
+        if (!this.designers.isEmpty())
+            for (User designer : this.designers)
+                if (user.getId().toString().equals(designer.getId().toString())) {
+                    this.designers.remove(designer);
+                    this.isDesignerFull = this.designerTotalRecruitCnt <= this.designers.size();
+                }
+        if (!this.backends.isEmpty())
+            for (User backend : this.backends)
+                if (user.getId().toString().equals(backend.getId().toString())) {
+                    this.backends.remove(backend);
+                    this.isBackendFull = this.backendTotalRecruitCnt <= this.backends.size();
+                }
+        if (!this.frontends.isEmpty())
+            for (User frontend : this.frontends)
+                if (user.getId().toString().equals(frontend.getId().toString())) {
+                    this.frontends.remove(frontend);
+                    this.isFrontendFull = this.frontendTotalRecruitCnt <= this.frontends.size();
+                }
+        if (!this.managers.isEmpty())
+            for (User manager : this.managers)
+                if (user.getId().toString().equals(manager.getId().toString())) {
+                    this.managers.remove(manager);
+                    this.isManagerFull = this.managerTotalRecruitCnt <= this.managers.size();
+                }
     }
 
     public List<User> getAllMembersExceptLeader(Team team) {
@@ -199,22 +210,6 @@ public class Team extends BaseTimeEntity {
 
         return teamMembers;
     }
-
-//    public void addApplicationId(ObjectId offerId) {
-//        this.applicationIds.add(offerId);
-//    }
-//
-//    public void removeApplicationId(ObjectId offerId) {
-//        this.applicationIds.remove(offerId);
-//    }
-//
-//    public void addRecruitId(ObjectId offerId) {
-//        this.recruitIds.add(offerId);
-//    }
-//
-//    public void removeRecruitId(ObjectId offerId) {
-//        this.recruitIds.remove(offerId);
-//    }
 
     public void updateFavoriteUserId(ObjectId userId, boolean isAddFavorite) {
         if (isAddFavorite) {

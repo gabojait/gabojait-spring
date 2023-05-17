@@ -92,7 +92,7 @@ public class WorkService {
      * 403(REQUEST_FORBIDDEN)
      */
     private void validateOwner(Work work, ObjectId userId) {
-        if (work.getUserId().equals(userId))
+        if (!work.getUserId().equals(userId))
             throw new CustomException(null, REQUEST_FORBIDDEN);
     }
 

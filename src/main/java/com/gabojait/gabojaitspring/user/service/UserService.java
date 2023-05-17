@@ -232,9 +232,9 @@ public class UserService {
      * 500(SERVER_ERROR)
      */
     public void updatePositionAndSkills(User user, String position, List<Skill> createdSkills, List<Skill> deletedSkills) {
-        updatePosition(user, position);
-        addSkills(user, createdSkills);
-        removeSkills(user, deletedSkills);
+        user.updatePosition(Position.fromString(position));
+        user.addAllSkills(createdSkills);
+        user.removeAllSkills(deletedSkills);
 
         save(user);
     }
@@ -248,10 +248,10 @@ public class UserService {
                                          List<Education> deletedEducations,
                                          List<Work> createdWorks,
                                          List<Work> deletedWorks) {
-        addEducations(user, createdEducations);
-        removeEducations(user, deletedEducations);
-        addWorks(user, createdWorks);
-        removeWorks(user, deletedWorks);
+        user.addAllEducations(createdEducations);
+        user.removeAllEducations(deletedEducations);
+        user.addAllWorks(createdWorks);
+        user.removeAllWorks(deletedWorks);
 
         save(user);
     }
@@ -261,8 +261,8 @@ public class UserService {
      * 500(SERVER_ERROR)
      */
     public void updatePortfolios(User user, List<Portfolio> createdPortfolios, List<Portfolio> deletedPortfolios) {
-        addPortfolios(user, createdPortfolios);
-        removePortfolios(user, deletedPortfolios);
+        user.addAllPortfolios(createdPortfolios);
+        user.removeAllPortfolios(deletedPortfolios);
 
         save(user);
     }
@@ -282,11 +282,11 @@ public class UserService {
         Page<User> users;
 
         if (p.equals(Position.NONE)) {
-            switch (po.name()) {
-                case "RATING":
+            switch (po.name().toLowerCase()) {
+                case "rating":
                     users = findPageByRating(pageable);
                     break;
-                case "POPULARITY":
+                case "popularity":
                     users = findPageByPopularity(pageable);
                     break;
                 default:
@@ -294,11 +294,11 @@ public class UserService {
                     break;
             }
         } else {
-            switch (po.name()) {
-                case "RATING":
+            switch (po.name().toLowerCase()) {
+                case "rating":
                     users = findPagePositionByRating(p, pageable);
                     break;
-                case "POPULARITY":
+                case "popularity":
                     users = findPagePositionByPopularity(p, pageable);
                     break;
                 default:
@@ -629,77 +629,5 @@ public class UserService {
     private void hasPosition(User user) {
         if (user.getPosition().equals(Position.NONE.getType()) || user.getPosition() == null)
             throw new CustomException(null, NON_EXISTING_POSITION);
-    }
-
-    /**
-     * 포지션 업데이트
-     */
-    private void updatePosition(User user, String position) {
-        if (!position.isBlank())
-            user.updatePosition(Position.fromString(position));
-    }
-
-    /**
-     * 학력 추가
-     */
-    private void addEducations(User user, List<Education> educations) {
-        for (Education education : educations)
-            user.addEducation(education);
-    }
-
-    /**
-     * 학력 제거
-     */
-    private void removeEducations(User user, List<Education> educations) {
-        for (Education education : educations)
-            user.removeEducation(education);
-    }
-
-    /**
-     * 포트폴리오 추가
-     */
-    private void addPortfolios(User user, List<Portfolio> portfolios) {
-        for (Portfolio portfolio : portfolios)
-            user.addPortfolio(portfolio);
-    }
-
-    /**
-     * 포트폴리오 제거
-     */
-    private void removePortfolios(User user, List<Portfolio> portfolios) {
-        for (Portfolio portfolio : portfolios)
-            user.removePortfolio(portfolio);
-    }
-
-    /**
-     * 기술 추가
-     */
-    private void addSkills(User user, List<Skill> skills) {
-        for (Skill skill : skills)
-            user.addSkill(skill);
-    }
-
-    /**
-     * 기술 제거
-     */
-    private void removeSkills(User user, List<Skill> skills) {
-        for (Skill skill : skills)
-            user.removeSkill(skill);
-    }
-
-    /**
-     * 경력 추가
-     */
-    private void addWorks(User user, List<Work> works) {
-        for (Work work : works)
-            user.addWork(work);
-    }
-
-    /**
-     * 경력 제거
-     */
-    private void removeWorks(User user, List<Work> works) {
-        for (Work work : works)
-            user.removeWork(work);
     }
 }
