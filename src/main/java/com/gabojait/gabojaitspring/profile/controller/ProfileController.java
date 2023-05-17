@@ -196,7 +196,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
             @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
     })
-    @PatchMapping("/profile/is-seeking-team")
+    @PatchMapping("/profile/seeking-team")
     public ResponseEntity<DefaultResDto<Object>> updateIsSeekingTeam(HttpServletRequest servletRequest,
                                                                   @RequestBody @Valid
                                                                   ProfileIsSeekingTeamUpdateReqDto request) {
@@ -412,7 +412,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
             @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
     })
-    @GetMapping("/profile/finding-team")
+    @GetMapping("/profile/seeking-team")
     public ResponseEntity<DefaultResDto<Object>> findUsersLookingForTeam(
             HttpServletRequest servletRequest,
             @RequestParam(value = "position")

@@ -171,7 +171,7 @@ public class TeamController {
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
             @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
     })
-    @GetMapping("/finding-users")
+    @GetMapping("/recruiting")
     public ResponseEntity<DefaultResDto<Object>> findTeamsLookingForUsers(
             HttpServletRequest servletRequest,
             @RequestParam(value = "position")
@@ -224,7 +224,7 @@ public class TeamController {
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
             @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
     })
-    @PatchMapping
+    @PatchMapping("/recruiting")
     public ResponseEntity<DefaultResDto<Object>> updateIsRecruiting(HttpServletRequest servletRequest,
                                                                     @RequestBody @Valid
                                                                     TeamIsRecruitingUpdateReqDto request) {
