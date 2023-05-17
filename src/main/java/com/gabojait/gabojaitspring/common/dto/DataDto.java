@@ -1,9 +1,11 @@
 package com.gabojait.gabojaitspring.common.dto;
 
+import io.swagger.annotations.ApiModel;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
+@ApiModel(value = "* 데이터 응답")
 public class DataDto<T> {
 
     private T data;
