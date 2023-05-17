@@ -37,11 +37,9 @@ public enum Gender {
             case 'F':
                 gender = Gender.FEMALE;
                 break;
-            case 'N':
+            default:
                 gender = Gender.NONE;
                 break;
-            default:
-                throw new CustomException(null, SERVER_ERROR);
         }
 
         return gender;

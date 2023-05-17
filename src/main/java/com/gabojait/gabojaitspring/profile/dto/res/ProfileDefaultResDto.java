@@ -43,7 +43,7 @@ public class ProfileDefaultResDto extends ProfileAbstractResDto {
     @ApiModelProperty(position = 15, required = true, value = "현재 팀 식별자")
     private String currentTeamId;
 
-    @ApiModelProperty(position = 16, required = true, value = "팀 멤버 상태", allowableValues = "leader, member, null")
+    @ApiModelProperty(position = 16, required = true, value = "팀 멤버 상태", allowableValues = "leader, member, none")
     private String teamMemberStatus;
 
     @ApiModelProperty(position = 17, required = true, value = "팀 찾기 여부")

@@ -120,7 +120,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.isTemporaryPassword = false;
         this.isSeekingTeam = true;
         this.imageUrl = null;
-        this.teamMemberStatus = TeamMemberStatus.NULL.getType();
+        this.teamMemberStatus = TeamMemberStatus.NONE.getType();
         this.currentTeamId = null;
         this.position = Position.NONE.getType();
         this.profileDescription = null;

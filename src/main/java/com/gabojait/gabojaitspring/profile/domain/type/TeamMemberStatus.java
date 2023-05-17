@@ -7,7 +7,7 @@ public enum TeamMemberStatus {
 
     LEADER('L'),
     MEMBER('M'),
-    NULL('N');
+    NONE('N');
 
     Character type;
 
@@ -26,7 +26,7 @@ public enum TeamMemberStatus {
                 teamMemberStatus = TeamMemberStatus.MEMBER;
                 break;
             default:
-                teamMemberStatus = TeamMemberStatus.NULL;
+                teamMemberStatus = TeamMemberStatus.NONE;
                 break;
         }
 
