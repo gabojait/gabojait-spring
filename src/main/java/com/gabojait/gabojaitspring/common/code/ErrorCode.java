@@ -17,7 +17,7 @@ public enum ErrorCode {
     // @NotBlank, @NotNull
     EMAIL_FIELD_REQUIRED(BAD_REQUEST, "이메일은 필수 입력란입니다."),
     VERIFICATION_CODE_FIELD_REQUIRED(BAD_REQUEST, "인증코드는 필수 입력란입니다."),
-    USER_ID_FIELD_REQUIRED(BAD_REQUEST, "회원 식별자는 필수 입력란입니다."), // TODO ?
+    USER_ID_FIELD_REQUIRED(BAD_REQUEST, "회원 식별자는 필수 입력란입니다."),
     USERNAME_FIELD_REQUIRED(BAD_REQUEST, "아이디는 필수 입력란입니다."),
     PASSWORD_FIELD_REQUIRED(BAD_REQUEST, "비밀번호는 필수 입력란입니다."),
     PASSWORD_RE_ENTERED_REQUIRED(BAD_REQUEST, "비밀번호 재입력은 필수 입력란입니다."),
