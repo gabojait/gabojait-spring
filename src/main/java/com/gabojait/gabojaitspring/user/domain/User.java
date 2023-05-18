@@ -199,6 +199,10 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.position = position.getType();
     }
 
+    public boolean hasPosition() {
+        return !this.position.equals(Position.NONE.getType()) || this.position != null;
+    }
+
     public void updateProfileDescription(String profileDescription) {
         this.profileDescription = profileDescription;
     }
@@ -283,6 +287,10 @@ public class User extends BaseTimeEntity implements UserDetails {
 
         this.currentTeamId = null;
         this.teamMemberStatus = TeamMemberStatus.NONE.getType();
+    }
+
+    public boolean hasCurrentTeam() {
+        return this.currentTeamId != null;
     }
 
     public Boolean isFavoriteTeam(ObjectId teamId) {

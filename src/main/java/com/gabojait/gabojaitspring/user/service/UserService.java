@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -34,7 +33,6 @@ import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class UserService {
 
     @Value(value = "${s3.bucket.profile-img}")
@@ -102,7 +100,7 @@ public class UserService {
         }
 
         User otherUser = findOne(otherUserId);
-        user.incrementVisitedCnt();
+        otherUser.incrementVisitedCnt();
         save(user);
 
         return otherUser;
@@ -366,7 +364,7 @@ public class UserService {
      * 409(EXISTING_CURRENT_TEAM / NON_EXISTING_POSITION)
      */
     public void validatePreCreateTeam(User user) {
-        validateNoCurrentTeam(user);
+        validateHasNoCurrentTeam(user);
         validatePositionSelected(user);
     }
 
@@ -390,11 +388,11 @@ public class UserService {
     }
 
     /**
-     * 현재 팀 여부 검증 | sub |
+     * 현재 팀 존재 여부 검증 | sub |
      * 409(NON_EXISTING_CURRENT_TEAM)
      */
-    public void validateCurrentTeam(User user) {
-        if (user.getCurrentTeamId() == null)
+    public void validateHasCurrentTeam(User user) {
+        if (!user.hasCurrentTeam())
             throw new CustomException(null, NON_EXISTING_CURRENT_TEAM);
     }
 
@@ -579,11 +577,11 @@ public class UserService {
     }
 
     /**
-     * 현재 팀 무존재 여부 검증 |
+     * 현재 팀 미존재 여부 검증 |
      * 409(EXISTING_CURRENT_TEAM)
      */
-    private void validateNoCurrentTeam(User user) {
-        if (user.getCurrentTeamId() != null)
+    private void validateHasNoCurrentTeam(User user) {
+        if (user.hasCurrentTeam())
             throw new CustomException(null, EXISTING_CURRENT_TEAM);
     }
 
@@ -592,7 +590,7 @@ public class UserService {
      * 409(NON_EXISTING_POSITION)
      */
     private void validatePositionSelected(User user) {
-        if (user.getPosition().equals(Position.NONE.getType()) || user.getPosition() == null)
+        if (!user.hasPosition())
             throw new CustomException(null, NON_EXISTING_POSITION);
     }
 }
