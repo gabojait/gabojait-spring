@@ -67,6 +67,10 @@ public class PortfolioService {
                               List<String> portfolioNames,
                               List<MultipartFile> multipartFiles) {
         List<Portfolio> portfolios = new ArrayList<>();
+
+        if (portfolioIds == null || portfolioNames == null || multipartFiles == null)
+            return;
+
         for (String portfolioId : portfolioIds) {
             ObjectId id = utilityProvider.toObjectId(portfolioId);
 
@@ -109,6 +113,10 @@ public class PortfolioService {
      */
     public List<Portfolio> createFileAll(User user, List<String> portfolioNames, List<MultipartFile> multipartFiles) {
         List<Portfolio> portfolios = new ArrayList<>();
+
+        if (portfolioNames == null)
+            return portfolios;
+
         for (int i = 0; i < multipartFiles.size(); i++) {
             String url = fileProvider.upload(bucketName,
                     user.getId().toString(),
@@ -137,6 +145,10 @@ public class PortfolioService {
      */
     public List<Portfolio> deleteAll(ObjectId userId, List<String> portfolioIds) {
         List<Portfolio> portfolios = new ArrayList<>();
+
+        if (portfolioIds == null)
+            return portfolios;
+
         for (String portfolioId: portfolioIds) {
             ObjectId id = utilityProvider.toObjectId(portfolioId);
 
@@ -173,17 +185,22 @@ public class PortfolioService {
                                     List<String> updatePortfolioNames,
                                     List<MultipartFile> updatePortfolioFiles,
                                     List<String> deletePortfolioIds) {
-        isExceedingLengthName(createPortfolioNames);
-        isExceedingSizeFile(createPortfolioFiles);
-        if (isUnmatchedCntNamesAndFiles(createPortfolioNames, createPortfolioFiles))
-            throw new CustomException(null, CREATE_PORTFOLIO_CNT_MATCH_INVALID);
+        if (createPortfolioNames != null && createPortfolioFiles != null) {
+            isExceedingLengthName(createPortfolioNames);
+            isExceedingSizeFile(createPortfolioFiles);
+            if (isUnmatchedCntNamesAndFiles(createPortfolioNames, createPortfolioFiles))
+                throw new CustomException(null, CREATE_PORTFOLIO_CNT_MATCH_INVALID);
+        }
 
-        isExistingPortfolios(updatePortfolioIds);
-        isExceedingLengthName(updatePortfolioNames);
-        if (isUnmatchedCntIdsAndNamesAndFiles(updatePortfolioIds, updatePortfolioNames, updatePortfolioFiles))
-            throw new CustomException(null, UPDATE_PORTFOLIO_CNT_MATCH_INVALID);
+        if (updatePortfolioIds != null && updatePortfolioNames != null && updatePortfolioFiles != null) {
+            isExistingPortfolios(updatePortfolioIds);
+            isExceedingLengthName(updatePortfolioNames);
+            if (isUnmatchedCntIdsAndNamesAndFiles(updatePortfolioIds, updatePortfolioNames, updatePortfolioFiles))
+                throw new CustomException(null, UPDATE_PORTFOLIO_CNT_MATCH_INVALID);
+        }
 
-        isExistingPortfolios(deletePortfolioIds);
+        if (deletePortfolioIds != null)
+            isExistingPortfolios(deletePortfolioIds);
     }
 
     /**
@@ -191,6 +208,9 @@ public class PortfolioService {
      * 404(PORTFOLIO_NOT_FOUND)
      */
     private void isExistingPortfolios(List<String> portfolioIds) {
+        if (portfolioIds == null)
+            return;
+
         for (String portfolioId : portfolioIds) {
             ObjectId id = utilityProvider.toObjectId(portfolioId);
 
@@ -213,6 +233,9 @@ public class PortfolioService {
      * 413(FILE_COUNT_EXCEED)
      */
     private void isExceedingSizeFile(List<MultipartFile> portfolioFiles) {
+        if (portfolioFiles == null)
+            return;
+
         if (portfolioFiles.size() > 5)
             throw new CustomException(null, FILE_COUNT_EXCEED);
     }

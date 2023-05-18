@@ -358,17 +358,17 @@ public class ProfileController {
     @PostMapping(value = "/portfolio/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DefaultResDto<Object>> updateFilePortfolio(
             HttpServletRequest servletRequest,
-            @RequestPart(value = "create-portfolio-names", required = false)
+            @RequestParam(value = "create-portfolio-names", required = false)
             List<String> createPortfolioNames,
             @RequestPart(name = "create-portfolio-files", required = false)
             List<MultipartFile> createPortfolioFiles,
-            @RequestPart(value = "update-portfolio-ids", required = false)
+            @RequestParam(value = "update-portfolio-ids", required = false)
             List<String> updatePortfolioIds,
-            @RequestPart(value = "update-portfolio-names", required = false)
+            @RequestParam(value = "update-portfolio-names", required = false)
             List<String> updatePortfolioNames,
             @RequestPart(name = "update-portfolio-files", required = false)
             List<MultipartFile> updatePortfolioFiles,
-            @RequestPart(value = "delete-portfolio-ids", required = false)
+            @RequestParam(value = "delete-portfolio-ids", required = false)
             List<String> deletePortfolioIds
     ) {
         // auth
