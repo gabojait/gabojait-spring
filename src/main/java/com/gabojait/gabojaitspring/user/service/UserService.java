@@ -176,7 +176,7 @@ public class UserService {
      */
     public void uploadProfileImage(User user, MultipartFile multipartFile) {
         String url = fileProvider.upload(bucketName,
-                user.getUsername() + "-" + user.getId().toString(),
+                user.getId().toString(),
                 UUID.randomUUID().toString(),
                 multipartFile,
                 true);
