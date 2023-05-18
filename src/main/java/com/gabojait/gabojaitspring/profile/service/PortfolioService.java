@@ -78,7 +78,7 @@ public class PortfolioService {
 
         for (int i = 0; i < multipartFiles.size(); i++) {
             String url = fileProvider.upload(bucketName,
-                    user.getUsername() + "-" + user.getId().toString(),
+                    user.getId().toString(),
                     portfolioNames.get(i) + "-" + UUID.randomUUID(),
                     multipartFiles.get(i),
                     false);
@@ -111,7 +111,7 @@ public class PortfolioService {
         List<Portfolio> portfolios = new ArrayList<>();
         for (int i = 0; i < multipartFiles.size(); i++) {
             String url = fileProvider.upload(bucketName,
-                    user.getUsername() + "-" + user.getId().toString(),
+                    user.getId().toString(),
                     portfolioNames.get(i) + "-" + UUID.randomUUID(),
                     multipartFiles.get(i),
                     false);
