@@ -28,7 +28,7 @@ public class ContactService {
      * 500(SERVER_ERROR / EMAIL_SEND_ERROR)
      */
     public void sendRegisteredVerificationCode(ContactSaveReqDto request) {
-        isExistingContact(request.getEmail());
+        validateExistingContact(request.getEmail());
 
         String verificationCode = utilityProvider.generateRandomCode(6);
         Contact contact = request.toEntity(verificationCode);
@@ -46,11 +46,25 @@ public class ContactService {
     public void verify(ContactVerifyReqDto request) {
         Contact contact = findOneUnverifiedAndUnregistered(request.getEmail());
 
-        if (!contact.getVerificationCode().equals(contact.getVerificationCode()))
+        if (!contact.getVerificationCode().equals(request.getVerificationCode()))
             throw new CustomException(null, VERIFICATION_CODE_INVALID);
 
         contact.verified();
         save(contact);
+    }
+
+    /**
+     * 인증되고 가입되지 않은 연락처 단건 조회 | main |
+     * 404(CONTACT_NOT_FOUND)
+     * 500(SERVER_ERROR)
+     */
+    public Contact registerContact(String email) {
+        Contact contact = findOneVerifiedAndUnregistered(email);
+
+        contact.registered();
+        save(contact);
+
+        return contact;
     }
 
     /**
@@ -65,21 +79,6 @@ public class ContactService {
     }
 
     /**
-     * 인증되고 가입되지 않은 연락처 단건 조회 | main |
-     * 404(CONTACT_NOT_FOUND)
-     * 500(SERVER_ERROR)
-     */
-    public Contact registerContact(String email) {
-        Contact contact = findOneVerifiedAndUnregistered(email);
-
-        contact.registered();
-
-        save(contact);
-
-        return contact;
-    }
-
-    /**
      * 인증되고 가입되지 않은 연락처 단건 조회 |
      * 404(CONTACT_NOT_FOUND)
      */
@@ -87,21 +86,6 @@ public class ContactService {
         return contactRepository.findByEmailAndIsVerifiedIsTrueAndIsRegisteredIsFalseAndIsDeletedIsFalse(email)
                 .orElseThrow(() -> {
                     throw new CustomException(null, CONTACT_NOT_FOUND);
-                });
-    }
-
-    /**
-     * 이메일 중복 확인 |
-     * 409(EXISTING_CONTACT)
-     * 500(SERVER_ERROR)
-     */
-    public void isExistingContact(String email) {
-        contactRepository.findByEmailAndIsDeletedIsFalse(email)
-                .ifPresent(c -> {
-                    if (c.getIsRegistered())
-                        throw new CustomException(null, EXISTING_CONTACT);
-                    else
-                        hardDelete(c);
                 });
     }
 
@@ -121,6 +105,21 @@ public class ContactService {
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
+    }
+
+    /**
+     * 이메일 중복 검증 |
+     * 409(EXISTING_CONTACT)
+     * 500(SERVER_ERROR)
+     */
+    public void validateExistingContact(String email) {
+        contactRepository.findByEmailAndIsDeletedIsFalse(email)
+                .ifPresent(c -> {
+                    if (c.getIsRegistered())
+                        throw new CustomException(null, EXISTING_CONTACT);
+                    else
+                        hardDelete(c);
+                });
     }
 
     /**
