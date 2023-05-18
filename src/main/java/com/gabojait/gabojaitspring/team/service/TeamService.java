@@ -47,7 +47,7 @@ public class TeamService {
      * 500(SERVER_ERROR)
      */
     public Team update(TeamDefaultReqDto request, User user) {
-        Team team = findOneId(user.getCurrentTeamId().toString());
+        Team team = findOneById(user.getCurrentTeamId().toString());
 
         if (!isLeader(team, user))
             throw new CustomException(null, REQUEST_FORBIDDEN);
@@ -78,7 +78,7 @@ public class TeamService {
         List<Team> teams = new ArrayList<>();
         if (user.getCompletedTeamIds().size() != 0)
             for (ObjectId teamId : user.getCompletedTeamIds())
-                teams.add(findOneId(teamId.toString()));
+                teams.add(findOneById(teamId.toString()));
 
         return teams;
     }
@@ -91,18 +91,22 @@ public class TeamService {
         if (!hasCurrentTeam(user))
             return null;
 
-        Team team = findOneId(user.getCurrentTeamId().toString());
+        Team team = findOneById(user.getCurrentTeamId().toString());
         if (!isLeader(team, user))
             return null;
 
-        return team.getFavoriteUserIds().contains(otherUser.getId());
+        for (ObjectId favoriteUserId : team.getFavoriteUserIds())
+            if (favoriteUserId.toString().equals(otherUser.getId().toString()))
+                return true;
+
+        return false;
     }
 
     /**
      * 식별자로 단건 조회 | main&sub |
      * 404(TEAM_NOT_FOUND)
      */
-    public Team findOneId(String teamId) {
+    public Team findOneById(String teamId) {
         ObjectId id = utilityProvider.toObjectId(teamId);
 
         return teamRepository.findByIdAndIsDeletedIsFalse(id)
@@ -117,7 +121,7 @@ public class TeamService {
      * 500(SERVER_ERROR)
      */
     public Team findOther(String teamId, User user) {
-        Team team = findOneId(teamId);
+        Team team = findOneById(teamId);
 
         if (team.getDesigners().contains(user) || team.getBackends().contains(user) ||
                 team.getFrontends().contains(user) || team.getManagers().contains(user)) {
@@ -175,7 +179,7 @@ public class TeamService {
      * 500(SERVER_ERROR)
      */
     public void updateIsRecruiting(User user, Boolean isRecruiting) {
-        Team team = findOneId(user.getCurrentTeamId().toString());
+        Team team = findOneById(user.getCurrentTeamId().toString());
         if (!isLeader(team, user))
             throw new CustomException(null, REQUEST_FORBIDDEN);
 
@@ -190,7 +194,7 @@ public class TeamService {
      * 500(SERVER_ERROR)
      */
     public void fire(User leader, User teammate) {
-        Team team = findOneId(leader.getCurrentTeamId().toString());
+        Team team = findOneById(leader.getCurrentTeamId().toString());
         if (!isLeader(team, leader))
             throw new CustomException(null, REQUEST_FORBIDDEN);
 
@@ -205,7 +209,7 @@ public class TeamService {
      * 500(SERVER_ERROR)
      */
     public List<User> quit(User user, String projectUrl) {
-        Team team = findOneId(user.getCurrentTeamId().toString());
+        Team team = findOneById(user.getCurrentTeamId().toString());
         if (!isLeader(team, user))
             throw new CustomException(null, REQUEST_FORBIDDEN);
 
@@ -227,7 +231,7 @@ public class TeamService {
      * 500(SERVER_ERROR)
      */
     public void updateFavoriteUser(User leader, User user, boolean isAddFavorite) {
-        Team team = findOneId(leader.getCurrentTeamId().toString());
+        Team team = findOneById(leader.getCurrentTeamId().toString());
         if (!isLeader(team, leader))
             throw new CustomException(null, REQUEST_FORBIDDEN);
 
@@ -242,7 +246,7 @@ public class TeamService {
      * 404(TEAM_NOT_FOUND)
      */
     public List<ObjectId> findAllFavorite(User user) {
-        Team team = findOneId(user.getCurrentTeamId().toString());
+        Team team = findOneById(user.getCurrentTeamId().toString());
         if (!isLeader(team, user))
             throw new CustomException(null, REQUEST_FORBIDDEN);
 
