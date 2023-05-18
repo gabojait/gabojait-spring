@@ -16,8 +16,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.NotNull;
-
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 
 @Api(tags = "개발")
@@ -78,9 +76,7 @@ public class DevelopController {
             @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
     })
     @GetMapping("/test/user/{user-id}")
-    public ResponseEntity<DefaultResDto<Object>> testDataToken(@PathVariable(value = "user-id")
-                                                               @NotNull(message = "회원 식별자를 입력해 주세요.")
-                                                               Integer userId) {
+    public ResponseEntity<DefaultResDto<Object>> testDataToken(@PathVariable(value = "user-id") Integer userId) {
         // main
         User user = userService.findOneTestUsername("test" + userId);
 
