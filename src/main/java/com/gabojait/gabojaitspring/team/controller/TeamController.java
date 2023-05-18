@@ -71,7 +71,7 @@ public class TeamController {
         userService.validatePreCreateTeam(user);
         // main
         Team team = teamService.create(request.toEntity(user.getId(), user.getPosition()), user);
-        userService.joinTeam(user, team);
+        userService.joinTeam(user, team, true);
 
         // response
         TeamDefaultResDto response = new TeamDefaultResDto(team);

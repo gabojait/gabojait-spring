@@ -314,8 +314,10 @@ public class UserService {
      * 팀 들어가기 | main |
      * 500(SERVER_ERROR)
      */
-    public void joinTeam(User user, Team team) {
-        updateCurrentTeam(user, team.getId());
+    public void joinTeam(User user, Team team, boolean isLeader) {
+        user.joinTeam(team.getId(), isLeader);
+
+        save(user);
     }
 
     /**
@@ -359,7 +361,7 @@ public class UserService {
 
     /**
      * 팀 찜 업데이트 | main |
-     * TODO
+     * 500(SERVER_ERROR)
      */
     public void updateFavoriteTeam(User user, Team team, boolean isAddFavorite) {
         user.updateFavoriteTeamId(team.getId(), isAddFavorite);
@@ -610,16 +612,6 @@ public class UserService {
     private void hasNoCurrentTeam(User user) {
         if (user.getCurrentTeamId() != null)
             throw new CustomException(null, EXISTING_CURRENT_TEAM);
-    }
-
-    /**
-     * 현재 팀 업데이트 |
-     * 500(SERVER_ERROR)
-     */
-    private void updateCurrentTeam(User user, ObjectId teamId) {
-        user.joinTeam(teamId);
-
-        save(user);
     }
 
     /**

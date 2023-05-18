@@ -200,7 +200,7 @@ public class DevelopService {
                 .build();
 
         teamService.create(team, user);
-        userService.joinTeam(user, team);
+        userService.joinTeam(user, team, true);
     }
 
     private void resetDatabase() {

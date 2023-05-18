@@ -204,9 +204,14 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.visitedCnt++;
     }
 
-    public void joinTeam(ObjectId currentTeamId) {
+    public void joinTeam(ObjectId currentTeamId, boolean isLeader) {
         this.currentTeamId = currentTeamId;
         this.joinTeamCnt++;
+
+        if (isLeader)
+            this.teamMemberStatus = TeamMemberStatus.LEADER.getType();
+        else
+            this.teamMemberStatus = TeamMemberStatus.MEMBER.getType();
     }
 
     public void quitTeam(boolean isComplete) {
@@ -218,6 +223,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         }
 
         this.currentTeamId = null;
+        this.teamMemberStatus = TeamMemberStatus.NONE.getType();
     }
 
     public void updateRating(int rating) {
