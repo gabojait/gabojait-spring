@@ -14,7 +14,10 @@ import javax.validation.constraints.Size;
 @Getter
 @ApiModel(value = "회원 닉네임 업데이트 요청")
 @NoArgsConstructor
-@GroupSequence({UserNicknameUpdateReqDto.class, ValidationSequence.Blank.class, ValidationSequence.Size.class})
+@GroupSequence({UserNicknameUpdateReqDto.class,
+        ValidationSequence.Blank.class,
+        ValidationSequence.Size.class,
+        ValidationSequence.Format.class})
 public class UserNicknameUpdateReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "닉네임", example = "김가볼까잇")
