@@ -206,7 +206,7 @@ public class UserController {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // main
-        User otherUser = userService.findOther(user, userId);
+        User otherUser = userService.findOneOther(user, userId);
 
         // response
         UserDefaultResDto response = new UserDefaultResDto(otherUser);

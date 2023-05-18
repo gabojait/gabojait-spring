@@ -136,9 +136,69 @@ public class User extends BaseTimeEntity implements UserDetails {
         updateRoles(List.of(Role.USER));
     }
 
+    public void updatePassword(String password, boolean isTemporaryPassword) {
+        this.password = password;
+        this.isTemporaryPassword = isTemporaryPassword;
+    }
+
+    public void updateLastRequestDate() {
+        this.lastRequestDate = LocalDateTime.now();
+    }
+
+    public void updateRoles(List<Role> roles) {
+        for (Role role : roles)
+            this.roles.add(role.name());
+    }
+
+    public void delete() {
+        this.isDeleted = true;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return !this.isDeleted;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return !this.isDeleted;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return !this.isDeleted;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return !this.isDeleted;
+    }
+
+    /**
+     * Profile related
+     */
+
     public void updatePosition(Position position) {
         this.position = position.getType();
     }
+
     public void updateProfileDescription(String profileDescription) {
         this.profileDescription = profileDescription;
     }
@@ -149,11 +209,6 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void updateImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-
-    public void updatePassword(String password, boolean isTemporaryPassword) {
-        this.password = password;
-        this.isTemporaryPassword = isTemporaryPassword;
     }
 
     public void addAllEducations(List<Education> educations) {
@@ -204,6 +259,10 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.visitedCnt++;
     }
 
+    /**
+     * Team related
+     */
+
     public void joinTeam(ObjectId currentTeamId, boolean isLeader) {
         this.currentTeamId = currentTeamId;
         this.joinTeamCnt++;
@@ -226,11 +285,15 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.teamMemberStatus = TeamMemberStatus.NONE.getType();
     }
 
-    public void updateRating(int rating) {
-        this.rating = (this.rating * (float) (this.ratingCnt / (this.ratingCnt + 1))) +
-                (rating * (float) (1 / (this.ratingCnt + 1)));
+    public Boolean isFavoriteTeam(ObjectId teamId) {
+        if (this.currentTeamId != null)
+            return null;
 
-        this.ratingCnt++;
+        for (ObjectId favoriteTeamId : this.favoriteTeamIds)
+            if (favoriteTeamId.toString().equals(teamId.toString()))
+                return true;
+
+        return false;
     }
 
     public void updateFavoriteTeamId(ObjectId teamId, boolean isAddFavorite) {
@@ -242,53 +305,14 @@ public class User extends BaseTimeEntity implements UserDetails {
         }
     }
 
-    public void delete() {
-        this.isDeleted = true;
-    }
+    /**
+     * Rating related
+     */
 
-    public void updateLastRequestDate() {
-        this.lastRequestDate = LocalDateTime.now();
-    }
+    public void updateRating(int rating) {
+        this.rating = (this.rating * (float) (this.ratingCnt / (this.ratingCnt + 1))) +
+                (rating * (float) (1 / (this.ratingCnt + 1)));
 
-    public void updateRoles(List<Role> roles) {
-        for (Role role : roles)
-            this.roles.add(role.name());
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
-
-    @Override
-    public String getUsername() {
-        return this.username;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return !this.isDeleted;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return !this.isDeleted;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return !this.isDeleted;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return !this.isDeleted;
+        this.ratingCnt++;
     }
 }

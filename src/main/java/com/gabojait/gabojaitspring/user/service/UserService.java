@@ -53,7 +53,7 @@ public class UserService {
         if (username.toLowerCase().contains("admin") || username.toLowerCase().contains("gabojait"))
             throw new CustomException(null, UNAVAILABLE_USERNAME);
 
-        isExistingUsername(username);
+        validateDuplicateUsername(username);
     }
 
     /**
@@ -64,7 +64,7 @@ public class UserService {
         if (nickname.toLowerCase().contains("관리자") || nickname.toLowerCase().contains("가보자잇"))
             throw new CustomException(null, UNAVAILABLE_NICKNAME);
 
-        isExistingNickname(nickname);
+        validateDuplicateNickname(nickname);
     }
 
     /**
@@ -96,12 +96,16 @@ public class UserService {
      * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public User findOther(User user, String otherUserId) {
+    public User findOneOther(User user, String otherUserId) {
         if (user.getId().toString().equals(otherUserId)) {
             return user;
         }
 
-        return findOneOther(otherUserId);
+        User otherUser = findOne(otherUserId);
+        user.incrementVisitedCnt();
+        save(user);
+
+        return otherUser;
     }
 
     /**
@@ -151,7 +155,7 @@ public class UserService {
      */
     public void updatePassword(User user, String password, String passwordReEntered, boolean isTemporaryPassword) {
         if (!isTemporaryPassword)
-            isMatchingPassword(password, passwordReEntered);
+            validateMatchingPassword(password, passwordReEntered);
 
         user.updatePassword(utilityProvider.encodePassword(password), isTemporaryPassword);
 
@@ -316,18 +320,7 @@ public class UserService {
      */
     public void joinTeam(User user, Team team, boolean isLeader) {
         user.joinTeam(team.getId(), isLeader);
-
         save(user);
-    }
-
-    /**
-     * 팀 찜 여부 확인 | main |
-     */
-    public Boolean isFavoriteTeam(User user, ObjectId teamId) {
-        if (user.getCurrentTeamId() != null)
-            return null;
-
-        return user.getFavoriteTeamIds().contains(teamId);
     }
 
     /**
@@ -365,7 +358,6 @@ public class UserService {
      */
     public void updateFavoriteTeam(User user, Team team, boolean isAddFavorite) {
         user.updateFavoriteTeamId(team.getId(), isAddFavorite);
-
         save(user);
     }
 
@@ -374,8 +366,8 @@ public class UserService {
      * 409(EXISTING_CURRENT_TEAM / NON_EXISTING_POSITION)
      */
     public void validatePreCreateTeam(User user) {
-        hasNoCurrentTeam(user);
-        hasPosition(user);
+        validateNoCurrentTeam(user);
+        validatePositionSelected(user);
     }
 
     /**
@@ -383,8 +375,8 @@ public class UserService {
      * 409(EXISTING_USERNAME / UNAVAILABLE_NICKNAME / EXISTING_NICKNAME)
      */
     public void validatePreRegister(UserRegisterReqDto request) {
-        isExistingUsername(request.getUsername());
-        isMatchingPassword(request.getPassword(), request.getPasswordReEntered());
+        validateDuplicateUsername(request.getUsername());
+        validateMatchingPassword(request.getPassword(), request.getPasswordReEntered());
         validateNickname(request.getNickname());
     }
 
@@ -393,12 +385,7 @@ public class UserService {
      * 500(SERVER_ERROR)
      */
     public void updateLastRequestDate(User user) {
-        try {
-            user.updateLastRequestDate();
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-
+        user.updateLastRequestDate();
         save(user);
     }
 
@@ -406,7 +393,7 @@ public class UserService {
      * 현재 팀 여부 검증 | sub |
      * 409(NON_EXISTING_CURRENT_TEAM)
      */
-    public void hasCurrentTeam(User user) {
+    public void validateCurrentTeam(User user) {
         if (user.getCurrentTeamId() == null)
             throw new CustomException(null, NON_EXISTING_CURRENT_TEAM);
     }
@@ -444,51 +431,6 @@ public class UserService {
                 .orElseThrow(() -> {
                     throw new CustomException(null, USER_NOT_FOUND);
                 });
-    }
-
-    /**
-     * 식별자로 타회원 단건 조회 |
-     * 404(USER_NOT_FOUND)
-     * 500(SERVER_ERROR)
-     */
-    private User findOneOther(String userId) {
-        User user = findOne(userId);
-
-        user.incrementVisitedCnt();
-        save(user);
-
-        return user;
-    }
-
-    /**
-     * 중복 아이디 여부 확인 |
-     * 409(EXISTING_USERNAME)
-     */
-    private void isExistingUsername(String username) {
-        userRepository.findByUsernameAndIsDeletedIsFalse(username)
-                .ifPresent(u -> {
-                    throw new CustomException(null, EXISTING_USERNAME);
-                });
-    }
-
-    /**
-     * 중복 닉네임 여부 확인 |
-     * 409(EXISTING_NICKNAME)
-     */
-    private void isExistingNickname(String nickname) {
-        userRepository.findByNicknameAndIsDeletedIsFalse(nickname)
-                .ifPresent(u -> {
-                    throw new CustomException(null, EXISTING_NICKNAME);
-                });
-    }
-
-    /**
-     * 비밀번호와 비밀번호 재입력 검증 |
-     * 400(PASSWORD_MATCH_INVALID)
-     */
-    private void isMatchingPassword(String password, String passwordReEnter) {
-        if (!password.equals(passwordReEnter))
-            throw new CustomException(null, PASSWORD_MATCH_INVALID);
     }
 
     /**
@@ -606,19 +548,50 @@ public class UserService {
     }
 
     /**
+     * 중복 아이디 여부 검증 |
+     * 409(EXISTING_USERNAME)
+     */
+    private void validateDuplicateUsername(String username) {
+        userRepository.findByUsernameAndIsDeletedIsFalse(username)
+                .ifPresent(u -> {
+                    throw new CustomException(null, EXISTING_USERNAME);
+                });
+    }
+
+    /**
+     * 중복 닉네임 여부 검증 |
+     * 409(EXISTING_NICKNAME)
+     */
+    private void validateDuplicateNickname(String nickname) {
+        userRepository.findByNicknameAndIsDeletedIsFalse(nickname)
+                .ifPresent(u -> {
+                    throw new CustomException(null, EXISTING_NICKNAME);
+                });
+    }
+
+    /**
+     * 비밀번호와 비밀번호 재입력 검증 |
+     * 400(PASSWORD_MATCH_INVALID)
+     */
+    private void validateMatchingPassword(String password, String passwordReEnter) {
+        if (!password.equals(passwordReEnter))
+            throw new CustomException(null, PASSWORD_MATCH_INVALID);
+    }
+
+    /**
      * 현재 팀 무존재 여부 검증 |
      * 409(EXISTING_CURRENT_TEAM)
      */
-    private void hasNoCurrentTeam(User user) {
+    private void validateNoCurrentTeam(User user) {
         if (user.getCurrentTeamId() != null)
             throw new CustomException(null, EXISTING_CURRENT_TEAM);
     }
 
     /**
-     * 포지션 존재 여부 검증 |
+     * 포지션 선택 여부 검증 |
      * 409(NON_EXISTING_POSITION)
      */
-    private void hasPosition(User user) {
+    private void validatePositionSelected(User user) {
         if (user.getPosition().equals(Position.NONE.getType()) || user.getPosition() == null)
             throw new CustomException(null, NON_EXISTING_POSITION);
     }

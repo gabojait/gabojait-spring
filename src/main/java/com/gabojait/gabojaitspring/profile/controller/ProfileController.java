@@ -104,7 +104,7 @@ public class ProfileController {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // main
-        User otherUser = userService.findOther(user, userId);
+        User otherUser = userService.findOneOther(user, userId);
         List<Team> previousTeams = teamService.findAllCompleted(otherUser);
         Boolean isFavorite = teamService.isFavoriteUser(user, otherUser);
 

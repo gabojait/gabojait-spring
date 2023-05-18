@@ -106,7 +106,7 @@ public class TeamController {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // sub
-        userService.hasCurrentTeam(user);
+        userService.validateCurrentTeam(user);
         // main
         Team team = teamService.update(request, user);
 
@@ -142,7 +142,7 @@ public class TeamController {
 
         // main
         Team team = teamService.findOther(teamId, user);
-        Boolean isFavorite = userService.isFavoriteTeam(user, team.getId());
+        Boolean isFavorite = user.isFavoriteTeam(team.getId());
 
         // response
         TeamDetailResDto response = new TeamDetailResDto(team, isFavorite);
@@ -232,7 +232,7 @@ public class TeamController {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // sub
-        userService.hasCurrentTeam(user);
+        userService.validateCurrentTeam(user);
         // main
         teamService.updateIsRecruiting(user, request.getIsRecruiting());
 
@@ -261,7 +261,7 @@ public class TeamController {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // sub
-        userService.hasCurrentTeam(user);
+        userService.validateCurrentTeam(user);
         // main
         List<User> teamMembers = teamService.quit(user, "");
         userService.exitCurrentTeam(teamMembers, false);
@@ -294,7 +294,7 @@ public class TeamController {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // sub
-        userService.hasCurrentTeam(user);
+        userService.validateCurrentTeam(user);
         // main
         List<User> teamMembers = teamService.quit(user, request.getProjectUrl());
         userService.exitCurrentTeam(teamMembers, true);
@@ -329,7 +329,7 @@ public class TeamController {
 
         // sub
         User teammate = userService.findOne(userId);
-        userService.hasCurrentTeam(user);
+        userService.validateCurrentTeam(user);
         // main
         teamService.fire(user, teammate);
         userService.exitCurrentTeam(List.of(teammate), false);
@@ -368,7 +368,7 @@ public class TeamController {
 
         // sub
         User otherUser = userService.findOne(userId);
-        userService.hasCurrentTeam(user);
+        userService.validateCurrentTeam(user);
         // main
         teamService.updateFavoriteUser(user, otherUser, request.getIsAddFavorite());
 
@@ -396,7 +396,7 @@ public class TeamController {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // sub
-        userService.hasCurrentTeam(user);
+        userService.validateCurrentTeam(user);
         // main
         List<ObjectId> favoriteUserIds = teamService.findAllFavorite(user);
         List<User> users = userService.findAllId(favoriteUserIds);
