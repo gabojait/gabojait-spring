@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.team.dto.req;
 
 import com.gabojait.gabojaitspring.exception.CustomException;
-import com.gabojait.gabojaitspring.exception.ValidationSequence;
+import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

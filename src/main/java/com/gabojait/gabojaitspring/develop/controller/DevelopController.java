@@ -77,7 +77,7 @@ public class DevelopController {
     @GetMapping("/test/user/{user-id}")
     public ResponseEntity<DefaultResDto<Object>> testDataToken(@PathVariable(value = "user-id") Integer userId) {
         // main
-        User user = userService.findOneTestUsername("test" + userId);
+        User user = userService.findOneTestByUsername("test" + userId);
 
         // response
         HttpHeaders headers = jwtProvider.generateUserJwt(user.getId(), user.getRoles());

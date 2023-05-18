@@ -29,12 +29,11 @@ public class SkillService {
      * 404(SKILL_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public void updateAll(ObjectId userId, List<SkillUpdateReqDto> requests) {
+    public List<Skill> updateAll(ObjectId userId, List<SkillUpdateReqDto> requests) {
         List<Skill> skills = new ArrayList<>();
-        for (SkillUpdateReqDto request: requests) {
-            ObjectId id = utilityProvider.toObjectId(request.getSkillId());
 
-            Skill skill = findOne(id);
+        for (SkillUpdateReqDto request : requests) {
+            Skill skill = findOneById(request.getSkillId());
             validateOwner(skill, userId);
 
             skills.add(skill);
@@ -47,6 +46,8 @@ public class SkillService {
 
             save(skills.get(i));
         }
+
+        return skills;
     }
 
     /**
@@ -55,7 +56,8 @@ public class SkillService {
      */
     public List<Skill> createAll(ObjectId userId, List<SkillCreateReqDto> requests) {
         List<Skill> skills = new ArrayList<>();
-        for (SkillCreateReqDto request: requests) {
+
+        for (SkillCreateReqDto request : requests) {
             Skill skill = save(request.toEntity(userId));
             skills.add(skill);
         }
@@ -71,36 +73,41 @@ public class SkillService {
      */
     public List<Skill> deleteAll(ObjectId userId, List<String> skillIds) {
         List<Skill> skills = new ArrayList<>();
-        for (String skillId: skillIds) {
-            ObjectId id = utilityProvider.toObjectId(skillId);
 
-            Skill skill = findOne(id);
+        for (String skillId : skillIds) {
+            Skill skill = findOneById(skillId);
             validateOwner(skill, userId);
 
             skills.add(skill);
         }
 
         for (Skill skill: skills)
-            softDelete(skill);
+            delete(skill);
 
         return skills;
     }
 
     /**
-     * 소유자 검증 |
-     * 403(REQUEST_FORBIDDEN)
+     * 기술 처리전 전체 검증 | sub |
+     * 404(SKILL_NOT_FOUND)
      */
-    private void validateOwner(Skill skill, ObjectId userId) {
-        if (!skill.getUserId().equals(userId))
-            throw new CustomException(null, REQUEST_FORBIDDEN);
+    public void validatePreAll(List<SkillUpdateReqDto> skillUpdateReqDtos,
+                               List<String> deleteSkillIds) {
+        for (SkillUpdateReqDto request : skillUpdateReqDtos)
+            findOneById(request.getSkillId());
+
+        for (String deleteSkillId : deleteSkillIds)
+            findOneById(deleteSkillId);
     }
 
     /**
-     * 기술 단건 조회 |
+     * 식별자로 기술 단건 조회 |
      * 404(SKILL_NOT_FOUND)
      */
-    private Skill findOne(ObjectId skillId) {
-        return skillRepository.findById(skillId)
+    private Skill findOneById(String skillId) {
+        ObjectId id = utilityProvider.toObjectId(skillId);
+
+        return skillRepository.findByIdAndIsDeletedIsFalse(id)
                 .orElseThrow(() -> {
                     throw new CustomException(null, SKILL_NOT_FOUND);
                 });
@@ -122,21 +129,18 @@ public class SkillService {
      * 기술 소프트 삭제 |
      * 500(SERVER_ERROR)
      */
-    public void softDelete(Skill skill) {
+    public void delete(Skill skill) {
         skill.delete();
 
         save(skill);
     }
 
     /**
-     * 기술 하드 삭제 |
-     * 500(SERVER_ERROR)
+     * 소유자 검증 |
+     * 403(REQUEST_FORBIDDEN)
      */
-    private void hardDelete(Skill skill) {
-        try {
-            skillRepository.delete(skill);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
+    private void validateOwner(Skill skill, ObjectId userId) {
+        if (!skill.getUserId().toString().equals(userId.toString()))
+            throw new CustomException(null, REQUEST_FORBIDDEN);
     }
 }

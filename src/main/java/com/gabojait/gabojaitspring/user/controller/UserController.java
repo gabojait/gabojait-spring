@@ -206,7 +206,7 @@ public class UserController {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // main
-        User otherUser = userService.findOneOther(user, userId);
+        User otherUser = userService.findOneOtherById(user, userId);
 
         // response
         UserDefaultResDto response = new UserDefaultResDto(otherUser);
@@ -258,7 +258,7 @@ public class UserController {
     @PostMapping("/username")
     public ResponseEntity<DefaultResDto<Object>> findUsername(@RequestBody @Valid UserFindUsernameReqDto request) {
         // main
-        Contact contact = contactService.findOneRegistered(request.getEmail());
+        Contact contact = contactService.findOneRegisteredByEmail(request.getEmail());
         userService.sendUsernameEmail(contact);
 
         return ResponseEntity.status(USERNAME_EMAIL_SENT.getHttpStatus())
@@ -281,7 +281,7 @@ public class UserController {
     @PostMapping("/password")
     public ResponseEntity<DefaultResDto<Object>> findPassword(@RequestBody @Valid UserFindPasswordReqDto request) {
         // main
-        Contact contact = contactService.findOneRegistered(request.getEmail());
+        Contact contact = contactService.findOneRegisteredByEmail(request.getEmail());
         userService.sendPasswordEmail(contact, request.getUsername());
 
         return ResponseEntity.status(PASSWORD_EMAIL_SENT.getHttpStatus())

@@ -36,12 +36,11 @@ public class PortfolioService {
      * 404(PORTFOLIO_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public void updateLinkAll(ObjectId userId, List<PortfolioLinkUpdateReqDto> requests) {
+    public List<Portfolio> updateLinkAll(ObjectId userId, List<PortfolioLinkUpdateReqDto> requests) {
         List<Portfolio> portfolios = new ArrayList<>();
-        for (PortfolioLinkUpdateReqDto request: requests) {
-            ObjectId id = utilityProvider.toObjectId(request.getPortfolioId());
 
-            Portfolio portfolio = findOne(id);
+        for (PortfolioLinkUpdateReqDto request : requests) {
+            Portfolio portfolio = findOneById(request.getPortfolioId());
             validateOwner(portfolio, userId);
 
             portfolios.add(portfolio);
@@ -53,6 +52,8 @@ public class PortfolioService {
 
             save(portfolios.get(i));
         }
+
+        return portfolios;
     }
 
     /**
@@ -62,19 +63,17 @@ public class PortfolioService {
      * 415(FILE_TYPE_UNSUPPORTED)
      * 500(SERVER_ERROR)
      */
-    public void updateFileAll(User user,
+    public List<Portfolio> updateFileAll(User user,
                               List<String> portfolioIds,
                               List<String> portfolioNames,
                               List<MultipartFile> multipartFiles) {
         List<Portfolio> portfolios = new ArrayList<>();
 
         if (portfolioIds == null || portfolioNames == null || multipartFiles == null)
-            return;
+            return portfolios;
 
         for (String portfolioId : portfolioIds) {
-            ObjectId id = utilityProvider.toObjectId(portfolioId);
-
-            Portfolio portfolio = findOne(id);
+            Portfolio portfolio = findOneById(portfolioId);
             validateOwner(portfolio, user.getId());
 
             portfolios.add(portfolio);
@@ -89,6 +88,8 @@ public class PortfolioService {
 
             portfolios.get(i).update(portfolioNames.get(i), url);
         }
+
+        return portfolios;
     }
 
     /**
@@ -97,7 +98,7 @@ public class PortfolioService {
      */
     public List<Portfolio> createLinkAll(ObjectId userId, List<PortfolioLinkCreateReqDto> requests) {
         List<Portfolio> portfolios = new ArrayList<>();
-        for (PortfolioLinkCreateReqDto request: requests) {
+        for (PortfolioLinkCreateReqDto request : requests) {
             Portfolio portfolio = save(request.toEntity(userId));
             portfolios.add(portfolio);
         }
@@ -114,7 +115,7 @@ public class PortfolioService {
     public List<Portfolio> createFileAll(User user, List<String> portfolioNames, List<MultipartFile> multipartFiles) {
         List<Portfolio> portfolios = new ArrayList<>();
 
-        if (portfolioNames == null)
+        if (portfolioNames == null || multipartFiles == null)
             return portfolios;
 
         for (int i = 0; i < multipartFiles.size(); i++) {
@@ -149,32 +150,21 @@ public class PortfolioService {
         if (portfolioIds == null)
             return portfolios;
 
-        for (String portfolioId: portfolioIds) {
-            ObjectId id = utilityProvider.toObjectId(portfolioId);
-
-            Portfolio portfolio = findOne(id);
+        for (String portfolioId : portfolioIds) {
+            Portfolio portfolio = findOneById(portfolioId);
             validateOwner(portfolio, userId);
 
             portfolios.add(portfolio);
         }
 
         for (Portfolio portfolio: portfolios)
-            softDelete(portfolio);
+            delete(portfolio);
 
         return portfolios;
     }
 
     /**
-     * 소유자 검증 |
-     * 403(REQUEST_FORBIDDEN)
-     */
-    private void validateOwner(Portfolio portfolio, ObjectId userId) {
-        if (!portfolio.getUserId().equals(userId))
-            throw new CustomException(null, REQUEST_FORBIDDEN);
-    }
-
-    /**
-     * 포트폴리오 파일 전체 검증 | sub |
+     * 포트폴리오 파일 처리전 전체 검증 | sub |
      * 400(PORTFOLIO_NAME_LENGTH_INVALID / CREATE_PORTFOLIO_CNT_MATCH_INVALID / UPDATE_PORTFOLIO_CNT_MATCH_INVALID)
      * 404(PORTFOLIO_NOT_FOUND)
      * 413(FILE_COUNT_EXCEED)
@@ -186,82 +176,45 @@ public class PortfolioService {
                                     List<MultipartFile> updatePortfolioFiles,
                                     List<String> deletePortfolioIds) {
         if (createPortfolioNames != null && createPortfolioFiles != null) {
-            isExceedingLengthName(createPortfolioNames);
-            isExceedingSizeFile(createPortfolioFiles);
-            if (isUnmatchedCntNamesAndFiles(createPortfolioNames, createPortfolioFiles))
-                throw new CustomException(null, CREATE_PORTFOLIO_CNT_MATCH_INVALID);
+            validateExceedingLengthName(createPortfolioNames);
+            validateExceedingSizeFile(createPortfolioFiles);
+            validateNamesAndFilesCnt(createPortfolioNames, createPortfolioFiles);
         }
 
         if (updatePortfolioIds != null && updatePortfolioNames != null && updatePortfolioFiles != null) {
-            isExistingPortfolios(updatePortfolioIds);
-            isExceedingLengthName(updatePortfolioNames);
-            if (isUnmatchedCntIdsAndNamesAndFiles(updatePortfolioIds, updatePortfolioNames, updatePortfolioFiles))
-                throw new CustomException(null, UPDATE_PORTFOLIO_CNT_MATCH_INVALID);
+            for (String updatePortfolioId : updatePortfolioIds)
+                findOneById(updatePortfolioId);
+            validateExceedingLengthName(updatePortfolioNames);
+            validateIdsAndNamesAndFilesCnt(updatePortfolioIds, updatePortfolioNames, updatePortfolioFiles);
         }
 
         if (deletePortfolioIds != null)
-            isExistingPortfolios(deletePortfolioIds);
+            for (String deletePortfolioId : deletePortfolioIds)
+                findOneById(deletePortfolioId);
     }
 
     /**
-     * 포트폴리오 전체 존재 여부 검증 |
+     * 포트폴리오 링크 처리전 전체 검증 | sub |
      * 404(PORTFOLIO_NOT_FOUND)
      */
-    private void isExistingPortfolios(List<String> portfolioIds) {
-        if (portfolioIds == null)
-            return;
+    public void validateLinkPreAll(List<PortfolioLinkUpdateReqDto> portfolioLinkUpdateReqDtos,
+                                   List<String> deletePortfolioIds) {
+        for (PortfolioLinkUpdateReqDto request : portfolioLinkUpdateReqDtos)
+                findOneById(request.getPortfolioId());
 
-        for (String portfolioId : portfolioIds) {
-            ObjectId id = utilityProvider.toObjectId(portfolioId);
+        for (String deletePortfolioId : deletePortfolioIds)
+                findOneById(deletePortfolioId);
 
-            findOne(id);
-        }
     }
 
     /**
-     * 포트폴리오명 글자 수 검증 |
-     * 400(PORTFOLIO_NAME_LENGTH_INVALID)
-     */
-    private void isExceedingLengthName(List<String> portfolioNames) {
-        for (String portfolioName : portfolioNames)
-            if (portfolioName.length() > 10)
-                throw new CustomException(null, PORTFOLIO_NAME_LENGTH_INVALID);
-    }
-
-    /**
-     * 포트폴리오 파일 수 검증 |
-     * 413(FILE_COUNT_EXCEED)
-     */
-    private void isExceedingSizeFile(List<MultipartFile> portfolioFiles) {
-        if (portfolioFiles == null)
-            return;
-
-        if (portfolioFiles.size() > 5)
-            throw new CustomException(null, FILE_COUNT_EXCEED);
-    }
-
-    /**
-     * 포트폴리오 식별자, 포트폴리오명, 파일 수 일치 검증
-     */
-    private boolean isUnmatchedCntIdsAndNamesAndFiles(List<String> portfolioIds,
-                                                      List<String> portfolioNames,
-                                                      List<MultipartFile> multipartFiles) {
-        return portfolioIds.size() != portfolioNames.size() || portfolioIds.size() != multipartFiles.size();
-    }
-
-    /**
-     * 포트폴리오명과 파일 수 일치 검증
-     */
-    private boolean isUnmatchedCntNamesAndFiles(List<String> portfolioNames, List<MultipartFile> multipartFiles) {
-        return portfolioNames.size() != multipartFiles.size();
-    }
-
-    /**
-     * 포트폴리오 단건 조회 |
+     * 식별자로 포트폴리오 단건 조회 |
      * 404(PORTFOLIO_NOT_FOUND)
      */
-    private Portfolio findOne(ObjectId portfolioId) {
-        return portfolioRepository.findById(portfolioId)
+    private Portfolio findOneById(String portfolioId) {
+        ObjectId id = utilityProvider.toObjectId(portfolioId);
+
+        return portfolioRepository.findByIdAndIsDeletedIsFalse(id)
                 .orElseThrow(() -> {
                     throw new CustomException(null, PORTFOLIO_NOT_FOUND);
                 });
@@ -283,21 +236,60 @@ public class PortfolioService {
      * 포트폴리오 소프트 삭제 |
      * 500(SERVER_ERROR)
      */
-    public void softDelete(Portfolio portfolio) {
+    public void delete(Portfolio portfolio) {
         portfolio.delete();
 
         save(portfolio);
     }
 
     /**
-     * 포트폴리오 하드 삭제 |
-     * 500(SERVER_ERROR)
+     * 소유자 검증 |
+     * 403(REQUEST_FORBIDDEN)
      */
-    private void hardDelete(Portfolio portfolio) {
-        try {
-            portfolioRepository.delete(portfolio);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
+    private void validateOwner(Portfolio portfolio, ObjectId userId) {
+        if (!portfolio.getUserId().toString().equals(userId.toString()))
+            throw new CustomException(null, REQUEST_FORBIDDEN);
+    }
+
+    /**
+     * 포트폴리오명 글자 수 검증 |
+     * 400(PORTFOLIO_NAME_LENGTH_INVALID)
+     */
+    private void validateExceedingLengthName(List<String> portfolioNames) {
+        for (String portfolioName : portfolioNames)
+            if (portfolioName.length() > 10)
+                throw new CustomException(null, PORTFOLIO_NAME_LENGTH_INVALID);
+    }
+
+    /**
+     * 포트폴리오 파일 수 검증 |
+     * 413(FILE_COUNT_EXCEED)
+     */
+    private void validateExceedingSizeFile(List<MultipartFile> portfolioFiles) {
+        if (portfolioFiles == null)
+            return;
+
+        if (portfolioFiles.size() > 5)
+            throw new CustomException(null, FILE_COUNT_EXCEED);
+    }
+
+    /**
+     * 포트폴리오 식별자, 포트폴리오명, 파일 수 일치 검증 |
+     * 400(UPDATE_PORTFOLIO_CNT_MATCH_INVALID)
+     */
+    private void validateIdsAndNamesAndFilesCnt(List<String> portfolioIds,
+                                                List<String> portfolioNames,
+                                                List<MultipartFile> multipartFiles) {
+        if (portfolioIds.size() != portfolioNames.size() || portfolioIds.size() != multipartFiles.size())
+            throw new CustomException(null, UPDATE_PORTFOLIO_CNT_MATCH_INVALID);
+    }
+
+    /**
+     * 포트폴리오명과 파일 수 일치 검증 |
+     * 400(CREATE_PORTFOLIO_CNT_MATCH_INVALID)
+     */
+    private void validateNamesAndFilesCnt(List<String> portfolioNames, List<MultipartFile> multipartFiles) {
+        if (portfolioNames.size() != multipartFiles.size())
+            throw new CustomException(null, CREATE_PORTFOLIO_CNT_MATCH_INVALID);
     }
 }

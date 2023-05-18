@@ -27,12 +27,11 @@ public class EducationService {
      * 404(EDUCATION_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public void updateAll(ObjectId userId, List<EducationUpdateReqDto> requests) {
+    public List<Education> updateAll(ObjectId userId, List<EducationUpdateReqDto> requests) {
         List<Education> educations = new ArrayList<>();
-        for (EducationUpdateReqDto request: requests) {
-            ObjectId id = utilityProvider.toObjectId(request.getEducationId());
 
-            Education education = findOne(id);
+        for (EducationUpdateReqDto request : requests) {
+            Education education = findOneById(request.getEducationId());
             validateOwner(education, userId);
 
             educations.add(education);
@@ -46,6 +45,8 @@ public class EducationService {
 
             save(educations.get(i));
         }
+
+        return educations;
     }
 
     /**
@@ -54,7 +55,8 @@ public class EducationService {
      */
     public List<Education> createAll(ObjectId userId, List<EducationCreateReqDto> requests) {
         List<Education> educations = new ArrayList<>();
-        for (EducationCreateReqDto request: requests) {
+
+        for (EducationCreateReqDto request : requests) {
             Education education = save(request.toEntity(userId));
             educations.add(education);
         }
@@ -64,41 +66,47 @@ public class EducationService {
 
     /**
      * 전체 경력 삭제 | sub |
+     * 403(REQUEST_FORBIDDEN)
      * 404(EDUCATION_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
     public List<Education> deleteAll(ObjectId userId, List<String> educationIds) {
         List<Education> educations = new ArrayList<>();
-        for (String educationId: educationIds) {
-            ObjectId id = utilityProvider.toObjectId(educationId);
 
-            Education education = findOne(id);
+        for (String educationId : educationIds) {
+            Education education = findOneById(educationId);
             validateOwner(education, userId);
 
             educations.add(education);
         }
 
         for (Education education: educations)
-            softDelete(education);
+            delete(education);
 
         return educations;
     }
 
     /**
-     * 소유자 검증 |
-     * 403(REQUEST_FORBIDDEN)
+     * 학력 처리전 전체 검증 | sub |
+     * 404(EDUCATION_NOT_FOUND)
      */
-    private void validateOwner(Education education, ObjectId userId) {
-        if (!education.getUserId().equals(userId))
-            throw new CustomException(null, REQUEST_FORBIDDEN);
+    public void validatePreAll(List<EducationUpdateReqDto> educationUpdateReqDtos,
+                               List<String> deletePortfolioIds) {
+        for (EducationUpdateReqDto request : educationUpdateReqDtos)
+            findOneById(request.getEducationId());
+
+        for (String deleteEducationId : deletePortfolioIds)
+            findOneById(deleteEducationId);
     }
 
     /**
-     * 경력 단건 조회 |
+     * 식별자로 경력 단건 조회 |
      * 404(EDUCATION_NOT_FOUND)
      */
-    private Education findOne(ObjectId educationId) {
-        return educationRepository.findById(educationId)
+    private Education findOneById(String educationId) {
+        ObjectId id = utilityProvider.toObjectId(educationId);
+
+        return educationRepository.findByIdAndIsDeletedIsFalse(id)
                 .orElseThrow(() -> {
                     throw new CustomException(null, EDUCATION_NOT_FOUND);
                 });
@@ -120,21 +128,18 @@ public class EducationService {
      * 학력 소프트 삭제 |
      * 500(SERVER_ERROR)
      */
-    public void softDelete(Education education) {
+    public void delete(Education education) {
         education.delete();
 
         save(education);
     }
 
     /**
-     * 학력 하드 삭제 |
-     * 500(SERVER_ERROR)
+     * 소유자 검증 |
+     * 403(REQUEST_FORBIDDEN)
      */
-    private void hardDelete(Education education) {
-        try {
-            educationRepository.delete(education);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
+    private void validateOwner(Education education, ObjectId userId) {
+        if (!education.getUserId().toString().equals(userId.toString()))
+            throw new CustomException(null, REQUEST_FORBIDDEN);
     }
 }

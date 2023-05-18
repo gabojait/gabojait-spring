@@ -86,7 +86,7 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "단건 조회", notes = "* user-id = NotBlank")
+    @ApiOperation(value = "단건 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "PROFILE_FOUND",
                     content = @Content(schema = @Schema(implementation = ProfileDetailResDto.class))),
@@ -104,7 +104,7 @@ public class ProfileController {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // main
-        User otherUser = userService.findOneOther(user, userId);
+        User otherUser = userService.findOneOtherById(user, userId);
         List<Team> previousTeams = teamService.findAllCompleted(otherUser);
         Boolean isFavorite = teamService.isFavoriteUser(user, otherUser);
 
@@ -259,11 +259,12 @@ public class ProfileController {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // sub
+        skillService.validatePreAll(request.getUpdateSkills(), request.getDeleteSkillIds());
         List<Skill> createdSkills = skillService.createAll(user.getId(), request.getCreateSkills());
+        List<Skill> updatedSkills = skillService.updateAll(user.getId(), request.getUpdateSkills());
         List<Skill> deletedSkills = skillService.deleteAll(user.getId(), request.getDeleteSkillIds());
         // main
-        skillService.updateAll(user.getId(), request.getUpdateSkills());
-        userService.updatePositionAndSkills(user, request.getPosition(), createdSkills, deletedSkills);
+        userService.updatePositionAndSkills(user, request.getPosition(), createdSkills, updatedSkills, deletedSkills);
 
         return ResponseEntity.status(POSITION_AND_SKILL_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -291,14 +292,22 @@ public class ProfileController {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // sub
+        educationService.validatePreAll(request.getUpdateEducations(), request.getDeleteEducationIds());
+        workService.validatePreAll(request.getUpdateWorks(), request.getDeleteWorkIds());
         List<Education> createdEducations = educationService.createAll(user.getId(), request.getCreateEducations());
+        List<Education> updatedEducations = educationService.updateAll(user.getId(), request.getUpdateEducations());
         List<Education> deletedEducations = educationService.deleteAll(user.getId(), request.getDeleteEducationIds());
         List<Work> createdWorks = workService.createAll(user.getId(), request.getCreateWorks());
+        List<Work> updatedWorks = workService.updateAll(user.getId(), request.getUpdateWorks());
         List<Work> deletedWorks = workService.deleteAll(user.getId(), request.getDeleteWorkIds());
         // main
-        educationService.updateAll(user.getId(), request.getUpdateEducations());
-        workService.updateAll(user.getId(), request.getUpdateWorks());
-        userService.updateEducationsAndWorks(user, createdEducations, deletedEducations, createdWorks, deletedWorks);
+        userService.updateEducationsAndWorks(user,
+                createdEducations,
+                updatedEducations,
+                deletedEducations,
+                createdWorks,
+                updatedWorks,
+                deletedWorks);
 
         return ResponseEntity.status(EDUCATION_AND_WORK_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -326,12 +335,14 @@ public class ProfileController {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // sub
+        portfolioService.validateLinkPreAll(request.getUpdateLinkPortfolios(), request.getDeletePortfolioIds());
         List<Portfolio> createdPortfolios = portfolioService.createLinkAll(user.getId(),
                 request.getCreateLinkPortfolios());
+        List<Portfolio> updatedPortfolios = portfolioService.updateLinkAll(user.getId(),
+                request.getUpdateLinkPortfolios());
         List<Portfolio> deletedPortfolios = portfolioService.deleteAll(user.getId(), request.getDeletePortfolioIds());
         // main
-        portfolioService.updateLinkAll(user.getId(), request.getUpdateLinkPortfolios());
-        userService.updatePortfolios(user, createdPortfolios, deletedPortfolios);
+        userService.updatePortfolios(user, createdPortfolios, updatedPortfolios, deletedPortfolios);
 
         return ResponseEntity.status(LINK_PORTFOLIO_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -384,10 +395,13 @@ public class ProfileController {
         List<Portfolio> createdPortfolios = portfolioService.createFileAll(user,
                 createPortfolioNames,
                 createPortfolioFiles);
+        List<Portfolio> updatedPortfolios = portfolioService.updateFileAll(user,
+                updatePortfolioIds,
+                updatePortfolioNames,
+                updatePortfolioFiles);
         List<Portfolio> deletedPortfolios = portfolioService.deleteAll(user.getId(), deletePortfolioIds);
         // main
-        portfolioService.updateFileAll(user, updatePortfolioIds, updatePortfolioNames, updatePortfolioFiles);
-        userService.updatePortfolios(user, createdPortfolios, deletedPortfolios);
+        userService.updatePortfolios(user, createdPortfolios, updatedPortfolios, deletedPortfolios);
 
         return ResponseEntity.status(FILE_PORTFOLIO_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -397,15 +411,15 @@ public class ProfileController {
     }
 
     @ApiOperation(value = "팀을 찾는 회원 다건 조회",
-            notes = "* position = NotBlank && Pattern(regex = ^(designer|backend|frontend|manager|none))\n" +
-                    "* profile-order = NotBlank && Pattern(regex = ^(active|popularity|rating))\n" +
-                    "* page-from = NotNull && PositiveOrZero\n" +
+            notes = "* position = Pattern(regex = ^(designer|backend|frontend|manager|none))\n" +
+                    "* profile-order = Pattern(regex = ^(active|popularity|rating))\n" +
+                    "* page-from = PositiveOrZero\n" +
                     "* page-size = Positive")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "USERS_FINDING_TEAM_FOUND",
                     content = @Content(schema = @Schema(implementation = ProfileAbstractResDto.class))),
             @ApiResponse(responseCode = "400",
-                    description = "*_FIELD_REQUIRED / *_TYPE_INVALID / PAGE_FROM_POSITIVE_OR_ZER_ONLY / " +
+                    description = "*_TYPE_INVALID / PAGE_FROM_POSITIVE_OR_ZER_ONLY / " +
                             "PAGE_SIZE_POSITIVE_ONLY"),
             @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
@@ -449,7 +463,7 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "회원의 팀 찜 업데이트", notes = "* team-id = NotBlank")
+    @ApiOperation(value = "회원의 팀 찜 업데이트")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "TEAM_FAVORITE_UPDATED",
                     content = @Content(schema = @Schema(implementation = Object.class))),

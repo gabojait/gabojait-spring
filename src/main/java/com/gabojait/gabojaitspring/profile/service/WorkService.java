@@ -28,12 +28,11 @@ public class WorkService {
      * 404(WORK_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public void updateAll(ObjectId userId, List<WorkUpdateReqDto> requests) {
+    public List<Work> updateAll(ObjectId userId, List<WorkUpdateReqDto> requests) {
         List<Work> works = new ArrayList<>();
-        for (WorkUpdateReqDto request: requests) {
-            ObjectId id = utilityProvider.toObjectId(request.getWorkId());
 
-            Work work = findOne(id);
+        for (WorkUpdateReqDto request : requests) {
+            Work work = findOneById(request.getWorkId());
             validateOwner(work, userId);
 
             works.add(work);
@@ -48,6 +47,8 @@ public class WorkService {
 
             save(works.get(i));
         }
+
+        return works;
     }
 
     /**
@@ -56,7 +57,8 @@ public class WorkService {
      */
     public List<Work> createAll(ObjectId userId, List<WorkCreateReqDto> requests) {
         List<Work> works = new ArrayList<>();
-        for (WorkCreateReqDto request: requests) {
+
+        for (WorkCreateReqDto request : requests) {
             Work work = save(request.toEntity(userId));
             works.add(work);
         }
@@ -72,36 +74,41 @@ public class WorkService {
      */
     public List<Work> deleteAll(ObjectId userId, List<String> workIds) {
         List<Work> works = new ArrayList<>();
-        for (String workId: workIds) {
-            ObjectId id = utilityProvider.toObjectId(workId);
 
-            Work work = findOne(id);
+        for (String workId : workIds) {
+            Work work = findOneById(workId);
             validateOwner(work, userId);
 
             works.add(work);
         }
 
         for (Work work: works)
-            softDelete(work);
+            delete(work);
 
         return works;
     }
 
     /**
-     * 소유자 검증 |
-     * 403(REQUEST_FORBIDDEN)
+     * 경력 처리전 전체 검증 | sub |
+     * 404(WORK_NOT_FOUND)
      */
-    private void validateOwner(Work work, ObjectId userId) {
-        if (!work.getUserId().equals(userId))
-            throw new CustomException(null, REQUEST_FORBIDDEN);
+    public void validatePreAll(List<WorkUpdateReqDto> workUpdateReqDtos,
+                               List<String> deleteWorkIds) {
+        for (WorkUpdateReqDto request : workUpdateReqDtos)
+            findOneById(request.getWorkId());
+
+        for (String deleteWorkId : deleteWorkIds)
+            findOneById(deleteWorkId);
     }
 
     /**
-     * 경력 단건 조회 |
+     * 식별자로 경력 단건 조회 |
      * 404(WORK_NOT_FOUND)
      */
-    private Work findOne(ObjectId workId) {
-        return workRepository.findById(workId)
+    private Work findOneById(String workId) {
+        ObjectId id = utilityProvider.toObjectId(workId);
+
+        return workRepository.findByIdAndIsDeletedIsFalse(id)
                 .orElseThrow(() -> {
                     throw new CustomException(null, WORK_NOT_FOUND);
                 });
@@ -123,21 +130,18 @@ public class WorkService {
      * 경력 소프트 삭제 |
      * 500(SERVER_ERROR)
      */
-    public void softDelete(Work work) {
+    public void delete(Work work) {
         work.delete();
 
         save(work);
     }
 
     /**
-     * 경력 하드 삭제 |
-     * 500(SERVER_ERROR)
+     * 소유자 검증 |
+     * 403(REQUEST_FORBIDDEN)
      */
-    private void hardDelete(Work work) {
-        try {
-            workRepository.delete(work);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
+    private void validateOwner(Work work, ObjectId userId) {
+        if (!work.getUserId().toString().equals(userId.toString()))
+            throw new CustomException(null, REQUEST_FORBIDDEN);
     }
 }

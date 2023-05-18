@@ -80,7 +80,7 @@ public class UserService {
      * 401(LOGIN_FAIL)
      */
     public User login(UserLoginReqDto request) {
-        User user = findOneUsername(request.getUsername());
+        User user = findOneByUsername(request.getUsername());
 
         boolean isVerified = utilityProvider.verifyPassword(user, request.getPassword());
         if (!isVerified)
@@ -90,16 +90,16 @@ public class UserService {
     }
 
     /**
-     * 타인 단건 조회 | main |
+     * 식별자로 타인 단건 조회 | main |
      * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public User findOneOther(User user, String otherUserId) {
+    public User findOneOtherById(User user, String otherUserId) {
         if (user.getId().toString().equals(otherUserId)) {
             return user;
         }
 
-        User otherUser = findOne(otherUserId);
+        User otherUser = findOneById(otherUserId);
         otherUser.incrementVisitedCnt();
         save(user);
 
@@ -112,7 +112,7 @@ public class UserService {
      * 500(EMAIL_SEND_ERROR)
      */
     public void sendUsernameEmail(Contact contact) {
-        User user = findOneEmail(contact);
+        User user = findOneByContact(contact);
 
         emailProvider.sendEmail(
                 user.getContact().getEmail(),
@@ -129,7 +129,7 @@ public class UserService {
      * 500(EMAIL_SEND_ERROR)
      */
     public void sendPasswordEmail(Contact contact, String username) {
-        User user = findOneEmail(contact);
+        User user = findOneByContact(contact);
 
         if (!user.getUsername().equals(username))
             throw new CustomException(null, USERNAME_EMAIL_MATCH_INVALID);
@@ -140,7 +140,7 @@ public class UserService {
         emailProvider.sendEmail(
                 user.getContact().getEmail(),
                 "[가보자잇] 비밀번호 찾기",
-                user.getLegalName() +
+                user.getUsername() +
                         "님 안녕하세요!🙇🏻<br>임시 비밀번호를 제공해 드립니다.<br>접속 후 비밀번호를 변경 해주세요.",
                 tempPassword
         );
@@ -177,6 +177,9 @@ public class UserService {
      * 500(SERVER_ERROR)
      */
     public void uploadProfileImage(User user, MultipartFile multipartFile) {
+        if (multipartFile == null)
+            throw new CustomException(null, FILE_FIELD_REQUIRED);
+
         String url = fileProvider.upload(bucketName,
                 user.getId().toString(),
                 UUID.randomUUID().toString(),
@@ -222,7 +225,7 @@ public class UserService {
      * 아이디로 테스트 회원 단건 조회 | main |
      * 404(USER_NOT_FOUND)
      */
-    public User findOneTestUsername(String username) {
+    public User findOneTestByUsername(String username) {
         return userRepository.findByUsernameAndIsDeletedIsFalse(username)
                 .orElseThrow(() -> {
                     throw new CustomException(null, USER_NOT_FOUND);
@@ -233,9 +236,18 @@ public class UserService {
      * 포지션과 기술들 업데이트 | main |
      * 500(SERVER_ERROR)
      */
-    public void updatePositionAndSkills(User user, String position, List<Skill> createdSkills, List<Skill> deletedSkills) {
+    public void updatePositionAndSkills(User user,
+                                        String position,
+                                        List<Skill> createdSkills,
+                                        List<Skill> updatedSkills,
+                                        List<Skill> deletedSkills) {
+        // update
         user.updatePosition(Position.fromString(position));
+        user.removeAllSkills(updatedSkills);
+        user.addAllSkills(updatedSkills);
+        // create
         user.addAllSkills(createdSkills);
+        // delete
         user.removeAllSkills(deletedSkills);
 
         save(user);
@@ -247,12 +259,21 @@ public class UserService {
      */
     public void updateEducationsAndWorks(User user,
                                          List<Education> createdEducations,
+                                         List<Education> updatedEducations,
                                          List<Education> deletedEducations,
                                          List<Work> createdWorks,
+                                         List<Work> updatedWorks,
                                          List<Work> deletedWorks) {
+        // update
+        user.removeAllEducations(updatedEducations);
+        user.addAllEducations(updatedEducations);
+        user.removeAllWorks(updatedWorks);
+        user.addAllWorks(updatedWorks);
+        // create
         user.addAllEducations(createdEducations);
-        user.removeAllEducations(deletedEducations);
         user.addAllWorks(createdWorks);
+        // delete
+        user.removeAllEducations(deletedEducations);
         user.removeAllWorks(deletedWorks);
 
         save(user);
@@ -262,8 +283,16 @@ public class UserService {
      * 포트폴리오들 업데이트 | main |
      * 500(SERVER_ERROR)
      */
-    public void updatePortfolios(User user, List<Portfolio> createdPortfolios, List<Portfolio> deletedPortfolios) {
+    public void updatePortfolios(User user,
+                                 List<Portfolio> createdPortfolios,
+                                 List<Portfolio> updatedPortfolios,
+                                 List<Portfolio> deletedPortfolios) {
+        // update
+        user.removeAllPortfolios(updatedPortfolios);
+        user.addAllPortfolios(updatedPortfolios);
+        // create
         user.addAllPortfolios(createdPortfolios);
+        // delete
         user.removeAllPortfolios(deletedPortfolios);
 
         save(user);
@@ -400,7 +429,7 @@ public class UserService {
      * 아이디로 회원 단건 조회 |
      * 401(LOGIN_FAIL)
      */
-    private User findOneUsername(String username) {
+    private User findOneByUsername(String username) {
         return userRepository.findByUsernameAndIsDeletedIsFalse(username)
                 .orElseThrow(() -> {
                     throw new CustomException(null, LOGIN_FAIL);
@@ -411,7 +440,7 @@ public class UserService {
      * 연락처로 단건 조회 |
      * 404(USER_NOT_FOUND)
      */
-    private User findOneEmail(Contact contact) {
+    private User findOneByContact(Contact contact) {
         return userRepository.findByContactAndIsDeletedIsFalse(contact)
                 .orElseThrow(() -> {
                     throw new CustomException(null, USER_NOT_FOUND);
@@ -422,7 +451,7 @@ public class UserService {
      * 식별자로 회원 단건 조회 | sub |
      * 404(USER_NOT_FOUND)
      */
-    public User findOne(String userId) {
+    public User findOneById(String userId) {
         ObjectId id = utilityProvider.toObjectId(userId);
 
         return userRepository.findByIdAndIsDeletedIsFalse(id)

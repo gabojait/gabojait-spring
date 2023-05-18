@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.user.dto.req;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.gabojait.gabojaitspring.exception.ValidationSequence;
+import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.user.domain.Contact;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.domain.type.Gender;

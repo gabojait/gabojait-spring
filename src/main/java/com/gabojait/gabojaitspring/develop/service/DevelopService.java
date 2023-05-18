@@ -153,7 +153,9 @@ public class DevelopService {
             userService.updateEducationsAndWorks(user,
                     List.of(education),
                     List.of(),
+                    List.of(),
                     List.of(work),
+                    List.of(),
                     List.of());
         }
     }
@@ -163,12 +165,12 @@ public class DevelopService {
             Portfolio portfolio = Portfolio.builder()
                     .userId(user.getId())
                     .portfolioName("깃허브")
-                    .url("google.com")
+                    .url("github.com/gabojait")
                     .media(Media.LINK)
                     .build();
-            portfolioService.softDelete(portfolio);
+            portfolioService.delete(portfolio);
 
-            userService.updatePortfolios(user, List.of(portfolio), List.of());
+            userService.updatePortfolios(user, List.of(portfolio), List.of(), List.of());
         }
     }
 
@@ -180,9 +182,9 @@ public class DevelopService {
                     .level(Level.MID)
                     .isExperienced(true)
                     .build();
-            skillService.softDelete(skill);
+            skillService.delete(skill);
 
-            userService.updatePositionAndSkills(user, Position.BACKEND.name(), List.of(skill), List.of());
+            userService.updatePositionAndSkills(user, Position.BACKEND.name(), List.of(skill), List.of(), List.of());
         }
     }
 

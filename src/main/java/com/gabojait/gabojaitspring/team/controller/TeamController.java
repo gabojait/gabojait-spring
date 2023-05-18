@@ -156,16 +156,15 @@ public class TeamController {
     }
 
     @ApiOperation(value = "팀원을 찾는 팀 다건 조회",
-            notes = "* position = NotBlank && Pattern(regex = ^(designer|backend|frontend|manager|none))\n" +
-                    "* team-order = NotBlank && Pattern(regex = ^(created|active|popularity))\n" +
-                    "* page-from = NotNull && PositiveOrZero\n" +
+            notes = "* position = Pattern(regex = ^(designer|backend|frontend|manager|none))\n" +
+                    "* team-order = Pattern(regex = ^(created|active|popularity))\n" +
+                    "* page-from = PositiveOrZero\n" +
                     "* page-size = Positive")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "TEAMS_FINDING_USERS_FOUND",
                     content = @Content(schema = @Schema(implementation = TeamDefaultResDto.class))),
             @ApiResponse(responseCode = "400",
-                    description = "*_FIELD_REQUIRED / *_TYPE_INVALID / PAGE_FROM_POSITIVE_OR_ZER_ONLY / " +
-                            "PAGE_SIZE_POSITIVE_ONLY"),
+                    description = "*_TYPE_INVALID / PAGE_FROM_POSITIVE_OR_ZER_ONLY / PAGE_SIZE_POSITIVE_ONLY"),
             @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
             @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
@@ -307,7 +306,7 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation(value = "팀원 추방", notes = "* user-id = NotBlank")
+    @ApiOperation(value = "팀원 추방")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "TEAMMATE_FIRED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
@@ -328,7 +327,7 @@ public class TeamController {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // sub
-        User teammate = userService.findOne(userId);
+        User teammate = userService.findOneById(userId);
         userService.validateHasCurrentTeam(user);
         // main
         teamService.fire(user, teammate);
@@ -341,7 +340,7 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation(value = "팀의 회원 찜 업데이트", notes = "* user-id = NotBlank")
+    @ApiOperation(value = "팀의 회원 찜 업데이트")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "USER_FAVORITE_UPDATED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
@@ -357,7 +356,6 @@ public class TeamController {
     public ResponseEntity<DefaultResDto<Object>> updateFavoriteUser(
             HttpServletRequest servletRequest,
             @PathVariable(value = "user-id")
-            @NotBlank(message = "회원 식별자를 입력해 주세요.")
             String userId,
             @RequestBody
             @Valid
@@ -367,7 +365,7 @@ public class TeamController {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // sub
-        User otherUser = userService.findOne(userId);
+        User otherUser = userService.findOneById(userId);
         userService.validateHasCurrentTeam(user);
         // main
         teamService.updateFavoriteUser(user, otherUser, request.getIsAddFavorite());
