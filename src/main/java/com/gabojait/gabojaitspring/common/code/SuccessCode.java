@@ -62,6 +62,8 @@ public enum SuccessCode {
     PASSWORD_EMAIL_SENT(OK, "이메일로 임시 비밀번호를 전송 했습니다."),
     PASSWORD_VERIFIED(OK, "비밀번호 검증을 했습니다."),
     USER_DELETED(OK, "회원 탈퇴를 했습니다."),
+    PASSWORD_UPDATED(OK, "비밀번호를 업데이트 했습니다."),
+    NICKNAME_UPDATED(OK, "닉네임을 업데이트 했습니다."),
 
     // 201 Created
     USER_REGISTERED(CREATED, "회원 가입을 했습니다."),

@@ -141,6 +141,10 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.isTemporaryPassword = isTemporaryPassword;
     }
 
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
     public void updateLastRequestDate() {
         this.lastRequestDate = LocalDateTime.now();
     }

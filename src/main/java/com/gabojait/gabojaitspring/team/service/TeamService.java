@@ -144,11 +144,11 @@ public class TeamService {
         Page<Team> teams;
 
         if (p.equals(Position.NONE)) {
-            switch (to.name()) {
-                case "ACTIVE":
+            switch (to.name().toLowerCase()) {
+                case "active":
                     teams = findPageByActive(pageable);
                     break;
-                case "POPULARITY":
+                case "popularity":
                     teams = findPageByPopularity(pageable);
                     break;
                 default:
@@ -157,10 +157,10 @@ public class TeamService {
             }
         } else {
             switch (to.name()) {
-                case "ACTIVE":
+                case "active":
                     teams = findPagePositionByActive(p, pageable);
                     break;
-                case "POPULARITY":
+                case "popularity":
                     teams = findPagePositionByPopularity(p, pageable);
                     break;
                 default:

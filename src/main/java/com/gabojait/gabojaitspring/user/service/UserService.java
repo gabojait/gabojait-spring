@@ -161,6 +161,19 @@ public class UserService {
     }
 
     /**
+     * 닉네임 업데이트 | main |
+     * 409(UNAVAILABLE_NICKNAME / EXISTING_NICKNAME)
+     * 500(SERVER_ERROR)
+     */
+    public void updateNickname(User user, String nickname) {
+        validateNickname(nickname);
+
+        user.updateNickname(nickname);
+
+        save(user);
+    }
+
+    /**
      * 비밀번호 검증 | main |
      * 400(PASSWORD_INVALID)
      */

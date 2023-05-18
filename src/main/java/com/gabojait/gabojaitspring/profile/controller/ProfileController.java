@@ -487,7 +487,7 @@ public class ProfileController {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // sub
-        Team team = teamService.findOneId(teamId);
+        Team team = teamService.findOneById(teamId);
         // main
         userService.updateFavoriteTeam(user, team, request.getIsAddFavorite());
 

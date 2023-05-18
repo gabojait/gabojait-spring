@@ -317,9 +317,37 @@ public class UserController {
                         .build());
     }
 
+    @ApiOperation(value = "닉네임 업데이트")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "NICKNAME_UPDATED",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "400",
+                    description = "NICKNAME_FIELD_REQUIRED / NICKNAME_LENGTH_INVALID / NICKNAME_FORMAT_INVALID"),
+            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
+            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
+            @ApiResponse(responseCode = "409", description = "UNAVAILABLE_NICKNAME / EXISTING_NICKNAME"),
+            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
+            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+    })
+    @PatchMapping("/nickname")
+    public ResponseEntity<DefaultResDto<Object>> updateNickname(HttpServletRequest servletRequest,
+                                                                @RequestBody @Valid UserNicknameUpdateReqDto request) {
+        // auth
+        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        // main
+        userService.updateNickname(user, request.getNickname());
+
+        return ResponseEntity.status(NICKNAME_UPDATED.getHttpStatus())
+                .body(DefaultResDto.noDataBuilder()
+                        .responseCode(PASSWORD_UPDATED.name())
+                        .responseMessage(PASSWORD_UPDATED.getMessage())
+                        .build());
+    }
+
     @ApiOperation(value = "비밀번호 업데이트")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "PASSWORD_VERIFIED",
+            @ApiResponse(responseCode = "200", description = "PASSWORD_UPDATED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400",
                     description = "*_FIELD_REQUIRED / PASSWORD_LENGTH_INVALID / PASSWORD_FORMAT_INVALID / " +
@@ -338,10 +366,10 @@ public class UserController {
         // main
         userService.updatePassword(user, request.getPassword(), request.getPasswordReEntered(), false);
 
-        return ResponseEntity.status(PASSWORD_VERIFIED.getHttpStatus())
+        return ResponseEntity.status(PASSWORD_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
-                        .responseCode(PASSWORD_VERIFIED.name())
-                        .responseMessage(PASSWORD_VERIFIED.getMessage())
+                        .responseCode(PASSWORD_UPDATED.name())
+                        .responseMessage(PASSWORD_UPDATED.getMessage())
                         .build());
     }
 
