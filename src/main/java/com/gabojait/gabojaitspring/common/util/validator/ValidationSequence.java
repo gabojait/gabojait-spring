@@ -1,4 +1,4 @@
-package com.gabojait.gabojaitspring.exception;
+package com.gabojait.gabojaitspring.common.util.validator;
 
 public abstract class ValidationSequence {
 

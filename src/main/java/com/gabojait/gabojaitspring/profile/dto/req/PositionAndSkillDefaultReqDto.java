@@ -1,12 +1,14 @@
 package com.gabojait.gabojaitspring.profile.dto.req;
 
-import com.gabojait.gabojaitspring.exception.ValidationSequence;
+import com.gabojait.gabojaitspring.common.util.validator.ValidIfPresent;
+import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.GroupSequence;
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.List;
         ValidationSequence.Size.class,
         ValidationSequence.Format.class
 })
+@ValidIfPresent
 @ApiModel(value = "포지션과 기술 기본 요청")
 public class PositionAndSkillDefaultReqDto {
 
@@ -31,9 +34,11 @@ public class PositionAndSkillDefaultReqDto {
     private String position;
 
     @ApiModelProperty(position = 2, value = "생성 기술들")
+    @Valid
     private List<SkillCreateReqDto> createSkills;
 
     @ApiModelProperty(position = 3, value = "수정 기술들")
+    @Valid
     private List<SkillUpdateReqDto> updateSkills;
 
     @ApiModelProperty(position = 4, access = "삭제 기술 식별자들")

@@ -1,6 +1,6 @@
 package com.gabojait.gabojaitspring.profile.dto.req;
 
-import com.gabojait.gabojaitspring.exception.ValidationSequence;
+import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.profile.domain.Skill;
 import com.gabojait.gabojaitspring.profile.domain.type.Level;
 import io.swagger.annotations.ApiModel;

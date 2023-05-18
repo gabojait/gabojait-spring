@@ -49,6 +49,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
                 .toUpperCase();
         String responseMessage = Objects.requireNonNull(exception.getFieldError()).getDefaultMessage();
 
+        responseCode = formatIfInnerDto(responseCode);
         responseCode += formatResponseCode(responseMessage);
         return ResponseEntity.status(status)
                 .body(ExceptionResDto.builder()
@@ -71,6 +72,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
                     .toString().split("\\.")[propertyPathSize - 1]
                     .toUpperCase();
 
+            responseCode = formatIfInnerDto(responseCode);
             responseMessage = constraintViolation.getMessageTemplate();
             responseCode += formatResponseCode(responseMessage);
         } else {
@@ -103,7 +105,19 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
             responseCode = "REQUEST_INVALID";
         }
 
-        System.out.println("formatResponseCode = " + responseCode);
+        return responseCode;
+    }
+
+    private String formatIfInnerDto(String responseCode) {
+        if (!responseCode.matches(".*\\d+.*"))
+            return responseCode;
+
+        for (int i = responseCode.length() - 1; i >= 0; i--) {
+            char c = responseCode.charAt(i);
+            if (Character.isDigit(c))
+                return responseCode.substring(i + 2);
+        }
+
         return responseCode;
     }
 
