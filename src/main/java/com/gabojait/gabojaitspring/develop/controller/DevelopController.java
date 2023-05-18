@@ -70,7 +70,6 @@ public class DevelopController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "TOKEN_ISSUED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "USER_ID_FIELD_REQUIRED"),
             @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
             @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
             @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
