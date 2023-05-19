@@ -655,5 +655,42 @@ public class ProfileController {
                          .data(responses)
                          .size(responses.size() > 0 ? 1 : 0)
                          .build());
-     }
+    }
+
+    @ApiOperation(value = "팀 탈퇴",
+            notes = "<응답 코드>\n" +
+                    "- 200 = TEAM_LEFT\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = TEAM_NOT_FOUND" +
+                    "- 409 = NON_EXISTING_CURRENT_TEAM\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "TEAM_NOT_FOUND"),
+            @ApiResponse(responseCode = "409", description = "CONFLICT"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
+    })
+    @PatchMapping("/team/leave")
+    public ResponseEntity<DefaultResDto<Object>> leaveTeam(HttpServletRequest servletRequest) {
+        // auth
+        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        // sub
+        userService.validateHasCurrentTeam(user);
+        // main
+        teamService.leave(user);
+        userService.exitCurrentTeam(List.of(user), false);
+
+        return ResponseEntity.status(TEAM_LEFT.getHttpStatus())
+                .body(DefaultResDto.noDataBuilder()
+                        .responseCode(TEAM_LEFT.name())
+                        .responseMessage(TEAM_LEFT.getMessage())
+                        .build());
+    }
 }

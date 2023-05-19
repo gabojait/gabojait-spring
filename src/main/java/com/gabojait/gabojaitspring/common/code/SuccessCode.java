@@ -45,6 +45,7 @@ public enum SuccessCode {
     USERS_FINDING_TEAM_FOUND(OK, "팀을 구하는 회원 다건 조회를 했습니다."),
     TEAM_FAVORITE_UPDATED(OK, "팀 찜 목록을 업데이트 했습니다."),
     FAVORITE_TEAMS_FOUND(OK, "찜한 팀 전체 조회를 했습니다."),
+    TEAM_LEFT(OK, "현재 팀을 탈퇴 햇습니다."),
 
     // 201 Created
 

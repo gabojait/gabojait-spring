@@ -15,7 +15,6 @@ import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Example;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -99,7 +98,7 @@ public class TeamController {
     }
 
     @ApiOperation(value = "팀 정보 수정",
-            notes = "\t<응답 코드>\n" +
+            notes = "<응답 코드>\n" +
                     "- 200 = TEAM_UPDATED\n" +
                     "- 400 = PROJECT_NAME_FIELD_REQUIRED || PROJECT_DESCRIPTION_FIELD_REQUIRED || " +
                     "DESIGNER_TOTAL_RECRUIT_CNT_FIELD_REQUIRED || BACKEND_TOTAL_RECRUIT_CNT_FIELD_REQUIRED || " +

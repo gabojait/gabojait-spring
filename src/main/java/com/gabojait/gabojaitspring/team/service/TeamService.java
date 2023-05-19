@@ -272,6 +272,19 @@ public class TeamService {
     }
 
     /**
+     * 팀 탈퇴 | main |
+     * 404(TEAM_NOT_FOUND)
+     * 500(SERVER_ERROR)
+     */
+    public void leave(User user) {
+        Team team = findOneById(user.getCurrentTeamId().toString());
+
+        team.removeTeammate(user, false);
+
+        save(team);
+    }
+
+    /**
      * 팀 합류 |
      * 409(TEAM_POSITION_UNAVAILABLE)
      * 500(SERVER_ERROR)
