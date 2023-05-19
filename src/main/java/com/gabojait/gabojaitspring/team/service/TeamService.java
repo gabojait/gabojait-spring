@@ -40,6 +40,7 @@ public class TeamService {
 
     /**
      * 팀 정보 수정 | main |
+     * 400(ID_CONVERT_INVALID)
      * 403(REQUEST_FORBIDDEN)
      * 404(TEAM_NOT_FOUND)
      * 409(DESIGNER_CNT_UPDATE_UNAVAILABLE / BACKEND_CNT_UPDATE_UNAVAILABLE / FRONTEND_CNT_UPDATE_UNAVAILABLE /
@@ -49,7 +50,7 @@ public class TeamService {
     public Team update(TeamDefaultReqDto request, User user) {
         Team team = findOneById(user.getCurrentTeamId().toString());
 
-        if (!isLeader(team, user))
+        if (!team.isLeader(user.getId().toString()))
             throw new CustomException(null, REQUEST_FORBIDDEN);
         validateAllPositionCnt(team,
                 request.getDesignerTotalRecruitCnt(),
@@ -72,6 +73,7 @@ public class TeamService {
 
     /**
      * 완료한 팀 전체 조회 | main&sub |
+     * 400(ID_CONVERT_INVALID)
      * 404(TEAM_NOT_FOUND)
      */
     public List<Team> findAllCompleted(User user) {
@@ -85,6 +87,7 @@ public class TeamService {
 
     /**
      * 유저 찜 여부 확인 | main |
+     * 400(ID_CONVERT_INVALID)
      * 404(TEAM_NOT_FOUND)
      */
     public Boolean isFavoriteUser(User user, User otherUser) {
@@ -92,7 +95,7 @@ public class TeamService {
             return null;
 
         Team team = findOneById(user.getCurrentTeamId().toString());
-        if (!isLeader(team, user))
+        if (!team.isLeader(user.getId().toString()))
             return null;
 
         for (ObjectId favoriteUserId : team.getFavoriteUserIds())
@@ -104,6 +107,7 @@ public class TeamService {
 
     /**
      * 식별자로 단건 조회 | main&sub |
+     * 400(ID_CONVERT_INVALID)
      * 404(TEAM_NOT_FOUND)
      */
     public Team findOneById(String teamId) {
@@ -117,6 +121,7 @@ public class TeamService {
 
     /**
      * 타팀 단건 조회 | main |
+     * 400(ID_CONVERT_INVALID)
      * 404(TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
@@ -174,13 +179,14 @@ public class TeamService {
 
     /**
      * 팀원 모집 여부 업데이트 | main |
+     * 400(ID_CONVERT_INVALID)
      * 403(REQUEST_FORBIDDEN)
      * 404(TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
     public void updateIsRecruiting(User user, Boolean isRecruiting) {
         Team team = findOneById(user.getCurrentTeamId().toString());
-        if (!isLeader(team, user))
+        if (!team.isLeader(user.getId().toString()))
             throw new CustomException(null, REQUEST_FORBIDDEN);
 
         team.updateIsRecruiting(isRecruiting);
@@ -189,13 +195,14 @@ public class TeamService {
 
     /**
      * 팀원 추방 | main |
+     * 400(ID_CONVERT_INVALID)
      * 403(REQUEST_FORBIDDEN)
      * 404(TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
     public void fire(User leader, User teammate) {
         Team team = findOneById(leader.getCurrentTeamId().toString());
-        if (!isLeader(team, leader))
+        if (!team.isLeader(leader.getId().toString()))
             throw new CustomException(null, REQUEST_FORBIDDEN);
 
         team.removeTeammate(teammate, true);
@@ -204,13 +211,14 @@ public class TeamService {
 
     /**
      * 프로젝트 종료 | main |
+     * 400(ID_CONVERT_INVALID)
      * 403(REQUEST_FORBIDDEN)
      * 404(TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
     public List<User> quit(User user, String projectUrl) {
         Team team = findOneById(user.getCurrentTeamId().toString());
-        if (!isLeader(team, user))
+        if (!team.isLeader(user.getId().toString()))
             throw new CustomException(null, REQUEST_FORBIDDEN);
 
         List<User> users = team.getAllMembersExceptLeader(team);
@@ -226,13 +234,14 @@ public class TeamService {
 
     /**
      * 회원 찜 업데이트 | main |
+     * 400(ID_CONVERT_INVALID)
      * 403(REQUEST_FORBIDDEN)
      * 404(TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
     public void updateFavoriteUser(User leader, User user, boolean isAddFavorite) {
         Team team = findOneById(leader.getCurrentTeamId().toString());
-        if (!isLeader(team, leader))
+        if (!team.isLeader(user.getId().toString()))
             throw new CustomException(null, REQUEST_FORBIDDEN);
 
         team.updateFavoriteUserId(user.getId(), isAddFavorite);
@@ -242,12 +251,13 @@ public class TeamService {
 
     /**
      * 찜한 회원 식별자 전체 조회 | main |
+     * 400(ID_CONVERT_INVALID)
      * 403(REQUEST_FORBIDDEN)
      * 404(TEAM_NOT_FOUND)
      */
     public List<ObjectId> findAllFavorite(User user) {
         Team team = findOneById(user.getCurrentTeamId().toString());
-        if (!isLeader(team, user))
+        if (!team.isLeader(user.getId().toString()))
             throw new CustomException(null, REQUEST_FORBIDDEN);
 
         return team.getFavoriteUserIds();
@@ -273,6 +283,7 @@ public class TeamService {
 
     /**
      * 팀 탈퇴 | main |
+     * 400(ID_CONVERT_INVALID)
      * 404(TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
@@ -282,6 +293,49 @@ public class TeamService {
         team.removeTeammate(user, false);
 
         save(team);
+    }
+
+    /**
+     * 회원 또는 팀 제안 | main |
+     * 400(ID_CONVERT_INVALID)
+     * 404(TEAM_NOT_FOUND)
+     * 500(SERVER_ERROR)
+     */
+    public void offer(String teamId, ObjectId offerId, boolean isOfferedByUser) {
+        Team team = findOneById(teamId);
+
+        team.offer(offerId, isOfferedByUser);
+        save(team);
+    }
+
+    /**
+     * 회원이 팀 지원전 검증 | sub |
+     * 400(POSITION_TYPE_INVALID / ID_CONVERT_INVALID)
+     * 404(TEAM_NOT_FOUND)
+     * 409(TEAM_POSITION_UNAVAILABLE)
+     * 500(SERVER_ERROR)
+     */
+    public void validatePreOfferByUser(String teamId, String position) {
+        Position p = Position.fromString(position);
+        Team team = findOneById(teamId);
+        validatePositionAvailability(team, p.getType());
+    }
+
+    /**
+     * 팀이 회원에게 채용 제안전 검증 | sub |
+     * 400(POSITION_TYPE_INVALID)
+     * 403(REQUEST_FORBIDDEN)
+     * 404(TEAM_NOT_FOUND)
+     * 409(TEAM_POSITION_UNAVAILABLE)
+     * 500(SERVER_ERROR)
+     */
+    public void validatePreOfferByTeam(String teamId, String leaderId, String userId, String position) {
+        Position p = Position.fromString(position);
+        Team team = findOneById(teamId);
+        validatePositionAvailability(team, p.getType());
+
+        if (!team.isLeader(leaderId))
+            throw new CustomException(null, REQUEST_FORBIDDEN);
     }
 
     /**
@@ -346,13 +400,6 @@ public class TeamService {
     }
 
     /**
-     * 팀 리더 검증
-     */
-    private Boolean isLeader(Team team, User user) {
-        return team.getLeaderUserId().equals(user.getId());
-    }
-
-    /**
      * 현재 팀 여부 검증
      */
     private boolean hasCurrentTeam(User user) {
@@ -390,20 +437,20 @@ public class TeamService {
     private Page<Team> findPagePositionByActive(Position position, Pageable pageable) {
         try {
             Page<Team> teams;
-            switch (position.name()) {
-                case "DESIGNER":
+            switch (position.getType()) {
+                case 'D':
                     teams = teamRepository
                             .findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTotalRecruitCntDesc(pageable);
                     break;
-                case "BACKEND":
+                case 'B':
                     teams = teamRepository
                             .findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTotalRecruitCntDesc(pageable);
                     break;
-                case "FRONTEND":
+                case 'F':
                     teams = teamRepository
                             .findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTotalRecruitCntDesc(pageable);
                     break;
-                case "MANAGER":
+                case 'M':
                     teams = teamRepository
                             .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTotalRecruitCntDesc(pageable);
                     break;
@@ -436,20 +483,20 @@ public class TeamService {
     private Page<Team> findPagePositionByPopularity(Position position, Pageable pageable) {
         try {
             Page<Team> teams;
-            switch (position.name()) {
-                case "DESIGNER":
+            switch (position.getType()) {
+                case 'D':
                     teams = teamRepository
                             .findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(pageable);
                     break;
-                case "BACKEND":
+                case 'B':
                     teams = teamRepository
                             .findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(pageable);
                     break;
-                case "FRONTEND":
+                case 'F':
                     teams = teamRepository
                             .findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(pageable);
                     break;
-                case "MANAGER":
+                case 'M':
                     teams = teamRepository
                             .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(pageable);
                     break;
@@ -482,20 +529,20 @@ public class TeamService {
     private Page<Team> findPagePositionByCreated(Position position, Pageable pageable) {
         try {
             Page<Team> teams;
-            switch (position.name()) {
-                case "DESIGNER":
+            switch (position.getType()) {
+                case 'D':
                     teams = teamRepository
                             .findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedDateDesc(pageable);
                     break;
-                case "BACKEND":
+                case 'B':
                     teams = teamRepository
                             .findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedDateDesc(pageable);
                     break;
-                case "FRONTEND":
+                case 'F':
                     teams = teamRepository
                             .findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedDateDesc(pageable);
                     break;
-                case "MANAGER":
+                case 'M':
                     teams = teamRepository
                             .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedDateDesc(pageable);
                     break;

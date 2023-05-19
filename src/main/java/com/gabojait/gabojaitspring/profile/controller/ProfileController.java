@@ -60,6 +60,7 @@ public class ProfileController {
     @ApiOperation(value = "본인 조회",
             notes = "<응답 코드>\n" +
                     "- 200 = SELF_PROFILE_FOUND\n" +
+                    "- 400 = ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = TEAM_NOT_FOUND\n" +
@@ -68,6 +69,7 @@ public class ProfileController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "404", description = "NOT FOUND"),
@@ -96,6 +98,7 @@ public class ProfileController {
     @ApiOperation(value = "단건 조회",
             notes = "<응답 코드>\n" +
                     "- 200 = PROFILE_FOUND\n" +
+                    "- 400 = ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = USER_NOT_FOUND || TEAM_NOT_FOUND\n" +
@@ -104,6 +107,7 @@ public class ProfileController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = ProfileDetailResDto.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "404", description = "NOT FOUND"),
@@ -138,7 +142,7 @@ public class ProfileController {
                     "- image = NotNull\n\n" +
                     "<응답 코드>\n" +
                     "- 200 = PROFILE_IMAGE_UPLOADED\n" +
-                    "- 400 = FILE_FIELD_REQUIRED\n" +
+                    "- 400 = FILE_FIELD_REQUIRED || ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = TEAM_NOT_FOUND\n" +
@@ -184,6 +188,7 @@ public class ProfileController {
     @ApiOperation(value = "프로필 사진 삭제",
             notes = "<응답 코드>\n" +
                     "- 200 = PROFILE_IMAGE_DELETED\n" +
+                    "- 400 = ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = TEAM_NOT_FOUND\n" +
@@ -192,6 +197,7 @@ public class ProfileController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "404", description = "NOT FOUND"),
@@ -295,7 +301,7 @@ public class ProfileController {
                     "- 200 = POSITION_AND_SKILL_UPDATED\n" +
                     "- 400 = POSITION_FIELD_REQUIRED || SKILL_ID_FIELD_REQUIRED || SKILL_NAME_FIELD_REQUIRED || " +
                     "IS_EXPERIENCED_FIELD_REQUIRED || LEVEL_FIELD_REQUIRED || SKILL_NAME_LENGTH_INVALID || " +
-                    "POSITION_TYPE_INVALID || LEVEL_TYPE_INVALID\n" +
+                    "POSITION_TYPE_INVALID || LEVEL_TYPE_INVALID || ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
                     "- 404 = SKILL_NOT_FOUND\n" +
@@ -342,7 +348,7 @@ public class ProfileController {
                     "- 400 = EDUCATION_ID_FIELD_REQUIRED || INSTITUTION_NAME_FIELD_REQUIRED || " +
                     "STARTED_DATE_FIELD_REQUIRED || ENDED_DATE_FIELD_REQUIRED || IS_CURRENT_FIELD_REQUIRED || " +
                     "WORK_ID_FIELD_REQUIRED || CORPORATION_NAME_FIELD_REQUIRED || INSTITUTION_NAME_LENGTH_INVALID " +
-                    "CORPORATION_NAME_LENGTH_INVALID || WORK_DESCRIPTION_LENGTH_INVALID\n" +
+                    "CORPORATION_NAME_LENGTH_INVALID || WORK_DESCRIPTION_LENGTH_INVALID || ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
                     "- 404 = EDUCATION_NOT_FOUND || WORK_NOT_FOUND\n" +
@@ -397,7 +403,7 @@ public class ProfileController {
                     "<응답 코드>\n" +
                     "- 200 = LINK_PORTFOLIO_UPDATED\n" +
                     "- 400 = PORTFOLIO_ID_FIELD_REQUIRED || PORTFOLIO_NAME_FIELD_REQUIRED || URL_FIELD_REQUIRED || " +
-                    "PORTFOLIO_NAME_LENGTH_INVALID || URL_LENGTH_INVALID\n" +
+                    "PORTFOLIO_NAME_LENGTH_INVALID || URL_LENGTH_INVALID || ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
                     "- 404 = PORTFOLIO_NOT_FOUND\n" +
@@ -448,7 +454,7 @@ public class ProfileController {
                     "<응답 코드>\n" +
                     "- 200 = FILE_PORTFOLIO_UPDATED\n" +
                     "- 400 = PORTFOLIO_NAME_LENGTH_INVALID || CREATE_PORTFOLIO_CNT_MATCH_INVALID || " +
-                    "UPDATE_PORTFOLIO_CNT_MATCH_INVALID || FILE_FIELD_REQUIRED\n" +
+                    "UPDATE_PORTFOLIO_CNT_MATCH_INVALID || FILE_FIELD_REQUIRED || ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
                     "- 404 = PORTFOLIO_NOT_FOUND\n" +
@@ -580,7 +586,7 @@ public class ProfileController {
     @ApiOperation(value = "회원의 팀 찜 업데이트",
             notes = "<응답 코드>\n" +
                     "- 200 = TEAM_FAVORITE_UPDATED\n" +
-                    "- 400 = IS_ADD_FAVORITE_FIELD_REQUIRED\n" +
+                    "- 400 = IS_ADD_FAVORITE_FIELD_REQUIRED || ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = TEAM_NOT_FOUND\n" +
@@ -660,6 +666,7 @@ public class ProfileController {
     @ApiOperation(value = "팀 탈퇴",
             notes = "<응답 코드>\n" +
                     "- 200 = TEAM_LEFT\n" +
+                    "- 400 = ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = TEAM_NOT_FOUND" +
@@ -669,6 +676,7 @@ public class ProfileController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "404", description = "TEAM_NOT_FOUND"),

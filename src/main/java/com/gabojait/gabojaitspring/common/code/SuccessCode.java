@@ -12,6 +12,15 @@ import static org.springframework.http.HttpStatus.OK;
 public enum SuccessCode {
 
     /**
+     * Offer Controller
+     */
+    // 200 Ok
+
+    // 201 Created
+    OFFERED_BY_USER(CREATED, "팀에 지원을 했습니다."),
+    OFFERED_BY_TEAM(CREATED, "회원에게 채용 제안을 했습니다."),
+
+    /**
      * Team Controller
      */
     // 200 Ok

@@ -107,8 +107,8 @@ public class TeamController {
                     "PROJECT_DESCRIPTION_LENGTH_INVALID || EXPECTATION_LENGTH_INVALID || OPEN_CHAT_URL_LENGTH_INVALID" +
                     " || DESIGNER_TOTAL_CNT_POS_OR_ZERO_ONLY || BACKEND_TOTAL_CNT_POS_OR_ZERO_ONLY || " +
                     "FRONTEND_TOTAL_CNT_POS_OR_ZERO_ONLY || MANAGER_TOTAL_CNT_POS_OR_ZERO_ONLY || " +
-                    "OPEN_CHAT_URL_FORMAT_INVALID\n" +
-                    "- 401 = TOKEN_AUTHENTICATION_FAIL\n" +
+                    "OPEN_CHAT_URL_FORMAT_INVALID || ID_CONVERT_INVALID\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
                     "- 404 = TEAM_NOT_FOUND" +
                     "- 409 = NON_EXISTING_CURRENT_TEAM || DESIGNER_CNT_UPDATE_UNAVAILABLE || " +
@@ -151,6 +151,7 @@ public class TeamController {
     @ApiOperation(value = "팀 단건 조회",
             notes = "<응답 코드>\n" +
                     "- 200 = TEAM_FOUND\n" +
+                    "- 400 = ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = TEAM_NOT_FOUND\n" +
@@ -159,6 +160,7 @@ public class TeamController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = TeamDetailResDto.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "404", description = "NOT FOUND"),
@@ -256,7 +258,7 @@ public class TeamController {
                     "- isRecruiting = NotNull\n\n" +
                     "<응답 코드>\n" +
                     "- 200 = TEAM_IS_RECRUITING_UPDATED\n" +
-                    "- 400 = IS_RECRUITING_FIELD_REQUIRED\n" +
+                    "- 400 = IS_RECRUITING_FIELD_REQUIRED || ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
                     "- 404 = TEAM_NOT_FOUND\n" +
@@ -296,6 +298,7 @@ public class TeamController {
     @ApiOperation(value = "프로젝트 미완료 종료",
             notes = "<응답 코드>\n" +
                     "- 200 = PROJECT_INCOMPLETE\n" +
+                    "- 400 = ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
                     "- 404 = TEAM_NOT_FOUND\n" +
@@ -305,6 +308,7 @@ public class TeamController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "404", description = "NOT FOUND"),
@@ -333,7 +337,7 @@ public class TeamController {
     @ApiOperation(value = "프로젝트 완료 종료",
             notes = "<응답 코드>\n" +
                     "- 200 = PROJECT_COMPLETE\n" +
-                    "- 400 = PROJECT_URL_FIELD_REQUIRED\n" +
+                    "- 400 = PROJECT_URL_FIELD_REQUIRED || ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
                     "- 404 = TEAM_NOT_FOUND\n" +
@@ -376,7 +380,7 @@ public class TeamController {
     @ApiOperation(value = "팀원 추방",
             notes = "<응답 코드>\n" +
                     "- 200 = TEAMMATE_FIRED\n" +
-                    "- 400 = USER_ID_FIELD_REQUIRED\n" +
+                    "- 400 = USER_ID_FIELD_REQUIRED || ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
                     "- 404 = USER_NOT_FOUND || TEAM_NOT_FOUND\n" +
@@ -419,6 +423,7 @@ public class TeamController {
     @ApiOperation(value = "팀의 회원 찜 업데이트",
             notes = "<응답 코드>\n" +
                     "- 200 = USER_FAVORITE_UPDATED\n" +
+                    "- 400 = ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
                     "- 404 = USER_NOT_FOUND || TEAM_NOT_FOUND\n" +
@@ -428,6 +433,7 @@ public class TeamController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "404", description = "NOT FOUND"),
@@ -463,6 +469,7 @@ public class TeamController {
     @ApiOperation(value = "찜한 회원 전체 조회",
             notes = "<응답 코드>\n" +
                     "- 200 = FAVORITE_USERS_FOUND\n" +
+                    "- 400 = ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
                     "- 404 = TEAM_NOT_FOUND\n" +
@@ -472,6 +479,7 @@ public class TeamController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = ProfileAbstractResDto.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "404", description = "NOT FOUND"),

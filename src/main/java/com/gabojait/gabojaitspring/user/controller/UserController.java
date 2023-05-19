@@ -229,6 +229,7 @@ public class UserController {
     @ApiOperation(value = "단건 조회",
             notes = "<응답 코드>\n" +
                     "- 200 = USER_FOUND\n" +
+                    "- 400 = ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = USER_NOT_FOUND\n" +
@@ -237,6 +238,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = UserDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "404", description = "NOT FOUND"),

@@ -91,13 +91,13 @@ public class UserService {
 
     /**
      * 식별자로 타인 단건 조회 | main |
+     * 400(ID_CONVERT_INVALID)
      * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
     public User findOneOtherById(User user, String otherUserId) {
-        if (user.getId().toString().equals(otherUserId)) {
+        if (user.getId().toString().equals(otherUserId))
             return user;
-        }
 
         User otherUser = findOneById(otherUserId);
         otherUser.incrementVisitedCnt();
@@ -402,6 +402,19 @@ public class UserService {
     }
 
     /**
+     * 회원 또는 팀 제안 | main |
+     * 400(ID_CONVERT_INVALID)
+     * 404(USER_NOT_FOUND)
+     * 500(SERVER_ERROR)
+     */
+    public void offer(String userId, ObjectId offerId, boolean isOfferedByUser) {
+        User user = findOneById(userId);
+
+        user.offer(offerId, isOfferedByUser);
+        save(user);
+    }
+
+    /**
      * 팀 생성 전 검증 | sub |
      * 409(EXISTING_CURRENT_TEAM / NON_EXISTING_POSITION)
      */
@@ -439,6 +452,15 @@ public class UserService {
     }
 
     /**
+     * 현재 팀 미존재 여부 검증 | sub |
+     * 409(EXISTING_CURRENT_TEAM)
+     */
+    public void validateHasNoCurrentTeam(User user) {
+        if (user.hasCurrentTeam())
+            throw new CustomException(null, EXISTING_CURRENT_TEAM);
+    }
+
+    /**
      * 아이디로 회원 단건 조회 |
      * 401(LOGIN_FAIL)
      */
@@ -462,6 +484,7 @@ public class UserService {
 
     /**
      * 식별자로 회원 단건 조회 | sub |
+     * 400(ID_CONVERT_INVALID)
      * 404(USER_NOT_FOUND)
      */
     public User findOneById(String userId) {
@@ -618,14 +641,6 @@ public class UserService {
             throw new CustomException(null, PASSWORD_MATCH_INVALID);
     }
 
-    /**
-     * 현재 팀 미존재 여부 검증 |
-     * 409(EXISTING_CURRENT_TEAM)
-     */
-    private void validateHasNoCurrentTeam(User user) {
-        if (user.hasCurrentTeam())
-            throw new CustomException(null, EXISTING_CURRENT_TEAM);
-    }
 
     /**
      * 포지션 선택 여부 검증 |

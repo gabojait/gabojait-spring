@@ -24,6 +24,7 @@ public class EducationService {
 
     /**
      * 전체 학력 업데이트 | main |
+     * 400(ID_CONVERT_INVALID)
      * 404(EDUCATION_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
@@ -66,6 +67,7 @@ public class EducationService {
 
     /**
      * 전체 경력 삭제 | sub |
+     * 400(ID_CONVERT_INVALID)
      * 403(REQUEST_FORBIDDEN)
      * 404(EDUCATION_NOT_FOUND)
      * 500(SERVER_ERROR)
@@ -88,6 +90,7 @@ public class EducationService {
 
     /**
      * 학력 처리전 전체 검증 | sub |
+     * 400(ID_CONVERT_INVALID)
      * 404(EDUCATION_NOT_FOUND)
      */
     public void validatePreAll(List<EducationUpdateReqDto> educationUpdateReqDtos,
@@ -101,6 +104,7 @@ public class EducationService {
 
     /**
      * 식별자로 경력 단건 조회 |
+     * 400(ID_CONVERT_INVALID)
      * 404(EDUCATION_NOT_FOUND)
      */
     private Education findOneById(String educationId) {

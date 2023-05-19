@@ -33,6 +33,7 @@ public class PortfolioService {
 
     /**
      * 전체 포트폴리오 링크 업데이트 | main |
+     * 400(ID_CONVERT_INVALID)
      * 404(PORTFOLIO_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
@@ -58,7 +59,7 @@ public class PortfolioService {
 
     /**
      * 전체 포트폴리오 링크 업데이트 | main |
-     * 400(FILE_FIELD_REQUIRED)
+     * 400(FILE_FIELD_REQUIRED / ID_CONVERT_INVALID)
      * 404(PORTFOLIO_NOT_FOUND)
      * 415(FILE_TYPE_UNSUPPORTED)
      * 500(SERVER_ERROR)
@@ -195,6 +196,7 @@ public class PortfolioService {
 
     /**
      * 포트폴리오 링크 처리전 전체 검증 | sub |
+     * 400(ID_CONVERT_INVALID)
      * 404(PORTFOLIO_NOT_FOUND)
      */
     public void validateLinkPreAll(List<PortfolioLinkUpdateReqDto> portfolioLinkUpdateReqDtos,
@@ -209,6 +211,7 @@ public class PortfolioService {
 
     /**
      * 식별자로 포트폴리오 단건 조회 |
+     * 400(ID_CONVERT_INVALID)
      * 404(PORTFOLIO_NOT_FOUND)
      */
     private Portfolio findOneById(String portfolioId) {

@@ -54,7 +54,6 @@ public enum ErrorCode {
     IS_RECRUITING_FIELD_REQUIRED(BAD_REQUEST, "팀원 모집 여부는 필수 입력란입니다."),
     PROJECT_URL_FIELD_REQUIRED(BAD_REQUEST, "완료된 프로젝트 URL은 필수 입력란입니다."),
     IS_ADD_FAVORITE_FIELD_REQUIRED(BAD_REQUEST, "찜 추가 여부는 필수 입력란입니다."),
-    OFFER_POSITION_FIELD_REQUIRED(BAD_REQUEST, "제안할 포지션는 필수 입력란입니다."),
 
     // @Size
     USERNAME_LENGTH_INVALID(BAD_REQUEST, "아이디는 5~15자만 가능합니다."),
@@ -88,8 +87,6 @@ public enum ErrorCode {
     REVIEW_CATEGORY_TYPE_INVALID(BAD_REQUEST, "리뷰는 'numeric' 또는 'writing' 중 하나여야 됩니다."),
     PROFILE_ORDER_TYPE_INVALID(BAD_REQUEST, "순서는 'active', 'popularity', 또는 'rating' 중 하나여야 됩니다."),
     TEAM_ORDER_TYPE_INVALID(BAD_REQUEST, "순서는 'created', 'active', 또는 'popularity' 중 하나여야 됩니다."),
-    OFFER_POSITION_TYPE_INVALID(BAD_REQUEST, "제안할 포지션은 'designer', 'backend', 'frontend', 또는 'manager' 중 하나여야 됩니다."),
-
     // @Positive, @PositiveOrZero
     PAGE_FROM_POS_OR_ZERO_ONLY(BAD_REQUEST, "페이지 시작점은 0 또는 양수만 가능합니다."),
     PAGE_SIZE_POS_ONLY(BAD_REQUEST, "페이지 사이즈는 양수만 가능합니다."),

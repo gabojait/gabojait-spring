@@ -25,6 +25,7 @@ public class SkillService {
 
     /**
      * 전체 기술 업데이트 | main |
+     * 400(ID_CONVERT_INVALID)
      * 403(REQUEST_FORBIDDEN)
      * 404(SKILL_NOT_FOUND)
      * 500(SERVER_ERROR)
@@ -67,6 +68,7 @@ public class SkillService {
 
     /**
      * 전체 기술 삭제 | sub |
+     * 400(ID_CONVERT_INVALID)
      * 403(REQUEST_FORBIDDEN)
      * 404(SKILL_NOT_FOUND)
      * 500(SERVER_ERROR)
@@ -89,6 +91,7 @@ public class SkillService {
 
     /**
      * 기술 처리전 전체 검증 | sub |
+     * 400(ID_CONVERT_INVALID)
      * 404(SKILL_NOT_FOUND)
      */
     public void validatePreAll(List<SkillUpdateReqDto> skillUpdateReqDtos,
@@ -102,6 +105,7 @@ public class SkillService {
 
     /**
      * 식별자로 기술 단건 조회 |
+     * 400(ID_CONVERT_INVALID)
      * 404(SKILL_NOT_FOUND)
      */
     private Skill findOneById(String skillId) {

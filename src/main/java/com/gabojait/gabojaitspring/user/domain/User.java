@@ -55,11 +55,11 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Field(name = "is_seeking_team")
     private Boolean isSeekingTeam;
 
-    @Field(name = "recruit_ids")
-    private List<ObjectId> recruitIds = new ArrayList<>();
+    @Field(name = "user_offer_ids")
+    private List<ObjectId> userOfferIds = new ArrayList<>();
 
-    @Field(name = "application_ids")
-    private List<ObjectId> applicationIds = new ArrayList<>();
+    @Field(name = "team_offer_ids")
+    private List<ObjectId> teamOfferIds = new ArrayList<>();
 
     @Field(name = "profile_description")
     private String profileDescription;
@@ -315,6 +315,17 @@ public class User extends BaseTimeEntity implements UserDetails {
         } else {
             this.favoriteTeamIds.remove(teamId);
         }
+    }
+
+    /**
+     * Offer related
+     */
+
+    public void offer(ObjectId offerId, boolean isOfferedByUser) {
+        if (isOfferedByUser)
+            this.userOfferIds.add(offerId);
+        else
+            this.teamOfferIds.add(offerId);
     }
 
     /**

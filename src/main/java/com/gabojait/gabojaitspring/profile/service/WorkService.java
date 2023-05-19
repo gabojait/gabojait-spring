@@ -24,6 +24,7 @@ public class WorkService {
 
     /**
      * 전체 경력 업데이트 | main |
+     * 400(ID_CONVERT_INVALID)
      * 403(REQUEST_FORBIDDEN)
      * 404(WORK_NOT_FOUND)
      * 500(SERVER_ERROR)
@@ -68,6 +69,7 @@ public class WorkService {
 
     /**
      * 전체 경력 삭제 | sub |
+     * 400(ID_CONVERT_INVALID)
      * 403(REQUEST_FORBIDDEN)
      * 404(WORK_NOT_FOUND)
      * 500(SERVER_ERROR)
@@ -90,6 +92,7 @@ public class WorkService {
 
     /**
      * 경력 처리전 전체 검증 | sub |
+     * 400(ID_CONVERT_INVALID)
      * 404(WORK_NOT_FOUND)
      */
     public void validatePreAll(List<WorkUpdateReqDto> workUpdateReqDtos,
@@ -103,6 +106,7 @@ public class WorkService {
 
     /**
      * 식별자로 경력 단건 조회 |
+     * 400(ID_CONVERT_INVALID)
      * 404(WORK_NOT_FOUND)
      */
     private Work findOneById(String workId) {

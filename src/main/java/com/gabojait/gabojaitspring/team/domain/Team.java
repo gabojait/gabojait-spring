@@ -85,11 +85,11 @@ public class Team extends BaseTimeEntity {
     @Field(name = "teammate_left_cnt")
     private Long teammateLeftCnt;
 
-    @Field(name = "application_ids")
-    private List<ObjectId> applicationIds = new ArrayList<>();
+    @Field(name = "user_offer_ids")
+    private List<ObjectId> userOfferIds = new ArrayList<>();
 
-    @Field(name = "recruit_ids")
-    private List<ObjectId> recruitIds = new ArrayList<>();
+    @Field(name = "team_offer_ids")
+    private List<ObjectId> teamOfferIds = new ArrayList<>();
 
     @Field(name = "favorite_user_ids")
     private List<ObjectId> favoriteUserIds = new ArrayList<>();
@@ -136,6 +136,29 @@ public class Team extends BaseTimeEntity {
         this.totalRecruitCnt = 0L;
 
         this.isDeleted = false;
+    }
+
+    public void updateTeam(String projectName,
+                           String projectDescription,
+                           Short designerTotalRecruitCnt,
+                           Short backendTotalRecruitCnt,
+                           Short frontendTotalRecruitCnt,
+                           Short managerTotalRecruitCnt,
+                           String expectation,
+                           String openChatUrl) {
+        this.projectName = projectName;
+        this.projectDescription = projectDescription;
+        this.designerTotalRecruitCnt = designerTotalRecruitCnt;
+        this.backendTotalRecruitCnt = backendTotalRecruitCnt;
+        this.frontendTotalRecruitCnt = frontendTotalRecruitCnt;
+        this.managerTotalRecruitCnt = managerTotalRecruitCnt;
+        this.expectation = expectation;
+        this.openChatUrl = openChatUrl;
+
+        this.isDesignerFull = this.designerTotalRecruitCnt <= this.designers.size();
+        this.isBackendFull = this.backendTotalRecruitCnt <= this.backends.size();
+        this.isFrontendFull = this.frontendTotalRecruitCnt <= this.frontends.size();
+        this.isManagerFull = this.managerTotalRecruitCnt <= this.managers.size();
     }
 
     public void addTeammate(User user, char position) {
@@ -196,6 +219,19 @@ public class Team extends BaseTimeEntity {
                 }
     }
 
+    public void updateFavoriteUserId(ObjectId userId, boolean isAddFavorite) {
+        if (isAddFavorite) {
+            if (!this.favoriteUserIds.contains(userId))
+                this.favoriteUserIds.add(userId);
+        } else {
+            this.favoriteUserIds.remove(userId);
+        }
+    }
+
+    public void updateIsRecruiting(Boolean isRecruiting) {
+        this.isRecruiting = isRecruiting;
+    }
+
     public List<User> getAllMembersExceptLeader(Team team) {
         List<User> teamMembers = new ArrayList<>();
 
@@ -211,13 +247,8 @@ public class Team extends BaseTimeEntity {
         return teamMembers;
     }
 
-    public void updateFavoriteUserId(ObjectId userId, boolean isAddFavorite) {
-        if (isAddFavorite) {
-            if (!this.favoriteUserIds.contains(userId))
-                this.favoriteUserIds.add(userId);
-        } else {
-            this.favoriteUserIds.remove(userId);
-        }
+    public boolean isLeader(String userId) {
+        return this.leaderUserId.toString().equals(userId);
     }
 
     public void complete(String projectUrl) {
@@ -227,33 +258,6 @@ public class Team extends BaseTimeEntity {
         this.isComplete = true;
     }
 
-    public void updateTeam(String projectName,
-                           String projectDescription,
-                           Short designerTotalRecruitCnt,
-                           Short backendTotalRecruitCnt,
-                           Short frontendTotalRecruitCnt,
-                           Short managerTotalRecruitCnt,
-                           String expectation,
-                           String openChatUrl) {
-        this.projectName = projectName;
-        this.projectDescription = projectDescription;
-        this.designerTotalRecruitCnt = designerTotalRecruitCnt;
-        this.backendTotalRecruitCnt = backendTotalRecruitCnt;
-        this.frontendTotalRecruitCnt = frontendTotalRecruitCnt;
-        this.managerTotalRecruitCnt = managerTotalRecruitCnt;
-        this.expectation = expectation;
-        this.openChatUrl = openChatUrl;
-
-        this.isDesignerFull = this.designerTotalRecruitCnt <= this.designers.size();
-        this.isBackendFull = this.backendTotalRecruitCnt <= this.backends.size();
-        this.isFrontendFull = this.frontendTotalRecruitCnt <= this.frontends.size();
-        this.isManagerFull = this.managerTotalRecruitCnt <= this.managers.size();
-    }
-
-    public void updateIsRecruiting(Boolean isRecruiting) {
-        this.isRecruiting = isRecruiting;
-    }
-
     public void incrementVisitedCnt() {
         this.visitedCnt++;
     }
@@ -261,5 +265,16 @@ public class Team extends BaseTimeEntity {
     public void delete() {
         this.isRecruiting = false;
         this.isDeleted = true;
+    }
+
+    /**
+     * Offer related
+     */
+
+    public void offer(ObjectId offerId, boolean isOfferedByUser) {
+        if (isOfferedByUser)
+            this.userOfferIds.add(offerId);
+        else
+            this.teamOfferIds.add(offerId);
     }
 }
