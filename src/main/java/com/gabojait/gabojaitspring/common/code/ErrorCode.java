@@ -103,7 +103,6 @@ public enum ErrorCode {
     ID_CONVERT_INVALID(BAD_REQUEST, "잘못된 식별자입니다."),
     VERIFICATION_CODE_INVALID(BAD_REQUEST, "인증코드가 틀렸습니다."),
     PASSWORD_MATCH_INVALID(BAD_REQUEST, "비밀번호와 비밀번호 재입력이 동일하지 않습니다."),
-    PASSWORD_INVALID(BAD_REQUEST, "비밀번호가 틀렸습니다."),
     MYSELF_REQUEST_INVALID(BAD_REQUEST, "본인 관련 잘못된 요청입니다."),
     USERNAME_EMAIL_MATCH_INVALID(BAD_REQUEST, "가입한 이메일 아이디와 일치하지 않습니다."),
     PORTFOLIO_NAME_LENGTH_INVALID(BAD_REQUEST, "포트폴리오명은 1~10자만 가능합니다."),
@@ -114,13 +113,14 @@ public enum ErrorCode {
     /**
      * 401 Unauthorized
      */
-    TOKEN_UNAUTHORIZED(UNAUTHORIZED, "승인되지 않은 요청입니다. 로그인 후에 다시 시도 해주세요."),
-    LOGIN_FAIL(UNAUTHORIZED, "아이디 또는 비밀번호가 틀렸습니다."),
+    TOKEN_UNAUTHENTICATED(UNAUTHORIZED, "승인되지 않은 요청입니다. 로그인 후에 다시 시도 해주세요."),
+    LOGIN_UNAUTHENTICATED(UNAUTHORIZED, "아이디 또는 비밀번호가 틀렸습니다."),
+    PASSWORD_UNAUTHENTICATED(UNAUTHORIZED, "비밀번호가 틀렸습니다."),
 
     /**
      * 403 Forbidden
      */
-    TOKEN_FORBIDDEN(FORBIDDEN, "권한이 없는 요청입니다. 로그인 후에 다시 시도 해주세요."),
+    TOKEN_UNAUTHORIZED(FORBIDDEN, "권한이 없는 요청입니다. 로그인 후에 다시 시도 해주세요."),
     REQUEST_FORBIDDEN(FORBIDDEN, "권한이 없는 요청입니다."),
 
     /**

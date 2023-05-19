@@ -15,6 +15,7 @@ import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Example;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -47,18 +48,31 @@ public class TeamController {
     private final UserService userService;
     private final JwtProvider jwtProvider;
 
-    @ApiOperation(value = "팀 생성")
+    @ApiOperation(value = "팀 생성",
+            notes = "<응답 코드>\n" +
+                    "- 201 = TEAM_CREATED\n" +
+                    "- 400 = PROJECT_NAME_FIELD_REQUIRED || PROJECT_DESCRIPTION_FIELD_REQUIRED || " +
+                    "DESIGNER_TOTAL_RECRUIT_CNT_FIELD_REQUIRED || BACKEND_TOTAL_RECRUIT_CNT_FIELD_REQUIRED || " +
+                    "FRONTEND_TOTAL_RECRUIT_CNT_FIELD_REQUIRED || MANAGER_TOTAL_RECRUIT_CNT_FIELD_REQUIRED || " +
+                    "EXCEPTION_FIELD_REQUIRED || OPEN_CHAT_URL_FIELD_REQUIRED || PROJECT_NAME_LENGTH_INVALID || " +
+                    "PROJECT_DESCRIPTION_LENGTH_INVALID || EXPECTATION_LENGTH_INVALID || OPEN_CHAT_URL_LENGTH_INVALID" +
+                    " || DESIGNER_TOTAL_CNT_POS_OR_ZERO_ONLY || BACKEND_TOTAL_CNT_POS_OR_ZERO_ONLY || " +
+                    "FRONTEND_TOTAL_CNT_POS_OR_ZERO_ONLY || MANAGER_TOTAL_CNT_POS_OR_ZERO_ONLY || " +
+                    "OPEN_CHAT_URL_FORMAT_INVALID\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 409 = EXISTING_CURRENT_TEAM || NON_EXISTING_POSITION || TEAM_POSITION_UNAVAILABLE\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "TEAM_CREATED",
+            @ApiResponse(responseCode = "201", description = "CREATED",
                     content = @Content(schema = @Schema(implementation = TeamDefaultResDto.class))),
-            @ApiResponse(responseCode = "400",
-                    description = "*_FIELD_REQUIRED / *_LENGTH_INVALID / OPEN_CHAT_URL_FORMAT_INVALID"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "409",
-                    description = "EXISTING_CURRENT_TEAM / NON_EXISTING_POSITION / TEAM_POSITION_UNAVAILABLE"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "409", description = "CONFLICT"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
@@ -84,20 +98,34 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation(value = "팀 정보 수정")
+    @ApiOperation(value = "팀 정보 수정",
+            notes = "\t<응답 코드>\n" +
+                    "- 200 = TEAM_UPDATED\n" +
+                    "- 400 = PROJECT_NAME_FIELD_REQUIRED || PROJECT_DESCRIPTION_FIELD_REQUIRED || " +
+                    "DESIGNER_TOTAL_RECRUIT_CNT_FIELD_REQUIRED || BACKEND_TOTAL_RECRUIT_CNT_FIELD_REQUIRED || " +
+                    "FRONTEND_TOTAL_RECRUIT_CNT_FIELD_REQUIRED || MANAGER_TOTAL_RECRUIT_CNT_FIELD_REQUIRED || " +
+                    "EXCEPTION_FIELD_REQUIRED || OPEN_CHAT_URL_FIELD_REQUIRED || PROJECT_NAME_LENGTH_INVALID || " +
+                    "PROJECT_DESCRIPTION_LENGTH_INVALID || EXPECTATION_LENGTH_INVALID || OPEN_CHAT_URL_LENGTH_INVALID" +
+                    " || DESIGNER_TOTAL_CNT_POS_OR_ZERO_ONLY || BACKEND_TOTAL_CNT_POS_OR_ZERO_ONLY || " +
+                    "FRONTEND_TOTAL_CNT_POS_OR_ZERO_ONLY || MANAGER_TOTAL_CNT_POS_OR_ZERO_ONLY || " +
+                    "OPEN_CHAT_URL_FORMAT_INVALID\n" +
+                    "- 401 = TOKEN_AUTHENTICATION_FAIL\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 404 = TEAM_NOT_FOUND" +
+                    "- 409 = NON_EXISTING_CURRENT_TEAM || DESIGNER_CNT_UPDATE_UNAVAILABLE || " +
+                    "BACKEND_CNT_UPDATE_UNAVAILABLE || FRONTEND_CNT_UPDATE_UNAVAILABLE\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "TEAM_UPDATED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = TeamDefaultResDto.class))),
-            @ApiResponse(responseCode = "400",
-                    description = "*_FIELD_REQUIRED / *_LENGTH_INVALID / OPEN_CHAT_URL_FORMAT_INVALID"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN / REQUEST_FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "TEAM_NOT_FOUND"),
-            @ApiResponse(responseCode = "409",
-                    description = "NON_EXISTING_CURRENT_TEAM / DESIGNER_CNT_UPDATE_UNAVAILABLE / " +
-                            "BACKEND_CNT_UPDATE_UNAVAILABLE / FRONTEND_CNT_UPDATE_UNAVAILABLE"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "409", description = "CONFLICT"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PutMapping
     public ResponseEntity<DefaultResDto<Object>> updateTeam(HttpServletRequest servletRequest,
@@ -121,22 +149,26 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation(value = "팀 단건 조회", notes = "* team-id = NotBlank")
+    @ApiOperation(value = "팀 단건 조회",
+            notes = "<응답 코드>\n" +
+                    "- 200 = TEAM_FOUND\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = TEAM_NOT_FOUND\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "TEAM_FOUND",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = TeamDetailResDto.class))),
-            @ApiResponse(responseCode = "400", description = "TEAM_ID_FIELD_REQUIRED"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "TEAM_NOT_FOUND"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/{team-id}")
     public ResponseEntity<DefaultResDto<Object>> findOneTeam(HttpServletRequest servletRequest,
-                                                             @PathVariable(value = "team-id")
-                                                             @NotBlank(message = "팀 식별자를 입력해 주세요.")
-                                                             String teamId) {
+                                                             @PathVariable(value = "team-id") String teamId) {
         // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
@@ -156,35 +188,44 @@ public class TeamController {
     }
 
     @ApiOperation(value = "팀원을 찾는 팀 다건 조회",
-            notes = "* position = Pattern(regex = ^(designer|backend|frontend|manager|none))\n" +
-                    "* team-order = Pattern(regex = ^(created|active|popularity))\n" +
-                    "* page-from = PositiveOrZero\n" +
-                    "* page-size = Positive")
+            notes = "<검증>\n" +
+                    "- position = NotBlank && Pattern(regex = ^(designer|backend|frontend|manager|none))\n" +
+                    "- team-order = NotBlank && Pattern(regex = ^(created|active|popularity))\n" +
+                    "- page-from = NotNull && PositiveOrZero\n" +
+                    "- page-size = Positive\n\n" +
+                    "<응답 코드>\n" +
+                    "- 200 = TEAMS_FINDING_USERS_FOUND\n" +
+                    "- 400 = POSITION_FIELD_REQUIRED || TEAM_ORDER_FIELD_REQUIRED || PAGE_FROM_FIELD_REQUIRED || " +
+                    "POSITION_TYPE_INVALID || TEAM_ORDER_TYPE_INVALID || PAGE_FROM_POS_OR_ZERO_ONLY || " +
+                    "PAGE_SIZE_POS_ONLY\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "TEAMS_FINDING_USERS_FOUND",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = TeamDefaultResDto.class))),
-            @ApiResponse(responseCode = "400",
-                    description = "*_TYPE_INVALID / PAGE_FROM_POSITIVE_OR_ZER_ONLY / PAGE_SIZE_POSITIVE_ONLY"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/recruiting")
     public ResponseEntity<DefaultResDto<Object>> findTeamsLookingForUsers(
             HttpServletRequest servletRequest,
             @RequestParam(value = "position")
-            @NotBlank(message = "포지션을 입력해 주세요.")
+            @NotBlank(message = "포지션은 필수 입력란입니다.")
             @Pattern(regexp = "^(designer|backend|frontend|manager|none)",
                     message = "포지션은 'designer', 'backend', 'frontend', 'manager', 또는 'none' 중 하나여야 됩니다.")
             String position,
             @RequestParam(value = "team-order")
-            @NotBlank(message = "팀 정렬 기준을 입력해 주세요.")
+            @NotBlank(message = "팀 정렬 기준은 필수 입력란입니다.")
             @Pattern(regexp = "^(created|active|popularity)",
                     message = "팀 정렬 기준은 'created', 'active', 또는 'popularity', 중 하나여야 됩니다.")
             String teamOrder,
             @RequestParam(value = "page-from")
-            @NotNull(message = "페이지 시작점을 입력해 주세요.")
+            @NotNull(message = "페이지 시작점은 필수 입력란입니다.")
             @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.")
             Integer pageFrom,
             @RequestParam(value = "page-size", required = false)
@@ -211,17 +252,28 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation(value = "팀원 모집 여부 업데이트")
+    @ApiOperation(value = "팀원 모집 여부 업데이트",
+            notes = "<검증>\n" +
+                    "- isRecruiting = NotNull\n\n" +
+                    "<응답 코드>\n" +
+                    "- 200 = TEAM_IS_RECRUITING_UPDATED\n" +
+                    "- 400 = IS_RECRUITING_FIELD_REQUIRED\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 404 = TEAM_NOT_FOUND\n" +
+                    "- 409 = NON_EXISTING_CURRENT_TEAM\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "TEAM_IS_RECRUITING_UPDATED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "IS_RECRUITING_FIELD_REQUIRED"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN / REQUEST_FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "TEAM_NOT_FOUND"),
-            @ApiResponse(responseCode = "409", description = "NON_EXISTING_CURRENT_TEAM"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "409", description = "CONFLICT"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/recruiting")
     public ResponseEntity<DefaultResDto<Object>> updateIsRecruiting(HttpServletRequest servletRequest,
@@ -242,17 +294,24 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation(value = "프로젝트 미완료 종료")
+    @ApiOperation(value = "프로젝트 미완료 종료",
+            notes = "<응답 코드>\n" +
+                    "- 200 = PROJECT_INCOMPLETE\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 404 = TEAM_NOT_FOUND\n" +
+                    "- 409 = NON_EXISTING_CURRENT_TEAM\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "PROJECT_INCOMPLETE",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "IS_RECRUITING_FIELD_REQUIRED"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN / REQUEST_FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "TEAM_NOT_FOUND"),
-            @ApiResponse(responseCode = "409", description = "NON_EXISTING_CURRENT_TEAM"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "409", description = "CONFLICT"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping("/incomplete")
     public ResponseEntity<DefaultResDto<Object>> projectIncomplete(HttpServletRequest servletRequest) {
@@ -272,17 +331,26 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation(value = "프로젝트 완료 종료")
+    @ApiOperation(value = "프로젝트 완료 종료",
+            notes = "<응답 코드>\n" +
+                    "- 200 = PROJECT_COMPLETE\n" +
+                    "- 400 = PROJECT_URL_FIELD_REQUIRED\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 404 = TEAM_NOT_FOUND\n" +
+                    "- 409 = NON_EXISTING_CURRENT_TEAM\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "PROJECT_COMPLETE",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "PROJECT_URL_FIELD_REQUIRED"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN / REQUEST_FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "TEAM_NOT_FOUND"),
-            @ApiResponse(responseCode = "409", description = "NON_EXISTING_CURRENT_TEAM"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "409", description = "CONFLICT"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
 
     })
     @DeleteMapping("/complete")
@@ -306,17 +374,26 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation(value = "팀원 추방")
+    @ApiOperation(value = "팀원 추방",
+            notes = "<응답 코드>\n" +
+                    "- 200 = TEAMMATE_FIRED\n" +
+                    "- 400 = USER_ID_FIELD_REQUIRED\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 404 = USER_NOT_FOUND || TEAM_NOT_FOUND\n" +
+                    "- 409 = NON_EXISTING_CURRENT_TEAM\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "TEAMMATE_FIRED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "USER_ID_FIELD_REQUIRED"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN / REQUEST_FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
-            @ApiResponse(responseCode = "409", description = "NON_EXISTING_CURRENT_TEAM"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "409", description = "CONFLICT"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/user/{user-id}/fire")
     public ResponseEntity<DefaultResDto<Object>> fireTeammate(HttpServletRequest servletRequest,
@@ -340,17 +417,24 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation(value = "팀의 회원 찜 업데이트")
+    @ApiOperation(value = "팀의 회원 찜 업데이트",
+            notes = "<응답 코드>\n" +
+                    "- 200 = USER_FAVORITE_UPDATED\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 404 = USER_NOT_FOUND || TEAM_NOT_FOUND\n" +
+                    "- 409 = NON_EXISTING_CURRENT_TEAM\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "USER_FAVORITE_UPDATED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "*_FIELD_REQUIRED"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN / REQUEST_FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
-            @ApiResponse(responseCode = "409", description = "NON_EXISTING_CURRENT_TEAM"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "409", description = "CONFLICT"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/user/{user-id}/favorite")
     public ResponseEntity<DefaultResDto<Object>> updateFavoriteUser(
@@ -377,16 +461,24 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation(value = "찜한 회원 전체 조회")
+    @ApiOperation(value = "찜한 회원 전체 조회",
+            notes = "<응답 코드>\n" +
+                    "- 200 = FAVORITE_USERS_FOUND\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 404 = TEAM_NOT_FOUND\n" +
+                    "- 409 = NON_EXISTING_CURRENT_TEAM\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "FAVORITE_USERS_FOUND",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = ProfileAbstractResDto.class))),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN / REQUEST_FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "TEAM_NOT_FOUND"),
-            @ApiResponse(responseCode = "409", description = "NON_EXISTING_CURRENT_TEAM"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "409", description = "CONFLICT"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/user/favorite")
     public ResponseEntity<DefaultResDto<Object>> findAllFavoriteUsers(HttpServletRequest servletRequest) {

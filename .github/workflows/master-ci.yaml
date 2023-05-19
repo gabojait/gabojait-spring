@@ -45,12 +45,13 @@ jobs:
           S3_PROFILE_IMG_BUCKET: ${{ secrets.S3_PROFILE_IMG_RELEASE_BUCKET }}
           S3_REGION: ${{ secrets.S3_REGION }}
           S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+          SWAGGER_ENABLED: ${{ secrets.SWAGGER_ENABLED }}
 
       - name: Build and push Docker image
         uses: mr-smithers-excellent/docker-build-push@v5
         with:
           image: gs97ahn/server
-          tags: gabojait-release-latest
+          tags: gabojait-release-latest, gabojait-release-v1.0.0
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}

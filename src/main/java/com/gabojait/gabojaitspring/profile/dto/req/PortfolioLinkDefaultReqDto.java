@@ -24,6 +24,5 @@ public class PortfolioLinkDefaultReqDto {
     private List<PortfolioLinkUpdateReqDto> updateLinkPortfolios;
 
     @ApiModelProperty(position = 3, value = "삭제 포트폴리오 식별자들")
-    @Valid
     private List<String> deletePortfolioIds;
 }

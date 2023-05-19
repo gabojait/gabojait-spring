@@ -2,6 +2,7 @@ package com.gabojait.gabojaitspring.develop.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.dto.ExceptionResDto;
 import com.gabojait.gabojaitspring.develop.service.DevelopService;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.service.UserService;
@@ -28,12 +29,16 @@ public class DevelopController {
     private final UserService userService;
     private final JwtProvider jwtProvider;
 
-    @ApiOperation(value = "헬스 체크")
+    @ApiOperation(value = "헬스 체크",
+            notes = "<응답 코드>\n" +
+                    "* 200 = SERVER_HEALTH_OK\n" +
+                    "* 500 = SERVER_ERROR\n" +
+                    "* 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "SERVER_HEALTH_OK",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/health")
     public ResponseEntity<DefaultResDto<Object>> healthCheck() {
@@ -47,12 +52,16 @@ public class DevelopController {
                         .build());
     }
 
-    @ApiOperation(value = "데이터베이스 초기화 및 테스트 데이터 주입")
+    @ApiOperation(value = "데이터베이스 초기화 및 테스트 데이터 주입",
+            notes = "<응답 코드>\n" +
+                    "* 200 = TEST_DATA_INJECTED\n" +
+                    "* 500 = SERVER_ERROR\n" +
+                    "* 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "TEST_DATA_INJECTED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping("/test")
     public ResponseEntity<DefaultResDto<Object>> resetAndInjectTest() {
@@ -66,13 +75,20 @@ public class DevelopController {
                         .build());
     }
 
-    @ApiOperation(value = "테스트 계정 토큰 발급", notes = "user-id = 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9 || 10")
+    @ApiOperation(value = "테스트 계정 토큰 발급",
+            notes = "<값>\n" +
+                    "- user-id = 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9 || 10\n\n" +
+                    "<응답 코드>\n" +
+                    "- 200 = TOKEN_ISSUED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION\n")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "TOKEN_ISSUED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/test/user/{user-id}")
     public ResponseEntity<DefaultResDto<Object>> testDataToken(@PathVariable(value = "user-id") Integer userId) {

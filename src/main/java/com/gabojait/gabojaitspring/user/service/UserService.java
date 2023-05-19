@@ -84,7 +84,7 @@ public class UserService {
 
         boolean isVerified = utilityProvider.verifyPassword(user, request.getPassword());
         if (!isVerified)
-            throw new CustomException(null, LOGIN_FAIL);
+            throw new CustomException(null, LOGIN_UNAUTHENTICATED);
 
         return user;
     }
@@ -180,7 +180,7 @@ public class UserService {
     public void validatePassword(User user, String password) {
         boolean isVerified = utilityProvider.verifyPassword(user, password);
         if (!isVerified)
-            throw new CustomException(null, PASSWORD_INVALID);
+            throw new CustomException(null, PASSWORD_UNAUTHENTICATED);
     }
 
     /**
@@ -445,7 +445,7 @@ public class UserService {
     private User findOneByUsername(String username) {
         return userRepository.findByUsernameAndIsDeletedIsFalse(username)
                 .orElseThrow(() -> {
-                    throw new CustomException(null, LOGIN_FAIL);
+                    throw new CustomException(null, LOGIN_UNAUTHENTICATED);
                 });
     }
 

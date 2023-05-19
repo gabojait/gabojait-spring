@@ -57,15 +57,22 @@ public class ProfileController {
     private final TeamService teamService;
     private final JwtProvider jwtProvider;
 
-    @ApiOperation(value = "본인 조회")
+    @ApiOperation(value = "본인 조회",
+            notes = "<응답 코드>\n" +
+                    "- 200 = SELF_PROFILE_FOUND\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = TEAM_NOT_FOUND\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "SELF_PROFILE_FOUND",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "TEAM_NOT_FOUND"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/profile")
     public ResponseEntity<DefaultResDto<Object>> findMyself(HttpServletRequest servletRequest) {
@@ -86,15 +93,22 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "단건 조회")
+    @ApiOperation(value = "단건 조회",
+            notes = "<응답 코드>\n" +
+                    "- 200 = PROFILE_FOUND\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND || TEAM_NOT_FOUND\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "PROFILE_FOUND",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = ProfileDetailResDto.class))),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND / TEAM_NOT_FOUND"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/{user-id}/profile")
     public ResponseEntity<DefaultResDto<Object>> findOther(HttpServletRequest servletRequest,
@@ -119,18 +133,30 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "프로필 사진 업로드 또는 수정", notes = "* image = NotNull")
+    @ApiOperation(value = "프로필 사진 업로드 또는 수정",
+            notes = "<검증>\n" +
+                    "- image = NotNull\n\n" +
+                    "<응답 코드>\n" +
+                    "- 200 = PROFILE_IMAGE_UPLOADED\n" +
+                    "- 400 = FILE_FIELD_REQUIRED\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = TEAM_NOT_FOUND\n" +
+                    "- 413 = FILE_SIZE_EXCEED\n" +
+                    "- 415 = IMAGE_TYPE_UNSUPPORTED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "PROFILE_IMAGE_UPLOADED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResDto.class))),
-            @ApiResponse(responseCode = "400", description = "FILE_FIELD_REQUIRED"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "TEAM_NOT_FOUND"),
-            @ApiResponse(responseCode = "413", description = "FILE_SIZE_EXCEED"),
-            @ApiResponse(responseCode = "415", description = "IMAGE_TYPE_UNSUPPORTED"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "413", description = "PAYLOAD TOO LARGE"),
+            @ApiResponse(responseCode = "415", description = "UNSUPPORTED MEDIA TYPE"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping(value = "/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DefaultResDto<Object>> uploadProfileImage(HttpServletRequest servletRequest,
@@ -155,15 +181,22 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "프로필 사진 삭제")
+    @ApiOperation(value = "프로필 사진 삭제",
+            notes = "<응답 코드>\n" +
+                    "- 200 = PROFILE_IMAGE_DELETED\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = TEAM_NOT_FOUND\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "PROFILE_IMAGE_DELETED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResDto.class))),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "TEAM_NOT_FOUND"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping("/profile/image")
     public ResponseEntity<DefaultResDto<Object>> deleteProfileImage(HttpServletRequest servletRequest) {
@@ -186,15 +219,22 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "팀 찾기 여부 수정")
+    @ApiOperation(value = "팀 찾기 여부 수정",
+            notes = "<응답 코드>\n" +
+                    "- 200 = PROFILE_VISIBILITY_UPDATED\n" +
+                    "- 400 = IS_PUBLIC_FIELD_REQUIRED\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "PROFILE_VISIBILITY_UPDATED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "IS_PUBLIC_FIELD_REQUIRED"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/profile/seeking-team")
     public ResponseEntity<DefaultResDto<Object>> updateIsSeekingTeam(HttpServletRequest servletRequest,
@@ -213,15 +253,22 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "자기소개 업데이트")
+    @ApiOperation(value = "자기소개 업데이트",
+            notes = "<응답 코드>\n" +
+                    "- 200 = PROFILE_DESCRIPTION_UPDATED\n" +
+                    "- 400 = PROFILE_DESCRIPTION_LENGTH_INVALID\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = SERVICE UNAVAILABLE")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "PROFILE_DESCRIPTION_UPDATED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "PROFILE_DESCRIPTION_LENGTH_INVALID"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/profile/description")
     public ResponseEntity<DefaultResDto<Object>> updateDescription(HttpServletRequest servletRequest,
@@ -240,16 +287,29 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "포지션과 기술 생성, 수정, 삭제")
+    @ApiOperation(value = "포지션과 기술 생성, 수정, 삭제",
+            notes = "<검증>\n" +
+                    "- createSkill || updateSkill != null -> 검증 O\n" +
+                    "- createSkill || updateSkill == null -> 검증 X\n\n" +
+                    "<응답 코드>\n" +
+                    "- 200 = POSITION_AND_SKILL_UPDATED\n" +
+                    "- 400 = POSITION_FIELD_REQUIRED || SKILL_ID_FIELD_REQUIRED || SKILL_NAME_FIELD_REQUIRED || " +
+                    "IS_EXPERIENCED_FIELD_REQUIRED || LEVEL_FIELD_REQUIRED || SKILL_NAME_LENGTH_INVALID || " +
+                    "POSITION_TYPE_INVALID || LEVEL_TYPE_INVALID\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 404 = SKILL_NOT_FOUND\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "POSITION_AND_SKILL_UPDATED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "*_FIELD_REQUIRED / *_LENGTH_INVALID / *_TYPE_INVALID"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN / REQUEST_FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "SKILL_NOT_FOUND"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/profile/position-and-skill")
     public ResponseEntity<DefaultResDto<Object>> updatePositionAndSkill(HttpServletRequest servletRequest,
@@ -273,16 +333,30 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "학력과 경력 생성, 수정, 삭제")
+    @ApiOperation(value = "학력과 경력 생성, 수정, 삭제",
+            notes = "<검증>\n" +
+                    "- createEducation || updateEducation || createWorks || updateWorks != null -> 검증 O\n" +
+                    "- createEducation || updateEducation || createWorks || updateWorks == null -> 검증 X\n\n" +
+                    "<응답 코드>\n" +
+                    "- 200 = EDUCATION_AND_WORK_UPDATED\n" +
+                    "- 400 = EDUCATION_ID_FIELD_REQUIRED || INSTITUTION_NAME_FIELD_REQUIRED || " +
+                    "STARTED_DATE_FIELD_REQUIRED || ENDED_DATE_FIELD_REQUIRED || IS_CURRENT_FIELD_REQUIRED || " +
+                    "WORK_ID_FIELD_REQUIRED || CORPORATION_NAME_FIELD_REQUIRED || INSTITUTION_NAME_LENGTH_INVALID " +
+                    "CORPORATION_NAME_LENGTH_INVALID || WORK_DESCRIPTION_LENGTH_INVALID\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 404 = EDUCATION_NOT_FOUND || WORK_NOT_FOUND\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "EDUCATION_AND_WORK_UPDATED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "*_FIELD_REQUIRED / *_LENGTH_INVALID"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN / REQUEST_FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "EDUCATION_NOT_FOUND / WORK_NOT_FOUND"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/profile/education-and-work")
     public ResponseEntity<DefaultResDto<Object>> updateEducationAndWork(HttpServletRequest servletRequest,
@@ -316,16 +390,28 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "링크 포트폴리오 생성, 수정, 삭제")
+    @ApiOperation(value = "링크 포트폴리오 생성, 수정, 삭제",
+            notes = "<검증>\n" +
+                    "- createLinkPortfolios || updateLinkPortfolios != null -> 검증 O\n" +
+                    "- createLinkPortfolios || updateLinkPortfolios == null -> 검증 X\n\n" +
+                    "<응답 코드>\n" +
+                    "- 200 = LINK_PORTFOLIO_UPDATED\n" +
+                    "- 400 = PORTFOLIO_ID_FIELD_REQUIRED || PORTFOLIO_NAME_FIELD_REQUIRED || URL_FIELD_REQUIRED || " +
+                    "PORTFOLIO_NAME_LENGTH_INVALID || URL_LENGTH_INVALID\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 404 = PORTFOLIO_NOT_FOUND\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "LINK_PORTFOLIO_UPDATED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "*_FIELD_REQUIRED / *_LENGTH_INVALID"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN / REQUEST_FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "PORTFOLIO_NOT_FOUND"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/portfolio/link")
     public ResponseEntity<DefaultResDto<Object>> updateLinkPortfolio(HttpServletRequest servletRequest,
@@ -351,20 +437,36 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "파일 포트폴리오 생성, 수정, 삭제")
+    @ApiOperation(value = "파일 포트폴리오 생성, 수정, 삭제",
+            notes = "<검증>\n" +
+                    "- create-portfolio-names || create-portfolio-files != null -> 검증 O\n" +
+                    "- create-portfolio-names || create-portfolio-files == null -> 검증 X\n" +
+                    "- update-portfolio-ids || update-portfolio-names || update-portfolio-files != null -> 검증 O\n" +
+                    "- update-portfolio-ids || update-portfolio-names || update-portfolio-files == null -> 검증 X\n" +
+                    "- delete-portfolio-ids != null -> 검증 O\n" +
+                    "- delete-portfolio-ids == null -> 검증 X\n\n" +
+                    "<응답 코드>\n" +
+                    "- 200 = FILE_PORTFOLIO_UPDATED\n" +
+                    "- 400 = PORTFOLIO_NAME_LENGTH_INVALID || CREATE_PORTFOLIO_CNT_MATCH_INVALID || " +
+                    "UPDATE_PORTFOLIO_CNT_MATCH_INVALID || FILE_FIELD_REQUIRED\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 404 = PORTFOLIO_NOT_FOUND\n" +
+                    "- 413 = FILE_SIZE_EXCEED / FILE_COUNT_EXCEED\n" +
+                    "- 415 = FILE_TYPE_UNSUPPORTED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "FILE_PORTFOLIO_UPDATED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400",
-                    description = "FILE_FIELD_REQUIRED / PORTFOLIO_NAME_LENGTH_INVALID / " +
-                            "CREATE_PORTFOLIO_CNT_MATCH_INVALID / UPDATE_PORTFOLIO_CNT_MATCH_INVALID"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN / REQUEST_FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "PORTFOLIO_NOT_FOUND"),
-            @ApiResponse(responseCode = "413", description = "FILE_SIZE_EXCEED / FILE_COUNT_EXCEED"),
-            @ApiResponse(responseCode = "415", description = "FILE_TYPE_UNSUPPORTED"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "413", description = "PAYLOAD TOO LARGE"),
+            @ApiResponse(responseCode = "415", description = "UNSUPPORTED MEDIA TYPE"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping(value = "/portfolio/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DefaultResDto<Object>> updateFilePortfolio(
@@ -411,33 +513,45 @@ public class ProfileController {
     }
 
     @ApiOperation(value = "팀을 찾는 회원 다건 조회",
-            notes = "* position = Pattern(regex = ^(designer|backend|frontend|manager|none))\n" +
-                    "* profile-order = Pattern(regex = ^(active|popularity|rating))\n" +
-                    "* page-from = PositiveOrZero\n" +
-                    "* page-size = Positive")
+            notes = "<검증>\n" +
+                    "- position = NotBlank && Pattern(regex = ^(designer|backend|frontend|manager|none))\n" +
+                    "- profile-order = NotBlank && Pattern(regex = ^(active|popularity|rating))\n" +
+                    "- page-from = NotNull && PositiveOrZero\n" +
+                    "- page-size = Positive\n\n" +
+                    "<응답 코드>\n" +
+                    "- 200 = USERS_FINDING_TEAM_FOUND\n" +
+                    "- 400 = POSITION_FIELD_REQUIRED || PROFILE_ORDER_FIELD_REQUIRED || PAGE_FROM_FIELD_REQUIRED || " +
+                    "POSITION_TYPE_INVALID || PROFILE_RATING_TYPE_INVALID || PAGE_FROM_POSITIVE_OR_ZER_ONLY " +
+                    "|| PAGE_SIZE_POSITIVE_ONLY\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "USERS_FINDING_TEAM_FOUND",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = ProfileAbstractResDto.class))),
-            @ApiResponse(responseCode = "400",
-                    description = "*_TYPE_INVALID / PAGE_FROM_POSITIVE_OR_ZER_ONLY / " +
-                            "PAGE_SIZE_POSITIVE_ONLY"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE"),
+
     })
     @GetMapping("/profile/seeking-team")
     public ResponseEntity<DefaultResDto<Object>> findUsersLookingForTeam(
             HttpServletRequest servletRequest,
             @RequestParam(value = "position")
+            @NotBlank(message = "포지션은 필수 입력란입니다.")
             @Pattern(regexp = "^(designer|backend|frontend|manager|none)",
                     message = "포지션은 'designer', 'backend', 'frontend', 'manager', 또는 'none' 중 하나여야 됩니다.")
             String position,
             @RequestParam(value = "profile-order")
+            @NotBlank(message = "프로필 정렬 기준은 필수 입력란입니다.")
             @Pattern(regexp = "^(active|popularity|rating)",
                     message = "정렬 기준은 'active', 'popularity', 'rating' 중 하나여야 됩니다.")
             String profileOrder,
             @RequestParam(value = "page-from")
+            @NotNull(message = "페이지 시작점은 필수 입력란입니다.")
             @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.")
             Integer pageFrom,
             @RequestParam(value = "page-size", required = false)
@@ -463,16 +577,24 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "회원의 팀 찜 업데이트")
+    @ApiOperation(value = "회원의 팀 찜 업데이트",
+            notes = "<응답 코드>\n" +
+                    "- 200 = TEAM_FAVORITE_UPDATED\n" +
+                    "- 400 = IS_ADD_FAVORITE_FIELD_REQUIRED\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = TEAM_NOT_FOUND\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "TEAM_FAVORITE_UPDATED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "IS_ADD_FAVORITE_FIELD_REQUIRED"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "TEAM_NOT_FOUND"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping(value = "/team/{team-id}/favorite")
     public ResponseEntity<DefaultResDto<Object>> updateFavoriteTeam(
@@ -498,14 +620,20 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "찜한 팀 전체 조회")
+    @ApiOperation(value = "찜한 팀 전체 조회",
+            notes = "<응답 코드>\n" +
+                    "- 200 = FAVORITE_TEAMS_FOUND\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "FAVORITE_TEAMS_FOUND",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = TeamAbstractResDto.class))),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/team/favorite")
     public ResponseEntity<DefaultResDto<Object>> findAllFavoriteTeams(HttpServletRequest servletRequest) {

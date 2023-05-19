@@ -33,8 +33,15 @@ spring:
   profiles:
     active: ${PROFILES_ACTIVE}
 
+# Swagger
+springfox:
+  documentation:
+    swagger-ui:
+      enabled: ${SWAGGER_ENABLED}
+
 api:
   name: ${PROFILES_ACTIVE}
+
   # Log
   log:
     config: classpath:logback/${PROFILES_ACTIVE}-logback.xml

@@ -42,18 +42,26 @@ public class UserController {
     private final JwtProvider jwtProvider;
 
     @ApiOperation(value = "아이디 중복여부 확인",
-            notes = "* username = NotBlank && Size(min = 5, max = 15) && Pattern(regex = ^(?=.*[a-z0-9])[a-z0-9]+$)")
+            notes = "<검증>\n" +
+                    "- username = NotBlank && Size(min = 5, max = 15) && Pattern(regex = ^(?=.-[a-z0-9])[a-z0-9]+$)\n\n" +
+                    "<응답 코드>\n" +
+                    "- 200 = USERNAME_AVAILABLE\n" +
+                    "- 400 = USERNAME_FIELD_REQUIRED || USERNAME_LENGTH_INVALID || USERNAME_FORMAT_INVALID\n" +
+                    "- 409 = UNAVAILABLE_USERNAME || EXISTING_USERNAME\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "USERNAME_AVAILABLE",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "USERNAME_LENGTH_INVALID / USERNAME_FORMAT_INVALID"),
-            @ApiResponse(responseCode = "409", description = "UNAVAILABLE_USERNAME / EXISTING_USERNAME"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "409", description = "CONFLICT"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/username")
     public ResponseEntity<DefaultResDto<Object>> duplicateUsername(
             @RequestParam(value = "username")
+            @NotBlank(message = "아이디는 필수 입력란입니다.")
             @Size(min = 5, max = 15, message = "아이디는 5~15자만 가능합니다.")
             @Pattern(regexp = "^(?=.*[a-z0-9])[a-z0-9]+$", message = "아이디는 소문자 영어와 숫자의 조합으로 입력해 주세요.")
             String username
@@ -69,18 +77,26 @@ public class UserController {
     }
 
     @ApiOperation(value = "닉네임 중복여부 확인",
-            notes = "* nickname = NotBlank && Size(min = 2, max = 8) && Pattern(regex = ^[가-힣]+$)")
+            notes = "<검증>\n" +
+                    "- nickname = NotBlank && Size(min = 2, max = 8) && Pattern(regex = ^[가-힣]+$)\n\n" +
+                    "<응답 코드>\n" +
+                    "- 200 = NICKNAME_AVAILABLE\n" +
+                    "- 400 = NICKNAME_FIELD_REQUIRED || NICKNAME_LENGTH_INVALID || NICKNAME_FORMAT_INVALID\n" +
+                    "- 409 = UNAVAILABLE_NICKNAME || EXISTING_NICKNAME\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "NICKNAME_AVAILABLE",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "NICKNAME_LENGTH_INVALID / NICKNAME_FORMAT_INVALID"),
-            @ApiResponse(responseCode = "409", description = "UNAVAILABLE_NICKNAME / EXISTING_NICKNAME"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "409", description = "CONFLICT"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/nickname")
     public ResponseEntity<DefaultResDto<Object>> duplicateNickname(
             @RequestParam(value = "nickname")
+            @NotBlank(message = "닉네임은 필수 입력란입니다.")
             @Size(min = 2, max = 8, message = "닉네임은 2~8자만 가능합니다.")
             @Pattern(regexp = "^[가-힣]+$", message = "닉닉네임은 한글 조합으로 입력해 주세요.")
             String nickname
@@ -95,20 +111,30 @@ public class UserController {
                         .build());
     }
 
-    @ApiOperation(value = "가입")
+    @ApiOperation(value = "가입",
+            notes = "<응답 코드>\n" +
+                    "- 201 = USER_REGISTERED\n" +
+                    "- 400 = USERNAME_FIELD_REQUIRED || PASSWORD_FIELD_REQUIRED || PASSWORD_RE_ENTERED_FIELD_REQUIRED" +
+                    " || NICKNAME || GENDER_FIELD_REQUIRED || EMAIL_FIELD_REQUIRED || USERNAME_LENGTH_INVALID || " +
+                    "PASSWORD_LENGTH_INVALID || LEGAL_NAME_LENGTH_INVALID || NICKNAME_LENGTH_INVALID || " +
+                    "USERNAME_FORMAT_INVALID || PASSWORD_FORMAT_INVALID || LEGAL_NAME_FORMAT_INVALID || " +
+                    "NICKNAME_FORMAT_INVALID || GENDER_TYPE_INVALID || EMAIL_FORMAT_INVALID" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = CONTACT_NOT_FOUND\n" +
+                    "- 409 = EXISTING_USERNAME || UNAVAILABLE_NICKNAME || EXISTING_NICKNAME\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "USER_REGISTERED",
+            @ApiResponse(responseCode = "201", description = "CREATED",
                     content = @Content(schema = @Schema(implementation = UserDefaultResDto.class))),
-            @ApiResponse(responseCode = "400",
-                    description = "*_FIELD_REQUIRED / *_LENGTH_INVALID / *_FORMAT_INVALID / GENDER_TYPE_INVALID / " +
-                            "PASSWORD_MATCH_INVALID"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "CONTACT_NOT_FOUND"),
-            @ApiResponse(responseCode = "409",
-                    description = "EXISTING_USERNAME / UNAVAILABLE_NICKNAME / EXISTING_NICKNAME"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "409", description = "CONFLICT"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping
@@ -134,14 +160,20 @@ public class UserController {
                         .build());
     }
 
-    @ApiOperation(value = "로그인")
+    @ApiOperation(value = "로그인",
+            notes = "<응답 코드>\n" +
+                    "- 200 = USER_LOGIN\n" +
+                    "- 400 = USERNAME_FIELD_REQUIRED || PASSWORD_FIELD_REQUIRED\n" +
+                    "- 401 = LOGIN_UNAUTHENTICATED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "USER_LOGIN",
+            @ApiResponse(responseCode = "200", description = "CREATED",
                     content = @Content(schema = @Schema(implementation = UserDefaultResDto.class))),
-            @ApiResponse(responseCode = "400", description = "*_FIELD_REQUIRED"),
-            @ApiResponse(responseCode = "401", description = "LOGIN_FAIL"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/login")
     public ResponseEntity<DefaultResDto<Object>> login(@RequestBody @Valid UserLoginReqDto request) {
@@ -163,14 +195,20 @@ public class UserController {
                         .build());
     }
 
-    @ApiOperation(value = "본인 조회")
+    @ApiOperation(value = "본인 조회",
+            notes = "<응답 코드>\n" +
+                    "- 200 = SELF_USER_FOUND\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "SELF_USER_FOUND",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = UserDefaultResDto.class))),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping
     public ResponseEntity<DefaultResDto<Object>> findMyself(HttpServletRequest servletRequest) {
@@ -188,15 +226,22 @@ public class UserController {
                         .build());
     }
 
-    @ApiOperation(value = "단건 조회", notes = "* user-id = NotBlank")
+    @ApiOperation(value = "단건 조회",
+            notes = "<응답 코드>\n" +
+                    "- 200 = USER_FOUND\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "USER_FOUND",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = UserDefaultResDto.class))),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/{user-id}")
     public ResponseEntity<DefaultResDto<Object>> findOther(HttpServletRequest servletRequest,
@@ -219,14 +264,20 @@ public class UserController {
                         .build());
     }
 
-    @ApiOperation(value = "토큰 재발급")
+    @ApiOperation(value = "토큰 재발급",
+            notes = "<응답 코드>\n" +
+                    "- 200 = TOKEN_RENEWED\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "TOKEN_RENEWED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/token")
     public ResponseEntity<DefaultResDto<Object>> renewToken(HttpServletRequest servletRequest) {
@@ -246,14 +297,20 @@ public class UserController {
                         .build());
     }
 
-    @ApiOperation(value = "아이디 찾기")
+    @ApiOperation(value = "아이디 찾기",
+            notes = "<응답 코드>\n" +
+                    "- 200 = USERNAME_EMAIL_SENT\n" +
+                    "- 400 = EMAIL_FIELD_REQUIRED || EMAIL_FORMAT_INVALID\n" +
+                    "- 404 = CONTACT_NOT_FOUND || USER_NOT_FOUND\n" +
+                    "- 500 = SERVER_ERROR || EMAIL_SEND_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "USERNAME_EMAIL_SENT",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "EMAIL_FIELD_REQUIRED / EMAIL_FORMAT_INVALID"),
-            @ApiResponse(responseCode = "404", description = "CONTACT_NOT_FOUND / USER_NOT_FOUND"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR / EMAIL_SEND_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/username")
     public ResponseEntity<DefaultResDto<Object>> findUsername(@RequestBody @Valid UserFindUsernameReqDto request) {
@@ -268,15 +325,21 @@ public class UserController {
                         .build());
     }
 
-    @ApiOperation(value = "비밀번호 찾기")
+    @ApiOperation(value = "비밀번호 찾기",
+            notes = "<응답 코드>\n" +
+                    "- 200 = PASSWORD_EMAIL_SENT\n" +
+                    "- 400 = EMAIL_FIELD_REQUIRED || USERNAME_FIELD_REQUIRED || EMAIL_FORMAT_INVALID || " +
+                    "USERNAME_EMAIL_MATCH_INVALID\n" +
+                    "- 404 = CONTACT_NOT_FOUND || USER_NOT_FOUND\n" +
+                    "- 500 = SERVER_ERROR || EMAIL_SEND_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "PASSWORD_EMAIL_SENT",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400",
-                    description = "*_FIELD_REQUIRED / EMAIL_FORMAT_INVALID / USERNAME_EMAIL_MATCH_INVALID"),
-            @ApiResponse(responseCode = "404", description = "CONTACT_NOT_FOUND / USER_NOT_FOUND"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR / EMAIL_SEND_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/password")
     public ResponseEntity<DefaultResDto<Object>> findPassword(@RequestBody @Valid UserFindPasswordReqDto request) {
@@ -291,15 +354,22 @@ public class UserController {
                         .build());
     }
 
-    @ApiOperation(value = "비밀번호 검증")
+    @ApiOperation(value = "비밀번호 검증",
+            notes = "<응답 코드>\n" +
+                    "- 200 = PASSWORD_VERIFIED\n" +
+                    "- 400 = PASSWORD_FIELD_REQUIRED || PASSWORD_UNAUTHENTICATED\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "PASSWORD_VERIFIED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "PASSWORD_FIELD_REQUIRED / PASSWORD_INVALID"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/password/verify")
     public ResponseEntity<DefaultResDto<Object>> verifyPassword(HttpServletRequest servletRequest,
@@ -317,17 +387,24 @@ public class UserController {
                         .build());
     }
 
-    @ApiOperation(value = "닉네임 업데이트")
+    @ApiOperation(value = "닉네임 업데이트",
+            notes = "<응답 코드>\n" +
+                    "- 200 = NICKNAME_UPDATED\n" +
+                    "- 400 = NICKNAME_FIELD_REQUIRED || NICKNAME_LENGTH_INVALID || NICKNAME_FORMAT_INVALID\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 409 = UNAVAILABLE_NICKNAME || EXISTING_NICKNAME\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "NICKNAME_UPDATED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400",
-                    description = "NICKNAME_FIELD_REQUIRED / NICKNAME_LENGTH_INVALID / NICKNAME_FORMAT_INVALID"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "409", description = "UNAVAILABLE_NICKNAME / EXISTING_NICKNAME"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "409", description = "CONFLICT"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/nickname")
     public ResponseEntity<DefaultResDto<Object>> updateNickname(HttpServletRequest servletRequest,
@@ -345,17 +422,23 @@ public class UserController {
                         .build());
     }
 
-    @ApiOperation(value = "비밀번호 업데이트")
+    @ApiOperation(value = "비밀번호 업데이트",
+            notes = "<응답 코드>\n" +
+                    "- 200 = PASSWORD_UPDATED\n" +
+                    "- 400 = PASSWORD_FIELD_REQUIRED || PASSWORD_RE_ENTERED_FIELD_REQUIRED || PASSWORD_LENGTH_INVALID" +
+                    " || PASSWORD_FORMAT_INVALID || PASSWORD_MATCH_INVALID\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "PASSWORD_UPDATED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400",
-                    description = "*_FIELD_REQUIRED / PASSWORD_LENGTH_INVALID / PASSWORD_FORMAT_INVALID / " +
-                            "PASSWORD_MATCH_INVALID"),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/password")
     public ResponseEntity<DefaultResDto<Object>> updatePassword(HttpServletRequest servletRequest,
@@ -373,14 +456,20 @@ public class UserController {
                         .build());
     }
 
-    @ApiOperation(value = "탈퇴")
+    @ApiOperation(value = "탈퇴",
+            notes = "<응답 코드>\n" +
+                    "- 200 = USER_DELETED\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "USER_DELETED",
+            @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "401", description = "TOKEN_AUTHENTICATION_FAIL"),
-            @ApiResponse(responseCode = "403", description = "TOKEN_FORBIDDEN"),
-            @ApiResponse(responseCode = "500", description = "SERVER_ERROR"),
-            @ApiResponse(responseCode = "503", description = "ONGOING_INSPECTION")
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping
     public ResponseEntity<DefaultResDto<Object>> delete(HttpServletRequest servletRequest) {

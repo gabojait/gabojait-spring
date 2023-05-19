@@ -146,7 +146,7 @@ public class JwtProvider {
 
     /**
      * JWT 인증 |
-     * 401(TOKEN_UNAUTHORIZED)
+     * 401(TOKEN_UNAUTHENTICATED)
      */
     public User authenticateJwt(String token) {
         DecodedJWT decodedJWT = jwtDecoder(token);
@@ -169,18 +169,18 @@ public class JwtProvider {
         else if (!userId.equals("null") && roles.contains(Role.USER.name()))
             user = customuserDetailsService.loadUserByUserId(userId);
         else
-            throw new CustomException(null, TOKEN_UNAUTHORIZED);
+            throw new CustomException(null, TOKEN_UNAUTHENTICATED);
 
         // Token time validation
         if ((!validTime.equals(accessTokenTime) && !validTime.equals(refreshTokenTime)) || isExpired)
-            throw new CustomException(null, TOKEN_UNAUTHORIZED);
+            throw new CustomException(null, TOKEN_UNAUTHENTICATED);
 
         try {
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(userId, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         } catch (JWTVerificationException e) {
-            throw new CustomException(e, TOKEN_UNAUTHORIZED);
+            throw new CustomException(e, TOKEN_UNAUTHENTICATED);
         }
 
         return user;
@@ -188,8 +188,8 @@ public class JwtProvider {
 
     /**
      * JWT 인가 |
-     * 401(TOKEN_UNAUTHORIZED)
-     * 403(TOKEN_FORBIDDEN)
+     * 401(TOKEN_UNAUTHENTICATED)
+     * 403(TOKEN_UNAUTHORIZED)
      */
     private User authorizeJwt(String token, Role role, Jwt jwt) {
         DecodedJWT decodedJWT = jwtDecoder(token);
@@ -201,10 +201,10 @@ public class JwtProvider {
         // Token valid time validation
         if (jwt.name().equals(Jwt.ACCESS.name())) {
             if (!validTime.equals(accessTokenTime))
-                throw new CustomException(null, TOKEN_FORBIDDEN);
+                throw new CustomException(null, TOKEN_UNAUTHORIZED);
         } else if (jwt.name().equals(Jwt.REFRESH.name())) {
             if (!validTime.equals(refreshTokenTime))
-                throw new CustomException(null, TOKEN_FORBIDDEN);
+                throw new CustomException(null, TOKEN_UNAUTHORIZED);
         } else {
             throw new CustomException(null, SERVER_ERROR);
         }
@@ -212,10 +212,10 @@ public class JwtProvider {
         // Role validation
         if (role.name().equals(Role.GUEST.name())) {
             if (!roles.contains(role.name()))
-                throw new CustomException(null, TOKEN_FORBIDDEN);
+                throw new CustomException(null, TOKEN_UNAUTHORIZED);
         } else {
             if (!roles.contains(role.name()) || !user.getRoles().equals(roles))
-                throw new CustomException(null, TOKEN_FORBIDDEN);
+                throw new CustomException(null, TOKEN_UNAUTHORIZED);
         }
 
         return user;
@@ -223,11 +223,11 @@ public class JwtProvider {
 
     /**
      * JWT 디코더 |
-     * 401(TOKEN_UNAUTHORIZED)
+     * 401(TOKEN_UNAUTHENTICATED)
      */
     private DecodedJWT jwtDecoder(String token) {
         if (token == null || token.trim().equals(""))
-            throw new CustomException(null, TOKEN_UNAUTHORIZED);
+            throw new CustomException(null, TOKEN_UNAUTHENTICATED);
         token = token.trim().substring(tokenPrefix.length());
 
         Algorithm algorithm = Algorithm.HMAC256(secret.getBytes(StandardCharsets.UTF_8));
