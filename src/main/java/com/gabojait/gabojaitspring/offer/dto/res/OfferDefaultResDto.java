@@ -26,10 +26,11 @@ public class OfferDefaultResDto {
     @ApiModelProperty(position = 4, required = true, value = "승인 여부")
     private Boolean isAccepted;
 
-    @ApiModelProperty(position = 5, required = true, value = "제안자")
+    @ApiModelProperty(position = 5, required = true, value = "제안자", allowableValues = "user, team")
     private String offeredBy;
 
-    @ApiModelProperty(position = 6, required = true, value = "포지션")
+    @ApiModelProperty(position = 6, required = true, value = "포지션",
+            allowableValues = "designer, backend, frontend, manager")
     private String position;
 
     @ApiModelProperty(position = 7, required = true, value = "생성일")
@@ -48,8 +49,8 @@ public class OfferDefaultResDto {
         this.userId = offer.getUserId().toString();
         this.teamId = offer.getTeamId().toString();
         this.isAccepted = offer.getIsAccepted();
-        this.offeredBy = OfferedBy.fromChar(offer.getOfferedBy()).name();
-        this.position = Position.fromChar(offer.getPosition()).name();
+        this.offeredBy = OfferedBy.fromChar(offer.getOfferedBy()).name().toLowerCase();
+        this.position = Position.fromChar(offer.getPosition()).name().toLowerCase();
         this.createdDate = offer.getCreatedDate();
         this.modifiedDate = offer.getModifiedDate();
         this.schemaVersion = offer.getSchemaVersion();

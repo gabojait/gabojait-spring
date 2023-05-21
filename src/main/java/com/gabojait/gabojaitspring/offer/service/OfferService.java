@@ -6,6 +6,8 @@ import com.gabojait.gabojaitspring.offer.domain.Offer;
 import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
 import com.gabojait.gabojaitspring.offer.dto.req.OfferDefaultReqDto;
 import com.gabojait.gabojaitspring.offer.repository.OfferRepository;
+import com.gabojait.gabojaitspring.team.domain.Team;
+import com.gabojait.gabojaitspring.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
@@ -44,6 +46,23 @@ public class OfferService {
         Pageable pageable = utilityProvider.validatePaging(pageFrom, pageSize, 20);
         try {
             return offerRepository.findAllByUserIdAndIsDeletedIsFalse(userId, pageable);
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 팀 식별자로 페이징 다건 조회 | main |
+     * 403(REQUEST_FORBIDDEN)
+     * 500(SERVER_ERROR)
+     */
+    public Page<Offer> findPageByTeamId(Team team, ObjectId userId, Integer pageFrom, Integer pageSize) {
+        if (!team.getLeaderUserId().toString().equals(userId.toString()))
+            throw new CustomException(null, REQUEST_FORBIDDEN);
+
+        Pageable pageable = utilityProvider.validatePaging(pageFrom, pageSize, 20);
+        try {
+            return offerRepository.findAllByTeamIdAndIsDeletedIsFalse(team.getId(), pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }

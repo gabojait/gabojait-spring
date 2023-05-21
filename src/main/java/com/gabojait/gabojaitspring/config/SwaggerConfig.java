@@ -3,6 +3,7 @@ package com.gabojait.gabojaitspring.config;
 import com.fasterxml.classmate.TypeResolver;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
 import com.gabojait.gabojaitspring.common.dto.ExceptionResDto;
+import com.gabojait.gabojaitspring.offer.dto.res.OfferDefaultResDto;
 import com.gabojait.gabojaitspring.profile.dto.res.*;
 import com.gabojait.gabojaitspring.review.dto.res.ReviewDefaultResDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamAbstractResDto;
@@ -77,6 +78,7 @@ public class SwaggerConfig {
                 .additionalModels(typeResolver.resolve(TeamDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(TeamAbstractResDto.class))
                 .additionalModels(typeResolver.resolve(TeamDetailResDto.class))
+                .additionalModels(typeResolver.resolve(OfferDefaultResDto.class))
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo())
                 .securityContexts(Collections.singletonList(securityContext()))
