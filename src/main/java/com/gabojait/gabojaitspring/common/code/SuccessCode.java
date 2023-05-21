@@ -17,6 +17,8 @@ public enum SuccessCode {
     // 200 Ok
     OFFER_BY_USER_FOUND(OK, "팀이 받은 제안 다건 조회를 했습니다."),
     OFFER_BY_TEAM_FOUND(OK, "회원이 받은 제안 다건 조회를 했습니다."),
+    USER_DECIDED_OFFER(OK, "회원이 받은 제안을 결정했습니다."),
+    TEAM_DECIDED_OFFER(OK, "팀이 받은 제안을 결정했습니다."),
 
     // 201 Created
     OFFERED_BY_USER(CREATED, "팀에 지원을 했습니다."),

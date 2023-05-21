@@ -4,6 +4,7 @@ import com.gabojait.gabojaitspring.common.util.EmailProvider;
 import com.gabojait.gabojaitspring.common.util.FileProvider;
 import com.gabojait.gabojaitspring.common.util.UtilityProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.offer.domain.Offer;
 import com.gabojait.gabojaitspring.profile.domain.Education;
 import com.gabojait.gabojaitspring.profile.domain.Portfolio;
 import com.gabojait.gabojaitspring.profile.domain.Skill;
@@ -407,10 +408,22 @@ public class UserService {
      * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public void offer(String userId, ObjectId offerId, boolean isOfferedByUser) {
+    public void offer(String userId, boolean isOfferedByUser) {
         User user = findOneById(userId);
 
-        user.offer(offerId, isOfferedByUser);
+        user.offer(isOfferedByUser);
+        save(user);
+    }
+
+    /**
+     * 제안 결정 | main |
+     * 500(SERVER_ERROR)
+     */
+    public void offerDecided(User user, ObjectId teamId, boolean isAccepted) {
+        if (!isAccepted)
+            return;
+
+        user.joinTeam(teamId, false);
         save(user);
     }
 

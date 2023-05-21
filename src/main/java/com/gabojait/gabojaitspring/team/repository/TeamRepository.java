@@ -14,21 +14,21 @@ public interface TeamRepository extends MongoRepository<Team, ObjectId> {
 
     Optional<Team> findByIdAndIsDeletedIsFalse(ObjectId teamId);
 
-    Page<Team> findAllByIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTotalRecruitCntDesc(Pageable pageable);
+    Page<Team> findAllByIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(Pageable pageable);
 
-    Page<Team> findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTotalRecruitCntDesc(
+    Page<Team> findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(
             Pageable pageable
     );
 
-    Page<Team> findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTotalRecruitCntDesc(
+    Page<Team> findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(
             Pageable pageable
     );
 
-    Page<Team> findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTotalRecruitCntDesc(
+    Page<Team> findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(
             Pageable pageable
     );
 
-    Page<Team> findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTotalRecruitCntDesc(
+    Page<Team> findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(
             Pageable pageable
     );
 

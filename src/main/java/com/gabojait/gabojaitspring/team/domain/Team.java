@@ -70,11 +70,11 @@ public class Team extends BaseTimeEntity {
     @Field(name = "visited_cnt")
     private Long visitedCnt;
 
-    @Field(name = "total_application_cnt")
-    private Long totalApplicationCnt;
+    @Field(name = "user_offer_cnt")
+    private Long userOfferCnt;
 
-    @Field(name = "total_recruit_cnt")
-    private Long totalRecruitCnt;
+    @Field(name = "team_offer_cnt")
+    private Long teamOfferCnt;
 
     @Field(name = "teammate_join_cnt")
     private Long teammateJoinCnt;
@@ -84,12 +84,6 @@ public class Team extends BaseTimeEntity {
 
     @Field(name = "teammate_left_cnt")
     private Long teammateLeftCnt;
-
-    @Field(name = "user_offer_ids")
-    private List<ObjectId> userOfferIds = new ArrayList<>();
-
-    @Field(name = "team_offer_ids")
-    private List<ObjectId> teamOfferIds = new ArrayList<>();
 
     @Field(name = "favorite_user_ids")
     private List<ObjectId> favoriteUserIds = new ArrayList<>();
@@ -132,8 +126,8 @@ public class Team extends BaseTimeEntity {
         this.teammateJoinCnt = 0L;
         this.teammateFiredCnt = 0L;
         this.teammateLeftCnt = 0L;
-        this.totalApplicationCnt = 0L;
-        this.totalRecruitCnt = 0L;
+        this.userOfferCnt = 0L;
+        this.teamOfferCnt = 0L;
 
         this.isDeleted = false;
     }
@@ -271,10 +265,10 @@ public class Team extends BaseTimeEntity {
      * Offer related
      */
 
-    public void offer(ObjectId offerId, boolean isOfferedByUser) {
+    public void offer(boolean isOfferedByUser) {
         if (isOfferedByUser)
-            this.userOfferIds.add(offerId);
+            this.userOfferCnt++;
         else
-            this.teamOfferIds.add(offerId);
+            this.teamOfferCnt++;
     }
 }

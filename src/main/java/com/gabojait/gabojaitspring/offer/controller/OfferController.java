@@ -4,6 +4,7 @@ import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
 import com.gabojait.gabojaitspring.offer.domain.Offer;
 import com.gabojait.gabojaitspring.offer.dto.req.OfferDefaultReqDto;
+import com.gabojait.gabojaitspring.offer.dto.req.OfferUpdateReqDto;
 import com.gabojait.gabojaitspring.offer.dto.res.OfferDefaultResDto;
 import com.gabojait.gabojaitspring.offer.service.OfferService;
 import com.gabojait.gabojaitspring.team.domain.Team;
@@ -82,8 +83,8 @@ public class OfferController {
         teamService.validatePreOfferByUser(teamId, request.getPosition());
         // main
         ObjectId offerId = offerService.offer(request, user.getId().toString(), teamId, true);
-        teamService.offer(teamId, offerId, true);
-        userService.offer(user.getId().toString(), offerId, true);
+        teamService.offer(teamId, true);
+        userService.offer(user.getId().toString(), true);
 
         return ResponseEntity.status(OFFERED_BY_USER.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -131,8 +132,8 @@ public class OfferController {
                 request.getPosition());
         // main
         ObjectId offerId = offerService.offer(request, userId, user.getCurrentTeamId().toString(), false);
-        teamService.offer(user.getCurrentTeamId().toString(), offerId, false);
-        userService.offer(userId, offerId, false);
+        teamService.offer(user.getCurrentTeamId().toString(), false);
+        userService.offer(userId, false);
 
         return ResponseEntity.status(OFFERED_BY_TEAM.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -161,7 +162,7 @@ public class OfferController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/user/offer")
-    public ResponseEntity<DefaultResDto<Object>> decideTeamOffer(
+    public ResponseEntity<DefaultResDto<Object>> userFindOffers(
             HttpServletRequest servletRequest,
             @RequestParam(value = "page-from")
             @NotNull(message = "페이지 시작점은 필수 입력란입니다.")
@@ -214,7 +215,7 @@ public class OfferController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/team/offer")
-    public ResponseEntity<DefaultResDto<Object>> decideUserOffer(
+    public ResponseEntity<DefaultResDto<Object>> teamFindOffers(
             HttpServletRequest servletRequest,
             @RequestParam(value = "page-from")
             @NotNull(message = "페이지 시작점은 필수 입력란입니다.")
@@ -244,6 +245,51 @@ public class OfferController {
                         .responseMessage(OFFER_BY_USER_FOUND.getMessage())
                         .data(responses)
                         .size(offers.getTotalPages())
+                        .build());
+    }
+
+    @ApiOperation(value = "회원이 받은 제안 결정",
+            notes = "<응답 코드>\n" +
+                    "- 200 = USER_DECIDED_OFFER\n" +
+                    "- 400 = IS_ACCEPTED_FIELD_REQUIRED || ID_CONVERT_INVALID\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = OFFER_NOT_FOUND || TEAM_NOT_FOUND\n" +
+                    "- 409 = EXISTING_CURRENT_TEAM || TEAM_POSITION_UNAVAILABLE\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "409", description = "CONFLICT"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
+    })
+    @PatchMapping("/user/offer/{offer-id}")
+    public ResponseEntity<DefaultResDto<Object>> decideOfferByUser(HttpServletRequest servletRequest,
+                                                                 @PathVariable(value = "offer-id")
+                                                                 String offerId,
+                                                                 @RequestBody @Valid
+                                                                 OfferUpdateReqDto request) {
+        // auth
+        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        // sub
+        Offer offer = offerService.findOneById(offerId);
+        userService.validateHasNoCurrentTeam(user);
+        // main
+        teamService.decideOfferByUser(offer, user, request.getIsAccepted());
+        userService.offerDecided(user, offer.getTeamId(), request.getIsAccepted());
+        offerService.decideOffer(offer, request.getIsAccepted());
+
+        return ResponseEntity.status(USER_DECIDED_OFFER.getHttpStatus())
+                .body(DefaultResDto.noDataBuilder()
+                        .responseCode(USER_DECIDED_OFFER.name())
+                        .responseMessage(USER_DECIDED_OFFER.getMessage())
                         .build());
     }
 }

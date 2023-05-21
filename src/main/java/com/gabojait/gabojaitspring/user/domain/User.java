@@ -55,11 +55,11 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Field(name = "is_seeking_team")
     private Boolean isSeekingTeam;
 
-    @Field(name = "user_offer_ids")
-    private List<ObjectId> userOfferIds = new ArrayList<>();
+    @Field(name = "user_offer_cnt")
+    private Long userOfferCnt;
 
-    @Field(name = "team_offer_ids")
-    private List<ObjectId> teamOfferIds = new ArrayList<>();
+    @Field(name = "team_offer_cnt")
+    private Long teamOfferCnt;
 
     @Field(name = "profile_description")
     private String profileDescription;
@@ -131,6 +131,8 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.joinTeamCnt = 0;
         this.quitCompleteTeamCnt = 0;
         this.quitIncompleteTeamCnt = 0;
+        this.userOfferCnt = 0L;
+        this.teamOfferCnt = 0L;
         this.rating = 0F;
 
         updateRoles(List.of(Role.USER));
@@ -321,11 +323,11 @@ public class User extends BaseTimeEntity implements UserDetails {
      * Offer related
      */
 
-    public void offer(ObjectId offerId, boolean isOfferedByUser) {
+    public void offer(boolean isOfferedByUser) {
         if (isOfferedByUser)
-            this.userOfferIds.add(offerId);
+            this.userOfferCnt++;
         else
-            this.teamOfferIds.add(offerId);
+            this.teamOfferCnt++;
     }
 
     /**

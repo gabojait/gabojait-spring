@@ -69,6 +69,32 @@ public class OfferService {
     }
 
     /**
+     * 제안 결정 | main |
+     * 500(SERVER_ERROR)
+     */
+    public void decideOffer(Offer offer, boolean isAccepted) {
+        if (isAccepted)
+            offer.accept();
+        else
+            offer.decline();
+
+        save(offer);
+    }
+
+    /**
+     * 식별자로 단건 조회 | sub |
+     * 404(OFFER_NOT_FOUND)
+     */
+    public Offer findOneById(String offerId) {
+        ObjectId id = utilityProvider.toObjectId(offerId);
+
+        return offerRepository.findByIdAndIsDeletedIsFalse(id)
+                .orElseThrow(() -> {
+                    throw new CustomException(null, OFFER_NOT_FOUND);
+                });
+    }
+
+    /**
      * 제안 저장 |
      * 500(SERVER_ERROR)
      */

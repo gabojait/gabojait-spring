@@ -2,6 +2,7 @@ package com.gabojait.gabojaitspring.team.service;
 
 import com.gabojait.gabojaitspring.common.util.UtilityProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.offer.domain.Offer;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.domain.type.TeamOrder;
@@ -301,10 +302,10 @@ public class TeamService {
      * 404(TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public void offer(String teamId, ObjectId offerId, boolean isOfferedByUser) {
+    public void offer(String teamId, boolean isOfferedByUser) {
         Team team = findOneById(teamId);
 
-        team.offer(offerId, isOfferedByUser);
+        team.offer(isOfferedByUser);
         save(team);
     }
 
@@ -323,7 +324,7 @@ public class TeamService {
 
     /**
      * 팀이 회원에게 채용 제안전 검증 | sub |
-     * 400(POSITION_TYPE_INVALID)
+     * 400(POSITION_TYPE_INVALID / ID_CONVERT_INVALID)
      * 403(REQUEST_FORBIDDEN)
      * 404(TEAM_NOT_FOUND)
      * 409(TEAM_POSITION_UNAVAILABLE)
@@ -336,6 +337,20 @@ public class TeamService {
 
         if (!team.isLeader(leaderId))
             throw new CustomException(null, REQUEST_FORBIDDEN);
+    }
+
+    /**
+     * 회원의 제안 결정 | sub |
+     * 400(ID_CONVERT_INVALID)
+     * 404(TEAM_NOT_FOUND)
+     * 409(TEAM_POSITION_UNAVAILABLE)
+     * 500(SERVER_ERROR)
+     */
+    public void decideOfferByUser(Offer offer, User user, boolean isAccepted) {
+        Position position = Position.fromChar(offer.getPosition());
+        Team team = findOneById(offer.getTeamId().toString());
+        if (isAccepted)
+            join(team, user, position.getType());
     }
 
     /**
@@ -424,7 +439,7 @@ public class TeamService {
      */
     private Page<Team> findPageByActive(Pageable pageable) {
         try {
-            return teamRepository.findAllByIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTotalRecruitCntDesc(pageable);
+            return teamRepository.findAllByIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -440,19 +455,19 @@ public class TeamService {
             switch (position.getType()) {
                 case 'D':
                     teams = teamRepository
-                            .findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTotalRecruitCntDesc(pageable);
+                            .findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(pageable);
                     break;
                 case 'B':
                     teams = teamRepository
-                            .findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTotalRecruitCntDesc(pageable);
+                            .findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(pageable);
                     break;
                 case 'F':
                     teams = teamRepository
-                            .findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTotalRecruitCntDesc(pageable);
+                            .findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(pageable);
                     break;
                 case 'M':
                     teams = teamRepository
-                            .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTotalRecruitCntDesc(pageable);
+                            .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(pageable);
                     break;
                 default:
                     throw new CustomException(null, SERVER_ERROR);

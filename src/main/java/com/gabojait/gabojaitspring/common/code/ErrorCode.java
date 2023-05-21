@@ -54,6 +54,7 @@ public enum ErrorCode {
     IS_RECRUITING_FIELD_REQUIRED(BAD_REQUEST, "팀원 모집 여부는 필수 입력란입니다."),
     PROJECT_URL_FIELD_REQUIRED(BAD_REQUEST, "완료된 프로젝트 URL은 필수 입력란입니다."),
     IS_ADD_FAVORITE_FIELD_REQUIRED(BAD_REQUEST, "찜 추가 여부는 필수 입력란입니다."),
+    IS_ACCEPTED_FIELD_REQUIRED(BAD_REQUEST, "수락 여부는 필수 입력란입니다."),
 
     // @Size
     USERNAME_LENGTH_INVALID(BAD_REQUEST, "아이디는 5~15자만 가능합니다."),
@@ -131,6 +132,7 @@ public enum ErrorCode {
     PORTFOLIO_NOT_FOUND(NOT_FOUND, "존재하지 않는 포트폴리오입니다."),
     SKILL_NOT_FOUND(NOT_FOUND, "존재하지 않는 기술입니다."),
     WORK_NOT_FOUND(NOT_FOUND, "존재하지 않는 경력입니다."),
+    OFFER_NOT_FOUND(NOT_FOUND, "존재하지 않는 제안입니다."),
 
     /**
      * 405 Method not allowed
