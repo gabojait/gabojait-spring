@@ -15,6 +15,8 @@ public enum SuccessCode {
      * Offer Controller
      */
     // 200 Ok
+    TEAM_OFFER_FOUND(OK, "팀이 받은 제안 다건 조회를 했습니다."),
+    OFFER_BY_TEAM_FOUND(OK, "회원이 받은 제안 다건 조회를 했습니다."),
 
     // 201 Created
     OFFERED_BY_USER(CREATED, "팀에 지원을 했습니다."),

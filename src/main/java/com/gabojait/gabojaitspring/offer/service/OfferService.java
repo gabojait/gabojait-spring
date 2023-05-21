@@ -6,9 +6,10 @@ import com.gabojait.gabojaitspring.offer.domain.Offer;
 import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
 import com.gabojait.gabojaitspring.offer.dto.req.OfferDefaultReqDto;
 import com.gabojait.gabojaitspring.offer.repository.OfferRepository;
-import com.gabojait.gabojaitspring.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
@@ -33,6 +34,19 @@ public class OfferService {
         save(offer);
 
         return offer.getId();
+    }
+
+    /**
+     * 회원 식별자로 페이징 다건 조회 | main |
+     * 500(SERVER_ERROR)
+     */
+    public Page<Offer> findPageByUserId(ObjectId userId, Integer pageFrom, Integer pageSize) {
+        Pageable pageable = utilityProvider.validatePaging(pageFrom, pageSize, 20);
+        try {
+            return offerRepository.findAllByUserIdAndIsDeletedIsFalse(userId, pageable);
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
     }
 
     /**
