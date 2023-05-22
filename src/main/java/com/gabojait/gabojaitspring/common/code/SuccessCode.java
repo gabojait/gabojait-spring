@@ -18,6 +18,7 @@ public enum SuccessCode {
     USER_REVIEWS_FOUND(OK, "회원의 리뷰 다건 조회를 했습니다."),
     REVIEWABLE_TEAMS_FOUND(OK, "리뷰 작성 가능한 팀 전체 조회를 했습니다."),
 
+
     // 201 Created
     USER_REVIEWED(CREATED, "리뷰를 작성했습니다."),
 

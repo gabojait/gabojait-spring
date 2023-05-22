@@ -57,7 +57,7 @@ public class ProfileController {
     private final TeamService teamService;
     private final JwtProvider jwtProvider;
 
-    @ApiOperation(value = "본인 조회",
+    @ApiOperation(value = "본인 프로필 조회",
             notes = "<응답 코드>\n" +
                     "- 200 = SELF_PROFILE_FOUND\n" +
                     "- 400 = ID_CONVERT_INVALID\n" +
@@ -95,7 +95,7 @@ public class ProfileController {
                         .build());
     }
 
-    @ApiOperation(value = "단건 조회",
+    @ApiOperation(value = "프로필 단건 조회",
             notes = "<응답 코드>\n" +
                     "- 200 = PROFILE_FOUND\n" +
                     "- 400 = ID_CONVERT_INVALID\n" +
@@ -531,8 +531,8 @@ public class ProfileController {
                     "<응답 코드>\n" +
                     "- 200 = USERS_FINDING_TEAM_FOUND\n" +
                     "- 400 = POSITION_FIELD_REQUIRED || PROFILE_ORDER_FIELD_REQUIRED || PAGE_FROM_FIELD_REQUIRED || " +
-                    "POSITION_TYPE_INVALID || PROFILE_RATING_TYPE_INVALID || PAGE_FROM_POSITIVE_OR_ZER_ONLY " +
-                    "|| PAGE_SIZE_POSITIVE_ONLY\n" +
+                    "POSITION_TYPE_INVALID || PROFILE_RATING_TYPE_INVALID || PAGE_FROM_POS_OR_ZERO_ONLY || " +
+                    "|| PAGE_SIZE_POS_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 500 = SERVER_ERROR\n" +

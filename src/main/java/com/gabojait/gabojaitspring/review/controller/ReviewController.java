@@ -4,6 +4,7 @@ import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
 import com.gabojait.gabojaitspring.review.domain.Review;
 import com.gabojait.gabojaitspring.review.dto.req.ReviewCreateReqDto;
+import com.gabojait.gabojaitspring.review.dto.res.ReviewDefaultResDto;
 import com.gabojait.gabojaitspring.review.service.ReviewService;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.dto.res.TeamAbstractResDto;
@@ -19,6 +20,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -26,6 +28,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,6 +131,58 @@ public class ReviewController {
                         .responseMessage(REVIEWABLE_TEAMS_FOUND.getMessage())
                         .data(responses)
                         .size(responses.size() > 0 ? 1 : 0)
+                        .build());
+    }
+
+    @ApiOperation(value = "회원 리뷰 다건 조회",
+            notes = "<검증>\n" +
+                    "- page-from = NotNull && PositiveOrZero\n" +
+                    "- page-size = Positive\n\n" +
+                    "<응답 코드>\n" +
+                    "- 200 = USER_REVIEWS_FOUND\n" +
+                    "- 400 = PAGE_FROM_FIELD_REQUIRED || PAGE_FROM_POS_OR_ZERO_ONLY || PAGE_SIZE_POS_ONLY || " +
+                    "ID_CONVERT_INVALID\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(schema = @Schema(implementation = ReviewDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
+    })
+    @GetMapping("/user/{user-id}/review")
+    public ResponseEntity<DefaultResDto<Object>> findManyReview(
+            HttpServletRequest servletRequest,
+            @PathVariable(value = "user-id") String userId,
+            @RequestParam(value = "page-from")
+            @NotNull(message = "페이지 시작점은 필수 입력란입니다.")
+            @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.")
+            Integer pageFrom,
+            @RequestParam(value = "page-size", required = false)
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
+            Integer pageSize) {
+        // auth
+        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        // main
+        Page<Review> reviews = reviewService.findPageByRevieweeId(userId, pageFrom, pageSize);
+
+        // response
+        List<ReviewDefaultResDto> responses = new ArrayList<>();
+        for (Review review : reviews)
+            responses.add(new ReviewDefaultResDto(review));
+
+        return ResponseEntity.status(USER_REVIEWS_FOUND.getHttpStatus())
+                .body(DefaultResDto.multiDataBuilder()
+                        .responseCode(USER_REVIEWS_FOUND.name())
+                        .responseMessage(USER_REVIEWS_FOUND.getMessage())
+                        .data(responses)
+                        .size(reviews.getTotalPages())
                         .build());
     }
 }

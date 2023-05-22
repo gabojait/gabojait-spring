@@ -10,6 +10,8 @@ import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -40,7 +42,7 @@ public class ReviewService {
             validateTeamMember(r.getRevieweeId(), team);
             Optional<Review> review = findOneByReviewerIdRevieweeIdTeamId(user.getId(), revieweeId, team.getId());
 
-            if (review.isEmpty()) {
+            if (review.isEmpty() && !revieweeId.toString().equals(user.getId().toString())) {
                 Review newReview = r.toEntity(user.getId(), revieweeId, team.getId());
                 save(newReview);
                 reviews.add(newReview);
@@ -65,6 +67,22 @@ public class ReviewService {
         }
 
         return teamIds;
+    }
+
+    /**
+     * 리뷰 대상자 식별자로 리뷰 페이징 조회 | main |
+     * 400(ID_CONVERT_INVALID)
+     * 500(SERVER_ERROR)
+     */
+    public Page<Review> findPageByRevieweeId(String revieweeId, Integer pageFrom, Integer pageSize) {
+        Pageable pageable = utilityProvider.validatePaging(pageFrom, pageSize, 20);
+        ObjectId id = utilityProvider.toObjectId(revieweeId);
+
+        try {
+            return reviewRepository.findAllByRevieweeIdAndIsDeletedIsFalse(id, pageable);
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
     }
 
     /**

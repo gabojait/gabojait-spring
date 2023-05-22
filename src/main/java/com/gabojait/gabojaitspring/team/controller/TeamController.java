@@ -518,7 +518,7 @@ public class TeamController {
                         .build());
     }
 
-    @ApiOperation(value = "본인 조회",
+    @ApiOperation(value = "본인 팀 조회",
             notes = "<응답 코드>\n" +
                     "- 200 = SELF_TEAM_FOUND\n" +
                     "- 400 = ID_CONVERT_INVALID\n" +

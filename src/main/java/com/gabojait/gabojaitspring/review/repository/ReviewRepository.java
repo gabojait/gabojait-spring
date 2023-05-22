@@ -2,6 +2,8 @@ package com.gabojait.gabojaitspring.review.repository;
 
 import com.gabojait.gabojaitspring.review.domain.Review;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,4 +18,6 @@ public interface ReviewRepository extends MongoRepository<Review, ObjectId> {
                                                                                ObjectId teamId);
 
     List<Review> findAllByReviewerIdAndTeamIdAndIsDeletedIsFalse(ObjectId reviewerId, ObjectId teamId);
+
+    Page<Review> findAllByRevieweeIdAndIsDeletedIsFalse(ObjectId revieweeId, Pageable pageable);
 }
