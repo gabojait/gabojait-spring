@@ -340,17 +340,36 @@ public class TeamService {
     }
 
     /**
-     * 회원의 제안 결정 | sub |
+     * 회원의 제안 결정 | main |
      * 400(ID_CONVERT_INVALID)
      * 404(TEAM_NOT_FOUND)
      * 409(TEAM_POSITION_UNAVAILABLE)
      * 500(SERVER_ERROR)
      */
     public void decideOfferByUser(Offer offer, User user, boolean isAccepted) {
+        if (!isAccepted)
+            return;
         Position position = Position.fromChar(offer.getPosition());
         Team team = findOneById(offer.getTeamId().toString());
-        if (isAccepted)
-            join(team, user, position.getType());
+        join(team, user, position.getType());
+    }
+
+    /**
+     * 팀의 제안 결정 | main |
+     * 400(ID_CONVERT_INVALID)
+     * 403(REQUEST_FORBIDDEN)
+     * 404(TEAM_NOT_FOUND)
+     * 409(TEAM_POSITION_UNAVAILABLE)
+     * 500(SERVER_ERROR)
+     */
+    public void decideOfferByTeam(Offer offer, User user, User otherUser, boolean isAccepted) {
+        Team team = findOneById(user.getCurrentTeamId().toString());
+        if (!team.isLeader(user.toString()))
+            throw new CustomException(null, REQUEST_FORBIDDEN);
+        if (!isAccepted)
+            return;
+        Position position = Position.fromChar(offer.getPosition());
+        join(team, otherUser, position.getType());
     }
 
     /**

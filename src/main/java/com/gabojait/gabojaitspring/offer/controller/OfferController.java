@@ -271,10 +271,10 @@ public class OfferController {
     })
     @PatchMapping("/user/offer/{offer-id}")
     public ResponseEntity<DefaultResDto<Object>> decideOfferByUser(HttpServletRequest servletRequest,
-                                                                 @PathVariable(value = "offer-id")
-                                                                 String offerId,
-                                                                 @RequestBody @Valid
-                                                                 OfferUpdateReqDto request) {
+                                                                   @PathVariable(value = "offer-id")
+                                                                   String offerId,
+                                                                   @RequestBody @Valid
+                                                                   OfferUpdateReqDto request) {
         // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
@@ -290,6 +290,54 @@ public class OfferController {
                 .body(DefaultResDto.noDataBuilder()
                         .responseCode(USER_DECIDED_OFFER.name())
                         .responseMessage(USER_DECIDED_OFFER.getMessage())
+                        .build());
+    }
+
+    @ApiOperation(value = "팀이 받은 제안 결정",
+            notes = "<응답 코드>\n" +
+                    "- 200 = TEAM_DECIDED_OFFER\n" +
+                    "- 400 = IS_ACCEPTED_FIELD_REQUIRED || ID_CONVERT_INVALID\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 404 = OFFER_NOT_FOUND || TEAM_NOT_FOUND || USER_NOT_FOUND\n" +
+                    "- 409 = NON_EXISTING_CURRENT_TEAM || EXISTING_CURRENT_TEAM || TEAM_POSITION_UNAVAILABLE\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "409", description = "CONFLICT"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
+    })
+    @PatchMapping("/team/offer/{offer-id}")
+    public ResponseEntity<DefaultResDto<Object>> decideOfferByTeam(HttpServletRequest servletRequest,
+                                                                   @PathVariable(value = "offer-id")
+                                                                   String offerId,
+                                                                   @RequestBody @Valid
+                                                                   OfferUpdateReqDto request) {
+        // auth
+        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        // sub
+        Offer offer = offerService.findOneById(offerId);
+        userService.validateHasCurrentTeam(user);
+        Team team = teamService.findOneById(user.getCurrentTeamId().toString());
+        User otherUser = userService.findOneById(offer.getUserId().toString());
+        userService.validateHasNoCurrentTeam(otherUser);
+        // main
+        teamService.decideOfferByTeam(offer, user, otherUser, request.getIsAccepted());
+        userService.offerDecided(otherUser, team.getId(), request.getIsAccepted());
+        offerService.decideOffer(offer, request.getIsAccepted());
+
+        return ResponseEntity.status(TEAM_DECIDED_OFFER.getHttpStatus())
+                .body(DefaultResDto.noDataBuilder()
+                        .responseCode(TEAM_DECIDED_OFFER.name())
+                        .responseMessage(TEAM_DECIDED_OFFER.getMessage())
                         .build());
     }
 }

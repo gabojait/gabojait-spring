@@ -408,10 +408,10 @@ public class UserService {
      * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public void offer(String userId, boolean isOfferedByUser) {
+    public void offer(String userId, boolean isAccepted) {
         User user = findOneById(userId);
 
-        user.offer(isOfferedByUser);
+        user.offer(isAccepted);
         save(user);
     }
 
