@@ -55,6 +55,9 @@ public enum ErrorCode {
     PROJECT_URL_FIELD_REQUIRED(BAD_REQUEST, "완료된 프로젝트 URL은 필수 입력란입니다."),
     IS_ADD_FAVORITE_FIELD_REQUIRED(BAD_REQUEST, "찜 추가 여부는 필수 입력란입니다."),
     IS_ACCEPTED_FIELD_REQUIRED(BAD_REQUEST, "수락 여부는 필수 입력란입니다."),
+    REVIEWEE_ID_FIELD_REQUIRED(BAD_REQUEST, "리뷰 대상자 식별자는 필수 입력란입니다."),
+    RATE_FIELD_REQUIRED(BAD_REQUEST, "평점은 필수 입력란입니다."),
+    POSTSCRIPT_FIELD_REQUIRED(BAD_REQUEST, "후기는 필수 입력란입니다."),
 
     // @Size
     USERNAME_LENGTH_INVALID(BAD_REQUEST, "아이디는 5~15자만 가능합니다."),
@@ -71,6 +74,7 @@ public enum ErrorCode {
     PROJECT_DESCRIPTION_LENGTH_INVALID(BAD_REQUEST, "프로젝트 설명은 1~500자만 가능합니다."),
     EXPECTATION_LENGTH_INVALID(BAD_REQUEST, "바라는 점은 1~200자만 가능합니다."),
     OPEN_CHAT_URL_LENGTH_INVALID(BAD_REQUEST, "오픈 채팅 URL집 25~100자만 가능합니다."),
+    POSTSCRIPT_LENGTH_INVALID(BAD_REQUEST, "후기는 1~200자만 가능합니다."),
 
     // @Pattern, @Email - format
     EMAIL_FORMAT_INVALID(BAD_REQUEST, "올바른 이메일 형식을 입력해 주세요."),
@@ -88,6 +92,10 @@ public enum ErrorCode {
     REVIEW_CATEGORY_TYPE_INVALID(BAD_REQUEST, "리뷰는 'numeric' 또는 'writing' 중 하나여야 됩니다."),
     PROFILE_ORDER_TYPE_INVALID(BAD_REQUEST, "순서는 'active', 'popularity', 또는 'rating' 중 하나여야 됩니다."),
     TEAM_ORDER_TYPE_INVALID(BAD_REQUEST, "순서는 'created', 'active', 또는 'popularity' 중 하나여야 됩니다."),
+
+    // @Range
+    RATE_RANGE_INVALID(BAD_REQUEST, "평점은 1부터 5까지의 수만 가능합니다."),
+
     // @Positive, @PositiveOrZero
     PAGE_FROM_POS_OR_ZERO_ONLY(BAD_REQUEST, "페이지 시작점은 0 또는 양수만 가능합니다."),
     PAGE_SIZE_POS_ONLY(BAD_REQUEST, "페이지 사이즈는 양수만 가능합니다."),
@@ -95,7 +103,6 @@ public enum ErrorCode {
     BACKEND_TOTAL_CNT_POS_OR_ZERO_ONLY(BAD_REQUEST, "백엔드 개발자 수는 0 또는 양수만 가능합니다."),
     FRONTEND_TOTAL_CNT_POS_OR_ZERO_ONLY(BAD_REQUEST, "프론트엔드 개발자 수는 0 또는 양수만 가능합니다."),
     MANAGER_TOTAL_CNT_POS_OR_ZERO_ONLY(BAD_REQUEST, "매니저 수는 0 또는 양수만 가능합니다."),
-
 
     // Custom
     ID_CONVERT_INVALID(BAD_REQUEST, "잘못된 식별자입니다."),
@@ -107,6 +114,7 @@ public enum ErrorCode {
     CREATE_PORTFOLIO_CNT_MATCH_INVALID(BAD_REQUEST, "생성할 포트폴리명과 포트폴리오 파일 수가 동일하지 않습니다."),
     UPDATE_PORTFOLIO_CNT_MATCH_INVALID(BAD_REQUEST, "업데이트할 포트폴리오 식별자, 포트폴리오명, 포트폴리오 파일 수가 동일하지 않습니다."),
     FILE_FIELD_REQUIRED(BAD_REQUEST, "파일을 첨부해 주세요."),
+    TEAM_MEMBER_INVALID(CONFLICT, "팀 소속이 아닌 회원입니다."),
 
     /**
      * 401 Unauthorized
@@ -155,6 +163,7 @@ public enum ErrorCode {
     BACKEND_CNT_UPDATE_UNAVAILABLE(CONFLICT, "현재 소속되어 있는 백엔드 개발자 팀원 수가 수정한 백엔드 개발자 팀원 수 보다 많습니다."),
     FRONTEND_CNT_UPDATE_UNAVAILABLE(CONFLICT, "현재 소속되어 있는 프론트엔드 개발자 팀원 수가 수정한 프론트엔드 개발자 팀원 수 보다 많습니다."),
     MANAGER_CNT_UPDATE_UNAVAILABLE(CONFLICT, "현재 소속되어 있는 매니저 팀원 수가 수정한 매니저 팀원 수 보다 많습니다."),
+    REVIEW_UNAVAILABLE(CONFLICT, "프로젝트가 완료되지 않았기 때문에 리뷰를 작성할 수 없습니다."),
 
     /**
      * 413 Payload too large

@@ -245,6 +245,27 @@ public class Team extends BaseTimeEntity {
         return this.leaderUserId.toString().equals(userId);
     }
 
+    public boolean isTeamMember(String userId) {
+        if (!this.designers.isEmpty())
+            for (User designer : this.designers)
+                if (designer.getId().toString().equals(userId))
+                    return true;
+        if (!this.backends.isEmpty())
+            for (User backend : this.backends)
+                if (backend.getId().toString().equals(userId))
+                    return true;
+        if (!this.frontends.isEmpty())
+            for (User frontend : this.frontends)
+                if (frontend.getId().toString().equals(userId))
+                    return true;
+        if (!this.managers.isEmpty())
+            for (User manager : this.managers)
+                if (manager.getId().toString().equals(userId))
+                    return true;
+
+        return false;
+    }
+
     public void complete(String projectUrl) {
         this.projectUrl = projectUrl;
         this.completedDate = LocalDateTime.now();

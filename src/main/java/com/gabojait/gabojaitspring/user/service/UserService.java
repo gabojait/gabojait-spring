@@ -11,6 +11,7 @@ import com.gabojait.gabojaitspring.profile.domain.Skill;
 import com.gabojait.gabojaitspring.profile.domain.Work;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.profile.domain.type.ProfileOrder;
+import com.gabojait.gabojaitspring.review.domain.Review;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.Contact;
 import com.gabojait.gabojaitspring.user.domain.User;
@@ -368,9 +369,9 @@ public class UserService {
      * 현재 팀 종료 | main |
      * 500(SERVER_ERROR)
      */
-    public void exitCurrentTeam(List<User> users, boolean isComplete) {
+    public void exitCurrentTeam(List<User> users, ObjectId teamId, boolean isComplete) {
         for (User user : users) {
-            user.quitTeam(isComplete);
+            user.quitTeam(teamId, isComplete);
             save(user);
         }
     }
@@ -425,6 +426,21 @@ public class UserService {
 
         user.joinTeam(teamId, false);
         save(user);
+    }
+
+    /**
+     * 평점 업데이트 | main |
+     * 404(USER_NOT_FOUND)
+     * 500(SERVER_ERROR)
+     */
+    public void updateRating(List<Review> reviews) {
+        for (Review review : reviews) {
+            User reviewee = findOneById(review.getRevieweeId().toString());
+
+            reviewee.updateRating(review.getRate());
+
+            save(reviewee);
+        }
     }
 
     /**

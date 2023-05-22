@@ -276,6 +276,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     public void joinTeam(ObjectId currentTeamId, boolean isLeader) {
         this.currentTeamId = currentTeamId;
         this.joinTeamCnt++;
+        this.isSeekingTeam = false;
 
         if (isLeader)
             this.teamMemberStatus = TeamMemberStatus.LEADER.getType();
@@ -283,16 +284,17 @@ public class User extends BaseTimeEntity implements UserDetails {
             this.teamMemberStatus = TeamMemberStatus.MEMBER.getType();
     }
 
-    public void quitTeam(boolean isComplete) {
+    public void quitTeam(ObjectId teamId, boolean isComplete) {
         if (isComplete) {
+            this.completedTeamIds.add(teamId);
             this.quitCompleteTeamCnt++;
-            this.completedTeamIds.set(0, this.currentTeamId);
         } else {
             this.quitIncompleteTeamCnt++;
         }
 
         this.currentTeamId = null;
         this.teamMemberStatus = TeamMemberStatus.NONE.getType();
+        this.isSeekingTeam = true;
     }
 
     public boolean hasCurrentTeam() {
@@ -319,6 +321,14 @@ public class User extends BaseTimeEntity implements UserDetails {
         }
     }
 
+    public boolean isCompletedTeam(ObjectId teamId) {
+        for (ObjectId completedTeamId : this.completedTeamIds)
+            if (completedTeamId.toString().equals(teamId.toString()))
+                return true;
+
+        return false;
+    }
+
     /**
      * Offer related
      */
@@ -331,12 +341,16 @@ public class User extends BaseTimeEntity implements UserDetails {
     }
 
     /**
-     * Rating related
+     * Review related
      */
 
     public void updateRating(int rating) {
-        this.rating = (this.rating * (float) (this.ratingCnt / (this.ratingCnt + 1))) +
-                (rating * (float) (1 / (this.ratingCnt + 1)));
+        if (this.ratingCnt > 0) {
+            this.rating = (this.rating * (float) (this.ratingCnt / (this.ratingCnt + 1))) +
+                    (rating / (float) (this.ratingCnt + 1));
+        } else {
+            this.rating = (float) rating;
+        }
 
         this.ratingCnt++;
     }

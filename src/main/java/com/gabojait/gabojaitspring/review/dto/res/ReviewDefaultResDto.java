@@ -22,10 +22,10 @@ public class ReviewDefaultResDto {
     private String revieweeId;
 
     @ApiModelProperty(position = 4, required = true, value = "평점")
-    private Byte rating;
+    private Integer rating;
 
-    @ApiModelProperty(position = 5, required = true, value = "글")
-    private String writing;
+    @ApiModelProperty(position = 5, required = true, value = "후기")
+    private String postscript;
 
     @ApiModelProperty(position = 6, required = true, value = "생성일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
@@ -39,7 +39,7 @@ public class ReviewDefaultResDto {
         this.reviewerId = review.getReviewerId().toString();
         this.revieweeId = review.getRevieweeId().toString();
         this.rating = review.getRate();
-        this.writing = review.getWriting();
+        this.postscript = review.getPostscript();
         this.createdDate = review.getCreatedDate();
         this.schemaVersion = review.getSchemaVersion();
     }

@@ -23,20 +23,20 @@ public class Review extends BaseTimeEntity {
     @Field(name = "team_id")
     private ObjectId teamId;
 
-    private Byte rate;
-    private String writing;
+    private Integer rate;
+    private String postscript;
 
     @Builder
     public Review(ObjectId reviewerId,
                   ObjectId revieweeId,
                   ObjectId teamId,
-                  Byte rate,
-                  String writing) {
+                  Integer rate,
+                  String postscript) {
         this.reviewerId = reviewerId;
         this.revieweeId = revieweeId;
         this.teamId = teamId;
         this.rate = rate;
-        this.writing = writing;
+        this.postscript = postscript;
 
         this.isDeleted = false;
     }

@@ -97,6 +97,8 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
             responseCode = "_FORMAT_INVALID"; // @Pattern, @Email - format
         } else if (responseMessage.contains("중 하나여야 됩니다.")) {
             responseCode = "_TYPE_INVALID"; // @Pattern - type
+        } else if (responseMessage.contains("까지의 수만")) {
+            responseCode = "_RANGE_INVALID"; // @Range
         } else if (responseMessage.contains("0 또는 양수")) {
             responseCode = "_POSITIVE_OR_ZERO_ONLY"; // @PositiveOrZero
         } else if (responseMessage.contains("양수")) {

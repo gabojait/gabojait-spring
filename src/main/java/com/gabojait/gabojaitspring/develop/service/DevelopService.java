@@ -2,6 +2,7 @@ package com.gabojait.gabojaitspring.develop.service;
 
 import com.gabojait.gabojaitspring.common.util.UtilityProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.offer.repository.OfferRepository;
 import com.gabojait.gabojaitspring.profile.domain.Education;
 import com.gabojait.gabojaitspring.profile.domain.Portfolio;
 import com.gabojait.gabojaitspring.profile.domain.Skill;
@@ -17,6 +18,7 @@ import com.gabojait.gabojaitspring.profile.service.EducationService;
 import com.gabojait.gabojaitspring.profile.service.PortfolioService;
 import com.gabojait.gabojaitspring.profile.service.SkillService;
 import com.gabojait.gabojaitspring.profile.service.WorkService;
+import com.gabojait.gabojaitspring.review.repository.ReviewRepository;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.repository.TeamRepository;
 import com.gabojait.gabojaitspring.team.service.TeamService;
@@ -51,6 +53,8 @@ public class DevelopService {
     private final SkillRepository skillRepository;
     private final WorkRepository workRepository;
     private final TeamRepository teamRepository;
+    private final OfferRepository offerRepository;
+    private final ReviewRepository reviewRepository;
     private final ContactService contactService;
     private final UserService userService;
     private final EducationService educationService;
@@ -214,6 +218,8 @@ public class DevelopService {
             skillRepository.deleteAll();
             workRepository.deleteAll();
             teamRepository.deleteAll();
+            reviewRepository.deleteAll();
+            offerRepository.deleteAll();
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }

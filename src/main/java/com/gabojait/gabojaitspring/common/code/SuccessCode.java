@@ -12,6 +12,15 @@ import static org.springframework.http.HttpStatus.OK;
 public enum SuccessCode {
 
     /**
+     * Review Controller
+     */
+    // 200 OK
+    USER_REVIEWS_FOUND(OK, "회원의 리뷰 다건 조회를 했습니다."),
+
+    // 201 Created
+    USER_REVIEWED(CREATED, "리뷰를 작성했습니다."),
+
+    /**
      * Offer Controller
      */
     // 200 Ok

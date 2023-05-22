@@ -323,9 +323,10 @@ public class TeamController {
 
         // sub
         userService.validateHasCurrentTeam(user);
+         Team team = teamService.findOneById(user.getCurrentTeamId().toString());
         // main
         List<User> teamMembers = teamService.quit(user, "");
-        userService.exitCurrentTeam(teamMembers, false);
+        userService.exitCurrentTeam(teamMembers, team.getId(), false);
 
         return ResponseEntity.status(PROJECT_INCOMPLETE.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -365,9 +366,10 @@ public class TeamController {
 
         // sub
         userService.validateHasCurrentTeam(user);
+        Team team = teamService.findOneById(user.getCurrentTeamId().toString());
         // main
         List<User> teamMembers = teamService.quit(user, request.getProjectUrl());
-        userService.exitCurrentTeam(teamMembers, true);
+        userService.exitCurrentTeam(teamMembers, team.getId(), true);
         // TODO set FCM for review
 
         return ResponseEntity.status(PROJECT_COMPLETE.getHttpStatus())
@@ -409,9 +411,10 @@ public class TeamController {
         // sub
         User teammate = userService.findOneById(userId);
         userService.validateHasCurrentTeam(user);
+        Team team = teamService.findOneById(user.getCurrentTeamId().toString());
         // main
         teamService.fire(user, teammate);
-        userService.exitCurrentTeam(List.of(teammate), false);
+        userService.exitCurrentTeam(List.of(teammate), team.getId(), false);
 
         return ResponseEntity.status(TEAMMATE_FIRED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
