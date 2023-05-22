@@ -111,7 +111,7 @@ public class ReviewController {
         // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // sub
+        // main
         List<ObjectId> teamIds = reviewService.findReviewableTeamIds(user);
         List<Team> teams = teamService.findReviewableTeam(teamIds);
 

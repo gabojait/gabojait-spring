@@ -40,6 +40,7 @@ public enum SuccessCode {
      * Team Controller
      */
     // 200 Ok
+    SELF_TEAM_FOUND(OK, "본인 팀을 조회 했습닌다."),
     TEAM_UPDATED(OK, "팀 정보를 업데이트 했습니다."),
     TEAM_FOUND(OK, "팀 단건 조회를 했습니다."),
     TEAMS_FINDING_USERS_FOUND(OK, "팀원을 구하는 팀 다건 조회를 했습니다."),

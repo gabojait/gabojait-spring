@@ -40,7 +40,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/team")
+@RequestMapping("/api/v1")
 public class TeamController {
 
     private final TeamService teamService;
@@ -74,7 +74,7 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping
+    @PostMapping("/team")
     public ResponseEntity<DefaultResDto<Object>> createTeam(HttpServletRequest servletRequest,
                                                             @RequestBody @Valid TeamDefaultReqDto request) {
         // auth
@@ -126,7 +126,7 @@ public class TeamController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @PutMapping
+    @PutMapping("/team")
     public ResponseEntity<DefaultResDto<Object>> updateTeam(HttpServletRequest servletRequest,
                                                             @RequestBody @Valid TeamDefaultReqDto request) {
         // auth
@@ -167,7 +167,7 @@ public class TeamController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @GetMapping("/{team-id}")
+    @GetMapping("/team/{team-id}")
     public ResponseEntity<DefaultResDto<Object>> findOneTeam(HttpServletRequest servletRequest,
                                                              @PathVariable(value = "team-id") String teamId) {
         // auth
@@ -215,7 +215,7 @@ public class TeamController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @GetMapping("/recruiting")
+    @GetMapping("/team/recruiting")
     public ResponseEntity<DefaultResDto<Object>> findTeamsLookingForUsers(
             HttpServletRequest servletRequest,
             @RequestParam(value = "position")
@@ -279,7 +279,7 @@ public class TeamController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @PatchMapping("/recruiting")
+    @PatchMapping("/team/recruiting")
     public ResponseEntity<DefaultResDto<Object>> updateIsRecruiting(HttpServletRequest servletRequest,
                                                                     @RequestBody @Valid
                                                                     TeamIsRecruitingUpdateReqDto request) {
@@ -319,14 +319,14 @@ public class TeamController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @DeleteMapping("/incomplete")
+    @DeleteMapping("/team/incomplete")
     public ResponseEntity<DefaultResDto<Object>> projectIncomplete(HttpServletRequest servletRequest) {
         // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // sub
         userService.validateHasCurrentTeam(user);
-         Team team = teamService.findOneById(user.getCurrentTeamId().toString());
+        Team team = teamService.findOneById(user.getCurrentTeamId().toString());
         // main
         List<User> teamMembers = teamService.quit(user, "");
         userService.exitCurrentTeam(teamMembers, team.getId(), false);
@@ -360,7 +360,7 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
 
     })
-    @DeleteMapping("/complete")
+    @DeleteMapping("/team/complete")
     public ResponseEntity<DefaultResDto<Object>> quitCompleteProject(HttpServletRequest servletRequest,
                                                                      @RequestBody @Valid
                                                                      TeamCompleteUpdateReqDto request) {
@@ -403,7 +403,7 @@ public class TeamController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @PatchMapping("/user/{user-id}/fire")
+    @PatchMapping("/team/user/{user-id}/fire")
     public ResponseEntity<DefaultResDto<Object>> fireTeammate(HttpServletRequest servletRequest,
                                                               @PathVariable(value = "user-id")
                                                               @NotBlank(message = "회원 식별자를 입력해 주세요.")
@@ -447,7 +447,7 @@ public class TeamController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @PatchMapping("/user/{user-id}/favorite")
+    @PatchMapping("/team/user/{user-id}/favorite")
     public ResponseEntity<DefaultResDto<Object>> updateFavoriteUser(
             HttpServletRequest servletRequest,
             @PathVariable(value = "user-id")
@@ -493,7 +493,7 @@ public class TeamController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @GetMapping("/user/favorite")
+    @GetMapping("/team/user/favorite")
     public ResponseEntity<DefaultResDto<Object>> findAllFavoriteUsers(HttpServletRequest servletRequest) {
         // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
@@ -515,6 +515,48 @@ public class TeamController {
                         .responseMessage(FAVORITE_USERS_FOUND.getMessage())
                         .data(responses)
                         .size(responses.size() > 0 ? 1 : 0)
+                        .build());
+    }
+
+    @ApiOperation(value = "본인 조회",
+            notes = "<응답 코드>\n" +
+                    "- 200 = SELF_TEAM_FOUND\n" +
+                    "- 400 = ID_CONVERT_INVALID\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = TEAM_NOT_FOUND\n" +
+                    "- 409 = NON_EXISTING_CURRENT_TEAM\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(schema = @Schema(implementation = TeamDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "409", description = "CONFLICT"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
+    })
+    @GetMapping("/user/team")
+    public ResponseEntity<DefaultResDto<Object>> findMyTeam(HttpServletRequest servletRequest) {
+        // auth
+        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        // sub
+        userService.validateHasCurrentTeam(user);
+        // main
+        Team team = teamService.findOneById(user.getCurrentTeamId().toString());
+
+        // response
+        TeamDefaultResDto response = new TeamDefaultResDto(team);
+
+        return ResponseEntity.status(SELF_TEAM_FOUND.getHttpStatus())
+                .body(DefaultResDto.singleDataBuilder()
+                        .responseCode(SELF_TEAM_FOUND.name())
+                        .responseMessage(SELF_TEAM_FOUND.getMessage())
+                        .data(response)
                         .build());
     }
 }
