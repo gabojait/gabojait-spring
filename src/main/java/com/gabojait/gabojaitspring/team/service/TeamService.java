@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -129,8 +130,7 @@ public class TeamService {
     public Team findOther(String teamId, User user) {
         Team team = findOneById(teamId);
 
-        if (team.getDesigners().contains(user) || team.getBackends().contains(user) ||
-                team.getFrontends().contains(user) || team.getManagers().contains(user)) {
+        if (!team.isTeamMember(user.getId().toString())) {
             team.incrementVisitedCnt();
             save(team);
         }
@@ -268,7 +268,7 @@ public class TeamService {
      * 식별자로 팀 전체 조회 | main |
      * 500(SERVER_ERROR)
      */
-    public List<Team> findAllId(List<ObjectId> teamIds) {
+    public List<Team> findAllById(List<ObjectId> teamIds) {
         List<Team> teams = new ArrayList<>();
         try {
             for (ObjectId teamId : teamIds) {
@@ -340,6 +340,21 @@ public class TeamService {
             return;
         Position position = Position.fromChar(offer.getPosition());
         join(team, otherUser, position.getType());
+    }
+
+    /**
+     * 리뷰 가능한 팀 전체 조회 | main |
+     * 500(SERVER_ERROR)
+     */
+    public List<Team> findReviewableTeam(List<ObjectId> teamIds) {
+        List<Team> teams = findAllById(teamIds);
+        List<Team> reviewableTeams = new ArrayList<>();
+
+        for (Team team : teams)
+            if (LocalDateTime.now().minusWeeks(4).isBefore(team.getModifiedDate()) && team.getIsComplete())
+                reviewableTeams.add(team);
+
+        return reviewableTeams;
     }
 
     /**

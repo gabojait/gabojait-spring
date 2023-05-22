@@ -176,7 +176,6 @@ public class TeamController {
         // main
         Team team = teamService.findOther(teamId, user);
         Boolean isFavorite = user.isFavoriteTeam(team.getId());
-
         // response
         TeamDetailResDto response = new TeamDetailResDto(team, isFavorite);
 
@@ -189,7 +188,11 @@ public class TeamController {
     }
 
     @ApiOperation(value = "팀원을 찾는 팀 다건 조회",
-            notes = "<검증>\n" +
+            notes = "<옵션>\n" +
+                    "- position[default: none] = designer(디자이너만) || backend(백엔드만) || frontend(프론트엔드만) || " +
+                    "manager(매니저만) || none(전체)\n" +
+                    "- team-order[default: created] = created(생성순) || active(활동순) || popularity(인기순)\n\n" +
+                    "<검증>\n" +
                     "- position = NotBlank && Pattern(regex = ^(designer|backend|frontend|manager|none))\n" +
                     "- team-order = NotBlank && Pattern(regex = ^(created|active|popularity))\n" +
                     "- page-from = NotNull && PositiveOrZero\n" +

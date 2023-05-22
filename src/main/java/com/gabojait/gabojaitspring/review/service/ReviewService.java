@@ -51,12 +51,41 @@ public class ReviewService {
     }
 
     /**
+     * 리뷰 가능한 팀 식별자 전체 조회 | main |
+     * 500(SERVER_ERROR)
+     */
+    public List<ObjectId> findReviewableTeamIds(User user) {
+        List<ObjectId> teamIds = new ArrayList<>();
+
+        for (ObjectId teamId : user.getCompletedTeamIds()) {
+            List<Review> reviews = findManyByReviewerIdTeamId(user.getId(), teamId);
+
+            if (reviews.isEmpty())
+                teamIds.add(teamId);
+        }
+
+        return teamIds;
+    }
+
+    /**
      * 리뷰 저장 |
      * 500(SERVER_ERROR)
      */
     private Review save(Review review) {
         try {
             return reviewRepository.save(review);
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 리뷰 작성자 식별자와 팀 식별자로 리뷰 다건 조회 |
+     * 500(SERVER_ERROR)
+     */
+    private List<Review> findManyByReviewerIdTeamId(ObjectId reviewerId, ObjectId teamId) {
+        try {
+            return reviewRepository.findAllByReviewerIdAndTeamIdAndIsDeletedIsFalse(reviewerId, teamId);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }

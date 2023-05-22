@@ -12,7 +12,7 @@ public class TeamDetailResDto extends TeamDefaultResDto {
     @ApiModelProperty(position = 16, required = true, value = "찜 여부")
     private Boolean isFavorite;
 
-    public TeamDetailResDto(Team team, boolean isFavorite) {
+    public TeamDetailResDto(Team team, Boolean isFavorite) {
         super(team);
 
         this.isFavorite = isFavorite;

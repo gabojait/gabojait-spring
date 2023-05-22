@@ -519,7 +519,11 @@ public class ProfileController {
     }
 
     @ApiOperation(value = "팀을 찾는 회원 다건 조회",
-            notes = "<검증>\n" +
+            notes = "<옵션>\n" +
+                    "- position[default: none] = designer(디자이너만) || backend(백엔드) || frontend(프론트엔드만) || " +
+                    "manager(매니저만) || none(전체)\n" +
+                    "- profile-order[default: active] = active(활동순) || popularity(인기순) || rating(평점순)\n\n" +
+                    "<검증>\n" +
                     "- position = NotBlank && Pattern(regex = ^(designer|backend|frontend|manager|none))\n" +
                     "- profile-order = NotBlank && Pattern(regex = ^(active|popularity|rating))\n" +
                     "- page-from = NotNull && PositiveOrZero\n" +
@@ -541,7 +545,6 @@ public class ProfileController {
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE"),
-
     })
     @GetMapping("/profile/seeking-team")
     public ResponseEntity<DefaultResDto<Object>> findUsersLookingForTeam(
@@ -647,7 +650,7 @@ public class ProfileController {
          User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
          // main
-         List<Team> teams = teamService.findAllId(user.getFavoriteTeamIds());
+         List<Team> teams = teamService.findAllById(user.getFavoriteTeamIds());
 
          // response
          List<TeamAbstractResDto> responses = new ArrayList<>();
