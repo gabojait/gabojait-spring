@@ -51,4 +51,8 @@ public class Offer extends BaseTimeEntity {
 
         this.isDeleted = true;
     }
+
+    public void delete() {
+        this.isDeleted = true;
+    }
 }

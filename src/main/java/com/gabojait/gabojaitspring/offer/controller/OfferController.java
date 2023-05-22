@@ -340,4 +340,39 @@ public class OfferController {
                         .responseMessage(TEAM_DECIDED_OFFER.getMessage())
                         .build());
     }
+
+    @ApiOperation(value = "회원이 보낸 제안 취소",
+            notes = "<응답 코드>" +
+                    "- 200 = OFFER_CANCEL_BY_USER\n" +
+                    "- 400 = ID_CONVERT_INVALID\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 404 = OFFER_NOT_FOUND\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
+    })
+    @DeleteMapping("/user/offer/{offer-id}")
+    public ResponseEntity<DefaultResDto<Object>> cancelOfferByUser(HttpServletRequest servletRequest,
+                                                                   @PathVariable(value = "offer-id") String offerId) {
+        // auth
+        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        // main
+        offerService.cancel(offerId, user.getId().toHexString());
+
+        return ResponseEntity.status(OFFER_CANCEL_BY_USER.getHttpStatus())
+                .body(DefaultResDto.noDataBuilder()
+                        .responseCode(OFFER_CANCEL_BY_USER.name())
+                        .responseMessage(OFFER_CANCEL_BY_USER.getMessage())
+                        .build());
+    }
 }

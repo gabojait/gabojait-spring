@@ -82,6 +82,31 @@ public class OfferService {
     }
 
     /**
+     * 제안 취소 | main |
+     * 400(ID_CONVERT_INVALID)
+     * 403(REQUEST_FORBIDDEN)
+     * 404(OFFER_NOT_FOUND)
+     * 500(SERVER_ERROR)
+     */
+    public void cancel(String offerId, String id) {
+        Offer offer = findOneById(offerId);
+
+        if (offer.getOfferedBy().equals(OfferedBy.USER.getType())) {
+            if (!offer.getUserId().toString().equals(id))
+                throw new CustomException(null, REQUEST_FORBIDDEN);
+        } else if (offer.getOfferedBy().equals(OfferedBy.TEAM.getType())) {
+            if (!offer.getTeamId().toString().equals(id))
+                throw new CustomException(null, REQUEST_FORBIDDEN);
+        } else {
+            throw new CustomException(null, SERVER_ERROR);
+        }
+
+        offer.delete();
+
+        save(offer);
+    }
+
+    /**
      * 식별자로 단건 조회 | sub |
      * 404(OFFER_NOT_FOUND)
      */
