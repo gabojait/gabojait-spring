@@ -64,6 +64,10 @@ public class MasterService implements ApplicationRunner {
         }
     }
 
+    /**
+     * 마스터 계정 비밀번호 리셋 스케줄러 |
+     * 500(SERVER_ERROR)
+     */
     @Scheduled(cron = "0 0 0 * * *")
     public void resetMasterPasswordScheduler() {
         String password = utilityProvider.generateRandomCode(10);
