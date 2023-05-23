@@ -82,6 +82,9 @@ public class MasterService implements ApplicationRunner {
         masterLogging("[MASTER PASSWORD RESET]", password);
     }
 
+    /**
+     * 마스터 로깅
+     */
     private void masterLogging(String title, String password) {
         int logLength = 50;
         String logTitle = "=".repeat((logLength - title.length()) / 2)
