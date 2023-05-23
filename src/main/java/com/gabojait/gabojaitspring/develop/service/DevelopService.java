@@ -25,6 +25,7 @@ import com.gabojait.gabojaitspring.team.service.TeamService;
 import com.gabojait.gabojaitspring.user.domain.Contact;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.domain.type.Gender;
+import com.gabojait.gabojaitspring.user.domain.type.Role;
 import com.gabojait.gabojaitspring.user.repository.ContactRepository;
 import com.gabojait.gabojaitspring.user.repository.UserRepository;
 import com.gabojait.gabojaitspring.user.service.ContactService;
@@ -119,6 +120,7 @@ public class DevelopService {
                     .birthdate(LocalDate.of(2000, 1, n))
                     .contact(contacts.get(i))
                     .nickname("테스트" + n)
+                    .roles(List.of(Role.USER))
                     .build();
             userService.save(user);
 

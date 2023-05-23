@@ -93,6 +93,9 @@ public class SwaggerConfig {
         return new ApiInfoBuilder()
                 .title("Gabojait API")
                 .version("V1.0.0")
+                .description("가보자잇 알파 테스트 서버입니다.\n" +
+                        "API 테스트를 위한 테스트 계정 토큰 발급은 다음과 같습니다.\n" +
+                        "개발 > 테스트 계정 토큰 발급 > user-id = 1 ~ 10")
                 .build();
     }
 }

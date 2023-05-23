@@ -5,6 +5,7 @@ import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.user.domain.Contact;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.domain.type.Gender;
+import com.gabojait.gabojaitspring.user.domain.type.Role;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.GroupSequence;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -77,6 +79,7 @@ public class UserRegisterReqDto {
                 .gender(Gender.fromString(this.gender))
                 .birthdate(this.birthdate)
                 .contact(contact)
+                .roles(List.of(Role.USER))
                 .build();
     }
 }

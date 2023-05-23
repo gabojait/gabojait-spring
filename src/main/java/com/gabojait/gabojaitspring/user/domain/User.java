@@ -107,7 +107,8 @@ public class User extends BaseTimeEntity implements UserDetails {
                 Gender gender,
                 LocalDate birthdate,
                 Contact contact,
-                String nickname) {
+                String nickname,
+                List<Role> roles) {
         this.username = username;
         this.nickname = nickname;
         this.legalName = legalName;
@@ -135,7 +136,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.teamOfferCnt = 0L;
         this.rating = 0F;
 
-        updateRoles(List.of(Role.USER));
+        updateRoles(roles);
     }
 
     public void updatePassword(String password, boolean isTemporaryPassword) {

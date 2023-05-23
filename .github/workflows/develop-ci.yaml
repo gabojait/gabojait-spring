@@ -38,6 +38,7 @@ jobs:
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
           MAIL_PORT: ${{ secrets.MAIL_PORT }}
           MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MASTER_ID: ${{ secrets.MASTER_ID }}
           MAX_FILE_SIZE: ${{ secrets.MAX_FILE_SIZE }}
           MAX_REQUEST_SIZE: ${{ secrets.MAX_REQUEST_SIZE }}
           S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
