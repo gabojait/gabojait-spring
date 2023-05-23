@@ -1,5 +1,7 @@
 spring:
-  # DB
+  profiles:
+    active: ${PROFILES_ACTIVE}
+
   data:
     mongodb:
       host: ${DB_HOST}
@@ -10,7 +12,6 @@ spring:
       auto-index-creation: true
       authentication-database: admin
 
-  # Mail
   mail:
     host: ${MAIL_HOST}
     port: ${MAIL_PORT}
@@ -24,38 +25,30 @@ spring:
           starttls:
             enable: true
 
-  # File
   servlet:
     multipart:
       max-file-size: ${MAX_FILE_SIZE}
       max-request-size: ${MAX_REQUEST_SIZE}
 
-  profiles:
-    active: ${PROFILES_ACTIVE}
-
-# Swagger
 springfox:
   documentation:
     swagger-ui:
       enabled: ${SWAGGER_ENABLED}
 
+logging:
+  config: classpath:logback/${PROFILES_ACTIVE}-logback.xml
+  file:
+    path: ${LOG_FILE_PATH}
+    name: gabojait-rolling.log
+
 api:
   name: ${PROFILES_ACTIVE}
+  master:
+    id: ${MASTER_ID}
 
-  # Log
-  log:
-    config: classpath:logback/${PROFILES_ACTIVE}-logback.xml
-    file:
-      path: ${LOG_FILE_PATH}
-      name: gabojait-rolling.log
-
-  # JWT
   jwt:
     secret: ${JWT_SECRET}
     domain: ${JWT_DOMAIN}
-
-  master:
-    id: ${MASTER_ID}
 
 s3:
   access-key: ${S3_ACCESS_KEY}
