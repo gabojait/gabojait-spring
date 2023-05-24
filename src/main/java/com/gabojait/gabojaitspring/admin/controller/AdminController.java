@@ -1,6 +1,7 @@
 package com.gabojait.gabojaitspring.admin.controller;
 
 import com.gabojait.gabojaitspring.admin.dto.req.AdminLoginReqDto;
+import com.gabojait.gabojaitspring.admin.dto.req.AdminRegisterReqDto;
 import com.gabojait.gabojaitspring.admin.dto.res.AdminDefaultResDto;
 import com.gabojait.gabojaitspring.admin.service.AdminService;
 import com.gabojait.gabojaitspring.admin.service.MasterService;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.ADMIN_LOGIN;
+import static com.gabojait.gabojaitspring.common.code.SuccessCode.ADMIN_REGISTERED;
 
 @Api(tags = "관리자")
 @RestController
@@ -73,6 +75,33 @@ public class AdminController {
                         .responseCode(ADMIN_LOGIN.name())
                         .responseMessage(ADMIN_LOGIN.getMessage())
                         .data(response)
+                        .build());
+    }
+
+    @ApiOperation(value = "관리자 가입",
+            notes = "<응답 코드>\n" +
+                    "- 201 = ADMIN_REGISTERED\n" +
+                    "- 400 = ADMIN_NAME_FIELD_REQUIRED || PASSWORD_FIELD_REQUIRED || " +
+                    "PASSWORD_RE_ENTERED_FIELD_REQUIRED || LEGAL_NAME_FIELD_REQUIRED || GENDER_FIELD_REQUIRED || " +
+                    "BIRTHDATE_FIELD_REQUIRED || ADMIN_NAME_LENGTH_INVALID || PASSWORD_LENGTH_INVALID || " +
+                    "LEGAL_NAME_LENGTH_INVALID || ADMIN_NAME_FORMAT_INVALID || PASSWORD_FORMAT_INVALID || " +
+                    "LEGAL_NAME_FORMAT_INVALID || GENDER_TYPE_INVALID || PASSWORD_MATCH_INVALID\n" +
+                    "- 409 = EXISTING_USERNAME\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "CREATED",
+                    content = @Content(schema = @Schema(implementation = Object.class)))
+    })
+    @PostMapping
+    public ResponseEntity<DefaultResDto<Object>> register(@RequestBody @Valid AdminRegisterReqDto request) {
+        // main
+        adminService.register(request);
+
+        return ResponseEntity.status(ADMIN_REGISTERED.getHttpStatus())
+                .body(DefaultResDto.noDataBuilder()
+                        .responseCode(ADMIN_REGISTERED.name())
+                        .responseMessage(ADMIN_REGISTERED.getMessage())
                         .build());
     }
 }

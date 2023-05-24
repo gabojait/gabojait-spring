@@ -112,7 +112,7 @@ public class DevelopService {
         for (int i = 0; i < contacts.size(); i++) {
             int n = i + 1;
 
-            User user = User.builder()
+            User user = User.userBuilder()
                     .username("test" + n)
                     .legalName("테스트")
                     .password(utilityProvider.encodePassword("password1!"))
@@ -120,7 +120,6 @@ public class DevelopService {
                     .birthdate(LocalDate.of(2000, 1, n))
                     .contact(contacts.get(i))
                     .nickname("테스트" + n)
-                    .roles(List.of(Role.USER))
                     .build();
             userService.save(user);
 

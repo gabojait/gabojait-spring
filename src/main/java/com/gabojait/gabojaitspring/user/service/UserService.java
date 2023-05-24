@@ -451,6 +451,7 @@ public class UserService {
 
     /**
      * 가입 전 검증 | sub |
+     * 400(PASSWORD_MATCH_INVALID)
      * 409(EXISTING_USERNAME / UNAVAILABLE_NICKNAME / EXISTING_NICKNAME)
      */
     public void validatePreRegister(UserRegisterReqDto request) {
@@ -662,7 +663,7 @@ public class UserService {
      * 비밀번호와 비밀번호 재입력 검증 |
      * 400(PASSWORD_MATCH_INVALID)
      */
-    private void validateMatchingPassword(String password, String passwordReEnter) {
+    public void validateMatchingPassword(String password, String passwordReEnter) {
         if (!password.equals(passwordReEnter))
             throw new CustomException(null, PASSWORD_MATCH_INVALID);
     }

@@ -1,36 +1,37 @@
-package com.gabojait.gabojaitspring.user.dto.req;
+package com.gabojait.gabojaitspring.admin.dto.req;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
-import com.gabojait.gabojaitspring.user.domain.Contact;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.domain.type.Gender;
-import com.gabojait.gabojaitspring.user.domain.type.Role;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.GroupSequence;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
-@GroupSequence({UserRegisterReqDto.class,
+@GroupSequence({AdminRegisterReqDto.class,
         ValidationSequence.Blank.class,
         ValidationSequence.Size.class,
         ValidationSequence.Format.class})
-@ApiModel(value = "회원 가입 요청")
-public class UserRegisterReqDto {
+@ApiModel(value = "관리자 가입 요청")
+public class AdminRegisterReqDto {
 
-    @ApiModelProperty(position = 1, required = true, value = "아이디", example = "username")
+    @ApiModelProperty(position = 1, required = true, value = "아이디", example = "username_admin")
     @NotBlank(message = "아이디는 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
     @Size(min = 5, max = 15, message = "아이디는 5~15자만 가능합니다.", groups = ValidationSequence.Size.class)
-    @Pattern(regexp = "^(?=.*[a-z0-9])[a-z0-9]+$", message = "아이디는 소문자 영어와 숫자의 조합으로 입력해 주세요.",
+    @Pattern(regexp = "^(?=.*[a-z0-9])[a-z0-9]+_admin$",
+            message = "아이디는 소문자 영어와 숫자의 조합 그리고 '_admin'으로 끝나게 입력해 주세요.",
             groups = ValidationSequence.Format.class)
-    private String username;
+    private String adminName;
 
     @ApiModelProperty(position = 2, required = true, value = "비밀번호", example = "password1!")
     @NotBlank(message = "비밀번호는 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
@@ -44,41 +45,30 @@ public class UserRegisterReqDto {
     private String passwordReEntered;
 
     @ApiModelProperty(position = 3, required = true, value = "실명", example = "김가보자잇")
+    @NotBlank(message = "실명은 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
     @Size(max = 5, message = "실명은 0~5자만 가능합니다.", groups = ValidationSequence.Size.class)
     @Pattern(regexp = "^[가-힣]+$", message = "실명은 한글 조합으로 입력해 주세요.", groups = ValidationSequence.Format.class)
     private String legalName;
 
-    @ApiModelProperty(position = 4, required = true, value = "닉네임", example = "김가보자잇")
-    @NotBlank(message = "닉네임은 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
-    @Size(min = 2, max = 8, message = "닉네임은 2~8자만 가능합니다.", groups = ValidationSequence.Size.class)
-    @Pattern(regexp = "^[가-힣]+$", message = "닉네임은 한글 조합으로 입력해 주세요.", groups = ValidationSequence.Format.class)
-    private String nickname;
-
     @ApiModelProperty(position = 5, required = true, value = "성별", example = "male",
             allowableValues = "male, female, none")
     @NotBlank(message = "성별은 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
-    @Pattern(regexp = "^(male|female|none)", message = "성별은 'male', 'female', 또는 'none' 중 하나여야 됩니다.",
+    @Pattern(regexp = "^(male|female|none)", message = "성별은 'male', 'female', 'none' 중 하나여야 됩니다.",
             groups = ValidationSequence.Format.class)
     private String gender;
 
     @ApiModelProperty(position = 6, required = true, notes = "string", value = "생년월일", example = "2000-01-01")
+    @NotNull(message = "생년월일은 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthdate;
 
-    @ApiModelProperty(position = 7, required = true, value = "이메일", example = "email@domain.com")
-    @NotBlank(message = "이메일은 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
-    @Email(message = "올바른 이메일 형식을 입력해 주세요.", groups = ValidationSequence.Format.class)
-    private String email;
-
-    public User toEntity(String password, Contact contact) {
-        return User.userBuilder()
-                .username(this.username)
+    public User toEntity(String password) {
+        return User.adminBuilder()
+                .username(this.adminName)
                 .password(password)
                 .legalName(this.legalName)
-                .nickname(this.nickname)
                 .gender(Gender.fromString(this.gender))
                 .birthdate(this.birthdate)
-                .contact(contact)
                 .build();
     }
 }

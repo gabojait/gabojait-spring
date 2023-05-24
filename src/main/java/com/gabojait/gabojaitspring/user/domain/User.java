@@ -100,15 +100,14 @@ public class User extends BaseTimeEntity implements UserDetails {
     private List<Work> works = new ArrayList<>();
     private List<Review> reviews = new ArrayList<>();
 
-    @Builder
+    @Builder(builderMethodName = "userBuilder", builderClassName = "userBuilder")
     public User(String username,
                 String legalName,
                 String password,
                 Gender gender,
                 LocalDate birthdate,
                 Contact contact,
-                String nickname,
-                List<Role> roles) {
+                String nickname) {
         this.username = username;
         this.nickname = nickname;
         this.legalName = legalName;
@@ -136,7 +135,31 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.teamOfferCnt = 0L;
         this.rating = 0F;
 
-        updateRoles(roles);
+        updateRoles(List.of(Role.USER));
+    }
+
+    @Builder(builderMethodName = "adminBuilder", builderClassName = "adminBuilder")
+    public User(String username, String legalName, String password, Gender gender, LocalDate birthdate) {
+        this.username = username;
+        this.legalName = legalName;
+        this.password = password;
+        this.gender = gender.getType();
+        this.birthdate = birthdate;
+
+        this.lastRequestDate = LocalDateTime.now();
+
+        updateRoles(List.of(Role.USER, Role.ADMIN));
+    }
+
+    @Builder(builderMethodName = "masterBuilder", builderClassName = "masterBuilder")
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+
+        this.isDeleted = false;
+        this.lastRequestDate = LocalDateTime.now();
+
+        updateRoles(List.of(Role.USER, Role.ADMIN, Role.MASTER));
     }
 
     public void updatePassword(String password, boolean isTemporaryPassword) {

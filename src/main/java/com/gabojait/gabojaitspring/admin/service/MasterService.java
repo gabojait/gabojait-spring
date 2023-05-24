@@ -40,11 +40,9 @@ public class MasterService implements ApplicationRunner {
         String password = utilityProvider.generateRandomCode(10);
         String encodedPassword = utilityProvider.encodePassword(password);
 
-        User master = User.builder()
+        User master = User.masterBuilder()
                 .username(masterUsername)
                 .password(encodedPassword)
-                .gender(Gender.NONE)
-                .roles(List.of(Role.MASTER, Role.ADMIN, Role.USER))
                 .build();
 
         userService.save(master);

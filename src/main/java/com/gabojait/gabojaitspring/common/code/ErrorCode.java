@@ -58,6 +58,9 @@ public enum ErrorCode {
     REVIEWEE_ID_FIELD_REQUIRED(BAD_REQUEST, "리뷰 대상자 식별자는 필수 입력란입니다."),
     RATE_FIELD_REQUIRED(BAD_REQUEST, "평점은 필수 입력란입니다."),
     POSTSCRIPT_FIELD_REQUIRED(BAD_REQUEST, "후기는 필수 입력란입니다."),
+    ADMIN_NAME_FIELD_REQUIRED(BAD_REQUEST, "아이디는 필수 입력란입니다."),
+    LEGAL_NAME_FIELD_REQUIRED(BAD_REQUEST, "실명은 필수 입력란입니다."),
+    BIRTHDATE_FIELD_REQUIRED(BAD_REQUEST, "생년월일은 필수 입력란입니다."),
 
     // @Size
     USERNAME_LENGTH_INVALID(BAD_REQUEST, "아이디는 5~15자만 가능합니다."),
@@ -75,6 +78,7 @@ public enum ErrorCode {
     EXPECTATION_LENGTH_INVALID(BAD_REQUEST, "바라는 점은 1~200자만 가능합니다."),
     OPEN_CHAT_URL_LENGTH_INVALID(BAD_REQUEST, "오픈 채팅 URL집 25~100자만 가능합니다."),
     POSTSCRIPT_LENGTH_INVALID(BAD_REQUEST, "후기는 1~200자만 가능합니다."),
+    ADMIN_NAME_LENGTH_INVALID(BAD_REQUEST, "아이디는 5~15자만 가능합니다."),
 
     // @Pattern, @Email - format
     EMAIL_FORMAT_INVALID(BAD_REQUEST, "올바른 이메일 형식을 입력해 주세요."),
@@ -83,6 +87,7 @@ public enum ErrorCode {
     LEGAL_NAME_FORMAT_INVALID(BAD_REQUEST, "실명은 한글 조합으로 입력해 주세요."),
     NICKNAME_FORMAT_INVALID(BAD_REQUEST, "닉네임은 한글 조합으로 입력해 주세요."),
     OPEN_CHAT_URL_FORMAT_INVALID(BAD_REQUEST, "오픈 채팅 URL은 카카오 오픈 채팅 형식만 가능합니다."),
+    ADMIN_NAME_FORMAT_INVALID(BAD_REQUEST, "아이디는 소문자 영어와 숫자의 조합 그리고 '_admin'으로 끝나게 입력해 주세요."),
 
     // @Pattern - type
     GENDER_TYPE_INVALID(BAD_REQUEST, "성별은 'male', 'female', 또는 'none' 중 하나여야 됩니다."),
