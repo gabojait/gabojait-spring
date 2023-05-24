@@ -91,7 +91,11 @@ public class AdminController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "CREATED",
-                    content = @Content(schema = @Schema(implementation = Object.class)))
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "409", description = "CONFLICT"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping
     public ResponseEntity<DefaultResDto<Object>> register(@RequestBody @Valid AdminRegisterReqDto request) {
