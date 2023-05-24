@@ -4,7 +4,6 @@ import com.gabojait.gabojaitspring.common.util.EmailProvider;
 import com.gabojait.gabojaitspring.common.util.FileProvider;
 import com.gabojait.gabojaitspring.common.util.UtilityProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
-import com.gabojait.gabojaitspring.offer.domain.Offer;
 import com.gabojait.gabojaitspring.profile.domain.Education;
 import com.gabojait.gabojaitspring.profile.domain.Portfolio;
 import com.gabojait.gabojaitspring.profile.domain.Skill;
@@ -15,6 +14,7 @@ import com.gabojait.gabojaitspring.review.domain.Review;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.Contact;
 import com.gabojait.gabojaitspring.user.domain.User;
+import com.gabojait.gabojaitspring.user.domain.type.Role;
 import com.gabojait.gabojaitspring.user.dto.req.UserLoginReqDto;
 import com.gabojait.gabojaitspring.user.dto.req.UserRegisterReqDto;
 import com.gabojait.gabojaitspring.user.repository.UserRepository;
@@ -26,10 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 
@@ -68,7 +65,7 @@ public class UserService {
     }
 
     /**
-     * 가입 | main |
+     * 회원 가입 | main |
      * 500(SERVER_ERROR)
      */
     public User register(UserRegisterReqDto request, Contact contact) {
@@ -78,7 +75,7 @@ public class UserService {
     }
 
     /**
-     * 로그인 | main |
+     * 회원 로그인 | main |
      * 401(LOGIN_FAIL)
      */
     public User login(UserLoginReqDto request) {
@@ -241,7 +238,7 @@ public class UserService {
      * 404(USER_NOT_FOUND)
      */
     public User findOneTestByUsername(String username) {
-        return userRepository.findByUsernameAndIsDeletedIsFalse(username)
+        return userRepository.findByUsernameAndRolesInAndIsDeletedIsFalse(username, Role.USER.name())
                 .orElseThrow(() -> {
                     throw new CustomException(null, USER_NOT_FOUND);
                 });
@@ -491,10 +488,10 @@ public class UserService {
 
     /**
      * 아이디로 회원 단건 조회 |
-     * 401(LOGIN_FAIL)
+     * 401(LOGIN_UNAUTHENTICATED)
      */
     private User findOneByUsername(String username) {
-        return userRepository.findByUsernameAndIsDeletedIsFalse(username)
+        return userRepository.findByUsernameAndRolesInAndIsDeletedIsFalse(username, Role.USER.name())
                 .orElseThrow(() -> {
                     throw new CustomException(null, LOGIN_UNAUTHENTICATED);
                 });
@@ -644,7 +641,7 @@ public class UserService {
      * 409(EXISTING_USERNAME)
      */
     private void validateDuplicateUsername(String username) {
-        userRepository.findByUsernameAndIsDeletedIsFalse(username)
+        userRepository.findByUsernameAndRolesInAndIsDeletedIsFalse(username, Role.USER.name())
                 .ifPresent(u -> {
                     throw new CustomException(null, EXISTING_USERNAME);
                 });

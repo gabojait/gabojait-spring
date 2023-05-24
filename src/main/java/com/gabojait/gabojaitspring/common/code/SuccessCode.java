@@ -12,9 +12,15 @@ import static org.springframework.http.HttpStatus.OK;
 public enum SuccessCode {
 
     /**
+     * Admin Controller
+     */
+    // 200 Ok
+    ADMIN_LOGIN(OK, "관리자가 로그인을 했습니다."),
+
+    /**
      * Review Controller
      */
-    // 200 OK
+    // 200 Ok
     USER_REVIEWS_FOUND(OK, "회원의 리뷰 다건 조회를 했습니다."),
     REVIEWABLE_TEAMS_FOUND(OK, "리뷰 작성 가능한 팀 전체 조회를 했습니다."),
 
@@ -82,7 +88,7 @@ public enum SuccessCode {
     // 200 Ok
     USERNAME_AVAILABLE(OK, "아이디 중복 확인을 했습니다."),
     NICKNAME_AVAILABLE(OK, "닉네임 중복 확인을 했습니다."),
-    USER_LOGIN(OK, "로그인을 했습니다."),
+    USER_LOGIN(OK, "회원이 로그인을 했습니다."),
     SELF_USER_FOUND(OK, "본인을 조회 했습니다."),
     USER_FOUND(OK, "회원을 조회 했습니다."),
     TOKEN_RENEWED(OK, "토큰을 재발급 했습니다."),

@@ -58,7 +58,7 @@ public class MasterService implements ApplicationRunner {
      */
     private Optional<User> findOneMaster() {
         try {
-            return userRepository.findByUsernameAndRolesIn(masterUsername, List.of(Role.MASTER));
+            return userRepository.findByUsernameAndRolesInAndIsDeletedIsFalse(masterUsername, Role.MASTER.name());
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
