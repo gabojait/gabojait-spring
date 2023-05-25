@@ -1,6 +1,7 @@
 package com.gabojait.gabojaitspring.config;
 
 import com.fasterxml.classmate.TypeResolver;
+import com.gabojait.gabojaitspring.admin.dto.res.AdminAbstractResDto;
 import com.gabojait.gabojaitspring.admin.dto.res.AdminDefaultResDto;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
 import com.gabojait.gabojaitspring.common.dto.ExceptionResDto;
@@ -81,6 +82,7 @@ public class SwaggerConfig {
                 .additionalModels(typeResolver.resolve(TeamDetailResDto.class))
                 .additionalModels(typeResolver.resolve(OfferDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(AdminDefaultResDto.class))
+                .additionalModels(typeResolver.resolve(AdminAbstractResDto.class))
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo())
                 .securityContexts(Collections.singletonList(securityContext()))

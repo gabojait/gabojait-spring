@@ -61,6 +61,7 @@ public enum ErrorCode {
     ADMIN_NAME_FIELD_REQUIRED(BAD_REQUEST, "아이디는 필수 입력란입니다."),
     LEGAL_NAME_FIELD_REQUIRED(BAD_REQUEST, "실명은 필수 입력란입니다."),
     BIRTHDATE_FIELD_REQUIRED(BAD_REQUEST, "생년월일은 필수 입력란입니다."),
+    IS_APPROVED_FIELD_REQUIRED(BAD_REQUEST, "승인 여부는 필수 입력란입니다."),
 
     // @Size
     USERNAME_LENGTH_INVALID(BAD_REQUEST, "아이디는 5~15자만 가능합니다."),

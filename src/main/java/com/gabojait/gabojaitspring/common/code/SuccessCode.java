@@ -16,6 +16,8 @@ public enum SuccessCode {
      */
     // 200 Ok
     ADMIN_LOGIN(OK, "관리자가 로그인을 했습니다."),
+    ADMIN_UNREGISTERED_FOUND(OK, "관리자 가입 대기자 다건 조회를 했습니다."),
+    ADMIN_REGISTER_DECIDED(OK, "관리자 가입 결정을 했습니다."),
 
     // 201 Created
     ADMIN_REGISTERED(CREATED, "관리자 가입을 했습니다. 계정 활성화를 요청하세요."),

@@ -502,7 +502,7 @@ public class TeamController {
         userService.validateHasCurrentTeam(user);
         // main
         List<ObjectId> favoriteUserIds = teamService.findAllFavorite(user);
-        List<User> users = userService.findAllId(favoriteUserIds);
+        List<User> users = userService.findAllById(favoriteUserIds);
 
         // response
         List<ProfileAbstractResDto> responses = new ArrayList<>();

@@ -180,6 +180,10 @@ public class User extends BaseTimeEntity implements UserDetails {
             this.roles.add(role.name());
     }
 
+    public void approveAdminRegistration(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
     public void delete() {
         this.isDeleted = true;
     }

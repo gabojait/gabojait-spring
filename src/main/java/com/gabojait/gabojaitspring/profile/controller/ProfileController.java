@@ -544,7 +544,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
-            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/profile/seeking-team")
     public ResponseEntity<DefaultResDto<Object>> findUsersLookingForTeam(

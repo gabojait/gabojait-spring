@@ -377,7 +377,7 @@ public class UserService {
      * 식별자로 회원 전체 조회 | main |
      * 500(SERVER_ERROR)
      */
-    public List<User> findAllId(List<ObjectId> userIds) {
+    public List<User> findAllById(List<ObjectId> userIds) {
         List<User> users = new ArrayList<>();
         try {
             for(ObjectId userId : userIds) {

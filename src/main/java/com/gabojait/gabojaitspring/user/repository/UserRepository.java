@@ -6,6 +6,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -39,4 +40,10 @@ public interface UserRepository extends MongoRepository<User, ObjectId> {
                                                                                       Pageable pageable);
 
     Page<User> findAllByIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByRatingDesc(Pageable pageable);
+
+    @Query(value = "{$and: [{'roles': {$regex: ?0}}, {'is_deleted': {$exists: false}}]}")
+    Page<User> findAllByRolesInAndIsDeletedNotExists(String roles, Pageable pageable);
+
+    @Query(value = "{'_id': ?0, 'roles': {$regex: ?1}, 'is_deleted': {$exists: false}}")
+    Optional<User> findByIdAndRolesInAndIsDeletedNotExists(ObjectId userId, String roles);
 }
