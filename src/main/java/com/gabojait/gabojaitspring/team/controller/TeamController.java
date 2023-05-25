@@ -358,9 +358,8 @@ public class TeamController {
             @ApiResponse(responseCode = "409", description = "CONFLICT"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
-
     })
-    @DeleteMapping("/team/complete")
+    @PatchMapping("/team/complete")
     public ResponseEntity<DefaultResDto<Object>> quitCompleteProject(HttpServletRequest servletRequest,
                                                                      @RequestBody @Valid
                                                                      TeamCompleteUpdateReqDto request) {
