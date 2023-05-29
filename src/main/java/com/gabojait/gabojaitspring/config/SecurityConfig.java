@@ -60,8 +60,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/api/**/admin", "/api/**/admin/login",
                         "/api/**/reset")
                 .permitAll()
-                .antMatchers(HttpMethod.PATCH, "/api/**/contact")
-                .permitAll()
                 .antMatchers(HttpMethod.GET, "/api/**/user/username", "/api/**/user/nickname",
                         "/api/**/health", "/api/**/test/user/**")
                 .permitAll()
