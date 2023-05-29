@@ -173,7 +173,7 @@ public class DevelopService {
                     .url("github.com/gabojait")
                     .media(Media.LINK)
                     .build();
-            portfolioService.delete(portfolio);
+            portfolioService.save(portfolio);
 
             userService.updatePortfolios(user, List.of(portfolio), List.of(), List.of());
         }
@@ -187,7 +187,7 @@ public class DevelopService {
                     .level(Level.MID)
                     .isExperienced(true)
                     .build();
-            skillService.delete(skill);
+            skillService.save(skill);
 
             userService.updatePositionAndSkills(user, Position.BACKEND.name(), List.of(skill), List.of(), List.of());
         }

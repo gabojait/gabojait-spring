@@ -51,7 +51,16 @@ public class EducationService {
     }
 
     /**
-     * 전체 학력 생성 | main |
+     * 계정 삭제 전 전체 삭제 | main |
+     * 500(SERVER_ERROR)
+     */
+    public void deleteAllPreDeactivation(List<Education> educations) {
+        for (Education education : educations)
+            delete(education);
+    }
+
+    /**
+     * 전체 학력 생성 | sub |
      * 500(SERVER_ERROR)
      */
     public List<Education> createAll(ObjectId userId, List<EducationCreateReqDto> requests) {
@@ -132,7 +141,7 @@ public class EducationService {
      * 학력 소프트 삭제 |
      * 500(SERVER_ERROR)
      */
-    public void delete(Education education) {
+    private void delete(Education education) {
         education.delete();
 
         save(education);

@@ -22,4 +22,7 @@ public class UserLoginReqDto {
     @ApiModelProperty(position = 2, required = true, value = "비밀번호", example = "password1!")
     @NotBlank(message = "비밀번호는 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
     private String password;
+
+    @ApiModelProperty(position = 3, value = "FCM 토큰")
+    private String fcmToken;
 }

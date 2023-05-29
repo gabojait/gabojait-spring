@@ -52,6 +52,15 @@ public class SkillService {
     }
 
     /**
+     * 계정 삭제 전 전체 삭제 | main |
+     * 500(SERVER_ERROR)
+     */
+    public void deleteAllPreDeactivation(List<Skill> skills) {
+        for (Skill skill : skills)
+            delete(skill);
+    }
+
+    /**
      * 전체 기술 생성 | sub |
      * 500(SERVER_ERROR)
      */
@@ -133,7 +142,7 @@ public class SkillService {
      * 기술 소프트 삭제 |
      * 500(SERVER_ERROR)
      */
-    public void delete(Skill skill) {
+    private void delete(Skill skill) {
         skill.delete();
 
         save(skill);

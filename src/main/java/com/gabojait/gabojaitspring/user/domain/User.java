@@ -82,8 +82,11 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Field(name = "favorite_team_ids")
     private List<ObjectId> favoriteTeamIds = new ArrayList<>();
 
-    @Field(name = "user_fcm_id")
-    private ObjectId userFcmId;
+    @Field(name = "fcm_tokens")
+    private Set<String> fcmTokens = new HashSet<>();
+
+    @Field(name = "is_notified")
+    private Boolean isNotified;
 
     private String username;
     private String password;
@@ -107,7 +110,8 @@ public class User extends BaseTimeEntity implements UserDetails {
                 Gender gender,
                 LocalDate birthdate,
                 Contact contact,
-                String nickname) {
+                String nickname,
+                String fcmToken) {
         this.username = username;
         this.nickname = nickname;
         this.legalName = legalName;
@@ -124,6 +128,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.currentTeamId = null;
         this.position = Position.NONE.getType();
         this.profileDescription = null;
+        this.isNotified = true;
         this.isDeleted = false;
 
         this.ratingCnt = 0;
@@ -136,6 +141,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.rating = 0F;
 
         updateRoles(List.of(Role.USER));
+        addFcmToken(fcmToken);
     }
 
     @Builder(builderMethodName = "adminBuilder", builderClassName = "adminBuilder")
@@ -182,6 +188,20 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void approveAdminRegistration(boolean isDeleted) {
         this.isDeleted = isDeleted;
+    }
+
+    public void addFcmToken(String fcmToken) {
+        if (!fcmToken.isBlank())
+            this.fcmTokens.add(fcmToken);
+    }
+
+    public void removeFcmToken(String fcmToken) {
+        if (!fcmToken.isBlank())
+            this.fcmTokens.remove(fcmToken);
+    }
+
+    public void updateIsNotified(boolean isNotified) {
+        this.isNotified = isNotified;
     }
 
     public void delete() {
@@ -372,14 +392,15 @@ public class User extends BaseTimeEntity implements UserDetails {
      * Review related
      */
 
-    public void updateRating(int rating) {
+    public void updateRating(Review review) {
         if (this.ratingCnt > 0) {
             this.rating = (this.rating * (float) (this.ratingCnt / (this.ratingCnt + 1))) +
-                    (rating / (float) (this.ratingCnt + 1));
+                    (review.getRate() / (float) (this.ratingCnt + 1));
         } else {
-            this.rating = (float) rating;
+            this.rating = (float) review.getRate();
         }
 
+        this.reviews.add(review);
         this.ratingCnt++;
     }
 }

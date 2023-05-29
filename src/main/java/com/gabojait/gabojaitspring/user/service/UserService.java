@@ -71,12 +71,17 @@ public class UserService {
     public User register(UserRegisterReqDto request, Contact contact) {
         String password = utilityProvider.encodePassword(request.getPassword());
 
-        return save(request.toEntity(password, contact));
+        User user =  save(request.toEntity(password, contact));
+
+        updateFcmToken(user, request.getFcmToken(), true);
+
+        return user;
     }
 
     /**
      * 회원 로그인 | main |
      * 401(LOGIN_FAIL)
+     * 500(SERVER_ERROR)
      */
     public User login(UserLoginReqDto request) {
         User user = findOneByUsername(request.getUsername());
@@ -84,6 +89,8 @@ public class UserService {
         boolean isVerified = utilityProvider.verifyPassword(user, request.getPassword());
         if (!isVerified)
             throw new CustomException(null, LOGIN_UNAUTHENTICATED);
+
+        updateFcmToken(user, request.getFcmToken(), true);
 
         return user;
     }
@@ -434,10 +441,33 @@ public class UserService {
         for (Review review : reviews) {
             User reviewee = findOneById(review.getRevieweeId().toString());
 
-            reviewee.updateRating(review.getRate());
+            reviewee.updateRating(review);
 
             save(reviewee);
         }
+    }
+
+    /**
+     * Fcm 토큰 업데이트 | main |
+     * 500(SERVER_ERROR)
+     */
+    public void updateFcmToken(User user, String fcmToken, boolean isAdd) {
+        if (isAdd)
+            user.addFcmToken(fcmToken);
+        else
+            user.removeFcmToken(fcmToken);
+
+        save(user);
+    }
+
+    /**
+     * 알림 여부 업데이트 | main |
+     * 500(SERVER_ERROR)
+     */
+    public void updateIsNotified(User user, boolean isNotified) {
+        user.updateIsNotified(isNotified);
+
+        save(user);
     }
 
     /**

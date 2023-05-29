@@ -57,3 +57,16 @@ s3:
     profile-img: ${S3_PROFILE_IMG_BUCKET}
     portfolio-file: ${S3_PORTFOLIO_FILE_BUCKET}
   region: ${S3_REGION}
+
+firebase:
+  project:
+    id: ${FIREBASE_PROJECT_ID}
+  private:
+    key-id: ${FIREBASE_PRIVATE_KEY_ID}
+    key: ${FIREBASE_PRIVATE_KEY}
+  client:
+    email: ${FIREBASE_CLIENT_EMAIL}
+    id: ${FIREBASE_CLIENT_ID}
+    x509:
+      cert:
+        url: ${FIREBASE_CLIENT_CERT_URL}

@@ -53,6 +53,15 @@ public class WorkService {
     }
 
     /**
+     * 계정 삭제 전 전체 삭제 | main |
+     * 500(SERVER_ERROR)
+     */
+    public void deleteAllPreDeactivation(List<Work> works) {
+        for (Work work : works)
+            delete(work);
+    }
+
+    /**
      * 전체 경력 생성 | sub |
      * 500(SERVER_ERROR)
      */
@@ -134,7 +143,7 @@ public class WorkService {
      * 경력 소프트 삭제 |
      * 500(SERVER_ERROR)
      */
-    public void delete(Work work) {
+     private void delete(Work work) {
         work.delete();
 
         save(work);

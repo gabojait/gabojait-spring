@@ -5,7 +5,6 @@ import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.user.domain.Contact;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.domain.type.Gender;
-import com.gabojait.gabojaitspring.user.domain.type.Role;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -14,7 +13,6 @@ import lombok.NoArgsConstructor;
 import javax.validation.GroupSequence;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -70,6 +68,9 @@ public class UserRegisterReqDto {
     @Email(message = "올바른 이메일 형식을 입력해 주세요.", groups = ValidationSequence.Format.class)
     private String email;
 
+    @ApiModelProperty(position = 8, value = "FCM 토큰")
+    private String fcmToken;
+
     public User toEntity(String password, Contact contact) {
         return User.userBuilder()
                 .username(this.username)
@@ -79,6 +80,7 @@ public class UserRegisterReqDto {
                 .gender(Gender.fromString(this.gender))
                 .birthdate(this.birthdate)
                 .contact(contact)
+                .fcmToken(fcmToken)
                 .build();
     }
 }

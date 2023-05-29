@@ -58,7 +58,16 @@ public class PortfolioService {
     }
 
     /**
-     * 전체 포트폴리오 링크 업데이트 | main |
+     * 계정 삭제 전 전체 삭제 | main |
+     * 500(SERVER_ERROR)
+     */
+    public void deleteAllPreDeactivation(List<Portfolio> portfolios) {
+        for (Portfolio portfolio : portfolios)
+            delete(portfolio);
+    }
+
+    /**
+     * 전체 포트폴리오 링크 업데이트 | sub |
      * 400(FILE_FIELD_REQUIRED / ID_CONVERT_INVALID)
      * 404(PORTFOLIO_NOT_FOUND)
      * 415(FILE_TYPE_UNSUPPORTED)
@@ -239,7 +248,7 @@ public class PortfolioService {
      * 포트폴리오 소프트 삭제 |
      * 500(SERVER_ERROR)
      */
-    public void delete(Portfolio portfolio) {
+    private void delete(Portfolio portfolio) {
         portfolio.delete();
 
         save(portfolio);

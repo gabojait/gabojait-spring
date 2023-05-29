@@ -2,6 +2,10 @@ package com.gabojait.gabojaitspring.user.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.profile.service.EducationService;
+import com.gabojait.gabojaitspring.profile.service.PortfolioService;
+import com.gabojait.gabojaitspring.profile.service.SkillService;
+import com.gabojait.gabojaitspring.profile.service.WorkService;
 import com.gabojait.gabojaitspring.user.domain.Contact;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.dto.req.*;
@@ -39,6 +43,10 @@ public class UserController {
 
     private final UserService userService;
     private final ContactService contactService;
+    private final EducationService educationService;
+    private final PortfolioService portfolioService;
+    private final SkillService skillService;
+    private final WorkService workService;
     private final JwtProvider jwtProvider;
 
     @ApiOperation(value = "아이디 중복여부 확인",
@@ -193,6 +201,37 @@ public class UserController {
                         .responseCode(USER_LOGIN.name())
                         .responseMessage(USER_LOGIN.getMessage())
                         .data(response)
+                        .build());
+    }
+
+    @ApiOperation(value = "로그아웃",
+            notes = "<응답 코드>\n" +
+                    "- 200 = USER_LOGOUT\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
+    })
+    @PostMapping("/logout")
+    public ResponseEntity<DefaultResDto<Object>> logout(HttpServletRequest servletRequest,
+                                                        @RequestBody @Valid UserLogoutReqDto request) {
+        // auth
+        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        // main
+        userService.updateFcmToken(user, request.getFcmToken(), false);
+
+        return ResponseEntity.status(USER_LOGOUT.getHttpStatus())
+                .body(DefaultResDto.noDataBuilder()
+                        .responseCode(USER_LOGOUT.name())
+                        .responseMessage(USER_LOGOUT.getMessage())
                         .build());
     }
 
@@ -459,6 +498,40 @@ public class UserController {
                         .build());
     }
 
+    @ApiOperation(value = "알림 업데이트",
+            notes = "<응답 코드>" +
+                    "- 200 = IS_NOTIFIED_UPDATED\n" +
+                    "- 400 = IS_NOTIFIED_FIELD_REQUIRED\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
+    })
+    @PatchMapping("/notified")
+    public ResponseEntity<DefaultResDto<Object>> updateIsNotified(HttpServletRequest servletRequest,
+                                                                    @RequestBody @Valid
+                                                                    UserIsNotifiedUpdateReqDto request) {
+        // auth
+        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        // main
+        userService.updateIsNotified(user, request.getIsNotified());
+
+        return ResponseEntity.status(IS_NOTIFIED_UPDATED.getHttpStatus())
+                .body(DefaultResDto.noDataBuilder()
+                        .responseCode(IS_NOTIFIED_UPDATED.name())
+                        .responseMessage(IS_NOTIFIED_UPDATED.getMessage())
+                        .build());
+    }
+
     @ApiOperation(value = "탈퇴",
             notes = "<응답 코드>\n" +
                     "- 200 = USER_DELETED\n" +
@@ -475,12 +548,15 @@ public class UserController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping
-    public ResponseEntity<DefaultResDto<Object>> delete(HttpServletRequest servletRequest) {
+    public ResponseEntity<DefaultResDto<Object>> deactivate(HttpServletRequest servletRequest) {
         // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         // main
-        // TODO soft delete Education, Work, etc.
+        educationService.deleteAllPreDeactivation(user.getEducations());
+        portfolioService.deleteAllPreDeactivation(user.getPortfolios());
+        skillService.deleteAllPreDeactivation(user.getSkills());
+        workService.deleteAllPreDeactivation(user.getWorks());
         userService.softDelete(user);
         contactService.softDelete(user.getContact());
 
