@@ -321,8 +321,9 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @GetMapping("/token")
-    public ResponseEntity<DefaultResDto<Object>> renewToken(HttpServletRequest servletRequest) {
+    @PostMapping("/token")
+    public ResponseEntity<DefaultResDto<Object>> renewToken(HttpServletRequest servletRequest,
+                                                            @RequestBody @Valid UserRenewTokenReqDto request) {
         // auth
         User user = jwtProvider.authorizeUserRefreshJwt(servletRequest.getHeader("Refresh-Token"));
 
@@ -330,6 +331,7 @@ public class UserController {
         userService.updateLastRequestDate(user);
         // main & response
         HttpHeaders headers = jwtProvider.generateUserJwt(user.getId(), user.getRoles());
+        userService.updateFcmToken(user, request.getFcmToken(), true);
 
         return ResponseEntity.status(TOKEN_RENEWED.getHttpStatus())
                 .headers(headers)
@@ -517,8 +519,8 @@ public class UserController {
     })
     @PatchMapping("/notified")
     public ResponseEntity<DefaultResDto<Object>> updateIsNotified(HttpServletRequest servletRequest,
-                                                                    @RequestBody @Valid
-                                                                    UserIsNotifiedUpdateReqDto request) {
+                                                                  @RequestBody @Valid
+                                                                  UserIsNotifiedUpdateReqDto request) {
         // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
