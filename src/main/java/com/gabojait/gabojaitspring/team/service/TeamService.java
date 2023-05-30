@@ -53,7 +53,7 @@ public class TeamService {
         Team team = findOneById(user.getCurrentTeamId().toString());
 
         if (!team.isLeader(user.getId().toString()))
-            throw new CustomException(null, REQUEST_FORBIDDEN);
+            throw new CustomException(REQUEST_FORBIDDEN);
         validateAllPositionCnt(team,
                 request.getDesignerTotalRecruitCnt(),
                 request.getBackendTotalRecruitCnt(),
@@ -117,7 +117,7 @@ public class TeamService {
 
         return teamRepository.findByIdAndIsDeletedIsFalse(id)
                 .orElseThrow(() -> {
-                    throw new CustomException(null, TEAM_NOT_FOUND);
+                    throw new CustomException(TEAM_NOT_FOUND);
                 });
     }
 
@@ -188,7 +188,7 @@ public class TeamService {
     public void updateIsRecruiting(User user, Boolean isRecruiting) {
         Team team = findOneById(user.getCurrentTeamId().toString());
         if (!team.isLeader(user.getId().toString()))
-            throw new CustomException(null, REQUEST_FORBIDDEN);
+            throw new CustomException(REQUEST_FORBIDDEN);
 
         team.updateIsRecruiting(isRecruiting);
         save(team);
@@ -204,7 +204,7 @@ public class TeamService {
     public void fire(User leader, User teammate) {
         Team team = findOneById(leader.getCurrentTeamId().toString());
         if (!team.isLeader(leader.getId().toString()))
-            throw new CustomException(null, REQUEST_FORBIDDEN);
+            throw new CustomException(REQUEST_FORBIDDEN);
 
         team.removeTeammate(teammate, true);
         save(team);
@@ -220,14 +220,15 @@ public class TeamService {
     public List<User> quit(User user, String projectUrl) {
         Team team = findOneById(user.getCurrentTeamId().toString());
         if (!team.isLeader(user.getId().toString()))
-            throw new CustomException(null, REQUEST_FORBIDDEN);
+            throw new CustomException(REQUEST_FORBIDDEN);
 
-        List<User> users = team.getAllMembersExceptLeader(team);
+        List<User> users = team.getAllMembers();
 
         if (projectUrl.isBlank())
             team.delete();
         else
             team.complete(projectUrl);
+
         save(team);
 
         return users;
@@ -243,7 +244,7 @@ public class TeamService {
     public void updateFavoriteUser(User leader, User user, boolean isAddFavorite) {
         Team team = findOneById(leader.getCurrentTeamId().toString());
         if (!team.isLeader(user.getId().toString()))
-            throw new CustomException(null, REQUEST_FORBIDDEN);
+            throw new CustomException(REQUEST_FORBIDDEN);
 
         team.updateFavoriteUserId(user.getId(), isAddFavorite);
 
@@ -259,7 +260,7 @@ public class TeamService {
     public List<ObjectId> findAllFavorite(User user) {
         Team team = findOneById(user.getCurrentTeamId().toString());
         if (!team.isLeader(user.getId().toString()))
-            throw new CustomException(null, REQUEST_FORBIDDEN);
+            throw new CustomException(REQUEST_FORBIDDEN);
 
         return team.getFavoriteUserIds();
     }
@@ -302,11 +303,12 @@ public class TeamService {
      * 404(TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public void offer(String teamId, boolean isOfferedByUser) {
+    public Team offer(String teamId, boolean isOfferedByUser) {
         Team team = findOneById(teamId);
 
         team.offer(isOfferedByUser);
-        save(team);
+
+        return save(team);
     }
 
     /**
@@ -316,12 +318,15 @@ public class TeamService {
      * 409(TEAM_POSITION_UNAVAILABLE)
      * 500(SERVER_ERROR)
      */
-    public void decideOfferByUser(Offer offer, User user, boolean isAccepted) {
-        if (!isAccepted)
-            return;
-        Position position = Position.fromChar(offer.getPosition());
+    public Team decideOfferByUser(Offer offer, User user, boolean isAccepted) {
         Team team = findOneById(offer.getTeamId().toString());
-        join(team, user, position.getType());
+
+        if (isAccepted) {
+            Position position = Position.fromChar(offer.getPosition());
+            join(team, user, position.getType());
+        }
+
+        return team;
     }
 
     /**
@@ -335,7 +340,7 @@ public class TeamService {
     public void decideOfferByTeam(Offer offer, User user, User otherUser, boolean isAccepted) {
         Team team = findOneById(user.getCurrentTeamId().toString());
         if (!team.isLeader(user.getId().toString()))
-            throw new CustomException(null, REQUEST_FORBIDDEN);
+            throw new CustomException(REQUEST_FORBIDDEN);
         if (!isAccepted)
             return;
         Position position = Position.fromChar(offer.getPosition());
@@ -384,7 +389,7 @@ public class TeamService {
         validatePositionAvailability(team, p.getType());
 
         if (!team.isLeader(leaderId))
-            throw new CustomException(null, REQUEST_FORBIDDEN);
+            throw new CustomException(REQUEST_FORBIDDEN);
     }
 
     /**
@@ -409,22 +414,22 @@ public class TeamService {
         switch (position) {
             case 'D':
                 if (team.getDesigners().size() >= team.getDesignerTotalRecruitCnt())
-                    throw new CustomException(null, TEAM_POSITION_UNAVAILABLE);
+                    throw new CustomException(TEAM_POSITION_UNAVAILABLE);
                 break;
             case 'B':
                 if (team.getBackends().size() >= team.getBackendTotalRecruitCnt())
-                    throw new CustomException(null, TEAM_POSITION_UNAVAILABLE);
+                    throw new CustomException(TEAM_POSITION_UNAVAILABLE);
                 break;
             case 'F':
                 if (team.getFrontends().size() >= team.getFrontendTotalRecruitCnt())
-                    throw new CustomException(null, TEAM_POSITION_UNAVAILABLE);
+                    throw new CustomException(TEAM_POSITION_UNAVAILABLE);
                 break;
             case 'M':
                 if (team.getManagers().size() >= team.getManagerTotalRecruitCnt())
-                    throw new CustomException(null, TEAM_POSITION_UNAVAILABLE);
+                    throw new CustomException(TEAM_POSITION_UNAVAILABLE);
                 break;
             default:
-                throw new CustomException(null, SERVER_ERROR);
+                throw new CustomException(SERVER_ERROR);
         }
     }
 
@@ -439,13 +444,13 @@ public class TeamService {
                                         short totalFrontendCnt,
                                         short totalManagerCnt) {
         if (team.getDesigners().size() > totalDesignerCnt)
-            throw new CustomException(null, DESIGNER_CNT_UPDATE_UNAVAILABLE);
+            throw new CustomException(DESIGNER_CNT_UPDATE_UNAVAILABLE);
         if (team.getBackends().size() > totalBackendCnt)
-            throw new CustomException(null, BACKEND_CNT_UPDATE_UNAVAILABLE);
+            throw new CustomException(BACKEND_CNT_UPDATE_UNAVAILABLE);
         if (team.getFrontends().size() > totalFrontendCnt)
-            throw new CustomException(null, FRONTEND_CNT_UPDATE_UNAVAILABLE);
+            throw new CustomException(FRONTEND_CNT_UPDATE_UNAVAILABLE);
         if (team.getManagers().size() > totalManagerCnt)
-            throw new CustomException(null, MANAGER_CNT_UPDATE_UNAVAILABLE);
+            throw new CustomException(MANAGER_CNT_UPDATE_UNAVAILABLE);
     }
 
     /**
@@ -504,7 +509,7 @@ public class TeamService {
                             .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(pageable);
                     break;
                 default:
-                    throw new CustomException(null, SERVER_ERROR);
+                    throw new CustomException(SERVER_ERROR);
             }
 
             return teams;
@@ -550,7 +555,7 @@ public class TeamService {
                             .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(pageable);
                     break;
                 default:
-                    throw new CustomException(null, SERVER_ERROR);
+                    throw new CustomException(SERVER_ERROR);
             }
 
             return teams;
@@ -596,7 +601,7 @@ public class TeamService {
                             .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedDateDesc(pageable);
                     break;
                 default:
-                    throw new CustomException(null, SERVER_ERROR);
+                    throw new CustomException(SERVER_ERROR);
             }
 
             return teams;

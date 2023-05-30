@@ -1,5 +1,6 @@
 package com.gabojait.gabojaitspring.develop.service;
 
+import com.gabojait.gabojaitspring.common.util.NotificationProvider;
 import com.gabojait.gabojaitspring.common.util.UtilityProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.offer.repository.OfferRepository;
@@ -64,14 +65,22 @@ public class DevelopService {
     private final WorkService workService;
     private final TeamService teamService;
     private final UtilityProvider utilityProvider;
+    private final NotificationProvider notificationProvider;
 
     /**
-     * 서버명 변환
+     * 서버명 변환 | main
      */
     public String getServerName() {
         return serverName;
     }
 
+    /**
+     * 테스트 알림 전송 | main |
+     * 500(SERVER_ERROR)
+     */
+    public void testNotification(User user, String title, String message) {
+        notificationProvider.singleNotification(user, title, message);
+    }
     /**
      * 데이터베이스 초기화 | main&sub |
      * 500(SERVER_ERROR)
@@ -120,6 +129,7 @@ public class DevelopService {
                     .birthdate(LocalDate.of(2000, 1, n))
                     .contact(contacts.get(i))
                     .nickname("테스트" + n)
+                    .fcmToken("")
                     .build();
             userService.save(user);
 

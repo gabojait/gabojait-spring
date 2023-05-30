@@ -5,8 +5,10 @@ import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 @ApiModel(value = "프로필 요약 응답")
 public class ProfileAbstractResDto {
 

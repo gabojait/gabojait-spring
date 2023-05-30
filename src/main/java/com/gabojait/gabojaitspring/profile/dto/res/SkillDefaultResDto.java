@@ -5,8 +5,10 @@ import com.gabojait.gabojaitspring.profile.domain.type.Level;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 @ApiModel(value = "기술 기본 응답")
 public class SkillDefaultResDto {
 

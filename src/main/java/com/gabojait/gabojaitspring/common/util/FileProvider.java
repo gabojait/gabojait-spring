@@ -78,15 +78,15 @@ public class FileProvider {
      */
     private void validateFileExistenceAndType(MultipartFile multipartFile, boolean isImage) {
         if (multipartFile == null || multipartFile.isEmpty())
-            throw new CustomException(null, FILE_FIELD_REQUIRED);
+            throw new CustomException(FILE_FIELD_REQUIRED);
 
         String fileType = multipartFile.getContentType().split("/")[1];
         if (isImage) {
             if (!fileType.equals("jpg") && !fileType.equals("jpeg") && !fileType.equals("png"))
-                throw new CustomException(null, IMAGE_TYPE_UNSUPPORTED);
+                throw new CustomException(IMAGE_TYPE_UNSUPPORTED);
         } else {
             if (!fileType.equals("pdf") && !fileType.equals("jpg") && !fileType.equals("jpeg") && !fileType.equals("png"))
-                throw new CustomException(null, FILE_TYPE_UNSUPPORTED);
+                throw new CustomException(FILE_TYPE_UNSUPPORTED);
         }
     }
 }

@@ -5,14 +5,16 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
 
 @Getter
-@ApiModel(value = "회원 로그인 요청")
+@ToString
 @NoArgsConstructor
 @GroupSequence({UserLoginReqDto.class, ValidationSequence.Blank.class})
+@ApiModel(value = "회원 로그인 요청")
 public class UserLoginReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "아이디", example = "test1")

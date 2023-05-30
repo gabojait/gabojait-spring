@@ -2,6 +2,7 @@ package com.gabojait.gabojaitspring.team.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.util.NotificationProvider;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileAbstractResDto;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.dto.req.TeamCompleteUpdateReqDto;
@@ -46,6 +47,7 @@ public class TeamController {
     private final TeamService teamService;
     private final UserService userService;
     private final JwtProvider jwtProvider;
+    private final NotificationProvider notificationProvider;
 
     @ApiOperation(value = "팀 생성",
             notes = "<응답 코드>\n" +
@@ -136,6 +138,7 @@ public class TeamController {
         userService.validateHasCurrentTeam(user);
         // main
         Team team = teamService.update(request, user);
+        notificationProvider.teamProfileModifiedNotification(team);
 
         // response
         TeamDefaultResDto response = new TeamDefaultResDto(team);
@@ -330,6 +333,7 @@ public class TeamController {
         // main
         List<User> teamMembers = teamService.quit(user, "");
         userService.exitCurrentTeam(teamMembers, team.getId(), false);
+        notificationProvider.teamIncompleteQuitNotification(team);
 
         return ResponseEntity.status(PROJECT_INCOMPLETE.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -372,7 +376,7 @@ public class TeamController {
         // main
         List<User> teamMembers = teamService.quit(user, request.getProjectUrl());
         userService.exitCurrentTeam(teamMembers, team.getId(), true);
-        // TODO set FCM for review
+        notificationProvider.teamCompleteQuitNotification(team);
 
         return ResponseEntity.status(PROJECT_COMPLETE.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -417,6 +421,7 @@ public class TeamController {
         // main
         teamService.fire(user, teammate);
         userService.exitCurrentTeam(List.of(teammate), team.getId(), false);
+        notificationProvider.teamFiredNotification(teammate, team);
 
         return ResponseEntity.status(TEAMMATE_FIRED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()

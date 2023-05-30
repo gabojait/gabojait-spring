@@ -3,15 +3,13 @@ package com.gabojait.gabojaitspring.offer.domain;
 import com.gabojait.gabojaitspring.common.entity.BaseTimeEntity;
 import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
+@ToString
 @Document(collection = "offer")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Offer extends BaseTimeEntity {

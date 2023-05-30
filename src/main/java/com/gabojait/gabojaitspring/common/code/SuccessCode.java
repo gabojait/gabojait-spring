@@ -124,6 +124,7 @@ public enum SuccessCode {
     // 200 Ok
     SERVER_HEALTH_OK(OK, "헬스 체크를 했습니다."),
     TOKEN_ISSUED(OK, "테스트 계정 토큰을 발급 했습니다."),
+    TEST_NOTIFICATION_SENT(OK, "테스트 알림을 보냈습니다."),
     TEST_DATA_INJECTED(OK, "데이터베이스 초기화 후 테스트 데이터를 주입했습니다.");
 
     private final HttpStatus httpStatus;

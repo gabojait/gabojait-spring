@@ -123,7 +123,7 @@ public class WorkService {
 
         return workRepository.findByIdAndIsDeletedIsFalse(id)
                 .orElseThrow(() -> {
-                    throw new CustomException(null, WORK_NOT_FOUND);
+                    throw new CustomException(WORK_NOT_FOUND);
                 });
     }
 
@@ -155,6 +155,6 @@ public class WorkService {
      */
     private void validateOwner(Work work, ObjectId userId) {
         if (!work.getUserId().toString().equals(userId.toString()))
-            throw new CustomException(null, REQUEST_FORBIDDEN);
+            throw new CustomException(REQUEST_FORBIDDEN);
     }
 }

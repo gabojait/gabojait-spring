@@ -28,7 +28,7 @@ public enum OfferedBy {
                 offeredBy = OfferedBy.USER;
                 break;
             default:
-                throw new CustomException(null, SERVER_ERROR);
+                throw new CustomException(SERVER_ERROR);
         }
 
         return offeredBy;

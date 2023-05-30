@@ -23,7 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsernameAndIsDeletedIsFalse(username)
                 .orElseThrow(() -> {
-                    throw new CustomException(null, USER_NOT_FOUND);
+                    throw new CustomException(USER_NOT_FOUND);
                 });
 
         return new org.springframework.security.core.userdetails.User(user.getUsername(),
@@ -36,7 +36,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         return userRepository.findByIdAndIsDeletedIsFalse(id)
                 .orElseThrow(() -> {
-                    throw new CustomException(null, TOKEN_UNAUTHORIZED);
+                    throw new CustomException(TOKEN_UNAUTHORIZED);
                 });
     }
 

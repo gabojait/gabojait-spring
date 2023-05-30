@@ -48,7 +48,7 @@ public class UserService {
      */
     public void validateUsername(String username) {
         if (username.toLowerCase().contains("admin") || username.toLowerCase().contains("gabojait"))
-            throw new CustomException(null, UNAVAILABLE_USERNAME);
+            throw new CustomException(UNAVAILABLE_USERNAME);
 
         validateDuplicateUsername(username);
     }
@@ -59,7 +59,7 @@ public class UserService {
      */
     public void validateNickname(String nickname) {
         if (nickname.toLowerCase().contains("관리자") || nickname.toLowerCase().contains("가보자잇"))
-            throw new CustomException(null, UNAVAILABLE_NICKNAME);
+            throw new CustomException(UNAVAILABLE_NICKNAME);
 
         validateDuplicateNickname(nickname);
     }
@@ -88,7 +88,7 @@ public class UserService {
 
         boolean isVerified = utilityProvider.verifyPassword(user, request.getPassword());
         if (!isVerified)
-            throw new CustomException(null, LOGIN_UNAUTHENTICATED);
+            throw new CustomException(LOGIN_UNAUTHENTICATED);
 
         updateFcmToken(user, request.getFcmToken(), true);
 
@@ -138,7 +138,7 @@ public class UserService {
         User user = findOneByContact(contact);
 
         if (!user.getUsername().equals(username))
-            throw new CustomException(null, USERNAME_EMAIL_MATCH_INVALID);
+            throw new CustomException(USERNAME_EMAIL_MATCH_INVALID);
 
         String tempPassword = utilityProvider.generateRandomCode(8);
         updatePassword(user, tempPassword, tempPassword, true);
@@ -186,7 +186,7 @@ public class UserService {
     public void validatePassword(User user, String password) {
         boolean isVerified = utilityProvider.verifyPassword(user, password);
         if (!isVerified)
-            throw new CustomException(null, PASSWORD_UNAUTHENTICATED);
+            throw new CustomException(PASSWORD_UNAUTHENTICATED);
     }
 
     /**
@@ -197,7 +197,7 @@ public class UserService {
      */
     public void uploadProfileImage(User user, MultipartFile multipartFile) {
         if (multipartFile == null)
-            throw new CustomException(null, FILE_FIELD_REQUIRED);
+            throw new CustomException(FILE_FIELD_REQUIRED);
 
         String url = fileProvider.upload(bucketName,
                 user.getId().toString(),
@@ -247,7 +247,7 @@ public class UserService {
     public User findOneTestByUsername(String username) {
         return userRepository.findByUsernameAndRolesInAndIsDeletedIsFalse(username, Role.USER.name())
                 .orElseThrow(() -> {
-                    throw new CustomException(null, USER_NOT_FOUND);
+                    throw new CustomException(USER_NOT_FOUND);
                 });
     }
 
@@ -413,10 +413,9 @@ public class UserService {
      * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public void offer(String userId, boolean isAccepted) {
-        User user = findOneById(userId);
+    public void offer(User user, boolean isOfferedByUser) {
+        user.offer(isOfferedByUser);
 
-        user.offer(isAccepted);
         save(user);
     }
 
@@ -505,7 +504,7 @@ public class UserService {
      */
     public void validateHasCurrentTeam(User user) {
         if (!user.hasCurrentTeam())
-            throw new CustomException(null, NON_EXISTING_CURRENT_TEAM);
+            throw new CustomException(NON_EXISTING_CURRENT_TEAM);
     }
 
     /**
@@ -514,7 +513,7 @@ public class UserService {
      */
     public void validateHasNoCurrentTeam(User user) {
         if (user.hasCurrentTeam())
-            throw new CustomException(null, EXISTING_CURRENT_TEAM);
+            throw new CustomException(EXISTING_CURRENT_TEAM);
     }
 
     /**
@@ -524,7 +523,7 @@ public class UserService {
     private User findOneByUsername(String username) {
         return userRepository.findByUsernameAndRolesInAndIsDeletedIsFalse(username, Role.USER.name())
                 .orElseThrow(() -> {
-                    throw new CustomException(null, LOGIN_UNAUTHENTICATED);
+                    throw new CustomException(LOGIN_UNAUTHENTICATED);
                 });
     }
 
@@ -535,7 +534,7 @@ public class UserService {
     private User findOneByContact(Contact contact) {
         return userRepository.findByContactAndIsDeletedIsFalse(contact)
                 .orElseThrow(() -> {
-                    throw new CustomException(null, USER_NOT_FOUND);
+                    throw new CustomException(USER_NOT_FOUND);
                 });
     }
 
@@ -549,7 +548,7 @@ public class UserService {
 
         return userRepository.findByIdAndIsDeletedIsFalse(id)
                 .orElseThrow(() -> {
-                    throw new CustomException(null, USER_NOT_FOUND);
+                    throw new CustomException(USER_NOT_FOUND);
                 });
     }
 
@@ -674,7 +673,7 @@ public class UserService {
     private void validateDuplicateUsername(String username) {
         userRepository.findByUsernameAndRolesInAndIsDeletedIsFalse(username, Role.USER.name())
                 .ifPresent(u -> {
-                    throw new CustomException(null, EXISTING_USERNAME);
+                    throw new CustomException(EXISTING_USERNAME);
                 });
     }
 
@@ -685,7 +684,7 @@ public class UserService {
     private void validateDuplicateNickname(String nickname) {
         userRepository.findByNicknameAndIsDeletedIsFalse(nickname)
                 .ifPresent(u -> {
-                    throw new CustomException(null, EXISTING_NICKNAME);
+                    throw new CustomException(EXISTING_NICKNAME);
                 });
     }
 
@@ -695,7 +694,7 @@ public class UserService {
      */
     public void validateMatchingPassword(String password, String passwordReEnter) {
         if (!password.equals(passwordReEnter))
-            throw new CustomException(null, PASSWORD_MATCH_INVALID);
+            throw new CustomException(PASSWORD_MATCH_INVALID);
     }
 
 
@@ -705,6 +704,6 @@ public class UserService {
      */
     private void validatePositionSelected(User user) {
         if (!user.hasPosition())
-            throw new CustomException(null, NON_EXISTING_POSITION);
+            throw new CustomException(NON_EXISTING_POSITION);
     }
 }

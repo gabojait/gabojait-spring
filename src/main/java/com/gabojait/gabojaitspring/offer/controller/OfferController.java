@@ -2,6 +2,7 @@ package com.gabojait.gabojaitspring.offer.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.util.NotificationProvider;
 import com.gabojait.gabojaitspring.offer.domain.Offer;
 import com.gabojait.gabojaitspring.offer.dto.req.OfferDefaultReqDto;
 import com.gabojait.gabojaitspring.offer.dto.req.OfferUpdateReqDto;
@@ -18,7 +19,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +48,7 @@ public class OfferController {
     private final UserService userService;
     private final TeamService teamService;
     private final JwtProvider jwtProvider;
+    private final NotificationProvider notificationProvider;
 
     @ApiOperation(value = "회원이 팀에 지원",
             notes = "<응답 코드>\n" +
@@ -82,9 +83,13 @@ public class OfferController {
         userService.validateHasNoCurrentTeam(user);
         teamService.validatePreOfferByUser(teamId, request.getPosition());
         // main
-        ObjectId offerId = offerService.offer(request, user.getId().toString(), teamId, true);
-        teamService.offer(teamId, true);
-        userService.offer(user.getId().toString(), true);
+        Offer offer = offerService.offer(request, user.getId().toString(), teamId, true);
+        Team team = teamService.offer(teamId,true);
+        userService.offer(user, true);
+        // sub
+        User leader = userService.findOneById(team.getLeaderUserId().toString());
+        // main
+        notificationProvider.offerByUserNotification(leader, offer, user);
 
         return ResponseEntity.status(OFFERED_BY_USER.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -93,7 +98,7 @@ public class OfferController {
                         .build());
     }
 
-    @ApiOperation(value = "팀이 회원에게 채용 제안",
+    @ApiOperation(value = "팀이 회원에게 스카웃",
             notes = "<응답 코드>\n" +
                     "- 201 = OFFERED_BY_TEAM\n" +
                     "- 400 = POSITION_FIELD_REQUIRED || POSITION_TYPE_INVALID || ID_CONVERT_INVALID\n" +
@@ -131,9 +136,10 @@ public class OfferController {
                 userId,
                 request.getPosition());
         // main
-        ObjectId offerId = offerService.offer(request, userId, user.getCurrentTeamId().toString(), false);
-        teamService.offer(user.getCurrentTeamId().toString(), false);
-        userService.offer(userId, false);
+        Offer offer = offerService.offer(request, userId, user.getCurrentTeamId().toString(), false);
+        Team team = teamService.offer(user.getCurrentTeamId().toString(), false);
+        userService.offer(otherUser, false);
+        notificationProvider.offerByTeamNotification(otherUser, offer, team);
 
         return ResponseEntity.status(OFFERED_BY_TEAM.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -282,9 +288,10 @@ public class OfferController {
         Offer offer = offerService.findOneById(offerId);
         userService.validateHasNoCurrentTeam(user);
         // main
-        teamService.decideOfferByUser(offer, user, request.getIsAccepted());
+        Team team = teamService.decideOfferByUser(offer, user, request.getIsAccepted());
         userService.offerDecided(user, offer.getTeamId(), request.getIsAccepted());
         offerService.decideOffer(offer, request.getIsAccepted());
+        notificationProvider.teamJoinedNotification(user, team, offer, request.getIsAccepted());
 
         return ResponseEntity.status(USER_DECIDED_OFFER.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -333,6 +340,7 @@ public class OfferController {
         teamService.decideOfferByTeam(offer, user, otherUser, request.getIsAccepted());
         userService.offerDecided(otherUser, team.getId(), request.getIsAccepted());
         offerService.decideOffer(offer, request.getIsAccepted());
+        notificationProvider.teamJoinedNotification(otherUser, team, offer, request.getIsAccepted());
 
         return ResponseEntity.status(TEAM_DECIDED_OFFER.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()

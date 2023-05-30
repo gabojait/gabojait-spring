@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.bson.types.ObjectId;
 
 import javax.validation.GroupSequence;
@@ -16,6 +17,7 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Getter
+@ToString
 @NoArgsConstructor
 @GroupSequence({SkillCreateReqDto.class,
         ValidationSequence.Blank.class,

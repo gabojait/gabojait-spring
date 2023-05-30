@@ -131,7 +131,7 @@ public class ReviewService {
      */
     private void validateCompletedTeam(User user, Team team) {
         if (!user.isCompletedTeam(team.getId()) || !team.getIsComplete())
-            throw new CustomException(null, REVIEW_UNAVAILABLE);
+            throw new CustomException(REVIEW_UNAVAILABLE);
     }
 
     /**
@@ -140,6 +140,6 @@ public class ReviewService {
      */
     private void validateTeamMember(String userId, Team team) {
         if (!team.isTeamMember(userId))
-            throw new CustomException(null, TEAM_MEMBER_INVALID);
+            throw new CustomException(TEAM_MEMBER_INVALID);
     }
 }

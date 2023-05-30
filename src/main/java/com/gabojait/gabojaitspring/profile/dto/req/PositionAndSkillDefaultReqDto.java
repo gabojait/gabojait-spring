@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.validation.GroupSequence;
 import javax.validation.Valid;
@@ -14,14 +15,15 @@ import javax.validation.constraints.Pattern;
 import java.util.List;
 
 @Getter
+@ToString
 @NoArgsConstructor
+@ValidIfPresent
 @GroupSequence({
         PositionAndSkillDefaultReqDto.class,
         ValidationSequence.Blank.class,
         ValidationSequence.Size.class,
         ValidationSequence.Format.class
 })
-@ValidIfPresent
 @ApiModel(value = "포지션과 기술 기본 요청")
 public class PositionAndSkillDefaultReqDto {
 

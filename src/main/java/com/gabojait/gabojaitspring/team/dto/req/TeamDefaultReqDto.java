@@ -80,7 +80,7 @@ public class TeamDefaultReqDto {
                 this.managerTotalRecruitCnt++;
                 break;
             default:
-                throw new CustomException(null, SERVER_ERROR);
+                throw new CustomException(SERVER_ERROR);
         }
 
         return Team.builder()

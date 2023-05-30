@@ -47,7 +47,7 @@ public class ContactService {
         Contact contact = findOneUnverifiedAndUnregisteredByEmail(request.getEmail());
 
         if (!contact.getVerificationCode().equals(request.getVerificationCode()))
-            throw new CustomException(null, VERIFICATION_CODE_INVALID);
+            throw new CustomException(VERIFICATION_CODE_INVALID);
 
         contact.verified();
         save(contact);
@@ -74,7 +74,7 @@ public class ContactService {
     public Contact findOneRegisteredByEmail(String email) {
         return contactRepository.findByEmailAndIsVerifiedIsTrueAndIsRegisteredIsTrueAndIsDeletedIsFalse(email)
                 .orElseThrow(() -> {
-                    throw new CustomException(null, CONTACT_NOT_FOUND);
+                    throw new CustomException(CONTACT_NOT_FOUND);
                 });
     }
 
@@ -85,7 +85,7 @@ public class ContactService {
     private Contact findOneVerifiedAndUnregisteredByEmail(String email) {
         return contactRepository.findByEmailAndIsVerifiedIsTrueAndIsRegisteredIsFalseAndIsDeletedIsFalse(email)
                 .orElseThrow(() -> {
-                    throw new CustomException(null, CONTACT_NOT_FOUND);
+                    throw new CustomException(CONTACT_NOT_FOUND);
                 });
     }
 
@@ -99,7 +99,7 @@ public class ContactService {
             Optional<Contact> contact = contactRepository.findByEmailAndIsVerifiedIsFalseAndIsDeletedIsFalse(email);
 
             if (contact.isEmpty())
-                throw new CustomException(null, EMAIL_NOT_FOUND);
+                throw new CustomException(EMAIL_NOT_FOUND);
 
             return contact.get();
         } catch (RuntimeException e) {
@@ -163,7 +163,7 @@ public class ContactService {
         contactRepository.findByEmailAndIsDeletedIsFalse(email)
                 .ifPresent(c -> {
                     if (c.getIsRegistered())
-                        throw new CustomException(null, EXISTING_CONTACT);
+                        throw new CustomException(EXISTING_CONTACT);
                     else
                         hardDelete(c);
                 });

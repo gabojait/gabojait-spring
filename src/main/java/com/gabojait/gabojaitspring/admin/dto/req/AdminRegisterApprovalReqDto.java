@@ -5,11 +5,13 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotNull;
 
 @Getter
+@ToString
 @NoArgsConstructor
 @GroupSequence({AdminRegisterApprovalReqDto.class, ValidationSequence.Blank.class})
 @ApiModel(value = "관리자 가입 승인 요청")

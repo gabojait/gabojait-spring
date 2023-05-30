@@ -3,6 +3,7 @@ package com.gabojait.gabojaitspring.develop.controller;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
 import com.gabojait.gabojaitspring.common.dto.ExceptionResDto;
+import com.gabojait.gabojaitspring.develop.dto.req.DevelopNotificationReqDto;
 import com.gabojait.gabojaitspring.develop.service.DevelopService;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.service.UserService;
@@ -17,7 +18,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "개발")
 @RestController
@@ -103,6 +108,40 @@ public class DevelopController {
                 .body(DefaultResDto.noDataBuilder()
                         .responseCode(TOKEN_ISSUED.name())
                         .responseMessage(TOKEN_ISSUED.getMessage())
+                        .build());
+    }
+
+    @ApiOperation(value = "테스트 알림 보내기",
+            notes = "<응답 코드>\n" +
+                    "- 200 = TEST_NOTIFICATION_SENT\n" +
+                    "- 400 = NOTIFICATION_TITLE_FIELD_REQUIRED || NOTIFICATION_MESSAGE_FIELD_REQUIRED\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
+    })
+    @PostMapping("/test/notification")
+    public ResponseEntity<DefaultResDto<Object>> testNotification(HttpServletRequest servletRequest,
+                                                                  @RequestBody @Valid
+                                                                  DevelopNotificationReqDto request) {
+        // auth
+        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        // main
+        developService.testNotification(user, request.getNotificationTitle(), request.getNotificationMessage());
+
+        return ResponseEntity.status(TEST_NOTIFICATION_SENT.getHttpStatus())
+                .body(DefaultResDto.noDataBuilder()
+                        .responseCode(TEST_NOTIFICATION_SENT.name())
+                        .responseMessage(TEST_NOTIFICATION_SENT.getMessage())
                         .build());
     }
 }

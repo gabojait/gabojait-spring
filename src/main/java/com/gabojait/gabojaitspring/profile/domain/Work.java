@@ -1,10 +1,7 @@
 package com.gabojait.gabojaitspring.profile.domain;
 
 import com.gabojait.gabojaitspring.common.entity.BaseTimeEntity;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -12,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.time.LocalDate;
 
 @Getter
+@ToString
 @Document(collection = "work")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Work extends BaseTimeEntity {

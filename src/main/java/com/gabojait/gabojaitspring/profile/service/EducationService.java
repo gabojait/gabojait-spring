@@ -121,7 +121,7 @@ public class EducationService {
 
         return educationRepository.findByIdAndIsDeletedIsFalse(id)
                 .orElseThrow(() -> {
-                    throw new CustomException(null, EDUCATION_NOT_FOUND);
+                    throw new CustomException(EDUCATION_NOT_FOUND);
                 });
     }
 
@@ -153,6 +153,6 @@ public class EducationService {
      */
     private void validateOwner(Education education, ObjectId userId) {
         if (!education.getUserId().toString().equals(userId.toString()))
-            throw new CustomException(null, REQUEST_FORBIDDEN);
+            throw new CustomException(REQUEST_FORBIDDEN);
     }
 }

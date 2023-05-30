@@ -76,7 +76,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
             responseMessage = constraintViolation.getMessageTemplate();
             responseCode += formatResponseCode(responseMessage);
         } else {
-            throw new CustomException(null, SERVER_ERROR);
+            throw new CustomException(SERVER_ERROR);
         }
 
         return ResponseEntity.status(400)

@@ -9,12 +9,14 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 
 @Getter
+@ToString
 @NoArgsConstructor
 @GroupSequence({UserRegisterReqDto.class,
         ValidationSequence.Blank.class,

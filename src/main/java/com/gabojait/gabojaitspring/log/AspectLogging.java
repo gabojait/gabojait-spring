@@ -200,8 +200,8 @@ public class AspectLogging {
             log.error("[{}] {} | {} | code = {}", logTitle, className, methodName, errorName);
 
             if (exception.getExceptionCode().getHttpStatus().equals(HttpStatus.INTERNAL_SERVER_ERROR))
-                if (exception.getException() != null)
-                    log.error("########## ERROR DESCRIPTION ##########", exception.getException());
+                if (exception.getThrowable() != null)
+                    log.error("########## ERROR DESCRIPTION ##########", exception.getThrowable());
         } catch (Exception e) {
             throw new CustomException(e, SERVER_ERROR);
         }

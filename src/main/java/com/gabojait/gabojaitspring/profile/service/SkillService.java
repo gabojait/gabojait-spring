@@ -122,7 +122,7 @@ public class SkillService {
 
         return skillRepository.findByIdAndIsDeletedIsFalse(id)
                 .orElseThrow(() -> {
-                    throw new CustomException(null, SKILL_NOT_FOUND);
+                    throw new CustomException(SKILL_NOT_FOUND);
                 });
     }
 
@@ -154,6 +154,6 @@ public class SkillService {
      */
     private void validateOwner(Skill skill, ObjectId userId) {
         if (!skill.getUserId().toString().equals(userId.toString()))
-            throw new CustomException(null, REQUEST_FORBIDDEN);
+            throw new CustomException(REQUEST_FORBIDDEN);
     }
 }

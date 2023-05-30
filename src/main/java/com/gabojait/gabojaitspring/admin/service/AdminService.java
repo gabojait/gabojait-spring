@@ -30,7 +30,7 @@ public class AdminService {
 
         boolean isVerified = utilityProvider.verifyPassword(admin, request.getPassword());
         if (!isVerified)
-            throw new CustomException(null, LOGIN_UNAUTHENTICATED);
+            throw new CustomException(LOGIN_UNAUTHENTICATED);
 
         return admin;
     }
@@ -57,7 +57,7 @@ public class AdminService {
     private User findOneByUsername(String username) {
         return userRepository.findByUsernameAndRolesInAndIsDeletedIsFalse(username, Role.ADMIN.name())
                 .orElseThrow(() -> {
-                    throw new CustomException(null, LOGIN_UNAUTHENTICATED);
+                    throw new CustomException(LOGIN_UNAUTHENTICATED);
                 });
     }
 
@@ -68,7 +68,7 @@ public class AdminService {
     private void validateDuplicateUsername(String username) {
         userRepository.findByUsernameAndRolesIn(username, Role.ADMIN.name())
                 .ifPresent(u -> {
-                    throw new CustomException(null, EXISTING_USERNAME);
+                    throw new CustomException(EXISTING_USERNAME);
                 });
     }
 }

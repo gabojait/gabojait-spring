@@ -2,15 +2,13 @@ package com.gabojait.gabojaitspring.profile.domain;
 
 import com.gabojait.gabojaitspring.common.entity.BaseTimeEntity;
 import com.gabojait.gabojaitspring.profile.domain.type.Media;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
+@ToString
 @Document(collection = "portfolio")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Portfolio extends BaseTimeEntity {

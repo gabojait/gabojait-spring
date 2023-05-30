@@ -4,7 +4,6 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.gabojait.gabojaitspring.auth.type.Jwt;
 import com.gabojait.gabojaitspring.exception.CustomException;
@@ -170,11 +169,11 @@ public class JwtProvider {
         else if (!userId.equals("null") && roles.contains(Role.USER.name()))
             user = customuserDetailsService.loadUserByUserId(userId);
         else
-            throw new CustomException(null, TOKEN_UNAUTHENTICATED);
+            throw new CustomException(TOKEN_UNAUTHENTICATED);
 
         // Token time validation
         if ((!validTime.equals(accessTokenTime) && !validTime.equals(refreshTokenTime)) || isExpired)
-            throw new CustomException(null, TOKEN_UNAUTHENTICATED);
+            throw new CustomException(TOKEN_UNAUTHENTICATED);
 
         try {
             UsernamePasswordAuthenticationToken authenticationToken =
@@ -202,21 +201,21 @@ public class JwtProvider {
         // Token valid time validation
         if (jwt.name().equals(Jwt.ACCESS.name())) {
             if (!validTime.equals(accessTokenTime))
-                throw new CustomException(null, TOKEN_UNAUTHORIZED);
+                throw new CustomException(TOKEN_UNAUTHORIZED);
         } else if (jwt.name().equals(Jwt.REFRESH.name())) {
             if (!validTime.equals(refreshTokenTime))
-                throw new CustomException(null, TOKEN_UNAUTHORIZED);
+                throw new CustomException(TOKEN_UNAUTHORIZED);
         } else {
-            throw new CustomException(null, SERVER_ERROR);
+            throw new CustomException(SERVER_ERROR);
         }
 
         // Role validation
         if (role.name().equals(Role.GUEST.name())) {
             if (!roles.contains(role.name()))
-                throw new CustomException(null, TOKEN_UNAUTHORIZED);
+                throw new CustomException(TOKEN_UNAUTHORIZED);
         } else {
             if (!roles.contains(role.name()) || !user.getRoles().equals(roles))
-                throw new CustomException(null, TOKEN_UNAUTHORIZED);
+                throw new CustomException(TOKEN_UNAUTHORIZED);
         }
 
         return user;
@@ -228,7 +227,7 @@ public class JwtProvider {
      */
     private DecodedJWT jwtDecoder(String token) {
         if (token == null || token.trim().equals(""))
-            throw new CustomException(null, TOKEN_UNAUTHENTICATED);
+            throw new CustomException(TOKEN_UNAUTHENTICATED);
         token = token.trim().substring(tokenPrefix.length());
 
         Algorithm algorithm = Algorithm.HMAC256(secret.getBytes(StandardCharsets.UTF_8));

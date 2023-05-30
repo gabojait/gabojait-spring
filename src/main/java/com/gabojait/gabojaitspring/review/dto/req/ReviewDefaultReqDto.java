@@ -6,12 +6,14 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.bson.types.ObjectId;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.*;
 
 @Getter
+@ToString
 @NoArgsConstructor
 @GroupSequence({ReviewDefaultReqDto.class,
         ValidationSequence.Blank.class,

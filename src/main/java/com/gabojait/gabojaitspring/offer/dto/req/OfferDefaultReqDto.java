@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.bson.types.ObjectId;
 
 import javax.validation.GroupSequence;
@@ -15,6 +16,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
 @Getter
+@ToString
 @NoArgsConstructor
 @GroupSequence({OfferDefaultReqDto.class, ValidationSequence.Blank.class, ValidationSequence.Format.class})
 @ApiModel(value = "제안 기본 요청")

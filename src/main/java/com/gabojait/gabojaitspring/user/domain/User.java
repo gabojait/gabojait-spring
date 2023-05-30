@@ -10,10 +10,7 @@ import com.gabojait.gabojaitspring.profile.domain.type.TeamMemberStatus;
 import com.gabojait.gabojaitspring.review.domain.Review;
 import com.gabojait.gabojaitspring.user.domain.type.Gender;
 import com.gabojait.gabojaitspring.user.domain.type.Role;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -27,6 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Getter
+@ToString
 @Document(collection = "user")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseTimeEntity implements UserDetails {

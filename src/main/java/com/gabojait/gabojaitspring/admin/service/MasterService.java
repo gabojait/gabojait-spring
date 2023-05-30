@@ -70,7 +70,7 @@ public class MasterService implements ApplicationRunner {
 
         return userRepository.findByIdAndRolesInAndIsDeletedNotExists(id, Role.ADMIN.name())
                 .orElseThrow(() -> {
-                    throw new CustomException(null, USER_NOT_FOUND);
+                    throw new CustomException(USER_NOT_FOUND);
                 });
     }
 

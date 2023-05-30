@@ -23,7 +23,7 @@ public enum Media {
         try {
             return Media.valueOf(type.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new CustomException(null, MEDIA_TYPE_INVALID);
+            throw new CustomException(e, MEDIA_TYPE_INVALID);
         }
     }
 
@@ -38,7 +38,7 @@ public enum Media {
                 media = Media.FILE;
                 break;
             default:
-                throw new CustomException(null, SERVER_ERROR);
+                throw new CustomException(SERVER_ERROR);
         }
 
         return media;

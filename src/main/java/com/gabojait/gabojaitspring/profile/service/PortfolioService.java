@@ -228,7 +228,7 @@ public class PortfolioService {
 
         return portfolioRepository.findByIdAndIsDeletedIsFalse(id)
                 .orElseThrow(() -> {
-                    throw new CustomException(null, PORTFOLIO_NOT_FOUND);
+                    throw new CustomException(PORTFOLIO_NOT_FOUND);
                 });
     }
 
@@ -260,7 +260,7 @@ public class PortfolioService {
      */
     private void validateOwner(Portfolio portfolio, ObjectId userId) {
         if (!portfolio.getUserId().toString().equals(userId.toString()))
-            throw new CustomException(null, REQUEST_FORBIDDEN);
+            throw new CustomException(REQUEST_FORBIDDEN);
     }
 
     /**
@@ -270,7 +270,7 @@ public class PortfolioService {
     private void validateExceedingLengthName(List<String> portfolioNames) {
         for (String portfolioName : portfolioNames)
             if (portfolioName.length() > 10)
-                throw new CustomException(null, PORTFOLIO_NAME_LENGTH_INVALID);
+                throw new CustomException(PORTFOLIO_NAME_LENGTH_INVALID);
     }
 
     /**
@@ -282,7 +282,7 @@ public class PortfolioService {
             return;
 
         if (portfolioFiles.size() > 5)
-            throw new CustomException(null, FILE_COUNT_EXCEED);
+            throw new CustomException(FILE_COUNT_EXCEED);
     }
 
     /**
@@ -293,7 +293,7 @@ public class PortfolioService {
                                                 List<String> portfolioNames,
                                                 List<MultipartFile> multipartFiles) {
         if (portfolioIds.size() != portfolioNames.size() || portfolioIds.size() != multipartFiles.size())
-            throw new CustomException(null, UPDATE_PORTFOLIO_CNT_MATCH_INVALID);
+            throw new CustomException(UPDATE_PORTFOLIO_CNT_MATCH_INVALID);
     }
 
     /**
@@ -302,6 +302,6 @@ public class PortfolioService {
      */
     private void validateNamesAndFilesCnt(List<String> portfolioNames, List<MultipartFile> multipartFiles) {
         if (portfolioNames.size() != multipartFiles.size())
-            throw new CustomException(null, CREATE_PORTFOLIO_CNT_MATCH_INVALID);
+            throw new CustomException(CREATE_PORTFOLIO_CNT_MATCH_INVALID);
     }
 }

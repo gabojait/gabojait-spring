@@ -23,7 +23,7 @@ public enum Level {
         try {
             return Level.valueOf(type.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new CustomException(null, LEVEL_TYPE_INVALID);
+            throw new CustomException(e, LEVEL_TYPE_INVALID);
         }
     }
 
@@ -41,7 +41,7 @@ public enum Level {
                 level = Level.HIGH;
                 break;
             default:
-                throw new CustomException(null, SERVER_ERROR);
+                throw new CustomException(SERVER_ERROR);
         }
 
         return level;

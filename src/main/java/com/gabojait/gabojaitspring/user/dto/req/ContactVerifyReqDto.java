@@ -5,12 +5,14 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 @Getter
+@ToString
 @NoArgsConstructor
 @GroupSequence({ContactVerifyReqDto.class, ValidationSequence.Blank.class, ValidationSequence.Format.class})
 @ApiModel(value = "연락처 인증코드 확인 요청")

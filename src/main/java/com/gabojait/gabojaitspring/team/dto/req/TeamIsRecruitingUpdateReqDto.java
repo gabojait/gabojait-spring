@@ -5,11 +5,13 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotNull;
 
 @Getter
+@ToString
 @NoArgsConstructor
 @GroupSequence({TeamIsRecruitingUpdateReqDto.class, ValidationSequence.Blank.class})
 @ApiModel(value = "팀원 모집 여부 수정 요청")

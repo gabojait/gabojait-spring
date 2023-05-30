@@ -28,14 +28,15 @@ public class OfferService {
      * 400(ID_CONVERT_INVALID)
      * 500(SERVER_ERROR)
      */
-    public ObjectId offer(OfferDefaultReqDto request, String userId, String teamId, boolean isOfferedByUser) {
+    public Offer offer(OfferDefaultReqDto request, String userId, String teamId, boolean isOfferedByUser) {
         ObjectId uId = utilityProvider.toObjectId(userId);
         ObjectId tId = utilityProvider.toObjectId(teamId);
 
         Offer offer = request.toEntity(uId, tId, isOfferedByUser ? OfferedBy.USER : OfferedBy.TEAM);
+
         save(offer);
 
-        return offer.getId();
+        return offer;
     }
 
     /**
@@ -58,7 +59,7 @@ public class OfferService {
      */
     public Page<Offer> findPageByTeamId(Team team, ObjectId userId, Integer pageFrom, Integer pageSize) {
         if (!team.getLeaderUserId().toString().equals(userId.toString()))
-            throw new CustomException(null, REQUEST_FORBIDDEN);
+            throw new CustomException(REQUEST_FORBIDDEN);
 
         Pageable pageable = utilityProvider.validatePaging(pageFrom, pageSize, 20);
         try {
@@ -93,13 +94,13 @@ public class OfferService {
 
         if (offer.getOfferedBy().equals(OfferedBy.USER.getType())) {
             if (!offer.getUserId().toString().equals(user.getId().toString()))
-                throw new CustomException(null, REQUEST_FORBIDDEN);
+                throw new CustomException(REQUEST_FORBIDDEN);
         } else if (offer.getOfferedBy().equals(OfferedBy.TEAM.getType())) {
             if (!offer.getTeamId().toString().equals(team.getId().toString()) ||
                     !team.isLeader(user.getId().toString()))
-                throw new CustomException(null, REQUEST_FORBIDDEN);
+                throw new CustomException(REQUEST_FORBIDDEN);
         } else {
-            throw new CustomException(null, SERVER_ERROR);
+            throw new CustomException(SERVER_ERROR);
         }
 
         offer.delete();
@@ -116,7 +117,7 @@ public class OfferService {
 
         return offerRepository.findByIdAndIsDeletedIsFalse(id)
                 .orElseThrow(() -> {
-                    throw new CustomException(null, OFFER_NOT_FOUND);
+                    throw new CustomException(OFFER_NOT_FOUND);
                 });
     }
 

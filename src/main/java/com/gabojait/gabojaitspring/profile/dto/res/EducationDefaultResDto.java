@@ -5,10 +5,12 @@ import com.gabojait.gabojaitspring.profile.domain.Education;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalDate;
 
 @Getter
+@ToString
 @ApiModel(value = "학력 기본 응답")
 public class EducationDefaultResDto {
 

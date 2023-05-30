@@ -4,10 +4,10 @@ import com.gabojait.gabojaitspring.common.code.ErrorCode;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import org.springframework.http.ResponseEntity;
 
-@Getter
+@Data
 @Builder
 @ApiModel(value = "* 에러 응답")
 public class ExceptionResDto {

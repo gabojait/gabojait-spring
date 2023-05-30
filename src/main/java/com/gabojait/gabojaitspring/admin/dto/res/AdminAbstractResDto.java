@@ -5,10 +5,12 @@ import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
 @Getter
+@ToString
 @ApiModel(value = "관리자 요약 응답")
 public class AdminAbstractResDto {
 

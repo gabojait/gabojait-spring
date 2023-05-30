@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
@@ -17,6 +18,7 @@ import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 @Getter
+@ToString
 @NoArgsConstructor
 @GroupSequence({AdminRegisterReqDto.class,
         ValidationSequence.Blank.class,

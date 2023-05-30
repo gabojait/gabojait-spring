@@ -2,19 +2,19 @@ package com.gabojait.gabojaitspring.team.domain;
 
 import com.gabojait.gabojaitspring.common.entity.BaseTimeEntity;
 import com.gabojait.gabojaitspring.user.domain.User;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
+@ToString
 @Document(collection = "team")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Team extends BaseTimeEntity {
@@ -226,17 +226,17 @@ public class Team extends BaseTimeEntity {
         this.isRecruiting = isRecruiting;
     }
 
-    public List<User> getAllMembersExceptLeader(Team team) {
+    public List<User> getAllMembers() {
         List<User> teamMembers = new ArrayList<>();
 
-        if (!team.getDesigners().isEmpty())
-            teamMembers.addAll(team.getDesigners());
-        if (!team.getBackends().isEmpty())
-            teamMembers.addAll(team.getBackends());
-        if (!team.getFrontends().isEmpty())
-            teamMembers.addAll(team.getFrontends());
-        if (!team.getManagers().isEmpty())
-            teamMembers.addAll(team.getManagers());
+        if (!this.designers.isEmpty())
+            teamMembers.addAll(this.designers);
+        if (!this.backends.isEmpty())
+            teamMembers.addAll(this.backends);
+        if (!this.frontends.isEmpty())
+            teamMembers.addAll(this.frontends);
+        if (!this.managers.isEmpty())
+            teamMembers.addAll(this.managers);
 
         return teamMembers;
     }
@@ -291,5 +291,20 @@ public class Team extends BaseTimeEntity {
             this.userOfferCnt++;
         else
             this.teamOfferCnt++;
+    }
+
+    /**
+     * Notification related
+     */
+
+    public Set<String> getAllMemberFcmTokens() {
+        List<User> teamMembers = this.getAllMembers();
+        Set<String> allMemberFcmTokens = new HashSet<>();
+
+        teamMembers.forEach(user -> {
+            if (user.getIsNotified())
+                allMemberFcmTokens.addAll(user.getFcmTokens());
+        });
+        return allMemberFcmTokens;
     }
 }
