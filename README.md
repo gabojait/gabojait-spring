@@ -25,7 +25,19 @@ Play Store:
 
 ---
 
+## Link
+- [Test API Swagger](https://gabojait-dev.nogamsung.com/swagger-ui/index.html)
+- [React Native](https://github.com/gabojait/gabojait-react-native)
+
+---
+
 ## Database 
+
+![Database Schema 1](docs/img/database-schema-1.png)
+
+![Database Schema 2](docs/img/database-schema-2.png)
+
+![Database Schema 3](docs/img/database-schema-3.png)
 
 ---
 
@@ -45,7 +57,3 @@ Play Store:
 - [Commit Convention](https://doublesprogramming.tistory.com/256)
 - [Semantic Versioning](https://semver.org/lang/ko/)
 
----
-
-## Repository Link
-- [React Native](https://github.com/gabojait/gabojait-react-native)
