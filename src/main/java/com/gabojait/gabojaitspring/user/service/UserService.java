@@ -476,35 +476,34 @@ public class UserService {
      */
     public Map<Character, List<User>> findAllTeamMemberByPosition(Team team) {
         Map<Character, List<User>> teamMembers = new HashMap<>();
-        List<User> users = new ArrayList<>();
 
+        List<User> users = new ArrayList<>();
         if (!team.getDesignerUserIds().isEmpty())
             for (ObjectId designerUserId : team.getDesignerUserIds())
                 users.add(findOneById(designerUserId.toString()));
 
         teamMembers.put(Position.DESIGNER.getType(), users);
-        users.clear();
 
+        users = new ArrayList<>();
         if (!team.getBackendUserIds().isEmpty())
             for (ObjectId backendUserId : team.getBackendUserIds())
                 users.add(findOneById(backendUserId.toString()));
 
         teamMembers.put(Position.BACKEND.getType(), users);
-        users.clear();
 
+        users = new ArrayList<>();
         if (!team.getFrontendUserIds().isEmpty())
             for (ObjectId frontendUserId : team.getFrontendUserIds())
                 users.add(findOneById(frontendUserId.toString()));
 
         teamMembers.put(Position.FRONTEND.getType(), users);
-        users.clear();
 
+        users = new ArrayList<>();
         if (!team.getManagerUserIds().isEmpty())
             for (ObjectId managerUserId : team.getManagerUserIds())
                 users.add(findOneById(managerUserId.toString()));
 
         teamMembers.put(Position.MANAGER.getType(), users);
-        users.clear();
 
         return teamMembers;
     }
