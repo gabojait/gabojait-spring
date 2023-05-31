@@ -80,14 +80,14 @@ public class NotificationProvider {
             return;
 
         MulticastMessage multicastMessage = createMulticastMessages(fcmTokens,
-                projectName + " 팀 해산",
-                "아쉽지만 팀장에 의해 " + projectName + " 팀이 해산되었어요.");
+                projectName + "팀 해산",
+                "아쉽지만 팀장에 의해 " + projectName + "팀이 해산되었어요.");
 
         sendMulticast(multicastMessage);
     }
 
     /**
-     * 프로젝트 종료 알림 전송 | main |
+     * 프로젝트 완료 알림 전송 | main |
      * 팀 전체 |
      * 500(SERVER_ERROR)
      */
@@ -96,8 +96,8 @@ public class NotificationProvider {
             return;
 
         MulticastMessage multicastMessage = createMulticastMessages(fcmTokens,
-                projectName + " 프로젝트 종료",
-                "수고하셨어요! 프로젝트를 완료하였습니다. 팀원 리뷰를 작성해보세요!");
+                projectName + " 프로젝트 완료",
+                "수고하셨어요! 프로젝트를 완료했어요. 팀원 리뷰를 작성해보세요!");
 
         sendMulticast(multicastMessage);
     }
@@ -112,8 +112,8 @@ public class NotificationProvider {
             return;
 
         MulticastMessage multicastMessage = createMulticastMessages(fcmTokens,
-                projectName + " 팀 프로필 수정",
-                projectName + " 팀 프로필이 팀장에 의해 수정되었습니다.");
+                projectName + "팀 프로필 수정",
+                projectName + "팀 프로필이 팀장에 의해 수정되었습니다.");
 
         sendMulticast(multicastMessage);
     }
@@ -129,7 +129,7 @@ public class NotificationProvider {
 
         MulticastMessage multicastMessage = createMulticastMessages(user.getFcmTokens(),
                 Position.toKorean(offer.getPosition()) + " 스카웃 제의",
-                team.getProjectName() + " 팀에서 " + Position.toKorean(offer.getPosition()) + " 스카웃 제의가 왔어요!");
+                team.getProjectName() + "팀에서 " + Position.toKorean(offer.getPosition()) + " 스카웃 제의가 왔어요!");
 
         sendMulticast(multicastMessage);
     }
