@@ -372,8 +372,9 @@ public class UserService {
      * 현재 팀 종료 | main |
      * 500(SERVER_ERROR)
      */
-    public void exitCurrentTeam(List<User> users, ObjectId teamId, boolean isComplete) {
-        for (User user : users) {
+    public void exitCurrentTeam(List<ObjectId> userIds, ObjectId teamId, boolean isComplete) {
+        for (ObjectId userId : userIds) {
+            User user = findOneById(userId.toString());
             user.quitTeam(teamId, isComplete);
             save(user);
         }
@@ -466,6 +467,69 @@ public class UserService {
         user.updateIsNotified(isNotified);
 
         save(user);
+    }
+
+    /**
+     * 포지션별 팀원 전체 조회 | main |
+     * 400(ID_CONVERT_INVALID)
+     * 404(USER_NOT_FOUND)
+     */
+    public Map<Character, List<User>> findAllTeamMemberByPosition(Team team) {
+        Map<Character, List<User>> teamMembers = new HashMap<>();
+        List<User> users = new ArrayList<>();
+
+        if (!team.getDesignerUserIds().isEmpty())
+            for (ObjectId designerUserId : team.getDesignerUserIds())
+                users.add(findOneById(designerUserId.toString()));
+
+        teamMembers.put(Position.DESIGNER.getType(), users);
+        users.clear();
+
+        if (!team.getBackendUserIds().isEmpty())
+            for (ObjectId backendUserId : team.getBackendUserIds())
+                users.add(findOneById(backendUserId.toString()));
+
+        teamMembers.put(Position.BACKEND.getType(), users);
+        users.clear();
+
+        if (!team.getFrontendUserIds().isEmpty())
+            for (ObjectId frontendUserId : team.getFrontendUserIds())
+                users.add(findOneById(frontendUserId.toString()));
+
+        teamMembers.put(Position.FRONTEND.getType(), users);
+        users.clear();
+
+        if (!team.getManagerUserIds().isEmpty())
+            for (ObjectId managerUserId : team.getManagerUserIds())
+                users.add(findOneById(managerUserId.toString()));
+
+        teamMembers.put(Position.MANAGER.getType(), users);
+        users.clear();
+
+        return teamMembers;
+    }
+
+    /**
+     * 한명을 제외한 팀원 FCM 토큰 전체 조회 | main |
+     * 400(ID_CONVERT_INVALID)
+     * 404(USER_NOT_FOUND)
+     */
+    public Set<String> getAllTeamMemberFcmTokenExceptOne(Team team, User user) {
+        List<User> teamMembers = findAllTeamMember(team);
+        Set<String> fcmTokens = new HashSet<>();
+
+        if (teamMembers.isEmpty())
+            return fcmTokens;
+
+        teamMembers.forEach(teamMember -> {
+            if (teamMember.getIsNotified())
+                fcmTokens.addAll(teamMember.getFcmTokens());
+        });
+
+        if (user != null)
+            fcmTokens.removeAll(user.getFcmTokens());
+
+        return fcmTokens;
     }
 
     /**
@@ -629,6 +693,41 @@ public class UserService {
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
+    }
+
+    /**
+     * 팀원 전체 조회 |
+     * 400(ID_CONVERT_INVALID)
+     * 404(USER_NOT_FOUND)
+     */
+    private List<User> findAllTeamMember(Team team) {
+        List<User> users = new ArrayList<>();
+
+        if (!team.getDesignerUserIds().isEmpty())
+            team.getDesignerUserIds()
+                    .forEach(designerUserId ->
+                            users.add(findOneById(designerUserId.toString()))
+                    );
+
+        if (!team.getBackendUserIds().isEmpty())
+            team.getBackendUserIds()
+                    .forEach(backendUserId ->
+                            users.add(findOneById(backendUserId.toString()))
+                    );
+
+        if (!team.getFrontendUserIds().isEmpty())
+            team.getFrontendUserIds()
+                    .forEach(frontendUserId ->
+                            users.add(findOneById(frontendUserId.toString()))
+                    );
+
+        if (!team.getManagerUserIds().isEmpty())
+            team.getManagerUserIds()
+                    .forEach(managerUserId ->
+                            users.add(findOneById(managerUserId.toString()))
+                    );
+
+        return users;
     }
 
     /**

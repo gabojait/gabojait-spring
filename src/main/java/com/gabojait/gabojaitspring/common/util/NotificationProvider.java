@@ -24,7 +24,7 @@ public class NotificationProvider {
      * 새 팀원 & 팀 전체 |
      * 500(SERVER_ERROR)
      */
-    public void teamJoinedNotification(User user, Team team, Offer offer, boolean isAccepted) {
+    public void teamJoinedNotification(User user, Team team, Offer offer, Set<String> fcmTokens, boolean isAccepted) {
         if (!isAccepted)
             return;
 
@@ -36,10 +36,10 @@ public class NotificationProvider {
             sendMulticast(multicastMessage);
         }
 
-        if (team.getAllMemberFcmTokens().isEmpty())
+        if (fcmTokens.isEmpty())
             return;
 
-        MulticastMessage multicastMessage = createMulticastMessages(team.getAllMemberFcmTokens(),
+        MulticastMessage multicastMessage = createMulticastMessages(fcmTokens,
                 "새로운 " + Position.toKorean(offer.getPosition()) + " 팀원 합류",
                 user.getUsername() + "님이 " + Position.toKorean(offer.getPosition()) + "로 팀에 합류하였어요.");
 
@@ -51,19 +51,19 @@ public class NotificationProvider {
      * 추방된 팀원 & 팀 전체 |
      * 500(SERVER_ERROR)
      */
-    public void teamFiredNotification(User user, Team team) {
+    public void teamFiredNotification(User user, String projectName, Set<String> fcmTokens) {
         if (!user.getFcmTokens().isEmpty() || !user.getIsNotified()) {
             MulticastMessage multicastMessage = createMulticastMessages(user.getFcmTokens(),
-                    team.getProjectName() + "팀에서 추방",
-                    team.getProjectName() + " 팀에서 추방 되었어요. 아쉽지만 새로운 팀을 찾아보세요!");
+                    projectName + "팀에서 추방",
+                    projectName + " 팀에서 추방 되었어요. 아쉽지만 새로운 팀을 찾아보세요!");
 
             sendMulticast(multicastMessage);
         }
 
-        if (team.getAllMemberFcmTokens().isEmpty())
+        if (fcmTokens.isEmpty())
             return;
 
-        MulticastMessage multicastMessage = createMulticastMessages(team.getAllMemberFcmTokens(),
+        MulticastMessage multicastMessage = createMulticastMessages(fcmTokens,
                 user.getUsername() + "님 팀에서 추방",
                 user.getUsername() + "님이 팀장에 의해 추방되었어요.");
 
@@ -75,13 +75,13 @@ public class NotificationProvider {
      * 팀 전체 |
      * 500(SERVER_ERROR)
      */
-    public void teamIncompleteQuitNotification(Team team) {
-        if (team.getAllMemberFcmTokens().isEmpty())
+    public void teamIncompleteQuitNotification(String projectName, Set<String> fcmTokens) {
+        if (fcmTokens.isEmpty())
             return;
 
-        MulticastMessage multicastMessage = createMulticastMessages(team.getAllMemberFcmTokens(),
-                team.getProjectName() + " 팀 해산",
-                "아쉽지만 팀장에 의해 " + team.getProjectName() + " 팀이 해산되었어요.");
+        MulticastMessage multicastMessage = createMulticastMessages(fcmTokens,
+                projectName + " 팀 해산",
+                "아쉽지만 팀장에 의해 " + projectName + " 팀이 해산되었어요.");
 
         sendMulticast(multicastMessage);
     }
@@ -91,12 +91,12 @@ public class NotificationProvider {
      * 팀 전체 |
      * 500(SERVER_ERROR)
      */
-    public void teamCompleteQuitNotification(Team team) {
-        if (team.getAllMemberFcmTokens().isEmpty())
+    public void teamCompleteQuitNotification(String projectName, Set<String> fcmTokens) {
+        if (fcmTokens.isEmpty())
             return;
 
-        MulticastMessage multicastMessage = createMulticastMessages(team.getAllMemberFcmTokens(),
-                team.getProjectName() + " 프로젝트 종료",
+        MulticastMessage multicastMessage = createMulticastMessages(fcmTokens,
+                projectName + " 프로젝트 종료",
                 "수고하셨어요! 프로젝트를 완료하였습니다. 팀원 리뷰를 작성해보세요!");
 
         sendMulticast(multicastMessage);
@@ -107,13 +107,13 @@ public class NotificationProvider {
      * 팀 전체 |
      * 500(SERVER_ERROR)
      */
-    public void teamProfileModifiedNotification(Team team) {
-        if (team.getAllMemberFcmTokens().isEmpty())
+    public void teamProfileModifiedNotification(String projectName, Set<String> fcmTokens) {
+        if (fcmTokens.isEmpty())
             return;
 
-        MulticastMessage multicastMessage = createMulticastMessages(team.getAllMemberFcmTokens(),
-                team.getProjectName() + " 팀 프로필 수정",
-                team.getProjectName()+ " 팀 프로필이 팀장에 의해 수정되었습니다.");
+        MulticastMessage multicastMessage = createMulticastMessages(fcmTokens,
+                projectName + " 팀 프로필 수정",
+                projectName + " 팀 프로필이 팀장에 의해 수정되었습니다.");
 
         sendMulticast(multicastMessage);
     }

@@ -35,7 +35,7 @@ public class TeamService {
      * 500(SERVER_ERROR)
      */
     public Team create(Team team, User user) {
-        join(team, user, user.getPosition());
+        join(team, user.getId(), user.getPosition());
 
         return team;
     }
@@ -201,12 +201,12 @@ public class TeamService {
      * 404(TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public void fire(User leader, User teammate) {
+    public void fire(User leader, ObjectId userId) {
         Team team = findOneById(leader.getCurrentTeamId().toString());
         if (!team.isLeader(leader.getId().toString()))
             throw new CustomException(REQUEST_FORBIDDEN);
 
-        team.removeTeammate(teammate, true);
+        team.removeTeammate(userId, true);
         save(team);
     }
 
@@ -217,12 +217,12 @@ public class TeamService {
      * 404(TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public List<User> quit(User user, String projectUrl) {
+    public List<ObjectId> quit(User user, String projectUrl) {
         Team team = findOneById(user.getCurrentTeamId().toString());
         if (!team.isLeader(user.getId().toString()))
             throw new CustomException(REQUEST_FORBIDDEN);
 
-        List<User> users = team.getAllMembers();
+        List<ObjectId> userIds = team.getAllMembers();
 
         if (projectUrl.isBlank())
             team.delete();
@@ -231,7 +231,7 @@ public class TeamService {
 
         save(team);
 
-        return users;
+        return userIds;
     }
 
     /**
@@ -292,7 +292,7 @@ public class TeamService {
     public void leave(User user) {
         Team team = findOneById(user.getCurrentTeamId().toString());
 
-        team.removeTeammate(user, false);
+        team.removeTeammate(user.getId(), false);
 
         save(team);
     }
@@ -323,7 +323,7 @@ public class TeamService {
 
         if (isAccepted) {
             Position position = Position.fromChar(offer.getPosition());
-            join(team, user, position.getType());
+            join(team, user.getId(), position.getType());
         }
 
         return team;
@@ -344,7 +344,7 @@ public class TeamService {
         if (!isAccepted)
             return;
         Position position = Position.fromChar(offer.getPosition());
-        join(team, otherUser, position.getType());
+        join(team, otherUser.getId(), position.getType());
     }
 
     /**
@@ -397,10 +397,10 @@ public class TeamService {
      * 409(TEAM_POSITION_UNAVAILABLE)
      * 500(SERVER_ERROR)
      */
-    private void join(Team team, User user, char position) {
+    private void join(Team team, ObjectId userId, char position) {
         validatePositionAvailability(team, position);
 
-        team.addTeammate(user, position);
+        team.addTeammate(userId, position);
 
         save(team);
     }
@@ -413,19 +413,19 @@ public class TeamService {
     private void validatePositionAvailability(Team team, char position) {
         switch (position) {
             case 'D':
-                if (team.getDesigners().size() >= team.getDesignerTotalRecruitCnt())
+                if (team.getDesignerUserIds().size() >= team.getDesignerTotalRecruitCnt())
                     throw new CustomException(TEAM_POSITION_UNAVAILABLE);
                 break;
             case 'B':
-                if (team.getBackends().size() >= team.getBackendTotalRecruitCnt())
+                if (team.getBackendUserIds().size() >= team.getBackendTotalRecruitCnt())
                     throw new CustomException(TEAM_POSITION_UNAVAILABLE);
                 break;
             case 'F':
-                if (team.getFrontends().size() >= team.getFrontendTotalRecruitCnt())
+                if (team.getFrontendUserIds().size() >= team.getFrontendTotalRecruitCnt())
                     throw new CustomException(TEAM_POSITION_UNAVAILABLE);
                 break;
             case 'M':
-                if (team.getManagers().size() >= team.getManagerTotalRecruitCnt())
+                if (team.getManagerUserIds().size() >= team.getManagerTotalRecruitCnt())
                     throw new CustomException(TEAM_POSITION_UNAVAILABLE);
                 break;
             default:
@@ -443,13 +443,13 @@ public class TeamService {
                                         short totalBackendCnt,
                                         short totalFrontendCnt,
                                         short totalManagerCnt) {
-        if (team.getDesigners().size() > totalDesignerCnt)
+        if (team.getDesignerUserIds().size() > totalDesignerCnt)
             throw new CustomException(DESIGNER_CNT_UPDATE_UNAVAILABLE);
-        if (team.getBackends().size() > totalBackendCnt)
+        if (team.getBackendUserIds().size() > totalBackendCnt)
             throw new CustomException(BACKEND_CNT_UPDATE_UNAVAILABLE);
-        if (team.getFrontends().size() > totalFrontendCnt)
+        if (team.getFrontendUserIds().size() > totalFrontendCnt)
             throw new CustomException(FRONTEND_CNT_UPDATE_UNAVAILABLE);
-        if (team.getManagers().size() > totalManagerCnt)
+        if (team.getManagerUserIds().size() > totalManagerCnt)
             throw new CustomException(MANAGER_CNT_UPDATE_UNAVAILABLE);
     }
 

@@ -88,10 +88,17 @@ public class Team extends BaseTimeEntity {
     @Field(name = "favorite_user_ids")
     private List<ObjectId> favoriteUserIds = new ArrayList<>();
 
-    private List<User> managers = new ArrayList<>();
-    private List<User> designers = new ArrayList<>();
-    private List<User> backends = new ArrayList<>();
-    private List<User> frontends = new ArrayList<>();
+    @Field(name = "manager_user_ids")
+    private List<ObjectId> managerUserIds = new ArrayList<>();
+
+    @Field(name = "designer_user_ids")
+    private List<ObjectId> designerUserIds = new ArrayList<>();
+
+    @Field(name = "backend_user_ids")
+    private List<ObjectId> backendUserIds = new ArrayList<>();
+
+    @Field(name = "frontend_user_ids")
+    private List<ObjectId> frontendUserIds = new ArrayList<>();
     private String expectation;
 
     @Builder
@@ -149,67 +156,67 @@ public class Team extends BaseTimeEntity {
         this.expectation = expectation;
         this.openChatUrl = openChatUrl;
 
-        this.isDesignerFull = this.designerTotalRecruitCnt <= this.designers.size();
-        this.isBackendFull = this.backendTotalRecruitCnt <= this.backends.size();
-        this.isFrontendFull = this.frontendTotalRecruitCnt <= this.frontends.size();
-        this.isManagerFull = this.managerTotalRecruitCnt <= this.managers.size();
+        this.isDesignerFull = this.designerTotalRecruitCnt <= this.designerUserIds.size();
+        this.isBackendFull = this.backendTotalRecruitCnt <= this.backendUserIds.size();
+        this.isFrontendFull = this.frontendTotalRecruitCnt <= this.frontendUserIds.size();
+        this.isManagerFull = this.managerTotalRecruitCnt <= this.managerUserIds.size();
     }
 
-    public void addTeammate(User user, char position) {
+    public void addTeammate(ObjectId userId, char position) {
         switch (position) {
             case 'D':
-                this.designers.add(user);
-                this.isDesignerFull = this.designerTotalRecruitCnt <= this.designers.size();
+                this.designerUserIds.add(userId);
+                this.isDesignerFull = this.designerTotalRecruitCnt <= this.designerUserIds.size();
                 this.teammateJoinCnt++;
                 break;
             case 'B':
-                this.backends.add(user);
-                this.isBackendFull = this.backendTotalRecruitCnt <= this.backends.size();
+                this.backendUserIds.add(userId);
+                this.isBackendFull = this.backendTotalRecruitCnt <= this.backendUserIds.size();
                 this.teammateJoinCnt++;
                 break;
             case 'F':
-                this.frontends.add(user);
-                this.isFrontendFull = this.frontendTotalRecruitCnt <= this.frontends.size();
+                this.frontendUserIds.add(userId);
+                this.isFrontendFull = this.frontendTotalRecruitCnt <= this.frontendUserIds.size();
                 this.teammateJoinCnt++;
                 break;
             case 'M':
-                this.managers.add(user);
-                this.isManagerFull = this.managerTotalRecruitCnt <= this.managers.size();
+                this.managerUserIds.add(userId);
+                this.isManagerFull = this.managerTotalRecruitCnt <= this.managerUserIds.size();
                 this.teammateJoinCnt++;
                 break;
         }
     }
 
-    public void removeTeammate(User user, boolean isFired) {
+    public void removeTeammate(ObjectId userId, boolean isFired) {
         if (isFired) {
             this.teammateFiredCnt++;
         } else {
             this.teammateJoinCnt++;
         }
 
-        if (!this.designers.isEmpty())
-            for (User designer : this.designers)
-                if (user.getId().toString().equals(designer.getId().toString())) {
-                    this.designers.remove(designer);
-                    this.isDesignerFull = this.designerTotalRecruitCnt <= this.designers.size();
+        if (!this.designerUserIds.isEmpty())
+            for (ObjectId designerUserId : this.designerUserIds)
+                if (userId.toString().equals(designerUserId.toString())) {
+                    this.designerUserIds.remove(designerUserId);
+                    this.isDesignerFull = this.designerTotalRecruitCnt <= this.designerUserIds.size();
                 }
-        if (!this.backends.isEmpty())
-            for (User backend : this.backends)
-                if (user.getId().toString().equals(backend.getId().toString())) {
-                    this.backends.remove(backend);
-                    this.isBackendFull = this.backendTotalRecruitCnt <= this.backends.size();
+        if (!this.backendUserIds.isEmpty())
+            for (ObjectId backendUserId : this.backendUserIds)
+                if (userId.toString().equals(backendUserId.toString())) {
+                    this.backendUserIds.remove(backendUserId);
+                    this.isBackendFull = this.backendTotalRecruitCnt <= this.backendUserIds.size();
                 }
-        if (!this.frontends.isEmpty())
-            for (User frontend : this.frontends)
-                if (user.getId().toString().equals(frontend.getId().toString())) {
-                    this.frontends.remove(frontend);
-                    this.isFrontendFull = this.frontendTotalRecruitCnt <= this.frontends.size();
+        if (!this.frontendUserIds.isEmpty())
+            for (ObjectId frontendUserId : this.frontendUserIds)
+                if (userId.toString().equals(frontendUserId.toString())) {
+                    this.frontendUserIds.remove(frontendUserId);
+                    this.isFrontendFull = this.frontendTotalRecruitCnt <= this.frontendUserIds.size();
                 }
-        if (!this.managers.isEmpty())
-            for (User manager : this.managers)
-                if (user.getId().toString().equals(manager.getId().toString())) {
-                    this.managers.remove(manager);
-                    this.isManagerFull = this.managerTotalRecruitCnt <= this.managers.size();
+        if (!this.managerUserIds.isEmpty())
+            for (ObjectId managerUserId : this.managerUserIds)
+                if (userId.toString().equals(managerUserId.toString())) {
+                    this.managerUserIds.remove(managerUserId);
+                    this.isManagerFull = this.managerTotalRecruitCnt <= this.managerUserIds.size();
                 }
     }
 
@@ -226,19 +233,19 @@ public class Team extends BaseTimeEntity {
         this.isRecruiting = isRecruiting;
     }
 
-    public List<User> getAllMembers() {
-        List<User> teamMembers = new ArrayList<>();
+    public List<ObjectId> getAllMembers() {
+        List<ObjectId> teamMemberUserIds = new ArrayList<>();
 
-        if (!this.designers.isEmpty())
-            teamMembers.addAll(this.designers);
-        if (!this.backends.isEmpty())
-            teamMembers.addAll(this.backends);
-        if (!this.frontends.isEmpty())
-            teamMembers.addAll(this.frontends);
-        if (!this.managers.isEmpty())
-            teamMembers.addAll(this.managers);
+        if (!this.designerUserIds.isEmpty())
+            teamMemberUserIds.addAll(this.designerUserIds);
+        if (!this.backendUserIds.isEmpty())
+            teamMemberUserIds.addAll(this.backendUserIds);
+        if (!this.frontendUserIds.isEmpty())
+            teamMemberUserIds.addAll(this.frontendUserIds);
+        if (!this.managerUserIds.isEmpty())
+            teamMemberUserIds.addAll(this.managerUserIds);
 
-        return teamMembers;
+        return teamMemberUserIds;
     }
 
     public boolean isLeader(String userId) {
@@ -246,21 +253,21 @@ public class Team extends BaseTimeEntity {
     }
 
     public boolean isTeamMember(String userId) {
-        if (!this.designers.isEmpty())
-            for (User designer : this.designers)
-                if (designer.getId().toString().equals(userId))
+        if (!this.designerUserIds.isEmpty())
+            for (ObjectId designerUserId : this.designerUserIds)
+                if (designerUserId.toString().equals(userId))
                     return true;
-        if (!this.backends.isEmpty())
-            for (User backend : this.backends)
-                if (backend.getId().toString().equals(userId))
+        if (!this.backendUserIds.isEmpty())
+            for (ObjectId backendUserId : this.backendUserIds)
+                if (backendUserId.toString().equals(userId))
                     return true;
-        if (!this.frontends.isEmpty())
-            for (User frontend : this.frontends)
-                if (frontend.getId().toString().equals(userId))
+        if (!this.frontendUserIds.isEmpty())
+            for (ObjectId frontendUserId : this.frontendUserIds)
+                if (frontendUserId.toString().equals(userId))
                     return true;
-        if (!this.managers.isEmpty())
-            for (User manager : this.managers)
-                if (manager.getId().toString().equals(userId))
+        if (!this.managerUserIds.isEmpty())
+            for (ObjectId managerUserId : this.managerUserIds)
+                if (managerUserId.toString().equals(userId))
                     return true;
 
         return false;
@@ -297,14 +304,14 @@ public class Team extends BaseTimeEntity {
      * Notification related
      */
 
-    public Set<String> getAllMemberFcmTokens() {
-        List<User> teamMembers = this.getAllMembers();
-        Set<String> allMemberFcmTokens = new HashSet<>();
-
-        teamMembers.forEach(user -> {
-            if (user.getIsNotified())
-                allMemberFcmTokens.addAll(user.getFcmTokens());
-        });
-        return allMemberFcmTokens;
-    }
+//    public Set<String> getAllMemberFcmTokens() {
+//        List<User> teamMembers = this.getAllMembers();
+//        Set<String> allMemberFcmTokens = new HashSet<>();
+//
+//        teamMembers.forEach(user -> {
+//            if (user.getIsNotified())
+//                allMemberFcmTokens.addAll(user.getFcmTokens());
+//        });
+//        return allMemberFcmTokens;
+//    }
 }

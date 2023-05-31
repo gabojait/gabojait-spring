@@ -9,6 +9,7 @@ import com.gabojait.gabojaitspring.team.dto.req.TeamCompleteUpdateReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamDefaultReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamFavoriteUpdateReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamIsRecruitingUpdateReqDto;
+import com.gabojait.gabojaitspring.team.dto.res.TeamAbstractResDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamDefaultResDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamDetailResDto;
 import com.gabojait.gabojaitspring.team.service.TeamService;
@@ -33,6 +34,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -87,9 +90,10 @@ public class TeamController {
         // main
         Team team = teamService.create(request.toEntity(user.getId(), user.getPosition()), user);
         userService.joinTeam(user, team, true);
+        Map<Character, List<User>> teamMembers = userService.findAllTeamMemberByPosition(team);
 
         // response
-        TeamDefaultResDto response = new TeamDefaultResDto(team);
+        TeamDefaultResDto response = new TeamDefaultResDto(team, teamMembers);
 
         return ResponseEntity.status(TEAM_CREATED.getHttpStatus())
                 .body(DefaultResDto.singleDataBuilder()
@@ -138,10 +142,11 @@ public class TeamController {
         userService.validateHasCurrentTeam(user);
         // main
         Team team = teamService.update(request, user);
-        notificationProvider.teamProfileModifiedNotification(team);
-
+        Map<Character, List<User>> teamMembers = userService.findAllTeamMemberByPosition(team);
+        Set<String> fcmTokens = userService.getAllTeamMemberFcmTokenExceptOne(team, null);
+        notificationProvider.teamProfileModifiedNotification(team.getProjectName(), fcmTokens);
         // response
-        TeamDefaultResDto response = new TeamDefaultResDto(team);
+        TeamDefaultResDto response = new TeamDefaultResDto(team, teamMembers);
 
         return ResponseEntity.status(TEAM_UPDATED.getHttpStatus())
                 .body(DefaultResDto.singleDataBuilder()
@@ -179,8 +184,9 @@ public class TeamController {
         // main
         Team team = teamService.findOther(teamId, user);
         Boolean isFavorite = user.isFavoriteTeam(team.getId());
+        Map<Character, List<User>> teamMembers = userService.findAllTeamMemberByPosition(team);
         // response
-        TeamDetailResDto response = new TeamDetailResDto(team, isFavorite);
+        TeamDetailResDto response = new TeamDetailResDto(team, teamMembers, isFavorite);
 
         return ResponseEntity.status(TEAM_FOUND.getHttpStatus())
                 .body(DefaultResDto.singleDataBuilder()
@@ -211,7 +217,7 @@ public class TeamController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = TeamDefaultResDto.class))),
+                    content = @Content(schema = @Schema(implementation = TeamAbstractResDto.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -246,9 +252,9 @@ public class TeamController {
         Page<Team> teams = teamService.findPagePositionOrder(position, teamOrder, pageFrom, pageSize);
 
         // response
-        List<TeamDefaultResDto> responses = new ArrayList<>();
+        List<TeamAbstractResDto> responses = new ArrayList<>();
         for (Team team : teams)
-            responses.add(new TeamDefaultResDto(team));
+            responses.add(new TeamAbstractResDto(team));
 
         return ResponseEntity.status(TEAMS_FINDING_USERS_FOUND.getHttpStatus())
                 .body(DefaultResDto.multiDataBuilder()
@@ -331,9 +337,10 @@ public class TeamController {
         userService.validateHasCurrentTeam(user);
         Team team = teamService.findOneById(user.getCurrentTeamId().toString());
         // main
-        List<User> teamMembers = teamService.quit(user, "");
-        userService.exitCurrentTeam(teamMembers, team.getId(), false);
-        notificationProvider.teamIncompleteQuitNotification(team);
+        List<ObjectId> teamMemberUserIds = teamService.quit(user, "");
+        userService.exitCurrentTeam(teamMemberUserIds, team.getId(), false);
+        Set<String> fcmTokens = userService.getAllTeamMemberFcmTokenExceptOne(team, null);
+        notificationProvider.teamIncompleteQuitNotification(team.getProjectName(), fcmTokens);
 
         return ResponseEntity.status(PROJECT_INCOMPLETE.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -374,9 +381,10 @@ public class TeamController {
         userService.validateHasCurrentTeam(user);
         Team team = teamService.findOneById(user.getCurrentTeamId().toString());
         // main
-        List<User> teamMembers = teamService.quit(user, request.getProjectUrl());
-        userService.exitCurrentTeam(teamMembers, team.getId(), true);
-        notificationProvider.teamCompleteQuitNotification(team);
+        List<ObjectId> teamMemberIds = teamService.quit(user, request.getProjectUrl());
+        userService.exitCurrentTeam(teamMemberIds, team.getId(), true);
+        Set<String> fcmTokens = userService.getAllTeamMemberFcmTokenExceptOne(team, null);
+        notificationProvider.teamCompleteQuitNotification(team.getProjectName(), fcmTokens);
 
         return ResponseEntity.status(PROJECT_COMPLETE.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -419,9 +427,10 @@ public class TeamController {
         userService.validateHasCurrentTeam(user);
         Team team = teamService.findOneById(user.getCurrentTeamId().toString());
         // main
-        teamService.fire(user, teammate);
-        userService.exitCurrentTeam(List.of(teammate), team.getId(), false);
-        notificationProvider.teamFiredNotification(teammate, team);
+        teamService.fire(user, teammate.getId());
+        userService.exitCurrentTeam(List.of(teammate.getId()), team.getId(), false);
+        Set<String> fcmTokens = userService.getAllTeamMemberFcmTokenExceptOne(team, teammate);
+        notificationProvider.teamFiredNotification(teammate, team.getProjectName(), fcmTokens);
 
         return ResponseEntity.status(TEAMMATE_FIRED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -552,9 +561,10 @@ public class TeamController {
         userService.validateHasCurrentTeam(user);
         // main
         Team team = teamService.findOneById(user.getCurrentTeamId().toString());
+        Map<Character, List<User>> teamMembers = userService.findAllTeamMemberByPosition(team);
 
         // response
-        TeamDefaultResDto response = new TeamDefaultResDto(team);
+        TeamDefaultResDto response = new TeamDefaultResDto(team, teamMembers);
 
         return ResponseEntity.status(SELF_TEAM_FOUND.getHttpStatus())
                 .body(DefaultResDto.singleDataBuilder()

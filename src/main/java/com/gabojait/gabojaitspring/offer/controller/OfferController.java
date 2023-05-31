@@ -33,6 +33,7 @@ import javax.validation.constraints.PositiveOrZero;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -291,7 +292,8 @@ public class OfferController {
         Team team = teamService.decideOfferByUser(offer, user, request.getIsAccepted());
         userService.offerDecided(user, offer.getTeamId(), request.getIsAccepted());
         offerService.decideOffer(offer, request.getIsAccepted());
-        notificationProvider.teamJoinedNotification(user, team, offer, request.getIsAccepted());
+        Set<String> fcmTokens = userService.getAllTeamMemberFcmTokenExceptOne(team, user);
+        notificationProvider.teamJoinedNotification(user, team, offer, fcmTokens, request.getIsAccepted());
 
         return ResponseEntity.status(USER_DECIDED_OFFER.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -340,7 +342,8 @@ public class OfferController {
         teamService.decideOfferByTeam(offer, user, otherUser, request.getIsAccepted());
         userService.offerDecided(otherUser, team.getId(), request.getIsAccepted());
         offerService.decideOffer(offer, request.getIsAccepted());
-        notificationProvider.teamJoinedNotification(otherUser, team, offer, request.getIsAccepted());
+        Set<String> fcmTokens = userService.getAllTeamMemberFcmTokenExceptOne(team, otherUser);
+        notificationProvider.teamJoinedNotification(otherUser, team, offer, fcmTokens, request.getIsAccepted());
 
         return ResponseEntity.status(TEAM_DECIDED_OFFER.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()

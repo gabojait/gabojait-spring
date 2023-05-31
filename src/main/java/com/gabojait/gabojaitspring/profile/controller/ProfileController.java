@@ -697,7 +697,7 @@ public class ProfileController {
         Team team = teamService.findOneById(user.getCurrentTeamId().toString());
         // main
         teamService.leave(user);
-        userService.exitCurrentTeam(List.of(user), team.getId(), false);
+        userService.exitCurrentTeam(List.of(user.getId()), team.getId(), false);
 
         return ResponseEntity.status(TEAM_LEFT.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
