@@ -114,8 +114,8 @@ public class ContactService {
     private void sendEmail(Contact contact) {
         emailProvider.sendEmail(
                 contact.getEmail(),
-                "[가보자it] 인증코드",
-                "회원님 안녕하세요!🙇🏻<br>가입 절차를 계속하기 위해 아래의 코드를 이메일 인증코드란에 입력해주세요.🙏🏻",
+                "[가보자IT] 인증코드",
+                "안녕하세요!🙇🏻<br>가입 절차를 계속하기 위해 아래의 코드를 이메일 인증코드란에 입력해주세요.",
                 contact.getVerificationCode()
         );
     }
