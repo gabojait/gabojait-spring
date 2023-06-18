@@ -26,7 +26,7 @@ public class EducationAndWorkDefaultReqDto {
     private List<EducationUpdateReqDto> updateEducations;
 
     @ApiModelProperty(position = 3, value = "삭제 학력 식별자들")
-    private List<String> deleteEducationIds;
+    private List<Long> deleteEducationIds;
 
     @ApiModelProperty(position = 4, value = "생성 경력들")
     @Valid
@@ -37,5 +37,5 @@ public class EducationAndWorkDefaultReqDto {
     private List<WorkUpdateReqDto> updateWorks;
 
     @ApiModelProperty(position = 6, value = "삭제 경력 식별자들")
-    private List<String> deleteWorkIds;
+    private List<Long> deleteWorkIds;
 }

@@ -1,20 +1,15 @@
 package com.gabojait.gabojaitspring.user.repository;
 
 import com.gabojait.gabojaitspring.user.domain.Contact;
-import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-@Repository
-public interface ContactRepository extends MongoRepository<Contact, ObjectId> {
+public interface ContactRepository extends JpaRepository<Contact, Long> {
 
     Optional<Contact> findByEmailAndIsDeletedIsFalse(String email);
 
     Optional<Contact> findByEmailAndIsVerifiedIsFalseAndIsDeletedIsFalse(String email);
 
-    Optional<Contact> findByEmailAndIsVerifiedIsTrueAndIsRegisteredIsTrueAndIsDeletedIsFalse(String email);
-
-    Optional<Contact> findByEmailAndIsVerifiedIsTrueAndIsRegisteredIsFalseAndIsDeletedIsFalse(String email);
+    Optional<Contact> findByEmailAndIsVerifiedIsTrueAndIsDeletedIsFalse(String email);
 }

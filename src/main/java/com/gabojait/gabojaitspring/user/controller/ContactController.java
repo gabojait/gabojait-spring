@@ -20,8 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import static com.gabojait.gabojaitspring.common.code.SuccessCode.EMAIL_VERIFIED;
-import static com.gabojait.gabojaitspring.common.code.SuccessCode.VERIFICATION_CODE_SENT;
+import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "연락처")
@@ -41,7 +40,7 @@ public class ContactController {
                     "- 500 = SERVER_ERROR || EMAIL_SEND_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "OK",
+            @ApiResponse(responseCode = "201", description = "CREATED",
                     content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "409", description = "CONFLICT"),
@@ -51,10 +50,8 @@ public class ContactController {
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping
     public ResponseEntity<DefaultResDto<Object>> sendVerificationCode(@RequestBody @Valid ContactSaveReqDto request) {
-        // main
-        contactService.sendRegisteredVerificationCode(request);
+        contactService.sendRegisterVerificationCode(request);
 
-        // response
         HttpHeaders headers = jwtProvider.generateGuestJwt();
 
         return ResponseEntity.status(VERIFICATION_CODE_SENT.getHttpStatus())
@@ -68,28 +65,26 @@ public class ContactController {
     @ApiOperation(value = "인증코드 확인",
             notes = "<응답 코드>\n" +
                     "- 200 = EMAIL_VERIFIED\n" +
-                    "- 400 = EMAIL_FIELD_REQUIRED || VERIFICATION_FIELD_REQUIRED || EMAIL_FORMAT_INVALID\n" +
+                    "- 400 = EMAIL_FIELD_REQUIRED || VERIFICATION_FIELD_REQUIRED || EMAIL_FORMAT_INVALID || " +
+                    "VERIFICATION_CODE_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
-                    "- 409 = EXISTING_CONTACT\n" +
-                    "- 500 = SERVER_ERROR || EMAIL_SEND_ERROR\n" +
+                    "- 404 = EMAIL_NOT_FOUND\n" +
+                    "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400",
-                    description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
-            @ApiResponse(responseCode = "409", description = "CONFLICT"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping
     public ResponseEntity<DefaultResDto<Object>> verifyCode(HttpServletRequest servletRequest,
                                                             @RequestBody @Valid ContactVerifyReqDto request) {
-        // auth
         jwtProvider.authorizeGuestAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // main
         contactService.verify(request);
 
         return ResponseEntity.status(EMAIL_VERIFIED.getHttpStatus())

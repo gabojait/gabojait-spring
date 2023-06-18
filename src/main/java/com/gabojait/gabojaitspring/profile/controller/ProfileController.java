@@ -2,20 +2,14 @@ package com.gabojait.gabojaitspring.profile.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
-import com.gabojait.gabojaitspring.profile.domain.Education;
-import com.gabojait.gabojaitspring.profile.domain.Portfolio;
-import com.gabojait.gabojaitspring.profile.domain.Skill;
-import com.gabojait.gabojaitspring.profile.domain.Work;
+import com.gabojait.gabojaitspring.favorite.service.FavoriteUserService;
 import com.gabojait.gabojaitspring.profile.dto.req.*;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileAbstractResDto;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileDefaultResDto;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileDetailResDto;
-import com.gabojait.gabojaitspring.profile.service.EducationService;
+import com.gabojait.gabojaitspring.profile.service.EducationAndWorkService;
 import com.gabojait.gabojaitspring.profile.service.PortfolioService;
-import com.gabojait.gabojaitspring.profile.service.SkillService;
-import com.gabojait.gabojaitspring.profile.service.WorkService;
-import com.gabojait.gabojaitspring.team.domain.Team;
-import com.gabojait.gabojaitspring.team.dto.res.TeamAbstractResDto;
+import com.gabojait.gabojaitspring.profile.service.PositionAndSkillService;
 import com.gabojait.gabojaitspring.team.service.TeamService;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.service.UserService;
@@ -49,18 +43,17 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @RequestMapping("/api/v1/user")
 public class ProfileController {
 
-    private final EducationService educationService;
-    private final PortfolioService portfolioService;
-    private final SkillService skillService;
-    private final WorkService workService;
     private final UserService userService;
+    private final PositionAndSkillService positionAndSkillService;
+    private final EducationAndWorkService educationAndWorkService;
+    private final PortfolioService portfolioService;
     private final TeamService teamService;
+    private final FavoriteUserService favoriteUserService;
     private final JwtProvider jwtProvider;
 
     @ApiOperation(value = "본인 프로필 조회",
             notes = "<응답 코드>\n" +
                     "- 200 = SELF_PROFILE_FOUND\n" +
-                    "- 400 = ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = TEAM_NOT_FOUND\n" +
@@ -78,14 +71,9 @@ public class ProfileController {
     })
     @GetMapping("/profile")
     public ResponseEntity<DefaultResDto<Object>> findMyself(HttpServletRequest servletRequest) {
-        // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // main
-        List<Team> previousTeams = teamService.findAllCompleted(user);
-
-        // response
-        ProfileDefaultResDto response = new ProfileDefaultResDto(user, previousTeams);
+        ProfileDefaultResDto response = new ProfileDefaultResDto(user);
 
         return ResponseEntity.status(SELF_PROFILE_FOUND.getHttpStatus())
                 .body(DefaultResDto.singleDataBuilder()
@@ -96,9 +84,11 @@ public class ProfileController {
     }
 
     @ApiOperation(value = "프로필 단건 조회",
-            notes = "<응답 코드>\n" +
+            notes = "<검증>\n" +
+                    "- user-id = NotNull && Positive\n\n" +
+                    "<응답 코드>\n" +
                     "- 200 = PROFILE_FOUND\n" +
-                    "- 400 = ID_CONVERT_INVALID\n" +
+                    "- 400 = USER_ID_FIELD_REQUIRED || USER_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = USER_NOT_FOUND || TEAM_NOT_FOUND\n" +
@@ -117,17 +107,12 @@ public class ProfileController {
     @GetMapping("/{user-id}/profile")
     public ResponseEntity<DefaultResDto<Object>> findOther(HttpServletRequest servletRequest,
                                                            @PathVariable(value = "user-id")
-                                                           String userId) {
-        // auth
+                                                           @NotNull(message = "회원 식별자는 필수 입력입니다.")
+                                                           @Positive(message = "회원 식별자는 양수만 가능합니다.")
+                                                           Long userId) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // main
-        User otherUser = userService.findOneOtherById(user, userId);
-        List<Team> previousTeams = teamService.findAllCompleted(otherUser);
-        Boolean isFavorite = teamService.isFavoriteUser(user, otherUser);
-
-        // response
-        ProfileDetailResDto response = new ProfileDetailResDto(otherUser, previousTeams, isFavorite);
+        ProfileDetailResDto response = favoriteUserService.findOneOtherProfile(user, userId);
 
         return ResponseEntity.status(PROFILE_FOUND.getHttpStatus())
                 .body(DefaultResDto.singleDataBuilder()
@@ -142,10 +127,9 @@ public class ProfileController {
                     "- image = NotNull\n\n" +
                     "<응답 코드>\n" +
                     "- 200 = PROFILE_IMAGE_UPLOADED\n" +
-                    "- 400 = FILE_FIELD_REQUIRED || ID_CONVERT_INVALID\n" +
+                    "- 400 = FILE_FIELD_REQUIRED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 404 = TEAM_NOT_FOUND\n" +
                     "- 413 = FILE_SIZE_EXCEED\n" +
                     "- 415 = IMAGE_TYPE_UNSUPPORTED\n" +
                     "- 500 = SERVER_ERROR\n" +
@@ -156,7 +140,6 @@ public class ProfileController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "413", description = "PAYLOAD TOO LARGE"),
             @ApiResponse(responseCode = "415", description = "UNSUPPORTED MEDIA TYPE"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
@@ -166,16 +149,11 @@ public class ProfileController {
     public ResponseEntity<DefaultResDto<Object>> uploadProfileImage(HttpServletRequest servletRequest,
                                                                     @RequestPart(value = "image")
                                                                     MultipartFile image) {
-        // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // main
         userService.uploadProfileImage(user, image);
-        // sub
-        List<Team> completedTeams = teamService.findAllCompleted(user);
 
-        // response
-        ProfileDefaultResDto response = new ProfileDefaultResDto(user, completedTeams);
+        ProfileDefaultResDto response = new ProfileDefaultResDto(user);
 
         return ResponseEntity.status(PROFILE_IMAGE_UPLOADED.getHttpStatus())
                 .body(DefaultResDto.singleDataBuilder()
@@ -188,34 +166,25 @@ public class ProfileController {
     @ApiOperation(value = "프로필 사진 삭제",
             notes = "<응답 코드>\n" +
                     "- 200 = PROFILE_IMAGE_DELETED\n" +
-                    "- 400 = ID_CONVERT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 404 = TEAM_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResDto.class))),
-            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping("/profile/image")
     public ResponseEntity<DefaultResDto<Object>> deleteProfileImage(HttpServletRequest servletRequest) {
-        // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // main
         userService.deleteProfileImage(user);
-        // sub
-        List<Team> completedTeams = teamService.findAllCompleted(user);
 
-        // response
-        ProfileDefaultResDto response = new ProfileDefaultResDto(user, completedTeams);
+        ProfileDefaultResDto response = new ProfileDefaultResDto(user);
 
         return ResponseEntity.status(PROFILE_IMAGE_DELETED.getHttpStatus())
                 .body(DefaultResDto.singleDataBuilder()
@@ -227,7 +196,7 @@ public class ProfileController {
 
     @ApiOperation(value = "팀 찾기 여부 수정",
             notes = "<응답 코드>\n" +
-                    "- 200 = PROFILE_VISIBILITY_UPDATED\n" +
+                    "- 200 = PROFILE_SEEKING_TEAM_UPDATED\n" +
                     "- 400 = IS_PUBLIC_FIELD_REQUIRED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
@@ -242,20 +211,18 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @PatchMapping("/profile/seeking-team")
+    @PatchMapping("/seeking-team")
     public ResponseEntity<DefaultResDto<Object>> updateIsSeekingTeam(HttpServletRequest servletRequest,
-                                                                  @RequestBody @Valid
-                                                                  ProfileIsSeekingTeamUpdateReqDto request) {
-        // auth
+                                                                     @RequestBody @Valid
+                                                                     ProfileIsSeekingTeamUpdateReqDto request) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // main
         userService.updateIsSeekingTeam(user, request.getIsSeekingTeam());
 
-        return ResponseEntity.status(PROFILE_VISIBILITY_UPDATED.getHttpStatus())
+        return ResponseEntity.status(PROFILE_SEEKING_TEAM_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
-                        .responseCode(PROFILE_VISIBILITY_UPDATED.name())
-                        .responseMessage(PROFILE_VISIBILITY_UPDATED.getMessage())
+                        .responseCode(PROFILE_SEEKING_TEAM_UPDATED.name())
+                        .responseMessage(PROFILE_SEEKING_TEAM_UPDATED.getMessage())
                         .build());
     }
 
@@ -280,10 +247,8 @@ public class ProfileController {
     public ResponseEntity<DefaultResDto<Object>> updateDescription(HttpServletRequest servletRequest,
                                                                    @RequestBody @Valid
                                                                    ProfileDescriptionUpdateReqDto request) {
-        // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // main
         userService.updateProfileDescription(user, request.getProfileDescription());
 
         return ResponseEntity.status(PROFILE_DESCRIPTION_UPDATED.getHttpStatus())
@@ -294,16 +259,13 @@ public class ProfileController {
     }
 
     @ApiOperation(value = "포지션과 기술 생성, 수정, 삭제",
-            notes = "<검증>\n" +
-                    "- createSkill || updateSkill != null -> 검증 O\n" +
-                    "- createSkill || updateSkill == null -> 검증 X\n\n" +
-                    "<응답 코드>\n" +
+            notes = "<응답 코드>\n" +
                     "- 200 = POSITION_AND_SKILL_UPDATED\n" +
                     "- 400 = POSITION_FIELD_REQUIRED || SKILL_ID_FIELD_REQUIRED || SKILL_NAME_FIELD_REQUIRED || " +
                     "IS_EXPERIENCED_FIELD_REQUIRED || LEVEL_FIELD_REQUIRED || SKILL_NAME_LENGTH_INVALID || " +
-                    "POSITION_TYPE_INVALID || LEVEL_TYPE_INVALID || ID_CONVERT_INVALID\n" +
+                    "SKILL_ID_POSITIVE_ONLY || POSITION_TYPE_INVALID || LEVEL_TYPE_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
-                    "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = SKILL_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
@@ -321,16 +283,9 @@ public class ProfileController {
     public ResponseEntity<DefaultResDto<Object>> updatePositionAndSkill(HttpServletRequest servletRequest,
                                                                         @RequestBody @Valid
                                                                         PositionAndSkillDefaultReqDto request) {
-        // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // sub
-        skillService.validatePreAll(request.getUpdateSkills(), request.getDeleteSkillIds());
-        List<Skill> createdSkills = skillService.createAll(user.getId(), request.getCreateSkills());
-        List<Skill> updatedSkills = skillService.updateAll(user.getId(), request.getUpdateSkills());
-        List<Skill> deletedSkills = skillService.deleteAll(user.getId(), request.getDeleteSkillIds());
-        // main
-        userService.updatePositionAndSkills(user, request.getPosition(), createdSkills, updatedSkills, deletedSkills);
+        positionAndSkillService.createUpdateDelete(user, request);
 
         return ResponseEntity.status(POSITION_AND_SKILL_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -340,17 +295,15 @@ public class ProfileController {
     }
 
     @ApiOperation(value = "학력과 경력 생성, 수정, 삭제",
-            notes = "<검증>\n" +
-                    "- createEducation || updateEducation || createWorks || updateWorks != null -> 검증 O\n" +
-                    "- createEducation || updateEducation || createWorks || updateWorks == null -> 검증 X\n\n" +
-                    "<응답 코드>\n" +
+            notes = "<응답 코드>\n" +
                     "- 200 = EDUCATION_AND_WORK_UPDATED\n" +
                     "- 400 = EDUCATION_ID_FIELD_REQUIRED || INSTITUTION_NAME_FIELD_REQUIRED || " +
-                    "STARTED_DATE_FIELD_REQUIRED || ENDED_DATE_FIELD_REQUIRED || IS_CURRENT_FIELD_REQUIRED || " +
+                    "STARTED_AT_FIELD_REQUIRED || ENDED_AT_FIELD_REQUIRED || IS_CURRENT_FIELD_REQUIRED || " +
                     "WORK_ID_FIELD_REQUIRED || CORPORATION_NAME_FIELD_REQUIRED || INSTITUTION_NAME_LENGTH_INVALID " +
-                    "CORPORATION_NAME_LENGTH_INVALID || WORK_DESCRIPTION_LENGTH_INVALID || ID_CONVERT_INVALID\n" +
+                    "CORPORATION_NAME_LENGTH_INVALID || WORK_DESCRIPTION_LENGTH_INVALID || EDUCATION_ID_POSITIVE_ONLY || " +
+                    "WORK_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
-                    "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = EDUCATION_NOT_FOUND || WORK_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
@@ -368,26 +321,9 @@ public class ProfileController {
     public ResponseEntity<DefaultResDto<Object>> updateEducationAndWork(HttpServletRequest servletRequest,
                                                                         @RequestBody @Valid
                                                                         EducationAndWorkDefaultReqDto request) {
-        // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // sub
-        educationService.validatePreAll(request.getUpdateEducations(), request.getDeleteEducationIds());
-        workService.validatePreAll(request.getUpdateWorks(), request.getDeleteWorkIds());
-        List<Education> createdEducations = educationService.createAll(user.getId(), request.getCreateEducations());
-        List<Education> updatedEducations = educationService.updateAll(user.getId(), request.getUpdateEducations());
-        List<Education> deletedEducations = educationService.deleteAll(user.getId(), request.getDeleteEducationIds());
-        List<Work> createdWorks = workService.createAll(user.getId(), request.getCreateWorks());
-        List<Work> updatedWorks = workService.updateAll(user.getId(), request.getUpdateWorks());
-        List<Work> deletedWorks = workService.deleteAll(user.getId(), request.getDeleteWorkIds());
-        // main
-        userService.updateEducationsAndWorks(user,
-                createdEducations,
-                updatedEducations,
-                deletedEducations,
-                createdWorks,
-                updatedWorks,
-                deletedWorks);
+        educationAndWorkService.createUpdateDelete(user, request);
 
         return ResponseEntity.status(EDUCATION_AND_WORK_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -397,15 +333,13 @@ public class ProfileController {
     }
 
     @ApiOperation(value = "링크 포트폴리오 생성, 수정, 삭제",
-            notes = "<검증>\n" +
-                    "- createLinkPortfolios || updateLinkPortfolios != null -> 검증 O\n" +
-                    "- createLinkPortfolios || updateLinkPortfolios == null -> 검증 X\n\n" +
-                    "<응답 코드>\n" +
+            notes = "<응답 코드>\n" +
                     "- 200 = LINK_PORTFOLIO_UPDATED\n" +
-                    "- 400 = PORTFOLIO_ID_FIELD_REQUIRED || PORTFOLIO_NAME_FIELD_REQUIRED || URL_FIELD_REQUIRED || " +
-                    "PORTFOLIO_NAME_LENGTH_INVALID || URL_LENGTH_INVALID || ID_CONVERT_INVALID\n" +
+                    "- 400 = PORTFOLIO_ID_FIELD_REQUIRED || PORTFOLIO_NAME_FIELD_REQUIRED || " +
+                    "PORTFOLIO_URL_FIELD_REQUIRED || PORTFOLIO_NAME_LENGTH_INVALID || PORTFOLIO_URL_LENGTH_INVALID || " +
+                    "PORTFOLIO_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
-                    "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = PORTFOLIO_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
@@ -423,18 +357,9 @@ public class ProfileController {
     public ResponseEntity<DefaultResDto<Object>> updateLinkPortfolio(HttpServletRequest servletRequest,
                                                                      @RequestBody @Valid
                                                                      PortfolioLinkDefaultReqDto request) {
-        // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // sub
-        portfolioService.validateLinkPreAll(request.getUpdateLinkPortfolios(), request.getDeletePortfolioIds());
-        List<Portfolio> createdPortfolios = portfolioService.createLinkAll(user.getId(),
-                request.getCreateLinkPortfolios());
-        List<Portfolio> updatedPortfolios = portfolioService.updateLinkAll(user.getId(),
-                request.getUpdateLinkPortfolios());
-        List<Portfolio> deletedPortfolios = portfolioService.deleteAll(user.getId(), request.getDeletePortfolioIds());
-        // main
-        userService.updatePortfolios(user, createdPortfolios, updatedPortfolios, deletedPortfolios);
+        portfolioService.createUpdateDeleteLink(user, request);
 
         return ResponseEntity.status(LINK_PORTFOLIO_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -444,21 +369,14 @@ public class ProfileController {
     }
 
     @ApiOperation(value = "파일 포트폴리오 생성, 수정, 삭제",
-            notes = "<검증>\n" +
-                    "- create-portfolio-names || create-portfolio-files != null -> 검증 O\n" +
-                    "- create-portfolio-names || create-portfolio-files == null -> 검증 X\n" +
-                    "- update-portfolio-ids || update-portfolio-names || update-portfolio-files != null -> 검증 O\n" +
-                    "- update-portfolio-ids || update-portfolio-names || update-portfolio-files == null -> 검증 X\n" +
-                    "- delete-portfolio-ids != null -> 검증 O\n" +
-                    "- delete-portfolio-ids == null -> 검증 X\n\n" +
-                    "<응답 코드>\n" +
+            notes = "<응답 코드>\n" +
                     "- 200 = FILE_PORTFOLIO_UPDATED\n" +
                     "- 400 = PORTFOLIO_NAME_LENGTH_INVALID || CREATE_PORTFOLIO_CNT_MATCH_INVALID || " +
-                    "UPDATE_PORTFOLIO_CNT_MATCH_INVALID || FILE_FIELD_REQUIRED || ID_CONVERT_INVALID\n" +
+                    "UPDATE_PORTFOLIO_CNT_MATCH_INVALID || FILE_FIELD_REQUIRED || PORTFOLIO_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
                     "- 404 = PORTFOLIO_NOT_FOUND\n" +
-                    "- 413 = FILE_SIZE_EXCEED / FILE_COUNT_EXCEED\n" +
+                    "- 413 = FILE_SIZE_EXCEED || FILE_COUNT_EXCEED\n" +
                     "- 415 = FILE_TYPE_UNSUPPORTED\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
@@ -482,34 +400,23 @@ public class ProfileController {
             @RequestPart(name = "create-portfolio-files", required = false)
             List<MultipartFile> createPortfolioFiles,
             @RequestParam(value = "update-portfolio-ids", required = false)
-            List<String> updatePortfolioIds,
+            List<Long> updatePortfolioIds,
             @RequestParam(value = "update-portfolio-names", required = false)
             List<String> updatePortfolioNames,
             @RequestPart(name = "update-portfolio-files", required = false)
             List<MultipartFile> updatePortfolioFiles,
             @RequestParam(value = "delete-portfolio-ids", required = false)
-            List<String> deletePortfolioIds
+            List<Long> deletePortfolioIds
     ) {
-        // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // sub
-        portfolioService.validateFilesPreAll(createPortfolioNames,
+        portfolioService.createUpdateDeleteFile(user,
+                createPortfolioNames,
                 createPortfolioFiles,
                 updatePortfolioIds,
                 updatePortfolioNames,
                 updatePortfolioFiles,
                 deletePortfolioIds);
-        List<Portfolio> createdPortfolios = portfolioService.createFileAll(user,
-                createPortfolioNames,
-                createPortfolioFiles);
-        List<Portfolio> updatedPortfolios = portfolioService.updateFileAll(user,
-                updatePortfolioIds,
-                updatePortfolioNames,
-                updatePortfolioFiles);
-        List<Portfolio> deletedPortfolios = portfolioService.deleteAll(user.getId(), deletePortfolioIds);
-        // main
-        userService.updatePortfolios(user, createdPortfolios, updatedPortfolios, deletedPortfolios);
 
         return ResponseEntity.status(FILE_PORTFOLIO_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -531,8 +438,8 @@ public class ProfileController {
                     "<응답 코드>\n" +
                     "- 200 = USERS_FINDING_TEAM_FOUND\n" +
                     "- 400 = POSITION_FIELD_REQUIRED || PROFILE_ORDER_FIELD_REQUIRED || PAGE_FROM_FIELD_REQUIRED || " +
-                    "POSITION_TYPE_INVALID || PROFILE_RATING_TYPE_INVALID || PAGE_FROM_POS_OR_ZERO_ONLY || " +
-                    "|| PAGE_SIZE_POS_ONLY\n" +
+                    "POSITION_TYPE_INVALID || PROFILE_RATING_TYPE_INVALID || PAGE_FROM_POSITIVE_OR_ZERO_ONLY || " +
+                    "|| PAGE_SIZE_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 500 = SERVER_ERROR\n" +
@@ -546,163 +453,71 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @GetMapping("/profile/seeking-team")
+    @GetMapping("/seeking-team")
     public ResponseEntity<DefaultResDto<Object>> findUsersLookingForTeam(
             HttpServletRequest servletRequest,
             @RequestParam(value = "position")
-            @NotBlank(message = "포지션은 필수 입력란입니다.")
+            @NotBlank(message = "포지션은 필수 입력입니다.")
             @Pattern(regexp = "^(designer|backend|frontend|manager|none)",
                     message = "포지션은 'designer', 'backend', 'frontend', 'manager', 또는 'none' 중 하나여야 됩니다.")
             String position,
             @RequestParam(value = "profile-order")
-            @NotBlank(message = "프로필 정렬 기준은 필수 입력란입니다.")
+            @NotBlank(message = "프로필 정렬 기준은 필수 입력입니다.")
             @Pattern(regexp = "^(active|popularity|rating)",
                     message = "정렬 기준은 'active', 'popularity', 'rating' 중 하나여야 됩니다.")
             String profileOrder,
             @RequestParam(value = "page-from")
-            @NotNull(message = "페이지 시작점은 필수 입력란입니다.")
+            @NotNull(message = "페이지 시작점은 필수 입력입니다.")
             @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.")
             Integer pageFrom,
             @RequestParam(value = "page-size", required = false)
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
-            Integer pageSize) {
-        // auth
+            Integer pageSize
+    ) {
         jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // main
-        Page<User> users = userService.findPagePositionProfileOrder(position, profileOrder, pageFrom, pageSize);
+        Page<User> users = userService.findManyUsersByPositionWithProfileOrder(position, profileOrder, pageFrom, pageSize);
 
-        // response
         List<ProfileAbstractResDto> responses = new ArrayList<>();
         for (User user : users)
             responses.add(new ProfileAbstractResDto(user));
 
-        return ResponseEntity.status(USERS_FINDING_TEAM_FOUND.getHttpStatus())
+        return ResponseEntity.status(USERS_SEEKING_TEAM_FOUND.getHttpStatus())
                 .body(DefaultResDto.multiDataBuilder()
-                        .responseCode(USERS_FINDING_TEAM_FOUND.name())
-                        .responseMessage(USERS_FINDING_TEAM_FOUND.getMessage())
+                        .responseCode(USERS_SEEKING_TEAM_FOUND.name())
+                        .responseMessage(USERS_SEEKING_TEAM_FOUND.getMessage())
                         .data(responses)
                         .size(users.getTotalPages())
                         .build());
     }
 
-    @ApiOperation(value = "회원의 팀 찜 업데이트",
+    @ApiOperation(value = "팀 탈퇴",
             notes = "<응답 코드>\n" +
-                    "- 200 = TEAM_FAVORITE_UPDATED\n" +
-                    "- 400 = IS_ADD_FAVORITE_FIELD_REQUIRED || ID_CONVERT_INVALID\n" +
+                    "- 200 = USER_LEFT_TEAM\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 404 = TEAM_NOT_FOUND\n" +
+                    "- 404 = CURRENT_TEAM_NOT_FOUND" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @PatchMapping(value = "/team/{team-id}/favorite")
-    public ResponseEntity<DefaultResDto<Object>> updateFavoriteTeam(
-            HttpServletRequest servletRequest,
-            @PathVariable(value = "team-id")
-            String teamId,
-            @RequestBody
-            @Valid
-            ProfileFavoriteUpdateReqDto request
-    ) {
-        // auth
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
-
-        // sub
-        Team team = teamService.findOneById(teamId);
-        // main
-        userService.updateFavoriteTeam(user, team, request.getIsAddFavorite());
-
-        return ResponseEntity.status(TEAM_FAVORITE_UPDATED.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
-                        .responseCode(TEAM_FAVORITE_UPDATED.name())
-                        .responseMessage(TEAM_FAVORITE_UPDATED.getMessage())
-                        .build());
-    }
-
-    @ApiOperation(value = "찜한 팀 전체 조회",
-            notes = "<응답 코드>\n" +
-                    "- 200 = FAVORITE_TEAMS_FOUND\n" +
-                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
-                    "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 500 = SERVER_ERROR\n" +
-                    "- 503 = ONGOING_INSPECTION")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = TeamAbstractResDto.class))),
-            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
-            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
-            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
-    })
-    @GetMapping("/team/favorite")
-    public ResponseEntity<DefaultResDto<Object>> findAllFavoriteTeams(HttpServletRequest servletRequest) {
-         // auth
-         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
-
-         // main
-         List<Team> teams = teamService.findAllById(user.getFavoriteTeamIds());
-
-         // response
-         List<TeamAbstractResDto> responses = new ArrayList<>();
-         for (Team team : teams)
-             responses.add(new TeamAbstractResDto(team));
-
-         return ResponseEntity.status(FAVORITE_TEAMS_FOUND.getHttpStatus())
-                 .body(DefaultResDto.multiDataBuilder()
-                         .responseCode(FAVORITE_TEAMS_FOUND.name())
-                         .responseMessage(FAVORITE_TEAMS_FOUND.getMessage())
-                         .data(responses)
-                         .size(responses.size() > 0 ? 1 : 0)
-                         .build());
-    }
-
-    @ApiOperation(value = "팀 탈퇴",
-            notes = "<응답 코드>\n" +
-                    "- 200 = TEAM_LEFT\n" +
-                    "- 400 = ID_CONVERT_INVALID\n" +
-                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
-                    "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 404 = TEAM_NOT_FOUND" +
-                    "- 409 = NON_EXISTING_CURRENT_TEAM\n" +
-                    "- 500 = SERVER_ERROR\n" +
-                    "- 503 = ONGOING_INSPECTION")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
-            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
-            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "TEAM_NOT_FOUND"),
-            @ApiResponse(responseCode = "409", description = "CONFLICT"),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
-            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
-    })
     @PatchMapping("/team/leave")
     public ResponseEntity<DefaultResDto<Object>> leaveTeam(HttpServletRequest servletRequest) {
-        // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // sub
-        userService.validateHasCurrentTeam(user);
-        Team team = teamService.findOneById(user.getCurrentTeamId().toString());
-        // main
-        teamService.leave(user);
-        userService.exitCurrentTeam(List.of(user.getId()), team.getId(), false);
+        teamService.leaveTeam(user);
 
-        return ResponseEntity.status(TEAM_LEFT.getHttpStatus())
+        return ResponseEntity.status(USER_LEFT_TEAM.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
-                        .responseCode(TEAM_LEFT.name())
-                        .responseMessage(TEAM_LEFT.getMessage())
+                        .responseCode(USER_LEFT_TEAM.name())
+                        .responseMessage(USER_LEFT_TEAM.getMessage())
                         .build());
     }
 }

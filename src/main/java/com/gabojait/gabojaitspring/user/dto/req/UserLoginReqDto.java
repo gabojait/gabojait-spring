@@ -17,12 +17,12 @@ import javax.validation.constraints.NotBlank;
 @ApiModel(value = "회원 로그인 요청")
 public class UserLoginReqDto {
 
-    @ApiModelProperty(position = 1, required = true, value = "아이디", example = "test1")
-    @NotBlank(message = "아이디는 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
+    @ApiModelProperty(position = 1, required = true, value = "아이디", example = "tester")
+    @NotBlank(message = "아이디는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
     private String username;
 
     @ApiModelProperty(position = 2, required = true, value = "비밀번호", example = "password1!")
-    @NotBlank(message = "비밀번호는 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
+    @NotBlank(message = "비밀번호는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
     private String password;
 
     @ApiModelProperty(position = 3, value = "FCM 토큰")

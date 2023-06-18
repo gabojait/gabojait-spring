@@ -3,12 +3,12 @@ package com.gabojait.gabojaitspring.profile.dto.req;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.profile.domain.Work;
+import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.bson.types.ObjectId;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
@@ -34,12 +34,12 @@ public class WorkCreateReqDto {
     @ApiModelProperty(position = 2, required = true, value = "시작일", notes = "string", example = "2000-01-01")
     @NotNull(message = "시작일을 입력해 주세요.", groups = ValidationSequence.Blank.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDate startedDate;
+    private LocalDate startedAt;
 
     @ApiModelProperty(position = 3, required = true, value = "종료일", notes = "string", example = "2000-01-02")
     @NotNull(message = "종료일을 입력해 주세요.", groups = ValidationSequence.Blank.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDate endedDate;
+    private LocalDate endedAt;
 
     @ApiModelProperty(position = 4, required = true, value = "현재 여부", example = "true",
             allowableValues = "true, false")
@@ -50,12 +50,12 @@ public class WorkCreateReqDto {
     @Size(max = 100, message = "경력 설명은 0~100자만 가능합니다.", groups = ValidationSequence.Size.class)
     private String workDescription;
 
-    public Work toEntity(ObjectId userId) {
+    public Work toEntity(User user) {
         return Work.builder()
-                .userId(userId)
+                .user(user)
                 .corporationName(this.corporationName)
-                .startedDate(this.startedDate)
-                .endedDate(this.endedDate)
+                .startedAt(this.startedAt)
+                .endedAt(this.endedAt)
                 .isCurrent(this.isCurrent)
                 .workDescription(this.workDescription)
                 .build();

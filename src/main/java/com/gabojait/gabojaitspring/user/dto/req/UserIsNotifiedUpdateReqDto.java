@@ -19,7 +19,6 @@ public class UserIsNotifiedUpdateReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "알림 여부", example = "true",
             allowableValues = "true, false")
-    @NotNull(message = "알림 여부는 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
+    @NotNull(message = "알림 여부는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
     private Boolean isNotified;
-
 }

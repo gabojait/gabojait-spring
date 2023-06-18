@@ -3,54 +3,58 @@ package com.gabojait.gabojaitspring.offer.domain;
 import com.gabojait.gabojaitspring.common.entity.BaseTimeEntity;
 import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
+import com.gabojait.gabojaitspring.team.domain.Team;
+import com.gabojait.gabojaitspring.user.domain.User;
 import lombok.*;
-import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+
+import javax.persistence.*;
 
 @Getter
 @ToString
-@Document(collection = "offer")
+@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Offer extends BaseTimeEntity {
 
-    @Field(name = "user_id")
-    private ObjectId userId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "offer_id")
+    private Long id;
 
-    @Field(name = "team_id")
-    private ObjectId teamId;
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    @ToString.Exclude
+    private User user;
 
-    @Field(name = "is_accepted")
+    @ManyToOne
+    @JoinColumn(name = "team_id")
+    @ToString.Exclude
+    private Team team;
+
     private Boolean isAccepted;
-
-    @Field(name = "offered_by")
     private Character offeredBy;
-
     private Character position;
 
     @Builder
-    public Offer(ObjectId userId, ObjectId teamId, OfferedBy offeredBy, Position position) {
-        this.userId = userId;
-        this.teamId = teamId;
+    public Offer(User user, Team team, OfferedBy offeredBy, Position position) {
+        this.user = user;
+        this.team = team;
+        this.isAccepted = null;
         this.offeredBy = offeredBy.getType();
         this.position = position.getType();
-
         this.isDeleted = false;
     }
 
     public void accept() {
         this.isAccepted = true;
-
         this.isDeleted = true;
     }
 
     public void decline() {
-        this.isAccepted = true;
-
+        this.isAccepted = false;
         this.isDeleted = true;
     }
 
-    public void delete() {
+    public void cancel() {
         this.isDeleted = true;
     }
 }

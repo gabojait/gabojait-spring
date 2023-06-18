@@ -2,16 +2,12 @@ package com.gabojait.gabojaitspring.offer.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
-import com.gabojait.gabojaitspring.common.util.NotificationProvider;
 import com.gabojait.gabojaitspring.offer.domain.Offer;
-import com.gabojait.gabojaitspring.offer.dto.req.OfferDefaultReqDto;
+import com.gabojait.gabojaitspring.offer.dto.req.OfferCreateReqDto;
 import com.gabojait.gabojaitspring.offer.dto.req.OfferUpdateReqDto;
 import com.gabojait.gabojaitspring.offer.dto.res.OfferDefaultResDto;
 import com.gabojait.gabojaitspring.offer.service.OfferService;
-import com.gabojait.gabojaitspring.team.domain.Team;
-import com.gabojait.gabojaitspring.team.service.TeamService;
 import com.gabojait.gabojaitspring.user.domain.User;
-import com.gabojait.gabojaitspring.user.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,15 +26,14 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
+import static com.gabojait.gabojaitspring.common.code.SuccessCode.OFFER_CANCEL_BY_USER;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-@Api(tags = "제안")
+@Api(tags = "팀")
 @Validated
 @RestController
 @RequiredArgsConstructor
@@ -46,18 +41,16 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 public class OfferController {
 
     private final OfferService offerService;
-    private final UserService userService;
-    private final TeamService teamService;
     private final JwtProvider jwtProvider;
-    private final NotificationProvider notificationProvider;
 
     @ApiOperation(value = "회원이 팀에 지원",
             notes = "<응답 코드>\n" +
                     "- 201 = OFFERED_BY_USER\n" +
-                    "- 400 = POSITION_FIELD_REQUIRED || POSITION_TYPE_INVALID || ID_CONVERT_INVALID\n" +
+                    "- 400 = POSITION_FIELD_REQUIRED || TEAM_ID_FIELD_REQUIRED || POSITION_TYPE_INVALID || " +
+                    "TEAM_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 404 = TEAM_NOT_FOUND || USER_NOT_FOUND\n" +
+                    "- 404 = TEAM_NOT_FOUND\n" +
                     "- 409 = EXISTING_CURRENT_TEAM || TEAM_POSITION_UNAVAILABLE\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
@@ -75,22 +68,13 @@ public class OfferController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/user/team/{team-id}/offer")
     public ResponseEntity<DefaultResDto<Object>> userOffer(HttpServletRequest servletRequest,
-                                                           @PathVariable(value = "team-id") String teamId,
-                                                           @RequestBody @Valid OfferDefaultReqDto request) {
-        // auth
+                                                           @PathVariable(value = "team-id")
+                                                           @NotNull(message = "팀 식별자는 필수 입력입니다.")
+                                                           @Positive(message = "팀 식별자는 양수만 가능합니다.") Long teamId,
+                                                           @RequestBody @Valid OfferCreateReqDto request) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // sub
-        userService.validateHasNoCurrentTeam(user);
-        teamService.validatePreOfferByUser(teamId, request.getPosition());
-        // main
-        Offer offer = offerService.offer(request, user.getId().toString(), teamId, true);
-        Team team = teamService.offer(teamId,true);
-        userService.offer(user, true);
-        // sub
-        User leader = userService.findOneById(team.getLeaderUserId().toString());
-        // main
-        notificationProvider.offerByUserNotification(leader, offer, user);
+        offerService.offerByUser(user, teamId, request);
 
         return ResponseEntity.status(OFFERED_BY_USER.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -102,11 +86,12 @@ public class OfferController {
     @ApiOperation(value = "팀이 회원에게 스카웃",
             notes = "<응답 코드>\n" +
                     "- 201 = OFFERED_BY_TEAM\n" +
-                    "- 400 = POSITION_FIELD_REQUIRED || POSITION_TYPE_INVALID || ID_CONVERT_INVALID\n" +
+                    "- 400 = POSITION_FIELD_REQUIRED || USER_ID_FIELD_REQUIRED || POSITION_TYPE_INVALID || " +
+                    "USER_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
-                    "- 404 = TEAM_NOT_FOUND || USER_NOT_FOUND\n" +
-                    "- 409 = NON_EXISTING_CURRENT_TEAM || EXISTING_CURRENT_TEAM || TEAM_POSITION_UNAVAILABLE\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
+                    "- 409 = EXISTING_CURRENT_TEAM || TEAM_POSITION_UNAVAILABLE\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -123,24 +108,14 @@ public class OfferController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/team/user/{user-id}/offer")
     public ResponseEntity<DefaultResDto<Object>> teamOffer(HttpServletRequest servletRequest,
-                                                           @PathVariable(value = "user-id") String userId,
-                                                           @RequestBody @Valid OfferDefaultReqDto request) {
-        // auth
+                                                           @PathVariable(value = "user-id")
+                                                           @NotNull(message = "회원 식별자는 필수 입력입니다.")
+                                                           @Positive(message = "회원 식별자는 양수만 가능합니다.")
+                                                           Long userId,
+                                                           @RequestBody @Valid OfferCreateReqDto request) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // sub
-        userService.validateHasCurrentTeam(user);
-        User otherUser = userService.findOneById(userId);
-        userService.validateHasNoCurrentTeam(otherUser);
-        teamService.validatePreOfferByTeam(user.getCurrentTeamId().toString(),
-                user.getId().toString(),
-                userId,
-                request.getPosition());
-        // main
-        Offer offer = offerService.offer(request, userId, user.getCurrentTeamId().toString(), false);
-        Team team = teamService.offer(user.getCurrentTeamId().toString(), false);
-        userService.offer(otherUser, false);
-        notificationProvider.offerByTeamNotification(otherUser, offer, team);
+        offerService.offerByTeam(user, userId, request);
 
         return ResponseEntity.status(OFFERED_BY_TEAM.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -152,10 +127,9 @@ public class OfferController {
     @ApiOperation(value = "회원이 받은 제안 다건 조희",
             notes = "<응답 코드>\n" +
                     "- 200 = OFFER_BY_TEAM_FOUND\n" +
-                    "- 400 = PAGE_FROM_FIELD_REQUIRED || PAGE_FROM_POS_OR_ZERO_ONLY || PAGE_SIZE_POS_ONLY\n" +
+                    "- 400 = PAGE_FROM_FIELD_REQUIRED || PAGE_FROM_POSITIVE_OR_ZERO_ONLY || PAGE_SIZE_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 409 = EXISTING_CURRENT_TEAM\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -164,7 +138,6 @@ public class OfferController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
-            @ApiResponse(responseCode = "409", description = "CONFLICT"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
@@ -172,24 +145,19 @@ public class OfferController {
     public ResponseEntity<DefaultResDto<Object>> userFindOffers(
             HttpServletRequest servletRequest,
             @RequestParam(value = "page-from")
-            @NotNull(message = "페이지 시작점은 필수 입력란입니다.")
+            @NotNull(message = "페이지 시작점은 필수 입력입니다.")
             @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.")
             Integer pageFrom,
             @RequestParam(value = "page-size", required = false)
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
             Integer pageSize
     ) {
-        // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // sub
-        userService.validateHasNoCurrentTeam(user);
-        // main
-        Page<Offer> offers = offerService.findPageByUserId(user.getId(), pageFrom, pageSize);
+        Page<Offer> offers = offerService.findManyOffersByUser(user, pageFrom, pageSize);
 
-        // response
         List<OfferDefaultResDto> responses = new ArrayList<>();
-        for (Offer offer : offers)
+        for(Offer offer : offers)
             responses.add(new OfferDefaultResDto(offer));
 
         return ResponseEntity.status(OFFER_BY_TEAM_FOUND.getHttpStatus())
@@ -204,11 +172,9 @@ public class OfferController {
     @ApiOperation(value = "팀이 받은 제안 다건 조회",
             notes = "<응답 코드>\n" +
                     "- 200 = OFFER_BY_USER_FOUND\n" +
-                    "- 400 = PAGE_FROM_FIELD_REQUIRED || PAGE_FROM_POS_OR_ZERO_ONLY || PAGE_SIZE_POS_ONLY || " +
-                    "ID_CONVERT_INVALID\n" +
+                    "- 400 = PAGE_FROM_FIELD_REQUIRED || PAGE_FROM_POSITIVE_OR_ZERO_ONLY || PAGE_SIZE_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
-                    "- 409 = NON_EXISTING_CURRENT_TEAM\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -217,7 +183,6 @@ public class OfferController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
-            @ApiResponse(responseCode = "409", description = "CONFLICT"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
@@ -225,23 +190,17 @@ public class OfferController {
     public ResponseEntity<DefaultResDto<Object>> teamFindOffers(
             HttpServletRequest servletRequest,
             @RequestParam(value = "page-from")
-            @NotNull(message = "페이지 시작점은 필수 입력란입니다.")
+            @NotNull(message = "페이지 시작점은 필수 입력입니다.")
             @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.")
             Integer pageFrom,
             @RequestParam(value = "page-size", required = false)
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
             Integer pageSize
     ) {
-        // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // sub
-        userService.validateHasCurrentTeam(user);
-        Team team = teamService.findOneById(user.getCurrentTeamId().toString());
-        // main
-        Page<Offer> offers = offerService.findPageByTeamId(team, user.getId(), pageFrom, pageSize);
+        Page<Offer> offers = offerService.findManyOffersByTeam(user, pageFrom, pageSize);
 
-        // response
         List<OfferDefaultResDto> responses = new ArrayList<>();
         for (Offer offer : offers)
             responses.add(new OfferDefaultResDto(offer));
@@ -258,10 +217,10 @@ public class OfferController {
     @ApiOperation(value = "회원이 받은 제안 결정",
             notes = "<응답 코드>\n" +
                     "- 200 = USER_DECIDED_OFFER\n" +
-                    "- 400 = IS_ACCEPTED_FIELD_REQUIRED || ID_CONVERT_INVALID\n" +
+                    "- 400 = IS_ACCEPTED_FIELD_REQUIRED || OFFER_ID_REQUIRED_ID || OFFERED_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 404 = OFFER_NOT_FOUND || TEAM_NOT_FOUND\n" +
+                    "- 404 = OFFER_NOT_FOUND\n" +
                     "- 409 = EXISTING_CURRENT_TEAM || TEAM_POSITION_UNAVAILABLE\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
@@ -279,21 +238,14 @@ public class OfferController {
     @PatchMapping("/user/offer/{offer-id}")
     public ResponseEntity<DefaultResDto<Object>> decideOfferByUser(HttpServletRequest servletRequest,
                                                                    @PathVariable(value = "offer-id")
-                                                                   String offerId,
+                                                                   @NotNull(message = "제안 식별자는 필수 입력입니다.")
+                                                                   @Positive(message = "제안 식별자는 양수만 가능합니다.")
+                                                                   Long offerId,
                                                                    @RequestBody @Valid
                                                                    OfferUpdateReqDto request) {
-        // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // sub
-        Offer offer = offerService.findOneById(offerId);
-        userService.validateHasNoCurrentTeam(user);
-        // main
-        Team team = teamService.decideOfferByUser(offer, user, request.getIsAccepted());
-        userService.offerDecided(user, offer.getTeamId(), request.getIsAccepted());
-        offerService.decideOffer(offer, request.getIsAccepted());
-        Set<String> fcmTokens = userService.getAllTeamMemberFcmTokenExceptOne(team, user);
-        notificationProvider.teamJoinedNotification(user, team, offer, fcmTokens, request.getIsAccepted());
+        offerService.decideByUser(user, offerId, request.getIsAccepted());
 
         return ResponseEntity.status(USER_DECIDED_OFFER.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -305,11 +257,11 @@ public class OfferController {
     @ApiOperation(value = "팀이 받은 제안 결정",
             notes = "<응답 코드>\n" +
                     "- 200 = TEAM_DECIDED_OFFER\n" +
-                    "- 400 = IS_ACCEPTED_FIELD_REQUIRED || ID_CONVERT_INVALID\n" +
+                    "- 400 = IS_ACCEPTED_FIELD_REQUIRED || OFFER_ID_REQUIRED_ID || OFFERED_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
-                    "- 404 = OFFER_NOT_FOUND || TEAM_NOT_FOUND || USER_NOT_FOUND\n" +
-                    "- 409 = NON_EXISTING_CURRENT_TEAM || EXISTING_CURRENT_TEAM || TEAM_POSITION_UNAVAILABLE\n" +
+                    "- 404 = OFFER_NOT_FOUND || USER_NOT_FOUND\n" +
+                    "- 409 = EXISTING_CURRENT_TEAM || TEAM_POSITION_UNAVAILABLE\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -326,24 +278,14 @@ public class OfferController {
     @PatchMapping("/team/offer/{offer-id}")
     public ResponseEntity<DefaultResDto<Object>> decideOfferByTeam(HttpServletRequest servletRequest,
                                                                    @PathVariable(value = "offer-id")
-                                                                   String offerId,
+                                                                   @NotNull(message = "제안 식별자는 필수 입력입니다.")
+                                                                   @Positive(message = "제안 식별자는 양수만 가능합니다.")
+                                                                   Long offerId,
                                                                    @RequestBody @Valid
                                                                    OfferUpdateReqDto request) {
-        // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // sub
-        Offer offer = offerService.findOneById(offerId);
-        userService.validateHasCurrentTeam(user);
-        Team team = teamService.findOneById(user.getCurrentTeamId().toString());
-        User otherUser = userService.findOneById(offer.getUserId().toString());
-        userService.validateHasNoCurrentTeam(otherUser);
-        // main
-        teamService.decideOfferByTeam(offer, user, otherUser, request.getIsAccepted());
-        userService.offerDecided(otherUser, team.getId(), request.getIsAccepted());
-        offerService.decideOffer(offer, request.getIsAccepted());
-        Set<String> fcmTokens = userService.getAllTeamMemberFcmTokenExceptOne(team, otherUser);
-        notificationProvider.teamJoinedNotification(otherUser, team, offer, fcmTokens, request.getIsAccepted());
+        offerService.decideByTeam(user, offerId, request.getIsAccepted());
 
         return ResponseEntity.status(TEAM_DECIDED_OFFER.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -355,9 +297,9 @@ public class OfferController {
     @ApiOperation(value = "회원이 보낸 제안 취소",
             notes = "<응답 코드>" +
                     "- 200 = OFFER_CANCEL_BY_USER\n" +
-                    "- 400 = ID_CONVERT_INVALID\n" +
+                    "- 400 = OFFER_ID_REQUIRED_ID || OFFERED_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
-                    "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = OFFER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
@@ -373,12 +315,13 @@ public class OfferController {
     })
     @DeleteMapping("/user/offer/{offer-id}")
     public ResponseEntity<DefaultResDto<Object>> cancelOfferByUser(HttpServletRequest servletRequest,
-                                                                   @PathVariable(value = "offer-id") String offerId) {
-        // auth
+                                                                   @PathVariable(value = "offer-id")
+                                                                   @NotNull(message = "제안 식별자는 필수 입력입니다.")
+                                                                   @Positive(message = "제안 식별자는 양수만 가능합니다.")
+                                                                   Long offerId) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // main
-        offerService.cancel(offerId, user, null);
+        offerService.cancelByUser(user, offerId);
 
         return ResponseEntity.status(OFFER_CANCEL_BY_USER.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -390,11 +333,10 @@ public class OfferController {
     @ApiOperation(value = "팀이 보낸 제안 취소",
             notes = "<응답 코드>" +
                     "- 200 = OFFER_CANCEL_BY_TEAM\n" +
-                    "- 400 = ID_CONVERT_INVALID\n" +
+                    "- 400 = OFFER_ID_REQUIRED_ID || OFFERED_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
-                    "- 404 = OFFER_NOT_FOUND || TEAM_NOT_FOUND\n" +
-                    "- 409 = NON_EXISTING_CURRENT_TEAM" +
+                    "- 404 = OFFER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -404,21 +346,18 @@ public class OfferController {
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "404", description = "NOT FOUND"),
-            @ApiResponse(responseCode = "409", description = "CONFLICT"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping("/team/offer/{offer-id}")
     public ResponseEntity<DefaultResDto<Object>> cancelOfferByTeam(HttpServletRequest servletRequest,
-                                                                   @PathVariable(value = "offer-id") String offerId) {
-        // auth
+                                                                   @PathVariable(value = "offer-id")
+                                                                   @NotNull(message = "제안 식별자는 필수 입력입니다.")
+                                                                   @Positive(message = "제안 식별자는 양수만 가능합니다.")
+                                                                   Long offerId) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // sub
-        userService.validateHasCurrentTeam(user);
-        Team team = teamService.findOneById(user.getCurrentTeamId().toString());
-        // main
-        offerService.cancel(offerId, user, team);
+        offerService.cancelByTeam(user, offerId);
 
         return ResponseEntity.status(OFFER_CANCEL_BY_TEAM.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()

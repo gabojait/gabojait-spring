@@ -1,8 +1,6 @@
 package com.gabojait.gabojaitspring.config;
 
 import com.fasterxml.classmate.TypeResolver;
-import com.gabojait.gabojaitspring.admin.dto.res.AdminAbstractResDto;
-import com.gabojait.gabojaitspring.admin.dto.res.AdminDefaultResDto;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
 import com.gabojait.gabojaitspring.common.dto.ExceptionResDto;
 import com.gabojait.gabojaitspring.offer.dto.res.OfferDefaultResDto;
@@ -69,20 +67,18 @@ public class SwaggerConfig {
                 .additionalModels(typeResolver.resolve(ExceptionResDto.class))
                 .additionalModels(typeResolver.resolve(ContactDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(UserDefaultResDto.class))
+                .additionalModels(typeResolver.resolve(ProfileAbstractResDto.class))
                 .additionalModels(typeResolver.resolve(ProfileDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(ProfileDetailResDto.class))
-                .additionalModels(typeResolver.resolve(ProfileAbstractResDto.class))
                 .additionalModels(typeResolver.resolve(EducationDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(PortfolioDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(SkillDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(WorkDefaultResDto.class))
-                .additionalModels(typeResolver.resolve(ReviewDefaultResDto.class))
-                .additionalModels(typeResolver.resolve(TeamDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(TeamAbstractResDto.class))
+                .additionalModels(typeResolver.resolve(TeamDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(TeamDetailResDto.class))
                 .additionalModels(typeResolver.resolve(OfferDefaultResDto.class))
-                .additionalModels(typeResolver.resolve(AdminDefaultResDto.class))
-                .additionalModels(typeResolver.resolve(AdminAbstractResDto.class))
+                .additionalModels(typeResolver.resolve(ReviewDefaultResDto.class))
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo())
                 .securityContexts(Collections.singletonList(securityContext()))
@@ -97,7 +93,7 @@ public class SwaggerConfig {
         return new ApiInfoBuilder()
                 .title("Gabojait API")
                 .version("V1.0.0")
-                .description("가보자잇 알파 테스트 서버입니다.\n\n" +
+                .description("가보자IT ALPHA TEST SERVER\n\n" +
                         "API 테스트를 위한 테스트 계정 토큰 발급 방법\n" +
                         "개발 > 테스트 계정 토큰 발급 > user-id = 1 ~ 10")
                 .build();

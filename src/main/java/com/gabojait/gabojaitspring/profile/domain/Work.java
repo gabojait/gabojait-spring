@@ -1,62 +1,60 @@
 package com.gabojait.gabojaitspring.profile.domain;
 
 import com.gabojait.gabojaitspring.common.entity.BaseTimeEntity;
+import com.gabojait.gabojaitspring.user.domain.User;
 import lombok.*;
-import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
+import javax.persistence.*;
 import java.time.LocalDate;
 
 @Getter
 @ToString
-@Document(collection = "work")
+@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Work extends BaseTimeEntity {
 
-    @Field(name = "user_id")
-    private ObjectId userId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "work_id")
+    private Long id;
 
-    @Field(name = "corporation_name")
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    @ToString.Exclude
+    private User user;
+
     private String corporationName;
-
-    @Field(name = "started_date")
-    private LocalDate startedDate;
-
-    @Field(name = "ended_date")
-    private LocalDate endedDate;
-
-    @Field(name = "is_current")
+    private String workDescription;
+    private LocalDate startedAt;
+    private LocalDate endedAt;
     private Boolean isCurrent;
 
-    @Field(name = "work_description")
-    private String workDescription;
-
     @Builder
-    public Work(ObjectId userId,
-                String corporationName,
-                LocalDate startedDate,
-                LocalDate endedDate,
+    public Work(String corporationName,
+                String workDescription,
+                LocalDate startedAt,
+                LocalDate endedAt,
                 boolean isCurrent,
-                String workDescription) {
-        this.userId = userId;
+                User user) {
         this.corporationName = corporationName;
-        this.startedDate = startedDate;
-        this.endedDate = endedDate;
-        this.isCurrent = isCurrent;
         this.workDescription = workDescription;
+        this.startedAt = startedAt;
+        this.endedAt = endedAt;
+        this.isCurrent = isCurrent;
+        this.user = user;
+        this.isDeleted = false;
     }
 
     public void update(String corporationName,
-                       LocalDate startedDate,
-                       LocalDate endedDate,
-                       boolean isCurrent,
-                       String workDescription) {
+                       String workDescription,
+                       LocalDate startedAt,
+                       LocalDate endedAt,
+                       boolean isCurrent) {
         this.corporationName = corporationName;
-        this.startedDate = startedDate;
-        this.endedDate = endedDate;
+        this.workDescription = workDescription;
+        this.startedAt = startedAt;
+        this.endedAt = endedAt;
         this.isCurrent = isCurrent;
-        this. workDescription = workDescription;
     }
 
     public void delete() {

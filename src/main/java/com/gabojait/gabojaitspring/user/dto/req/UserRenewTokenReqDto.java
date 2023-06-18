@@ -12,6 +12,6 @@ import lombok.ToString;
 @ApiModel(value = "회원 토큰 재발급 요청")
 public class UserRenewTokenReqDto {
 
-    @ApiModelProperty(position = 1, required = true, value = "FCM 토큰")
+    @ApiModelProperty(position = 1, value = "FCM 토큰")
     private String fcmToken;
 }

@@ -1,20 +1,25 @@
 package com.gabojait.gabojaitspring.offer.repository;
 
 import com.gabojait.gabojaitspring.offer.domain.Offer;
-import org.bson.types.ObjectId;
+import com.gabojait.gabojaitspring.team.domain.Team;
+import com.gabojait.gabojaitspring.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-@Repository
-public interface OfferRepository extends MongoRepository<Offer, ObjectId> {
+public interface OfferRepository extends JpaRepository<Offer, Long> {
 
-    Optional<Offer> findByIdAndIsDeletedIsFalse(ObjectId offerId);
+    Optional<Offer> findByIdAndUserAndIsDeletedIsFalse(Long offerId, User user);
 
-    Page<Offer> findAllByUserIdAndIsDeletedIsFalse(ObjectId userId, Pageable pageable);
+    Optional<Offer> findByIdAndTeamAndIsDeletedIsFalse(Long offerId, Team team);
 
-    Page<Offer> findAllByTeamIdAndIsDeletedIsFalse(ObjectId teamId, Pageable pageable);
+    Optional<Offer> findByIdAndUserAndOfferedByAndIsDeletedIsFalse(Long offerId, User user, Character offeredBy);
+
+    Optional<Offer> findByIdAndTeamAndOfferedByAndIsDeletedIsFalse(Long offerId, Team team, Character offeredBy);
+
+    Page<Offer> findAllByUserAndIsDeletedIsFalse(User user, Pageable pageable);
+
+    Page<Offer> findAllByTeamAndIsDeletedIsFalse(Team team, Pageable pageable);
 }

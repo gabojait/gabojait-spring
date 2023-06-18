@@ -2,34 +2,37 @@ package com.gabojait.gabojaitspring.profile.domain;
 
 import com.gabojait.gabojaitspring.common.entity.BaseTimeEntity;
 import com.gabojait.gabojaitspring.profile.domain.type.Level;
+import com.gabojait.gabojaitspring.user.domain.User;
 import lombok.*;
-import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+
+import javax.persistence.*;
 
 @Getter
 @ToString
-@Document(collection = "skill")
+@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Skill extends BaseTimeEntity {
 
-    @Field(name = "user_id")
-    private ObjectId userId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "skill_id")
+    private Long id;
 
-    @Field(name = "skill_name")
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    @ToString.Exclude
+    private User user;
+
     private String skillName;
-
-    @Field(name = "is_experienced")
     private Boolean isExperienced;
-
     private Character level;
 
     @Builder
-    public Skill(ObjectId userId, String skillName, boolean isExperienced, Level level) {
-        this.userId = userId;
+    public Skill(String skillName, boolean isExperienced, Level level, User user) {
         this.skillName = skillName;
         this.isExperienced = isExperienced;
         this.level = level.getType();
+        this.user = user;
         this.isDeleted = false;
     }
 

@@ -2,7 +2,6 @@ package com.gabojait.gabojaitspring.profile.dto.res;
 
 import com.gabojait.gabojaitspring.profile.domain.type.TeamMemberStatus;
 import com.gabojait.gabojaitspring.review.dto.res.ReviewDefaultResDto;
-import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.dto.res.TeamAbstractResDto;
 import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
@@ -18,61 +17,65 @@ import java.util.List;
 @ApiModel(value = "프로필 기본 응답")
 public class ProfileDefaultResDto extends ProfileAbstractResDto {
 
-    @ApiModelProperty(position = 7, required = true, value = "자기소개")
+    @ApiModelProperty(position = 8, required = true, value = "자기소개")
     private String profileDescription;
 
-    @ApiModelProperty(position = 8, required = true, value = "프로필 사진")
+    @ApiModelProperty(position = 9, required = true, value = "프로필 사진")
     private String imageUrl;
 
-    @ApiModelProperty(position = 9, required = true, value = "리뷰")
-    private List<ReviewDefaultResDto> reviews = new ArrayList<>();
-
-    @ApiModelProperty(position = 10, required = true, value = "학력")
-    private List<EducationDefaultResDto> educations = new ArrayList<>();
-
-    @ApiModelProperty(position = 11, required = true, value = "경력")
-    private List<WorkDefaultResDto> works = new ArrayList<>();
-
-    @ApiModelProperty(position = 12, required = true, value = "기술")
-    private  List<SkillDefaultResDto> skills = new ArrayList<>();
-
-    @ApiModelProperty(position = 13, required = true, value = "포트폴리오")
-    private List<PortfolioDefaultResDto> portfolios = new ArrayList<>();
-
-    @ApiModelProperty(position = 14, required = true, value = "완료한 팀")
-    private List<TeamAbstractResDto> completedTeams = new ArrayList<>();
-
-    @ApiModelProperty(position = 15, required = true, value = "현재 팀 식별자")
-    private String currentTeamId;
-
-    @ApiModelProperty(position = 16, required = true, value = "팀 멤버 상태", allowableValues = "leader, member, none")
+    @ApiModelProperty(position = 10, required = true, value = "팀 멤버 상태", allowableValues = "leader, member, none")
     private String teamMemberStatus;
 
-    @ApiModelProperty(position = 17, required = true, value = "팀 찾기 여부")
+    @ApiModelProperty(position = 11, required = true, value = "팀 찾기 여부")
     private Boolean isSeekingTeam;
 
-    public ProfileDefaultResDto(User user, List<Team> completedTeams) {
+    @ApiModelProperty(position = 12, required = true, value = "리뷰")
+    private List<ReviewDefaultResDto> reviews = new ArrayList<>();
+
+    @ApiModelProperty(position = 13, required = true, value = "학력")
+    private List<EducationDefaultResDto> educations = new ArrayList<>();
+
+    @ApiModelProperty(position = 14, required = true, value = "포트폴리오")
+    private List<PortfolioDefaultResDto> portfolios = new ArrayList<>();
+
+    @ApiModelProperty(position = 15, required = true, value = "기술")
+    private  List<SkillDefaultResDto> skills = new ArrayList<>();
+
+    @ApiModelProperty(position = 16, required = true, value = "경력")
+    private List<WorkDefaultResDto> works = new ArrayList<>();
+
+    @ApiModelProperty(position = 17, required = true, value = "완료한 팀")
+    private List<TeamAbstractResDto> completedTeams = new ArrayList<>();
+
+    @ApiModelProperty(position = 18, required = true, value = "현재 팀")
+    private TeamAbstractResDto currentTeam;
+
+    public ProfileDefaultResDto(User user) {
         super(user);
 
         this.profileDescription = user.getProfileDescription();
         this.imageUrl = user.getImageUrl();
-        this.teamMemberStatus = TeamMemberStatus.fromChar(user.getTeamMemberStatus()).name().toLowerCase();
+        this.teamMemberStatus = TeamMemberStatus.NONE.name();
         this.isSeekingTeam = user.getIsSeekingTeam();
 
-        if (!user.getReviews().isEmpty())
-            user.getReviews().forEach(r -> this.reviews.add(new ReviewDefaultResDto(r)));
+        if (!user.getReceivedReviews().isEmpty())
+            user.getReceivedReviews().forEach(review -> this.reviews.add(new ReviewDefaultResDto(review)));
         if (!user.getEducations().isEmpty())
-            user.getEducations().forEach(e -> this.educations.add(new EducationDefaultResDto(e)));
-        if (!user.getWorks().isEmpty())
-            user.getWorks().forEach(w -> this.works.add(new WorkDefaultResDto(w)));
-        if (!user.getSkills().isEmpty())
-            user.getSkills().forEach(s -> this.skills.add(new SkillDefaultResDto(s)));
+            user.getEducations().forEach(education -> this.educations.add(new EducationDefaultResDto(education)));
         if (!user.getPortfolios().isEmpty())
-            user.getPortfolios().forEach(p -> this.portfolios.add(new PortfolioDefaultResDto(p)));
-        if (!completedTeams.isEmpty())
-            completedTeams.forEach(t -> this.completedTeams.add(new TeamAbstractResDto(t)));
-
-        if (user.getCurrentTeamId() != null)
-            this.currentTeamId = user.getCurrentTeamId().toString();
+            user.getPortfolios().forEach(portfolio -> this.portfolios.add(new PortfolioDefaultResDto(portfolio)));
+        if (!user.getSkills().isEmpty())
+            user.getSkills().forEach(skill -> this.skills.add(new SkillDefaultResDto(skill)));
+        if (!user.getWorks().isEmpty())
+            user.getWorks().forEach(work -> this.works.add(new WorkDefaultResDto(work)));
+        if (!user.getTeamMembers().isEmpty())
+            user.getTeamMembers().forEach(teamMember -> {
+                if (teamMember.getTeam().getCompletedAt() != null) {
+                    this.completedTeams.add(new TeamAbstractResDto(teamMember.getTeam()));
+                } else {
+                    this.teamMemberStatus = TeamMemberStatus.fromChar(teamMember.getTeamMemberStatus()).name();
+                    this.currentTeam = new TeamAbstractResDto(teamMember.getTeam());
+                }
+            });
     }
 }

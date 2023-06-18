@@ -1,20 +1,21 @@
 package com.gabojait.gabojaitspring.team.repository;
 
 import com.gabojait.gabojaitspring.team.domain.Team;
-import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-@Repository
-public interface TeamRepository extends MongoRepository<Team, ObjectId> {
+public interface TeamRepository extends JpaRepository<Team, Long> {
 
-    Optional<Team> findByIdAndIsDeletedIsFalse(ObjectId teamId);
+    Optional<Team> findByIdAndIsDeletedIsFalse(Long id);
 
     Page<Team> findAllByIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(Pageable pageable);
+
+    Page<Team> findAllByIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(Pageable pageable);
+
+    Page<Team> findAllByIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedAtDesc(Pageable pageable);
 
     Page<Team> findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(
             Pageable pageable
@@ -32,8 +33,6 @@ public interface TeamRepository extends MongoRepository<Team, ObjectId> {
             Pageable pageable
     );
 
-    Page<Team> findAllByIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(Pageable pageable);
-
     Page<Team> findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
             Pageable pageable
     );
@@ -50,21 +49,19 @@ public interface TeamRepository extends MongoRepository<Team, ObjectId> {
             Pageable pageable
     );
 
-    Page<Team> findAllByIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedDateDesc(Pageable pageable);
-
-    Page<Team> findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedDateDesc(
+    Page<Team> findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedAtDesc(
             Pageable pageable
     );
 
-    Page<Team> findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedDateDesc(
+    Page<Team> findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedAtDesc(
             Pageable pageable
     );
 
-    Page<Team> findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedDateDesc(
+    Page<Team> findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedAtDesc(
             Pageable pageable
     );
 
-    Page<Team> findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedDateDesc(
+    Page<Team> findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedAtDesc(
             Pageable pageable
     );
 }

@@ -1,23 +1,23 @@
 package com.gabojait.gabojaitspring.user.domain;
 
 import com.gabojait.gabojaitspring.common.entity.BaseTimeEntity;
+import com.gabojait.gabojaitspring.fcm.domain.Fcm;
 import com.gabojait.gabojaitspring.profile.domain.Education;
 import com.gabojait.gabojaitspring.profile.domain.Portfolio;
 import com.gabojait.gabojaitspring.profile.domain.Skill;
 import com.gabojait.gabojaitspring.profile.domain.Work;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
-import com.gabojait.gabojaitspring.profile.domain.type.TeamMemberStatus;
 import com.gabojait.gabojaitspring.review.domain.Review;
+import com.gabojait.gabojaitspring.team.domain.Team;
+import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.user.domain.type.Gender;
 import com.gabojait.gabojaitspring.user.domain.type.Role;
 import lombok.*;
-import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -25,134 +25,129 @@ import java.util.stream.Collectors;
 
 @Getter
 @ToString
-@Document(collection = "user")
+@Entity(name = "member")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseTimeEntity implements UserDetails {
 
-    @Field(name = "legal_name")
-    private String legalName;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "member_id")
+    private Long id;
 
-    @Field(name = "is_temporary_password")
-    private Boolean isTemporaryPassword;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "member_role", joinColumns = @JoinColumn(name = "member_id"))
+    private Set<String> roles = new HashSet<>();
 
-    @Field(name = "image_url")
-    private String imageUrl;
+    @OneToOne
+    @JoinColumn(name = "contact_id")
+    @ToString.Exclude
+    private Contact contact;
 
-    @Field(name = "last_request_date")
-    private LocalDateTime lastRequestDate;
+    @OneToMany(mappedBy = "user")
+    @ToString.Exclude
+    private List<Fcm> fcms = new ArrayList<>();
 
-    @Field(name = "current_team_id")
-    private ObjectId currentTeamId;
+    @OneToMany(mappedBy = "reviewee")
+    @ToString.Exclude
+    private List<Review> receivedReviews = new ArrayList<>();
 
-    @Field(name = "completed_team_ids")
-    private List<ObjectId> completedTeamIds = new ArrayList<>();
+    @OneToMany(mappedBy = "reviewer")
+    @ToString.Exclude
+    private List<Review> givenReviews = new ArrayList<>();
 
-    @Field(name = "team_member_status")
-    private Character teamMemberStatus;
+    @OneToMany(mappedBy = "user")
+    @ToString.Exclude
+    private List<Education> educations = new ArrayList<>();
 
-    @Field(name = "is_seeking_team")
-    private Boolean isSeekingTeam;
+    @OneToMany(mappedBy = "user")
+    @ToString.Exclude
+    private List<Portfolio> portfolios = new ArrayList<>();
 
-    @Field(name = "user_offer_cnt")
-    private Long userOfferCnt;
+    @OneToMany(mappedBy = "user")
+    @ToString.Exclude
+    private List<Skill> skills = new ArrayList<>();
 
-    @Field(name = "team_offer_cnt")
-    private Long teamOfferCnt;
+    @OneToMany(mappedBy = "user")
+    @ToString.Exclude
+    private List<Work> works = new ArrayList<>();
 
-    @Field(name = "profile_description")
-    private String profileDescription;
-
-    @Field(name = "visited_cnt")
-    private Long visitedCnt;
-
-    @Field(name = "join_team_cnt")
-    private Short joinTeamCnt;
-
-    @Field(name = "quit_incomplete_team_cnt")
-    private Short quitIncompleteTeamCnt;
-
-    @Field(name = "quit_complete_team_cnt")
-    private Short quitCompleteTeamCnt;
-
-    @Field(name = "rating_cnt")
-    private Short ratingCnt;
-
-    @Field(name = "favorite_team_ids")
-    private List<ObjectId> favoriteTeamIds = new ArrayList<>();
-
-    @Field(name = "fcm_tokens")
-    private Set<String> fcmTokens = new HashSet<>();
-
-    @Field(name = "is_notified")
-    private Boolean isNotified;
+    @OneToMany(mappedBy = "user")
+    @ToString.Exclude
+    private List<TeamMember> teamMembers = new ArrayList<>();
 
     private String username;
     private String password;
-    private Character gender;
-    private LocalDate birthdate;
-    private Set<String> roles = new HashSet<>();
-    private Contact contact;
     private String nickname;
+    private LocalDate birthdate;
+    private Character gender;
     private Character position;
+    private String imageUrl;
+    private String profileDescription;
+    private Boolean isSeekingTeam;
+
     private Float rating;
-    private List<Education> educations = new ArrayList<>();
-    private List<Portfolio> portfolios = new ArrayList<>();
-    private List<Skill> skills = new ArrayList<>();
-    private List<Work> works = new ArrayList<>();
-    private List<Review> reviews = new ArrayList<>();
+    private Long userOfferCnt;
+    private Long teamOfferCnt;
+    private Long visitedCnt;
+    private Short createTeamCnt;
+    private Short joinTeamCnt;
+    private Short firedTeamCnt;
+    private Short quitTeamByLeaderCnt;
+    private Short quitTeamByUserCnt;
+    private Short completeTeamCnt;
+    private Integer reviewCnt;
+    private Boolean isTemporaryPassword;
+    private Boolean isNotified;
+    private LocalDateTime lastRequestAt;
 
     @Builder(builderMethodName = "userBuilder", builderClassName = "userBuilder")
     public User(String username,
-                String legalName,
                 String password,
                 Gender gender,
                 LocalDate birthdate,
-                Contact contact,
                 String nickname,
-                String fcmToken) {
+                Contact contact) {
         this.username = username;
-        this.nickname = nickname;
-        this.legalName = legalName;
         this.password = password;
         this.gender = gender.getType();
         this.birthdate = birthdate;
+        this.nickname = nickname;
         this.contact = contact;
 
-        this.lastRequestDate = LocalDateTime.now();
-        this.isTemporaryPassword = false;
-        this.isSeekingTeam = true;
-        this.imageUrl = null;
-        this.teamMemberStatus = TeamMemberStatus.NONE.getType();
-        this.currentTeamId = null;
         this.position = Position.NONE.getType();
+        this.imageUrl = null;
         this.profileDescription = null;
-        this.isNotified = true;
-        this.isDeleted = false;
+        this.isSeekingTeam = true;
+        this.roles.add(Role.USER.name());
 
-        this.ratingCnt = 0;
-        this.visitedCnt = 0L;
-        this.joinTeamCnt = 0;
-        this.quitCompleteTeamCnt = 0;
-        this.quitIncompleteTeamCnt = 0;
+        this.rating = 0F;
         this.userOfferCnt = 0L;
         this.teamOfferCnt = 0L;
-        this.rating = 0F;
-
-        updateRoles(List.of(Role.USER));
-        addFcmToken(fcmToken);
+        this.visitedCnt = 0L;
+        this.createTeamCnt = 0;
+        this.joinTeamCnt = 0;
+        this.firedTeamCnt = 0;
+        this.quitTeamByLeaderCnt = 0;
+        this.quitTeamByUserCnt = 0;
+        this.completeTeamCnt = 0;
+        this.reviewCnt = 0;
+        this.isTemporaryPassword = false;
+        this.isNotified = true;
+        this.lastRequestAt = LocalDateTime.now();
+        this.isDeleted = false;
     }
 
     @Builder(builderMethodName = "adminBuilder", builderClassName = "adminBuilder")
-    public User(String username, String legalName, String password, Gender gender, LocalDate birthdate) {
+    public User(String username, String password, Gender gender, LocalDate birthdate) {
         this.username = username;
-        this.legalName = legalName;
         this.password = password;
         this.gender = gender.getType();
         this.birthdate = birthdate;
 
-        this.lastRequestDate = LocalDateTime.now();
+        this.roles.addAll(List.of(Role.USER.name(), Role.ADMIN.name()));
 
-        updateRoles(List.of(Role.USER, Role.ADMIN));
+        this.lastRequestAt = LocalDateTime.now();
+        this.isDeleted = null;
     }
 
     @Builder(builderMethodName = "masterBuilder", builderClassName = "masterBuilder")
@@ -160,10 +155,10 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.username = username;
         this.password = password;
 
-        this.isDeleted = false;
-        this.lastRequestDate = LocalDateTime.now();
+        this.roles.addAll(List.of(Role.USER.name(), Role.ADMIN.name(), Role.MASTER.name()));
 
-        updateRoles(List.of(Role.USER, Role.ADMIN, Role.MASTER));
+        this.lastRequestAt = LocalDateTime.now();
+        this.isDeleted = null;
     }
 
     public void updatePassword(String password, boolean isTemporaryPassword) {
@@ -175,34 +170,20 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.nickname = nickname;
     }
 
-    public void updateLastRequestDate() {
-        this.lastRequestDate = LocalDateTime.now();
+    public void updateIsNotified(boolean isNotified) {
+        this.isNotified = isNotified;
     }
 
-    public void updateRoles(List<Role> roles) {
-        for (Role role : roles)
-            this.roles.add(role.name());
+    public void updateLastRequestAt() {
+        this.lastRequestAt = LocalDateTime.now();
     }
 
     public void approveAdminRegistration(boolean isDeleted) {
         this.isDeleted = isDeleted;
     }
 
-    public void addFcmToken(String fcmToken) {
-        if (!fcmToken.isBlank())
-            this.fcmTokens.add(fcmToken);
-    }
-
-    public void removeFcmToken(String fcmToken) {
-        if (!fcmToken.isBlank())
-            this.fcmTokens.remove(fcmToken);
-    }
-
-    public void updateIsNotified(boolean isNotified) {
-        this.isNotified = isNotified;
-    }
-
-    public void delete() {
+    public void deleteAccount() {
+        this.username = null;
         this.isDeleted = true;
     }
 
@@ -252,63 +233,19 @@ public class User extends BaseTimeEntity implements UserDetails {
     }
 
     public boolean hasPosition() {
-        return !this.position.equals(Position.NONE.getType()) || this.position != null;
+        return !this.position.equals(Position.NONE.getType());
     }
 
     public void updateProfileDescription(String profileDescription) {
         this.profileDescription = profileDescription;
     }
 
-    public void updateIsSeekingTeam(Boolean isSeekingTeam) {
-        this.isSeekingTeam = isSeekingTeam;
-    }
-
     public void updateImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
 
-    public void addAllEducations(List<Education> educations) {
-        this.educations.addAll(educations);
-    }
-
-    public void removeAllEducations(List<Education> educations) {
-        educations.forEach(education ->
-                this.educations.removeIf(e ->
-                        education.getId().toString().equals(e.getId().toString())
-                ));
-    }
-
-    public void addAllPortfolios(List<Portfolio> portfolios) {
-        this.portfolios.addAll(portfolios);
-    }
-
-    public void removeAllPortfolios(List<Portfolio> portfolios) {
-        portfolios.forEach(portfolio ->
-                this.portfolios.removeIf(p ->
-                        portfolio.getId().toString().equals(p.getId().toString())
-                ));
-    }
-
-    public void addAllSkills(List<Skill> skills) {
-        this.skills.addAll(skills);
-    }
-
-    public void removeAllSkills(List<Skill> skills) {
-        skills.forEach(skill ->
-                this.skills.removeIf(s ->
-                        skill.getId().toString().equals(s.getId().toString())
-                ));
-    }
-
-    public void addAllWorks(List<Work> works) {
-        this.works.addAll(works);
-    }
-
-    public void removeAllWorks(List<Work> works) {
-        works.forEach(work ->
-            this.works.removeIf(w ->
-                    work.getId().toString().equals(w.getId().toString())
-            ));
+    public void updateIsSeekingTeam(boolean isSeekingTeam) {
+        this.isSeekingTeam = isSeekingTeam;
     }
 
     public void incrementVisitedCnt() {
@@ -319,86 +256,65 @@ public class User extends BaseTimeEntity implements UserDetails {
      * Team related
      */
 
-    public void joinTeam(ObjectId currentTeamId, boolean isLeader) {
-        this.currentTeamId = currentTeamId;
+    public boolean isLeader() {
+        if (this.teamMembers.isEmpty())
+            return false;
+
+        TeamMember teamMember = this.teamMembers.get(this.teamMembers.size() - 1);
+
+        return teamMember.isLeader();
+    }
+
+    public boolean isTeamMember(Team team) {
+        for(TeamMember teamMember : this.teamMembers)
+            if (teamMember.getTeam().getId().equals(team.getId()))
+                return true;
+
+        return false;
+    }
+
+    public void incrementCreateTeamCnt() {
+        this.createTeamCnt++;
+    }
+
+    public void incrementJoinTeamCnt() {
         this.joinTeamCnt++;
-        this.isSeekingTeam = false;
-
-        if (isLeader)
-            this.teamMemberStatus = TeamMemberStatus.LEADER.getType();
-        else
-            this.teamMemberStatus = TeamMemberStatus.MEMBER.getType();
     }
 
-    public void quitTeam(ObjectId teamId, boolean isComplete) {
-        if (isComplete) {
-            this.completedTeamIds.add(teamId);
-            this.quitCompleteTeamCnt++;
-        } else {
-            this.quitIncompleteTeamCnt++;
-        }
-
-        this.currentTeamId = null;
-        this.teamMemberStatus = TeamMemberStatus.NONE.getType();
-        this.isSeekingTeam = true;
+    public void incrementFiredTeamCnt() {
+        this.firedTeamCnt++;
     }
 
-    public boolean hasCurrentTeam() {
-        return this.currentTeamId != null;
+    public void incrementQuitTeamByLeaderCnt() {
+        this.quitTeamByLeaderCnt++;
     }
 
-    public Boolean isFavoriteTeam(ObjectId teamId) {
-        if (this.currentTeamId != null)
-            return null;
-
-        for (ObjectId favoriteTeamId : this.favoriteTeamIds)
-            if (favoriteTeamId.toString().equals(teamId.toString()))
-                return true;
-
-        return false;
+    public void incrementQuitTeamByUserCnt() {
+        this.quitTeamByUserCnt++;
     }
 
-    public void updateFavoriteTeamId(ObjectId teamId, boolean isAddFavorite) {
-        if (isAddFavorite) {
-            if (!this.favoriteTeamIds.contains(teamId))
-                this.favoriteTeamIds.add(teamId);
-        } else {
-            this.favoriteTeamIds.remove(teamId);
-        }
-    }
-
-    public boolean isCompletedTeam(ObjectId teamId) {
-        for (ObjectId completedTeamId : this.completedTeamIds)
-            if (completedTeamId.toString().equals(teamId.toString()))
-                return true;
-
-        return false;
-    }
-
-    /**
-     * Offer related
-     */
-
-    public void offer(boolean isOfferedByUser) {
-        if (isOfferedByUser)
-            this.userOfferCnt++;
-        else
-            this.teamOfferCnt++;
+    public void incrementCompleteTeamCnt() {
+        this.completeTeamCnt++;
     }
 
     /**
      * Review related
      */
 
-    public void updateRating(Review review) {
-        if (this.ratingCnt > 0) {
-            this.rating = (this.rating * (float) (this.ratingCnt / (this.ratingCnt + 1))) +
-                    (review.getRate() / (float) (this.ratingCnt + 1));
-        } else {
-            this.rating = (float) review.getRate();
-        }
+    public void rate(byte rate) {
+        this.rating = (this.rating / (this.reviewCnt + 1)) + (rate / (this.reviewCnt + 1));
+        this.reviewCnt++;
+    }
 
-        this.reviews.add(review);
-        this.ratingCnt++;
+    /**
+     * Offer related
+     */
+
+    public void incrementUserOfferCnt() {
+        this.userOfferCnt++;
+    }
+
+    public void incrementTeamOfferCnt() {
+        this.teamOfferCnt++;
     }
 }

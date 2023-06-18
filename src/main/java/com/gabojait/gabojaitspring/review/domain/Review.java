@@ -1,41 +1,45 @@
 package com.gabojait.gabojaitspring.review.domain;
 
 import com.gabojait.gabojaitspring.common.entity.BaseTimeEntity;
+import com.gabojait.gabojaitspring.team.domain.Team;
+import com.gabojait.gabojaitspring.user.domain.User;
 import lombok.*;
-import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+
+import javax.persistence.*;
 
 @Getter
 @ToString
-@Document(collection = "review")
+@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Review extends BaseTimeEntity {
 
-    @Field(name = "reviewer_id")
-    private ObjectId reviewerId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "review_id")
+    private Long id;
 
-    @Field(name = "reviewee_id")
-    private ObjectId revieweeId;
+    @ManyToOne
+    @JoinColumn(name = "reviewer_id")
+    private User reviewer;
 
-    @Field(name = "team_id")
-    private ObjectId teamId;
+    @ManyToOne
+    @JoinColumn(name = "reviewee_id")
+    private User reviewee;
 
-    private Integer rate;
-    private String postscript;
+    @ManyToOne
+    @JoinColumn(name = "team_id")
+    private Team team;
+
+    private Byte rate;
+    private String post;
 
     @Builder
-    public Review(ObjectId reviewerId,
-                  ObjectId revieweeId,
-                  ObjectId teamId,
-                  Integer rate,
-                  String postscript) {
-        this.reviewerId = reviewerId;
-        this.revieweeId = revieweeId;
-        this.teamId = teamId;
+    public Review(User reviewer, User reviewee, Team team, Byte rate, String post) {
+        this.reviewer = reviewer;
+        this.reviewee = reviewee;
+        this.team = team;
         this.rate = rate;
-        this.postscript = postscript;
-
+        this.post = post;
         this.isDeleted = false;
     }
 }

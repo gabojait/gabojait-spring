@@ -23,7 +23,7 @@ import javax.validation.constraints.Size;
 public class UserNicknameUpdateReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "닉네임", example = "김가볼까잇")
-    @NotBlank(message = "닉네임은 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
+    @NotBlank(message = "닉네임은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
     @Size(min = 2, max = 8, message = "닉네임은 2~8자만 가능합니다.", groups = ValidationSequence.Size.class)
     @Pattern(regexp = "^[가-힣]+$", message = "닉네임은 한글 조합으로 입력해 주세요.", groups = ValidationSequence.Format.class)
     private String nickname;

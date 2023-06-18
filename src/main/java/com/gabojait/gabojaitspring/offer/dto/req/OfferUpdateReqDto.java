@@ -18,6 +18,6 @@ import javax.validation.constraints.NotNull;
 public class OfferUpdateReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "수락 여부", example = "true", allowableValues = "true, false")
-    @NotNull(message = "수락 여부는 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
+    @NotNull(message = "수락 여부는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
     private Boolean isAccepted;
 }

@@ -2,35 +2,35 @@ package com.gabojait.gabojaitspring.user.service;
 
 import com.gabojait.gabojaitspring.common.util.EmailProvider;
 import com.gabojait.gabojaitspring.common.util.FileProvider;
-import com.gabojait.gabojaitspring.common.util.UtilityProvider;
+import com.gabojait.gabojaitspring.common.util.GeneralProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
-import com.gabojait.gabojaitspring.profile.domain.Education;
-import com.gabojait.gabojaitspring.profile.domain.Portfolio;
-import com.gabojait.gabojaitspring.profile.domain.Skill;
-import com.gabojait.gabojaitspring.profile.domain.Work;
+import com.gabojait.gabojaitspring.fcm.domain.Fcm;
+import com.gabojait.gabojaitspring.fcm.repository.FcmRepository;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.profile.domain.type.ProfileOrder;
-import com.gabojait.gabojaitspring.review.domain.Review;
-import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.Contact;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.domain.type.Role;
+import com.gabojait.gabojaitspring.user.dto.req.UserFindPasswordReqDto;
 import com.gabojait.gabojaitspring.user.dto.req.UserLoginReqDto;
 import com.gabojait.gabojaitspring.user.dto.req.UserRegisterReqDto;
+import com.gabojait.gabojaitspring.user.repository.ContactRepository;
 import com.gabojait.gabojaitspring.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
+import java.util.Optional;
+import java.util.UUID;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class UserService {
 
@@ -38,12 +38,14 @@ public class UserService {
     private String bucketName;
 
     private final UserRepository userRepository;
+    private final ContactRepository contactRepository;
+    private final FcmRepository fcmRepository;
+    private final GeneralProvider generalProvider;
     private final EmailProvider emailProvider;
     private final FileProvider fileProvider;
-    private final UtilityProvider utilityProvider;
 
     /**
-     * 아이디 검증 | main |
+     * 아이디 검증 |
      * 409(UNAVAILABLE_USERNAME / EXISTING_USERNAME)
      */
     public void validateUsername(String username) {
@@ -54,7 +56,7 @@ public class UserService {
     }
 
     /**
-     * 닉네임 검증 | main |
+     * 닉네임 검증 |
      * 409(UNAVAILABLE_NICKNAME / EXISTING_NICKNAME)
      */
     public void validateNickname(String nickname) {
@@ -65,82 +67,89 @@ public class UserService {
     }
 
     /**
-     * 회원 가입 | main |
+     * 회원 가입 |
+     * 400(PASSWORD_MATCH_INVALID)
+     * 404(CONTACT_NOT_FOUND)
+     * 409(UNAVAILABLE_USERNAME / EXISTING_USERNAME / UNAVAILABLE_NICKNAME / EXISTING_NICKNAME)
      * 500(SERVER_ERROR)
      */
-    public User register(UserRegisterReqDto request, Contact contact) {
-        String password = utilityProvider.encodePassword(request.getPassword());
+    public User register(UserRegisterReqDto request) {
+        validateUsername(request.getUsername());
+        validateNickname(request.getNickname());
+        validateMatchingPassword(request.getPassword(), request.getPasswordReEntered());
+        Contact contact = findOneVerifiedUnregisteredContact(request.getEmail());
+        String password = generalProvider.encodePassword(request.getPassword());
 
-        User user =  save(request.toEntity(password, contact));
+        User user = request.toEntity(password, contact);
+        saveUser(user);
 
-        updateFcmToken(user, request.getFcmToken(), true);
+        createFcm(request.getFcmToken(), user);
 
         return user;
     }
 
     /**
-     * 회원 로그인 | main |
-     * 401(LOGIN_FAIL)
+     * 회원 로그인 |
+     * 401(LOGIN_UNAUTHENTICATED)
      * 500(SERVER_ERROR)
      */
     public User login(UserLoginReqDto request) {
-        User user = findOneByUsername(request.getUsername());
+        User user = findOneUser(request.getUsername());
 
-        boolean isVerified = utilityProvider.verifyPassword(user, request.getPassword());
+        boolean isVerified = generalProvider.verifyPassword(user, request.getPassword());
         if (!isVerified)
             throw new CustomException(LOGIN_UNAUTHENTICATED);
 
-        updateFcmToken(user, request.getFcmToken(), true);
+        createFcm(request.getFcmToken(), user);
+        updateLastRequestAt(user, request.getFcmToken());
 
         return user;
     }
 
     /**
-     * 식별자로 타인 단건 조회 | main |
-     * 400(ID_CONVERT_INVALID)
-     * 404(USER_NOT_FOUND)
+     * 회원 로그아웃 |
      * 500(SERVER_ERROR)
      */
-    public User findOneOtherById(User user, String otherUserId) {
-        if (user.getId().toString().equals(otherUserId))
-            return user;
+    public void logout(User user, String fcmToken) {
+        Optional<Fcm> fcm = findOneFcm(fcmToken, user);
 
-        User otherUser = findOneById(otherUserId);
-        otherUser.incrementVisitedCnt();
-        save(user);
-
-        return otherUser;
+        fcm.ifPresent(this::hardDeleteFcm);
     }
 
     /**
-     * 아이디 이메일로 전송 | main |
-     * 404(USER_NOT_FOUND)
-     * 500(EMAIL_SEND_ERROR)
+     * 마지막 요청일 업데이트 |
+     * 500(SERVER_ERROR)
      */
-    public void sendUsernameEmail(Contact contact) {
-        User user = findOneByContact(contact);
+    public void updateLastRequestAt(User user, String fcmToken) {
+        user.updateLastRequestAt();
 
-        emailProvider.sendEmail(
-                user.getContact().getEmail(),
-                "[가보자IT] 아이디 찾기",
-                user.getUsername() + "님 안녕하세요!🙇🏻<br>해당 이메일로 가입된 아이디 정보입니다.",
-                user.getUsername()
-        );
+        createFcm(fcmToken, user);
     }
 
     /**
-     * 임시 비밀번호 이메일로 전송 | main |
+     * 아이디 이메일로 전송 |
+     * 404(CONTACT_NOT_FOUND)
+     * 500(EMAIL_SEND_ERROR / SERVER_ERROR)
+     */
+    public void sendUsernameToEmail(String email) {
+        Contact contact = findOneRegisteredContact(email);
+        sendUsernameEmail(contact.getUser());
+    }
+
+    /**
+     * 비밀번호 이메일로 전송 |
      * 400(USERNAME_EMAIL_MATCH_INVALID)
-     * 404(USER_NOT_FOUND)
+     * 404(CONTACT_NOT_FOUND)
      * 500(EMAIL_SEND_ERROR)
      */
-    public void sendPasswordEmail(Contact contact, String username) {
-        User user = findOneByContact(contact);
+    public void sendPasswordToEmail(UserFindPasswordReqDto request) {
+        Contact contact = findOneRegisteredContact(request.getEmail());
+        User user = contact.getUser();
 
-        if (!user.getUsername().equals(username))
+        if (!user.getUsername().equals(request.getUsername()))
             throw new CustomException(USERNAME_EMAIL_MATCH_INVALID);
 
-        String tempPassword = utilityProvider.generateRandomCode(8);
+        String tempPassword = generalProvider.generateRandomCode(8);
         updatePassword(user, tempPassword, tempPassword, true);
 
         emailProvider.sendEmail(
@@ -152,52 +161,52 @@ public class UserService {
     }
 
     /**
-     * 비밀번호 업데이트 | main&sub |
-     * 400(PASSWORD_MATCH_INVALID)
-     * 500(SERVER_ERROR)
+     * 비밀번호 검증 |
+     * 401(PASSWORD_UNAUTHENTICATED)
      */
-    public void updatePassword(User user, String password, String passwordReEntered, boolean isTemporaryPassword) {
-        if (!isTemporaryPassword)
-            validateMatchingPassword(password, passwordReEntered);
+    public void verifyPassword(User user, String password) {
+        boolean isVerified = generalProvider.verifyPassword(user, password);
 
-        user.updatePassword(utilityProvider.encodePassword(password), isTemporaryPassword);
-
-        save(user);
-    }
-
-    /**
-     * 닉네임 업데이트 | main |
-     * 409(UNAVAILABLE_NICKNAME / EXISTING_NICKNAME)
-     * 500(SERVER_ERROR)
-     */
-    public void updateNickname(User user, String nickname) {
-        validateNickname(nickname);
-
-        user.updateNickname(nickname);
-
-        save(user);
-    }
-
-    /**
-     * 비밀번호 검증 | main |
-     * 400(PASSWORD_INVALID)
-     */
-    public void validatePassword(User user, String password) {
-        boolean isVerified = utilityProvider.verifyPassword(user, password);
         if (!isVerified)
             throw new CustomException(PASSWORD_UNAUTHENTICATED);
     }
 
     /**
-     * 프로필 이미지 업데이트 | main |
+     * 닉네임 업데이트 |
+     * 409(UNAVAILABLE_NICKNAME / EXISTING_NICKNAME)
+     */
+    public void updateNickname(User user, String nickname) {
+        validateNickname(nickname);
+
+        user.updateNickname(nickname);
+    }
+
+    /**
+     * 비밀번호 업데이트 |
+     * 400(PASSWORD_MATCH_INVALID)
+     */
+    public void updatePassword(User user, String password, String passwordReEntered, boolean isTemporaryPassword) {
+        if (!isTemporaryPassword)
+            validateMatchingPassword(password, passwordReEntered);
+
+        String encodedPassword = generalProvider.encodePassword(password);
+        user.updatePassword(encodedPassword, isTemporaryPassword);
+    }
+
+    /**
+     * 알림 여부 업데이트
+     */
+    public void updateIsNotified(User user, boolean isNotified) {
+        user.updateIsNotified(isNotified);
+    }
+
+    /**
+     * 프로필 이미지 업로드 |
      * 400(FILE_FIELD_REQUIRED)
      * 415(IMAGE_TYPE_UNSUPPORTED)
      * 500(SERVER_ERROR)
      */
     public void uploadProfileImage(User user, MultipartFile multipartFile) {
-        if (multipartFile == null)
-            throw new CustomException(FILE_FIELD_REQUIRED);
-
         String url = fileProvider.upload(bucketName,
                 user.getId().toString(),
                 UUID.randomUUID().toString(),
@@ -205,153 +214,65 @@ public class UserService {
                 true);
 
         user.updateImageUrl(url);
-
-        save(user);
     }
 
     /**
-     * 프로필 이미지 삭제 | main |
-     * 500(SERVER_ERROR)
+     * 프로필 이미지 삭제
      */
     public void deleteProfileImage(User user) {
         user.updateImageUrl(null);
-
-        save(user);
     }
 
     /**
-     * 팀 찾기 여부 업데이트 | main |
-     * 500(SERVER_ERROR)
+     * 팀 찾기 여부 업데이트
      */
-    public void updateIsSeekingTeam(User user, Boolean isPublic) {
-        user.updateIsSeekingTeam(isPublic);
-
-        save(user);
+    public void updateIsSeekingTeam(User user, boolean isSeekingTeam) {
+        user.updateIsSeekingTeam(isSeekingTeam);
     }
 
     /**
-     * 자기소개 업데이트 | main |
-     * 500(SERVER_ERROR)
+     * 자기소개 업데이트
      */
     public void updateProfileDescription(User user, String profileDescription) {
         user.updateProfileDescription(profileDescription);
-
-        save(user);
     }
 
     /**
-     * 아이디로 테스트 회원 단건 조회 | main |
-     * 404(USER_NOT_FOUND)
-     */
-    public User findOneTestByUsername(String username) {
-        return userRepository.findByUsernameAndRolesInAndIsDeletedIsFalse(username, Role.USER.name())
-                .orElseThrow(() -> {
-                    throw new CustomException(USER_NOT_FOUND);
-                });
-    }
-
-    /**
-     * 포지션과 기술들 업데이트 | main |
+     * 포지션과 프로필 정렬 기준으로 회원 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
-    public void updatePositionAndSkills(User user,
-                                        String position,
-                                        List<Skill> createdSkills,
-                                        List<Skill> updatedSkills,
-                                        List<Skill> deletedSkills) {
-        // update
-        user.updatePosition(Position.fromString(position));
-        user.removeAllSkills(updatedSkills);
-        user.addAllSkills(updatedSkills);
-        // create
-        user.addAllSkills(createdSkills);
-        // delete
-        user.removeAllSkills(deletedSkills);
-
-        save(user);
-    }
-
-    /**
-     * 학력들과 경력들 업데이트 | main |
-     * 500(SERVER_ERROR)
-     */
-    public void updateEducationsAndWorks(User user,
-                                         List<Education> createdEducations,
-                                         List<Education> updatedEducations,
-                                         List<Education> deletedEducations,
-                                         List<Work> createdWorks,
-                                         List<Work> updatedWorks,
-                                         List<Work> deletedWorks) {
-        // update
-        user.removeAllEducations(updatedEducations);
-        user.addAllEducations(updatedEducations);
-        user.removeAllWorks(updatedWorks);
-        user.addAllWorks(updatedWorks);
-        // create
-        user.addAllEducations(createdEducations);
-        user.addAllWorks(createdWorks);
-        // delete
-        user.removeAllEducations(deletedEducations);
-        user.removeAllWorks(deletedWorks);
-
-        save(user);
-    }
-
-    /**
-     * 포트폴리오들 업데이트 | main |
-     * 500(SERVER_ERROR)
-     */
-    public void updatePortfolios(User user,
-                                 List<Portfolio> createdPortfolios,
-                                 List<Portfolio> updatedPortfolios,
-                                 List<Portfolio> deletedPortfolios) {
-        // update
-        user.removeAllPortfolios(updatedPortfolios);
-        user.addAllPortfolios(updatedPortfolios);
-        // create
-        user.addAllPortfolios(createdPortfolios);
-        // delete
-        user.removeAllPortfolios(deletedPortfolios);
-
-        save(user);
-    }
-
-    /**
-     * 포지션과 프로필 정렬 기준으로 회원 페이징 다건 조회 | main |
-     * 500(SERVER_ERROR)
-     */
-    public Page<User> findPagePositionProfileOrder(String position,
-                                                   String profileOrder,
-                                                   Integer pageFrom,
-                                                   Integer pageSize) {
+    public Page<User> findManyUsersByPositionWithProfileOrder(String position,
+                                                         String profileOrder,
+                                                         Integer pageFrom,
+                                                         Integer pageSize) {
         Position p = Position.fromString(position);
         ProfileOrder po = ProfileOrder.fromString(profileOrder);
-        Pageable pageable = utilityProvider.validatePaging(pageFrom, pageSize, 20);
+        Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
 
         Page<User> users;
 
         if (p.equals(Position.NONE)) {
             switch (po.name().toLowerCase()) {
                 case "rating":
-                    users = findPageByRating(pageable);
+                    users = findManyUsersByRating(pageable);
                     break;
                 case "popularity":
-                    users = findPageByPopularity(pageable);
+                    users = findManyUsersByPopularity(pageable);
                     break;
                 default:
-                    users = findPageByActive(pageable);
+                    users = findManyUsersByActive(pageable);
                     break;
             }
         } else {
             switch (po.name().toLowerCase()) {
                 case "rating":
-                    users = findPagePositionByRating(p, pageable);
+                    users = findManyUsersPositionByRating(p, pageable);
                     break;
                 case "popularity":
-                    users = findPagePositionByPopularity(p, pageable);
+                    users = findManyUsersPositionByPopularity(p, pageable);
                     break;
                 default:
-                    users = findPagePositionByActive(p, pageable);
+                    users = findManyUsersPositionByActive(p, pageable);
                     break;
             }
         }
@@ -360,296 +281,75 @@ public class UserService {
     }
 
     /**
-     * 팀 들어가기 | main |
+     * 회원 탈퇴 |
      * 500(SERVER_ERROR)
      */
-    public void joinTeam(User user, Team team, boolean isLeader) {
-        user.joinTeam(team.getId(), isLeader);
-        save(user);
+    public void deleteAccount(User user) {
+        for(Fcm fcm : user.getFcms())
+            hardDeleteFcm(fcm);
+
+        user.getContact().deleteAccount();
+        user.deleteAccount();
     }
 
     /**
-     * 현재 팀 종료 | main |
+     * FCM 하드 삭제 |
      * 500(SERVER_ERROR)
      */
-    public void exitCurrentTeam(List<ObjectId> userIds, ObjectId teamId, boolean isComplete) {
-        for (ObjectId userId : userIds) {
-            User user = findOneById(userId.toString());
-            user.quitTeam(teamId, isComplete);
-            save(user);
-        }
-    }
-
-    /**
-     * 식별자로 회원 전체 조회 | main |
-     * 500(SERVER_ERROR)
-     */
-    public List<User> findAllById(List<ObjectId> userIds) {
-        List<User> users = new ArrayList<>();
+    private void hardDeleteFcm(Fcm fcm) {
         try {
-            for(ObjectId userId : userIds) {
-                Optional<User> user = userRepository.findByIdAndIsDeletedIsFalse(userId);
-                user.ifPresent(users::add);
-            }
+            fcmRepository.delete(fcm);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
-
-        return users;
     }
 
     /**
-     * 팀 찜 업데이트 | main |
+     * 회원 저장 |
      * 500(SERVER_ERROR)
      */
-    public void updateFavoriteTeam(User user, Team team, boolean isAddFavorite) {
-        user.updateFavoriteTeamId(team.getId(), isAddFavorite);
-        save(user);
-    }
-
-    /**
-     * 회원 또는 팀 제안 | main |
-     * 400(ID_CONVERT_INVALID)
-     * 404(USER_NOT_FOUND)
-     * 500(SERVER_ERROR)
-     */
-    public void offer(User user, boolean isOfferedByUser) {
-        user.offer(isOfferedByUser);
-
-        save(user);
-    }
-
-    /**
-     * 제안 결정 | main |
-     * 500(SERVER_ERROR)
-     */
-    public void offerDecided(User user, ObjectId teamId, boolean isAccepted) {
-        if (!isAccepted)
-            return;
-
-        user.joinTeam(teamId, false);
-        save(user);
-    }
-
-    /**
-     * 평점 업데이트 | main |
-     * 404(USER_NOT_FOUND)
-     * 500(SERVER_ERROR)
-     */
-    public void updateRating(List<Review> reviews) {
-        for (Review review : reviews) {
-            User reviewee = findOneById(review.getRevieweeId().toString());
-
-            reviewee.updateRating(review);
-
-            save(reviewee);
+    private void saveUser(User user) {
+        try {
+            userRepository.save(user);
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
         }
     }
 
     /**
-     * Fcm 토큰 업데이트 | main |
+     * FCM 저장 |
      * 500(SERVER_ERROR)
      */
-    public void updateFcmToken(User user, String fcmToken, boolean isAdd) {
-        if (isAdd)
-            user.addFcmToken(fcmToken);
-        else
-            user.removeFcmToken(fcmToken);
-
-        save(user);
-    }
-
-    /**
-     * 알림 여부 업데이트 | main |
-     * 500(SERVER_ERROR)
-     */
-    public void updateIsNotified(User user, boolean isNotified) {
-        user.updateIsNotified(isNotified);
-
-        save(user);
-    }
-
-    /**
-     * 포지션별 팀원 전체 조회 | main |
-     * 400(ID_CONVERT_INVALID)
-     * 404(USER_NOT_FOUND)
-     */
-    public Map<Character, List<User>> findAllTeamMemberByPosition(Team team) {
-        Map<Character, List<User>> teamMembers = new HashMap<>();
-
-        List<User> users = new ArrayList<>();
-        if (!team.getDesignerUserIds().isEmpty())
-            for (ObjectId designerUserId : team.getDesignerUserIds())
-                users.add(findOneById(designerUserId.toString()));
-
-        teamMembers.put(Position.DESIGNER.getType(), users);
-
-        users = new ArrayList<>();
-        if (!team.getBackendUserIds().isEmpty())
-            for (ObjectId backendUserId : team.getBackendUserIds())
-                users.add(findOneById(backendUserId.toString()));
-
-        teamMembers.put(Position.BACKEND.getType(), users);
-
-        users = new ArrayList<>();
-        if (!team.getFrontendUserIds().isEmpty())
-            for (ObjectId frontendUserId : team.getFrontendUserIds())
-                users.add(findOneById(frontendUserId.toString()));
-
-        teamMembers.put(Position.FRONTEND.getType(), users);
-
-        users = new ArrayList<>();
-        if (!team.getManagerUserIds().isEmpty())
-            for (ObjectId managerUserId : team.getManagerUserIds())
-                users.add(findOneById(managerUserId.toString()));
-
-        teamMembers.put(Position.MANAGER.getType(), users);
-
-        return teamMembers;
-    }
-
-    /**
-     * 한명을 제외한 팀원 FCM 토큰 전체 조회 | main |
-     * 400(ID_CONVERT_INVALID)
-     * 404(USER_NOT_FOUND)
-     */
-    public Set<String> getAllTeamMemberFcmTokenExceptOne(Team team, User user) {
-        List<User> teamMembers = findAllTeamMember(team);
-        Set<String> fcmTokens = new HashSet<>();
-
-        if (teamMembers.isEmpty())
-            return fcmTokens;
-
-        teamMembers.forEach(teamMember -> {
-            if (teamMember.getIsNotified())
-                fcmTokens.addAll(teamMember.getFcmTokens());
-        });
-
-        if (user != null)
-            fcmTokens.removeAll(user.getFcmTokens());
-
-        return fcmTokens;
-    }
-
-    /**
-     * 팀 생성 전 검증 | sub |
-     * 409(EXISTING_CURRENT_TEAM / NON_EXISTING_POSITION)
-     */
-    public void validatePreCreateTeam(User user) {
-        validateHasNoCurrentTeam(user);
-        validatePositionSelected(user);
-    }
-
-    /**
-     * 가입 전 검증 | sub |
-     * 400(PASSWORD_MATCH_INVALID)
-     * 409(EXISTING_USERNAME / UNAVAILABLE_NICKNAME / EXISTING_NICKNAME)
-     */
-    public void validatePreRegister(UserRegisterReqDto request) {
-        validateDuplicateUsername(request.getUsername());
-        validateMatchingPassword(request.getPassword(), request.getPasswordReEntered());
-        validateNickname(request.getNickname());
-    }
-
-    /**
-     * 마지막 요청일 업데이트 | sub |
-     * 500(SERVER_ERROR)
-     */
-    public void updateLastRequestDate(User user) {
-        user.updateLastRequestDate();
-        save(user);
-    }
-
-    /**
-     * 현재 팀 존재 여부 검증 | sub |
-     * 409(NON_EXISTING_CURRENT_TEAM)
-     */
-    public void validateHasCurrentTeam(User user) {
-        if (!user.hasCurrentTeam())
-            throw new CustomException(NON_EXISTING_CURRENT_TEAM);
-    }
-
-    /**
-     * 현재 팀 미존재 여부 검증 | sub |
-     * 409(EXISTING_CURRENT_TEAM)
-     */
-    public void validateHasNoCurrentTeam(User user) {
-        if (user.hasCurrentTeam())
-            throw new CustomException(EXISTING_CURRENT_TEAM);
+    private void saveFcm(Fcm fcm) {
+        try {
+            fcmRepository.save(fcm);
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
     }
 
     /**
      * 아이디로 회원 단건 조회 |
      * 401(LOGIN_UNAUTHENTICATED)
      */
-    private User findOneByUsername(String username) {
-        return userRepository.findByUsernameAndRolesInAndIsDeletedIsFalse(username, Role.USER.name())
-                .orElseThrow(() -> {
-                    throw new CustomException(LOGIN_UNAUTHENTICATED);
-                });
+    private User findOneUser(String username) {
+        Optional<User> user = userRepository.findByUsernameAndIsDeletedIsFalse(username);
+
+        if (user.isEmpty())
+            throw new CustomException(LOGIN_UNAUTHENTICATED);
+        if (!user.get().getRoles().contains(Role.USER.name()))
+            throw new CustomException(LOGIN_UNAUTHENTICATED);
+
+        return user.get();
     }
 
     /**
-     * 연락처로 단건 조회 |
-     * 404(USER_NOT_FOUND)
-     */
-    private User findOneByContact(Contact contact) {
-        return userRepository.findByContactAndIsDeletedIsFalse(contact)
-                .orElseThrow(() -> {
-                    throw new CustomException(USER_NOT_FOUND);
-                });
-    }
-
-    /**
-     * 식별자로 회원 단건 조회 | sub |
-     * 400(ID_CONVERT_INVALID)
-     * 404(USER_NOT_FOUND)
-     */
-    public User findOneById(String userId) {
-        ObjectId id = utilityProvider.toObjectId(userId);
-
-        return userRepository.findByIdAndIsDeletedIsFalse(id)
-                .orElseThrow(() -> {
-                    throw new CustomException(USER_NOT_FOUND);
-                });
-    }
-
-    /**
-     * 특정 포지션을 활동순으로 회원 페이징 다건 조회 |
+     * 전체 포지션을 평점순으로 회원 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
-    private Page<User> findPagePositionByActive(Position position, Pageable pageable) {
+    private Page<User> findManyUsersByRating(Pageable pageable) {
         try {
-            return userRepository.findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByLastRequestDateDesc(
-                    position.getType(),
-                    pageable
-            );
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 전체 포지션을 활동순으로 회원 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private Page<User> findPageByActive(Pageable pageable) {
-        try {
-            return userRepository.findAllByIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByLastRequestDateDesc(pageable);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 특정 포지션을 인기순으로 회원 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private Page<User> findPagePositionByPopularity(Position position, Pageable pageable) {
-        try {
-            return userRepository.findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
-                    position.getType(),
-                    pageable);
+            return userRepository.findAllByIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByRatingDesc(pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -659,9 +359,21 @@ public class UserService {
      * 전체 포지션을 인기순으로 회원 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
-    private Page<User> findPageByPopularity(Pageable pageable) {
+    private Page<User> findManyUsersByPopularity(Pageable pageable) {
         try {
             return userRepository.findAllByIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(pageable);
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 전체 포지션을 활동순으로 회원 페이징 다건 조회 |
+     * 500(SERVER_ERROR)
+     */
+    private Page<User> findManyUsersByActive(Pageable pageable) {
+        try {
+            return userRepository.findAllByIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByLastRequestAtDesc(pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -671,7 +383,7 @@ public class UserService {
      * 특정 포지션을 평점순으로 회원 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
-    private Page<User> findPagePositionByRating(Position position, Pageable pageable) {
+    private Page<User> findManyUsersPositionByRating(Position position, Pageable pageable) {
         try {
             return userRepository.findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByRatingDesc(
                     position.getType(),
@@ -683,84 +395,111 @@ public class UserService {
     }
 
     /**
-     * 전체 포지션을 평점순으로 회원 페이징 다건 조회 |
+     * 특정 포지션을 인기순으로 회원 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
-    private Page<User> findPageByRating(Pageable pageable) {
+    private Page<User> findManyUsersPositionByPopularity(Position position, Pageable pageable) {
         try {
-            return userRepository.findAllByIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByRatingDesc(pageable);
+            return userRepository.findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
+                    position.getType(),
+                    pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
     }
 
     /**
-     * 팀원 전체 조회 |
-     * 400(ID_CONVERT_INVALID)
-     * 404(USER_NOT_FOUND)
-     */
-    private List<User> findAllTeamMember(Team team) {
-        List<User> users = new ArrayList<>();
-
-        if (!team.getDesignerUserIds().isEmpty())
-            team.getDesignerUserIds()
-                    .forEach(designerUserId ->
-                            users.add(findOneById(designerUserId.toString()))
-                    );
-
-        if (!team.getBackendUserIds().isEmpty())
-            team.getBackendUserIds()
-                    .forEach(backendUserId ->
-                            users.add(findOneById(backendUserId.toString()))
-                    );
-
-        if (!team.getFrontendUserIds().isEmpty())
-            team.getFrontendUserIds()
-                    .forEach(frontendUserId ->
-                            users.add(findOneById(frontendUserId.toString()))
-                    );
-
-        if (!team.getManagerUserIds().isEmpty())
-            team.getManagerUserIds()
-                    .forEach(managerUserId ->
-                            users.add(findOneById(managerUserId.toString()))
-                    );
-
-        return users;
-    }
-
-    /**
-     * 회원 저장 |
+     * 특정 포지션을 활동순으로 회원 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
-    public User save(User user) {
+    private Page<User> findManyUsersPositionByActive(Position position, Pageable pageable) {
         try {
-            return userRepository.save(user);
+            return userRepository.findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByLastRequestAtDesc(
+                    position.getType(),
+                    pageable
+            );
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
     }
 
     /**
-     * 회원 소프트 삭제 |
-     * 500(SERVER_ERROR)
+     * 인증되고 가입되지 않은 연락처 단건 조회 |
+     * 404(CONTACT_NOT_FOUND)
      */
-    public void softDelete(User user) {
-        user.delete();
+    private Contact findOneVerifiedUnregisteredContact(String email) {
+        Optional<Contact> contact = contactRepository.findByEmailAndIsVerifiedIsTrueAndIsDeletedIsFalse(email);
 
-        save(user);
+        if (contact.isEmpty())
+            throw new CustomException(CONTACT_NOT_FOUND);
+        else if (contact.get().getUser() != null)
+            throw new CustomException(CONTACT_NOT_FOUND);
+
+        return contact.get();
     }
 
     /**
-     * 회원 하드 삭제 |
+     * 이메일로 가입된 연락처 단건 조회 | main |
+     * 404(CONTACT_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    private void hardDelete(User user) {
+    private Contact findOneRegisteredContact(String email) {
         try {
-            userRepository.delete(user);
+            Optional<Contact> contact = contactRepository.findByEmailAndIsVerifiedIsTrueAndIsDeletedIsFalse(email);
+
+            if (contact.isEmpty() || contact.get().getUser() == null)
+                throw new CustomException(CONTACT_NOT_FOUND);
+
+            return contact.get();
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
+    }
+
+    /**
+     * FCM 토큰과 회원으로 FCM 단건 조회 |
+     * 500(SERVER_ERROR)
+     */
+    private Optional<Fcm> findOneFcm(String fcmToken, User user) {
+        try {
+            return fcmRepository.findByFcmTokenAndUserAndIsDeletedIsFalse(fcmToken, user);
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 아이디 이메일로 전송 |
+     * 500(EMAIL_SEND_ERROR)
+     */
+    private void sendUsernameEmail(User user) {
+        emailProvider.sendEmail(
+                user.getContact().getEmail(),
+                "[가보자IT] 아이디 찾기",
+                "해당 이메일로 가입된 아이디 정보입니다.",
+                user.getUsername()
+        );
+    }
+
+    /**
+     * FCM 생성 |
+     * 500(SERVER_ERROR)
+     */
+    private void createFcm(String fcmToken, User user) {
+        if (fcmToken.isBlank())
+            return;
+
+        Optional<Fcm> fcm = findOneFcm(fcmToken, user);
+
+        if (fcm.isPresent())
+            return;
+
+        Fcm newFcm = Fcm.builder()
+                .fcmToken(fcmToken)
+                .user(user)
+                .build();
+
+        saveFcm(newFcm);
     }
 
     /**
@@ -768,10 +507,11 @@ public class UserService {
      * 409(EXISTING_USERNAME)
      */
     private void validateDuplicateUsername(String username) {
-        userRepository.findByUsernameAndRolesInAndIsDeletedIsFalse(username, Role.USER.name())
-                .ifPresent(u -> {
-                    throw new CustomException(EXISTING_USERNAME);
-                });
+        Optional<User> user = userRepository.findByUsernameAndIsDeletedIsFalse(username);
+
+        if (user.isPresent())
+            if (user.get().getRoles().contains(Role.USER.name()))
+                throw new CustomException(EXISTING_USERNAME);
     }
 
     /**
@@ -789,18 +529,8 @@ public class UserService {
      * 비밀번호와 비밀번호 재입력 검증 |
      * 400(PASSWORD_MATCH_INVALID)
      */
-    public void validateMatchingPassword(String password, String passwordReEnter) {
-        if (!password.equals(passwordReEnter))
+    private void validateMatchingPassword(String password, String passwordReEntered) {
+        if (!password.equals(passwordReEntered))
             throw new CustomException(PASSWORD_MATCH_INVALID);
-    }
-
-
-    /**
-     * 포지션 선택 여부 검증 |
-     * 409(NON_EXISTING_POSITION)
-     */
-    private void validatePositionSelected(User user) {
-        if (!user.hasPosition())
-            throw new CustomException(NON_EXISTING_POSITION);
     }
 }

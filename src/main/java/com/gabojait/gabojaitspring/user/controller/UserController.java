@@ -2,15 +2,10 @@ package com.gabojait.gabojaitspring.user.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
-import com.gabojait.gabojaitspring.profile.service.EducationService;
-import com.gabojait.gabojaitspring.profile.service.PortfolioService;
-import com.gabojait.gabojaitspring.profile.service.SkillService;
-import com.gabojait.gabojaitspring.profile.service.WorkService;
-import com.gabojait.gabojaitspring.user.domain.Contact;
+import com.gabojait.gabojaitspring.favorite.service.FavoriteUserService;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.dto.req.*;
 import com.gabojait.gabojaitspring.user.dto.res.UserDefaultResDto;
-import com.gabojait.gabojaitspring.user.service.ContactService;
 import com.gabojait.gabojaitspring.user.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,31 +17,23 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "회원")
-@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
 public class UserController {
 
     private final UserService userService;
-    private final ContactService contactService;
-    private final EducationService educationService;
-    private final PortfolioService portfolioService;
-    private final SkillService skillService;
-    private final WorkService workService;
+    private final FavoriteUserService favoriteUserService;
     private final JwtProvider jwtProvider;
 
     @ApiOperation(value = "아이디 중복여부 확인",
@@ -69,12 +56,11 @@ public class UserController {
     @GetMapping("/username")
     public ResponseEntity<DefaultResDto<Object>> duplicateUsername(
             @RequestParam(value = "username")
-            @NotBlank(message = "아이디는 필수 입력란입니다.")
+            @NotBlank(message = "아이디는 필수 입력입니다.")
             @Size(min = 5, max = 15, message = "아이디는 5~15자만 가능합니다.")
             @Pattern(regexp = "^(?=.*[a-z0-9])[a-z0-9]+$", message = "아이디는 소문자 영어와 숫자의 조합으로 입력해 주세요.")
             String username
     ) {
-        // main
         userService.validateUsername(username);
 
         return ResponseEntity.status(USERNAME_AVAILABLE.getHttpStatus())
@@ -104,12 +90,11 @@ public class UserController {
     @GetMapping("/nickname")
     public ResponseEntity<DefaultResDto<Object>> duplicateNickname(
             @RequestParam(value = "nickname")
-            @NotBlank(message = "닉네임은 필수 입력란입니다.")
+            @NotBlank(message = "닉네임은 필수 입력입니다.")
             @Size(min = 2, max = 8, message = "닉네임은 2~8자만 가능합니다.")
             @Pattern(regexp = "^[가-힣]+$", message = "닉닉네임은 한글 조합으로 입력해 주세요.")
             String nickname
     ) {
-        // main
         userService.validateNickname(nickname);
 
         return ResponseEntity.status(NICKNAME_AVAILABLE.getHttpStatus())
@@ -124,14 +109,13 @@ public class UserController {
                     "- 201 = USER_REGISTERED\n" +
                     "- 400 = USERNAME_FIELD_REQUIRED || PASSWORD_FIELD_REQUIRED || PASSWORD_RE_ENTERED_FIELD_REQUIRED" +
                     " || NICKNAME_FIELD_REQUIRED || GENDER_FIELD_REQUIRED || EMAIL_FIELD_REQUIRED || " +
-                    "USERNAME_LENGTH_INVALID || PASSWORD_LENGTH_INVALID || LEGAL_NAME_LENGTH_INVALID || " +
-                    "NICKNAME_LENGTH_INVALID || USERNAME_FORMAT_INVALID || PASSWORD_FORMAT_INVALID || " +
-                    "LEGAL_NAME_FORMAT_INVALID || NICKNAME_FORMAT_INVALID || GENDER_TYPE_INVALID || " +
-                    "EMAIL_FORMAT_INVALID || PASSWORD_MATCH_INVALID" +
+                    "USERNAME_LENGTH_INVALID || PASSWORD_LENGTH_INVALID || NICKNAME_LENGTH_INVALID || " +
+                    "USERNAME_FORMAT_INVALID || PASSWORD_FORMAT_INVALID || NICKNAME_FORMAT_INVALID || " +
+                    "GENDER_TYPE_INVALID || EMAIL_FORMAT_INVALID || PASSWORD_MATCH_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = CONTACT_NOT_FOUND\n" +
-                    "- 409 = EXISTING_USERNAME || UNAVAILABLE_NICKNAME || EXISTING_NICKNAME\n" +
+                    "- 409 = UNAVAILABLE_USERNAME || EXISTING_USERNAME || UNAVAILABLE_NICKNAME || EXISTING_NICKNAME\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -149,22 +133,18 @@ public class UserController {
     @PostMapping
     public ResponseEntity<DefaultResDto<Object>> register(HttpServletRequest servletRequest,
                                                           @RequestBody @Valid UserRegisterReqDto request) {
-        // auth
         jwtProvider.authorizeGuestAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // sub
-        userService.validatePreRegister(request);
-        // main
-        Contact contact = contactService.registerContact(request.getEmail());
-        User user = userService.register(request, contact);
+        User user = userService.register(request);
 
-        // response
         HttpHeaders headers = jwtProvider.generateUserJwt(user.getId(), user.getRoles());
         UserDefaultResDto response = new UserDefaultResDto(user);
 
         return ResponseEntity.status(USER_REGISTERED.getHttpStatus())
                 .headers(headers)
                 .body(DefaultResDto.singleDataBuilder()
+                        .responseCode(USER_REGISTERED.name())
+                        .responseMessage(USER_REGISTERED.getMessage())
                         .data(response)
                         .build());
     }
@@ -186,12 +166,8 @@ public class UserController {
     })
     @PostMapping("/login")
     public ResponseEntity<DefaultResDto<Object>> login(@RequestBody @Valid UserLoginReqDto request) {
-        // auth & main
         User user = userService.login(request);
-        // sub
-        userService.updateLastRequestDate(user);
 
-        // response
         HttpHeaders headers = jwtProvider.generateUserJwt(user.getId(), user.getRoles());
         UserDefaultResDto response = new UserDefaultResDto(user);
 
@@ -222,11 +198,9 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<DefaultResDto<Object>> logout(HttpServletRequest servletRequest,
                                                         @RequestBody @Valid UserLogoutReqDto request) {
-        // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // main
-        userService.updateFcmToken(user, request.getFcmToken(), false);
+        userService.logout(user, request.getFcmToken());
 
         return ResponseEntity.status(USER_LOGOUT.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -244,18 +218,12 @@ public class UserController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = UserDefaultResDto.class))),
-            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
-            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
-            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
+                    content = @Content(schema = @Schema(implementation = UserDefaultResDto.class)))
     })
     @GetMapping
     public ResponseEntity<DefaultResDto<Object>> findMyself(HttpServletRequest servletRequest) {
-        // auth & main
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // response
         UserDefaultResDto response = new UserDefaultResDto(user);
 
         return ResponseEntity.status(SELF_USER_FOUND.getHttpStatus())
@@ -288,14 +256,13 @@ public class UserController {
     @GetMapping("/{user-id}")
     public ResponseEntity<DefaultResDto<Object>> findOther(HttpServletRequest servletRequest,
                                                            @PathVariable(value = "user-id")
-                                                           String userId) {
-        // auth
+                                                           @NotNull(message = "회원 식별자는 필수 입력입니다.")
+                                                           @Positive(message = "회원 식별자는 양수만 가능합니다.")
+                                                           Long userId) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // main
-        User otherUser = userService.findOneOtherById(user, userId);
+        User otherUser = favoriteUserService.findOneOtherUser(user, userId);
 
-        // response
         UserDefaultResDto response = new UserDefaultResDto(otherUser);
 
         return ResponseEntity.status(USER_FOUND.getHttpStatus())
@@ -324,14 +291,11 @@ public class UserController {
     @PostMapping("/token")
     public ResponseEntity<DefaultResDto<Object>> renewToken(HttpServletRequest servletRequest,
                                                             @RequestBody @Valid UserRenewTokenReqDto request) {
-        // auth
         User user = jwtProvider.authorizeUserRefreshJwt(servletRequest.getHeader("Refresh-Token"));
 
-        // sub
-        userService.updateLastRequestDate(user);
-        // main & response
+        userService.updateLastRequestAt(user, request.getFcmToken());
+
         HttpHeaders headers = jwtProvider.generateUserJwt(user.getId(), user.getRoles());
-        userService.updateFcmToken(user, request.getFcmToken(), true);
 
         return ResponseEntity.status(TOKEN_RENEWED.getHttpStatus())
                 .headers(headers)
@@ -345,7 +309,7 @@ public class UserController {
             notes = "<응답 코드>\n" +
                     "- 200 = USERNAME_EMAIL_SENT\n" +
                     "- 400 = EMAIL_FIELD_REQUIRED || EMAIL_FORMAT_INVALID\n" +
-                    "- 404 = CONTACT_NOT_FOUND || USER_NOT_FOUND\n" +
+                    "- 404 = CONTACT_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR || EMAIL_SEND_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -357,10 +321,8 @@ public class UserController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/username")
-    public ResponseEntity<DefaultResDto<Object>> findUsername(@RequestBody @Valid UserFindUsernameReqDto request) {
-        // main
-        Contact contact = contactService.findOneRegisteredByEmail(request.getEmail());
-        userService.sendUsernameEmail(contact);
+    public ResponseEntity<DefaultResDto<Object>> forgotUsername(@RequestBody @Valid UserFindUsernameReqDto request) {
+        userService.sendUsernameToEmail(request.getEmail());
 
         return ResponseEntity.status(USERNAME_EMAIL_SENT.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -374,7 +336,7 @@ public class UserController {
                     "- 200 = PASSWORD_EMAIL_SENT\n" +
                     "- 400 = EMAIL_FIELD_REQUIRED || USERNAME_FIELD_REQUIRED || EMAIL_FORMAT_INVALID || " +
                     "USERNAME_EMAIL_MATCH_INVALID\n" +
-                    "- 404 = CONTACT_NOT_FOUND || USER_NOT_FOUND\n" +
+                    "- 404 = CONTACT_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR || EMAIL_SEND_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -387,9 +349,7 @@ public class UserController {
     })
     @PostMapping("/password")
     public ResponseEntity<DefaultResDto<Object>> findPassword(@RequestBody @Valid UserFindPasswordReqDto request) {
-        // main
-        Contact contact = contactService.findOneRegisteredByEmail(request.getEmail());
-        userService.sendPasswordEmail(contact, request.getUsername());
+        userService.sendPasswordToEmail(request);
 
         return ResponseEntity.status(PASSWORD_EMAIL_SENT.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -401,8 +361,8 @@ public class UserController {
     @ApiOperation(value = "비밀번호 검증",
             notes = "<응답 코드>\n" +
                     "- 200 = PASSWORD_VERIFIED\n" +
-                    "- 400 = PASSWORD_FIELD_REQUIRED || PASSWORD_UNAUTHENTICATED\n" +
-                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 400 = PASSWORD_FIELD_REQUIRED\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED || PASSWORD_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
@@ -418,11 +378,9 @@ public class UserController {
     @PostMapping("/password/verify")
     public ResponseEntity<DefaultResDto<Object>> verifyPassword(HttpServletRequest servletRequest,
                                                                 @RequestBody @Valid UserVerifyReqDto request) {
-        // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // main
-        userService.validatePassword(user, request.getPassword());
+        userService.verifyPassword(user, request.getPassword());
 
         return ResponseEntity.status(PASSWORD_VERIFIED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -453,16 +411,14 @@ public class UserController {
     @PatchMapping("/nickname")
     public ResponseEntity<DefaultResDto<Object>> updateNickname(HttpServletRequest servletRequest,
                                                                 @RequestBody @Valid UserNicknameUpdateReqDto request) {
-        // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // main
         userService.updateNickname(user, request.getNickname());
 
         return ResponseEntity.status(NICKNAME_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
-                        .responseCode(PASSWORD_UPDATED.name())
-                        .responseMessage(PASSWORD_UPDATED.getMessage())
+                        .responseCode(NICKNAME_UPDATED.name())
+                        .responseMessage(NICKNAME_UPDATED.getMessage())
                         .build());
     }
 
@@ -487,11 +443,9 @@ public class UserController {
     @PatchMapping("/password")
     public ResponseEntity<DefaultResDto<Object>> updatePassword(HttpServletRequest servletRequest,
                                                                 @RequestBody @Valid UserUpdatePasswordReqDto request) {
-        // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // main
-        userService.updatePassword(user, request.getPassword(), request.getPasswordReEntered(), false);
+        userService.updatePassword(user, request.getPassword(), request.getPassword(), false);
 
         return ResponseEntity.status(PASSWORD_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -521,10 +475,8 @@ public class UserController {
     public ResponseEntity<DefaultResDto<Object>> updateIsNotified(HttpServletRequest servletRequest,
                                                                   @RequestBody @Valid
                                                                   UserIsNotifiedUpdateReqDto request) {
-        // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // main
         userService.updateIsNotified(user, request.getIsNotified());
 
         return ResponseEntity.status(IS_NOTIFIED_UPDATED.getHttpStatus())
@@ -551,16 +503,9 @@ public class UserController {
     })
     @DeleteMapping
     public ResponseEntity<DefaultResDto<Object>> deactivate(HttpServletRequest servletRequest) {
-        // auth
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        // main
-        educationService.deleteAllPreDeactivation(user.getEducations());
-        portfolioService.deleteAllPreDeactivation(user.getPortfolios());
-        skillService.deleteAllPreDeactivation(user.getSkills());
-        workService.deleteAllPreDeactivation(user.getWorks());
-        userService.softDelete(user);
-        contactService.softDelete(user.getContact());
+        userService.deleteAccount(user);
 
         return ResponseEntity.status(USER_DELETED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()

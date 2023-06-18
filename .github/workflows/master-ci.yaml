@@ -23,9 +23,10 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew build -x test
+        run: ./gradlew build test
         env:
           API_NAME: ${{ secrets.API_NAME }}
+          DB_DDL_TYPE: ${{ secrets.DB_DDL_TYPE }}
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
@@ -53,12 +54,13 @@ jobs:
           S3_REGION: ${{ secrets.S3_REGION }}
           S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
           SWAGGER_ENABLED: ${{ secrets.SWAGGER_ENABLED }}
+          SWAGGER_BASE_URL: ${{ secrets.SWAGGER_BASE_URL }}
 
       - name: Build and push Docker image
         uses: mr-smithers-excellent/docker-build-push@v5
         with:
           image: gs97ahn/server
-          tags: gabojait-release-latest, gabojait-release-v1.0.0
+          tags: gabojait-release-latest, gabojait-v1.0.0
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}

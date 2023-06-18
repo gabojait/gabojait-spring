@@ -53,8 +53,8 @@ public class ValidIfPresentValidator implements ConstraintValidator<ValidIfPrese
         return true;
     }
 
-    private boolean isInvalidId(String id) {
-        return !id.isBlank();
+    private boolean isInvalidId(Long id) {
+        return id == null || id > 0;
     }
 
     private boolean isInvalidSkillRequest(Object value) {
@@ -87,9 +87,9 @@ public class ValidIfPresentValidator implements ConstraintValidator<ValidIfPrese
         // Blank
         if (dto.getInstitutionName().isBlank())
             return true;
-        if (dto.getStartedDate() == null)
+        if (dto.getStartedAt() == null)
             return true;
-        if (dto.getEndedDate() == null)
+        if (dto.getEndedAt() == null)
             return true;
         if (dto.getIsCurrent() == null)
             return true;
@@ -107,13 +107,13 @@ public class ValidIfPresentValidator implements ConstraintValidator<ValidIfPrese
         // Blank
         if (dto.getPortfolioName().isBlank())
             return true;
-        if (dto.getUrl().isBlank())
+        if (dto.getPortfolioUrl().isBlank())
             return true;
 
         // Size
         if (dto.getPortfolioName().length() < 1 || dto.getPortfolioName().length() > 10)
             return true;
-        if (dto.getUrl().length() < 1 || dto.getUrl().length() > 1000)
+        if (dto.getPortfolioUrl().length() < 1 || dto.getPortfolioUrl().length() > 1000)
             return true;
 
         return false;
@@ -125,9 +125,9 @@ public class ValidIfPresentValidator implements ConstraintValidator<ValidIfPrese
         // Blank
         if (dto.getCorporationName().isBlank())
             return true;
-        if (dto.getStartedDate() == null)
+        if (dto.getStartedAt() == null)
             return true;
-        if (dto.getEndedDate() == null)
+        if (dto.getEndedAt() == null)
             return true;
         if (dto.getIsCurrent() == null)
             return true;

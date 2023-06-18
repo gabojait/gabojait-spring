@@ -1,14 +1,12 @@
 package com.gabojait.gabojaitspring.profile.repository;
 
 import com.gabojait.gabojaitspring.profile.domain.Portfolio;
-import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
+import com.gabojait.gabojaitspring.user.domain.User;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-@Repository
-public interface PortfolioRepository extends MongoRepository<Portfolio, ObjectId> {
+public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
 
-    Optional<Portfolio> findByIdAndIsDeletedIsFalse(ObjectId portfolioId);
+    Optional<Portfolio> findByIdAndUserAndIsDeletedIsFalse(Long id, User user);
 }

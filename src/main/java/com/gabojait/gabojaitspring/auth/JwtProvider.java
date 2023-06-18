@@ -10,7 +10,6 @@ import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.domain.type.Role;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,6 +23,7 @@ import java.time.ZoneId;
 import java.util.*;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
+import static com.gabojait.gabojaitspring.common.code.ErrorCode.TOKEN_UNAUTHORIZED;
 
 @Component
 @RequiredArgsConstructor
@@ -44,40 +44,40 @@ public class JwtProvider {
      * Guest Access JWT 생성
      */
     public HttpHeaders generateGuestJwt() {
-        return jwtGenerator("null", Collections.singleton(Role.GUEST.name()), false);
+        return jwtGenerator(0L, Collections.singleton(Role.GUEST.name()), false);
     }
 
     /**
      * User Access & Refresh JWT 생성
      */
-    public HttpHeaders generateUserJwt(ObjectId userId, Set<String> roles) {
-        return jwtGenerator(userId.toString(), roles, true);
+    public HttpHeaders generateUserJwt(Long userId, Set<String> roles) {
+        return jwtGenerator(userId, roles, true);
     }
 
     /**
      * Admin Access & Refresh JWT 생성
      */
-    public HttpHeaders generateAdminJwt(ObjectId userId, Set<String> roles) {
-        return jwtGenerator(userId.toString(), roles, true);
+    public HttpHeaders generateAdminJwt(Long userId, Set<String> roles) {
+        return jwtGenerator(userId, roles, true);
     }
 
     /**
      * Master Access JWT 생성
      */
-    public HttpHeaders generateMasterJwt(ObjectId userId, Set<String> roles) {
-        return jwtGenerator(userId.toString(), roles, false);
+    public HttpHeaders generateMasterJwt(Long userId, Set<String> roles) {
+        return jwtGenerator(userId, roles, false);
     }
 
     /**
      * 토큰 생성자
      */
-    private HttpHeaders jwtGenerator(String userId, Set<String> roleSet, boolean isRefreshToken) {
+    private HttpHeaders jwtGenerator(Long userId, Set<String> roleSet, boolean isRefreshToken) {
         long time = System.currentTimeMillis();
         Algorithm algorithm = Algorithm.HMAC256(secret.getBytes(StandardCharsets.UTF_8));
         List<String> roleList = new ArrayList<>(roleSet);
 
         String accessJwt = JWT.create()
-                .withSubject(userId)
+                .withSubject(userId.toString())
                 .withIssuedAt(new Date(time))
                 .withExpiresAt(new Date(time + accessTokenTime))
                 .withIssuer(domain)
@@ -89,7 +89,7 @@ public class JwtProvider {
 
         if (isRefreshToken) {
             String refreshJwt = JWT.create()
-                    .withSubject(userId)
+                    .withSubject(userId.toString())
                     .withIssuedAt(new Date(time))
                     .withExpiresAt(new Date(time + refreshTokenTime))
                     .withIssuer(domain)
@@ -155,7 +155,7 @@ public class JwtProvider {
         List<String> roles = decodedJWT.getClaim("roles").asList(String.class);
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
         roles.forEach(r -> authorities.add(new SimpleGrantedAuthority(r)));
-        String userId = decodedJWT.getSubject();
+        long userId = Long.parseLong(decodedJWT.getSubject());
         boolean isExpired = decodedJWT.getExpiresAt()
                 .toInstant()
                 .atZone(ZoneId.systemDefault())
@@ -164,9 +164,9 @@ public class JwtProvider {
 
         // Active user validation
         User user;
-        if (userId.equals("null") && roles.contains(Role.GUEST.name()))
+        if (userId == 0L && roles.contains(Role.GUEST.name()))
             user = null;
-        else if (!userId.equals("null") && roles.contains(Role.USER.name()))
+        else if (userId > 0L && roles.contains(Role.USER.name()))
             user = customuserDetailsService.loadUserByUserId(userId);
         else
             throw new CustomException(TOKEN_UNAUTHENTICATED);

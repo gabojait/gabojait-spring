@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @ToString
@@ -15,31 +16,37 @@ import java.time.LocalDate;
 public class EducationDefaultResDto {
 
     @ApiModelProperty(position = 1, required = true, value = "학력 식별자")
-    private String educationId;
+    private Long educationId;
 
     @ApiModelProperty(position = 2, required = true, value = "학교명")
     private String institutionName;
 
     @ApiModelProperty(position = 3, required = true, value = "시작일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDate startedDate;
+    private LocalDate startedAt;
 
     @ApiModelProperty(position = 4, required = true, value = "종료일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDate endedDate;
+    private LocalDate endedAt;
 
     @ApiModelProperty(position = 5, required = true, value = "현재 여부")
     private Boolean isCurrent;
 
-    @ApiModelProperty(position = 6, required = true, value = "스키마 버전")
-    private String schemaVersion;
+    @ApiModelProperty(position = 6, required = true, value = "생성일")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDateTime createdAt;
+
+    @ApiModelProperty(position = 6, required = true, value = "수정일")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDateTime updatedAt;
 
     public EducationDefaultResDto(Education education) {
-        this.educationId = education.getId().toString();
+        this.educationId = education.getId();
         this.institutionName = education.getInstitutionName();
-        this.startedDate = education.getStartedDate();
-        this.endedDate = education.getEndedDate();
+        this.startedAt = education.getStartedAt();
+        this.endedAt = education.getEndedAt();
         this.isCurrent = education.getIsCurrent();
-        this.schemaVersion = education.getSchemaVersion();
+        this.createdAt = education.getCreatedAt();
+        this.updatedAt = education.getUpdatedAt();
     }
 }

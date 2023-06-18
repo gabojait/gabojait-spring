@@ -89,7 +89,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     private String formatResponseCode(String responseMessage) {
         String responseCode = "";
 
-        if (responseMessage.contains("필수 입력란입니다.") || responseMessage.contains("첨부해 주세요")) {
+        if (responseMessage.contains("필수 입력입니다.") || responseMessage.contains("첨부해 주세요")) {
             responseCode = "_FIELD_REQUIRED"; // @NotBlank, @NotNull
         } else if (responseMessage.contains("~")) {
             responseCode = "_LENGTH_INVALID"; // @Size

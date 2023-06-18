@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.validation.GroupSequence;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 
 @Getter
 @ToString
@@ -21,6 +22,7 @@ import javax.validation.constraints.NotBlank;
 public class WorkUpdateReqDto extends WorkCreateReqDto {
 
     @ApiModelProperty(position = 6, required = true, value = "경력 식별자")
-    @NotBlank(message = "경력 식별자는 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
-    private String workId;
+    @NotNull(message = "경력 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+    @Positive(message = "경력 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+    private Long workId;
 }

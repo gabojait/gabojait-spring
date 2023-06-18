@@ -1,66 +1,73 @@
 package com.gabojait.gabojaitspring.team.service;
 
-import com.gabojait.gabojaitspring.common.util.UtilityProvider;
+import com.gabojait.gabojaitspring.common.util.GeneralProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
-import com.gabojait.gabojaitspring.offer.domain.Offer;
+import com.gabojait.gabojaitspring.favorite.domain.FavoriteTeam;
+import com.gabojait.gabojaitspring.favorite.repository.FavoriteTeamRepository;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
+import com.gabojait.gabojaitspring.profile.domain.type.TeamMemberStatus;
 import com.gabojait.gabojaitspring.team.domain.Team;
+import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.team.domain.type.TeamOrder;
 import com.gabojait.gabojaitspring.team.dto.req.TeamDefaultReqDto;
+import com.gabojait.gabojaitspring.team.dto.res.TeamDetailResDto;
+import com.gabojait.gabojaitspring.team.repository.TeamMemberRepository;
 import com.gabojait.gabojaitspring.team.repository.TeamRepository;
 import com.gabojait.gabojaitspring.user.domain.User;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class TeamService {
 
     private final TeamRepository teamRepository;
-    private final UtilityProvider utilityProvider;
+    private final TeamMemberRepository teamMemberRepository;
+    private final FavoriteTeamRepository favoriteTeamRepository;
+    private final GeneralProvider generalProvider;
 
     /**
-     * 팀 생성 | main |
-     * 409(TEAM_POSITION_UNAVAILABLE)
+     * 팀 생성 |
+     * 409(EXISTING_CURRENT_TEAM / NON_EXISTING_POSITION)
      * 500(SERVER_ERROR)
      */
-    public Team create(Team team, User user) {
-        join(team, user.getId(), user.getPosition());
+    public Team create(TeamDefaultReqDto request, User user) {
+        validateHasNoCurrentTeam(user);
+        validateCurrentPosition(user);
+
+        Team team = request.toEntity(user);
+        saveTeam(team);
+        joinTeam(user, team, TeamMemberStatus.LEADER, Position.fromChar(user.getPosition()));
 
         return team;
     }
 
     /**
-     * 팀 정보 수정 | main |
-     * 400(ID_CONVERT_INVALID)
+     * 팀 수정 |
      * 403(REQUEST_FORBIDDEN)
-     * 404(TEAM_NOT_FOUND)
+     * 404(CURRENT_TEAM_NOT_FOUND)
      * 409(DESIGNER_CNT_UPDATE_UNAVAILABLE / BACKEND_CNT_UPDATE_UNAVAILABLE / FRONTEND_CNT_UPDATE_UNAVAILABLE /
      * MANAGER_CNT_UPDATE_UNAVAILABLE)
-     * 500(SERVER_ERROR)
      */
     public Team update(TeamDefaultReqDto request, User user) {
-        Team team = findOneById(user.getCurrentTeamId().toString());
-
-        if (!team.isLeader(user.getId().toString()))
-            throw new CustomException(REQUEST_FORBIDDEN);
-        validateAllPositionCnt(team,
+        TeamMember teamMember = findOneCurrentTeamMember(user);
+        validateIsLeader(teamMember);
+        validateAllPositionCnt(teamMember.getTeam(),
                 request.getDesignerTotalRecruitCnt(),
                 request.getBackendTotalRecruitCnt(),
                 request.getFrontendTotalRecruitCnt(),
                 request.getManagerTotalRecruitCnt());
 
-        team.updateTeam(request.getProjectName(),
+        Team team = teamMember.getTeam();
+        team.update(request.getProjectName(),
                 request.getProjectDescription(),
                 request.getDesignerTotalRecruitCnt(),
                 request.getBackendTotalRecruitCnt(),
@@ -68,328 +75,59 @@ public class TeamService {
                 request.getManagerTotalRecruitCnt(),
                 request.getExpectation(),
                 request.getOpenChatUrl());
-        save(team);
 
         return team;
     }
 
     /**
-     * 완료한 팀 전체 조회 | main&sub |
-     * 400(ID_CONVERT_INVALID)
-     * 404(TEAM_NOT_FOUND)
-     */
-    public List<Team> findAllCompleted(User user) {
-        List<Team> teams = new ArrayList<>();
-        if (user.getCompletedTeamIds().size() != 0)
-            for (ObjectId teamId : user.getCompletedTeamIds())
-                teams.add(findOneById(teamId.toString()));
-
-        return teams;
-    }
-
-    /**
-     * 유저 찜 여부 확인 | main |
-     * 400(ID_CONVERT_INVALID)
-     * 404(TEAM_NOT_FOUND)
-     */
-    public Boolean isFavoriteUser(User user, User otherUser) {
-        if (!hasCurrentTeam(user))
-            return null;
-
-        Team team = findOneById(user.getCurrentTeamId().toString());
-        if (!team.isLeader(user.getId().toString()))
-            return null;
-
-        for (ObjectId favoriteUserId : team.getFavoriteUserIds())
-            if (favoriteUserId.toString().equals(otherUser.getId().toString()))
-                return true;
-
-        return false;
-    }
-
-    /**
-     * 식별자로 단건 조회 | main&sub |
-     * 400(ID_CONVERT_INVALID)
-     * 404(TEAM_NOT_FOUND)
-     */
-    public Team findOneById(String teamId) {
-        ObjectId id = utilityProvider.toObjectId(teamId);
-
-        return teamRepository.findByIdAndIsDeletedIsFalse(id)
-                .orElseThrow(() -> {
-                    throw new CustomException(TEAM_NOT_FOUND);
-                });
-    }
-
-    /**
-     * 타팀 단건 조회 | main |
-     * 400(ID_CONVERT_INVALID)
-     * 404(TEAM_NOT_FOUND)
-     * 500(SERVER_ERROR)
-     */
-    public Team findOther(String teamId, User user) {
-        Team team = findOneById(teamId);
-
-        if (!team.isTeamMember(user.getId().toString())) {
-            team.incrementVisitedCnt();
-            save(team);
-        }
-
-        return team;
-    }
-
-    /**
-     * 포지션과 팀 정렬 기준으로 팀 페이징 다건 조회 | main |
-     * 500(SERVER_ERROR)
-     */
-    public Page<Team> findPagePositionOrder(String position, String teamOrder, Integer pageFrom, Integer pageSize) {
-        Position p = Position.fromString(position);
-        TeamOrder to = TeamOrder.fromString(teamOrder);
-        Pageable pageable = utilityProvider.validatePaging(pageFrom, pageSize, 20);
-
-        Page<Team> teams;
-
-        if (p.equals(Position.NONE)) {
-            switch (to.name().toLowerCase()) {
-                case "active":
-                    teams = findPageByActive(pageable);
-                    break;
-                case "popularity":
-                    teams = findPageByPopularity(pageable);
-                    break;
-                default:
-                    teams = findPageByCreated(pageable);
-                    break;
-            }
-        } else {
-            switch (to.name()) {
-                case "active":
-                    teams = findPagePositionByActive(p, pageable);
-                    break;
-                case "popularity":
-                    teams = findPagePositionByPopularity(p, pageable);
-                    break;
-                default:
-                    teams = findPagePositionByCreated(p, pageable);
-                    break;
-            }
-        }
-
-        return teams;
-    }
-
-    /**
-     * 팀원 모집 여부 업데이트 | main |
-     * 400(ID_CONVERT_INVALID)
+     * 팀원 모집 여부 업데이트 |
      * 403(REQUEST_FORBIDDEN)
-     * 404(TEAM_NOT_FOUND)
-     * 500(SERVER_ERROR)
+     * 404(CURRENT_TEAM_NOT_FOUND)
      */
-    public void updateIsRecruiting(User user, Boolean isRecruiting) {
-        Team team = findOneById(user.getCurrentTeamId().toString());
-        if (!team.isLeader(user.getId().toString()))
-            throw new CustomException(REQUEST_FORBIDDEN);
+    public void updateIsRecruiting(User user, boolean isRecruiting) {
+        TeamMember teamMember = findOneCurrentTeamMember(user);
 
-        team.updateIsRecruiting(isRecruiting);
-        save(team);
+        validateIsLeader(teamMember);
+
+        teamMember.getTeam().updateIsRecruiting(isRecruiting);
     }
 
     /**
-     * 팀원 추방 | main |
-     * 400(ID_CONVERT_INVALID)
+     * 프로젝트 종료 |
      * 403(REQUEST_FORBIDDEN)
-     * 404(TEAM_NOT_FOUND)
+     * 404(CURRENT_TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public void fire(User leader, ObjectId userId) {
-        Team team = findOneById(leader.getCurrentTeamId().toString());
-        if (!team.isLeader(leader.getId().toString()))
-            throw new CustomException(REQUEST_FORBIDDEN);
+    public void quit(User user, String projectUrl) {
+        TeamMember teamMember = findOneCurrentTeamMember(user);
 
-        team.removeTeammate(userId, true);
-        save(team);
-    }
-
-    /**
-     * 프로젝트 종료 | main |
-     * 400(ID_CONVERT_INVALID)
-     * 403(REQUEST_FORBIDDEN)
-     * 404(TEAM_NOT_FOUND)
-     * 500(SERVER_ERROR)
-     */
-    public List<ObjectId> quit(User user, String projectUrl) {
-        Team team = findOneById(user.getCurrentTeamId().toString());
-        if (!team.isLeader(user.getId().toString()))
-            throw new CustomException(REQUEST_FORBIDDEN);
-
-        List<ObjectId> userIds = team.getAllMembers();
+        validateIsLeader(teamMember);
 
         if (projectUrl.isBlank())
-            team.delete();
+            incomplete(teamMember.getTeam());
         else
-            team.complete(projectUrl);
-
-        save(team);
-
-        return userIds;
+            complete(teamMember.getTeam(), projectUrl);
     }
 
     /**
-     * 회원 찜 업데이트 | main |
-     * 400(ID_CONVERT_INVALID)
+     * 팀원 추방 |
      * 403(REQUEST_FORBIDDEN)
-     * 404(TEAM_NOT_FOUND)
-     * 500(SERVER_ERROR)
+     * 404(CURRENT_TEAM_NOT_FOUND)
      */
-    public void updateFavoriteUser(User leader, User user, boolean isAddFavorite) {
-        Team team = findOneById(leader.getCurrentTeamId().toString());
-        if (!team.isLeader(user.getId().toString()))
-            throw new CustomException(REQUEST_FORBIDDEN);
+    public void fire(User leader, Long userId) {
+        TeamMember leaderTeamMember = findOneCurrentTeamMember(leader);
 
-        team.updateFavoriteUserId(user.getId(), isAddFavorite);
+        validateIsLeader(leaderTeamMember);
 
-        save(team);
-    }
+        Team team = leaderTeamMember.getTeam();
+        for(TeamMember teamMember : team.getTeamMembers())
+            if (teamMember.getUser().getId().equals(userId)) {
+                hardDeleteTeamMember(teamMember);
 
-    /**
-     * 찜한 회원 식별자 전체 조회 | main |
-     * 400(ID_CONVERT_INVALID)
-     * 403(REQUEST_FORBIDDEN)
-     * 404(TEAM_NOT_FOUND)
-     */
-    public List<ObjectId> findAllFavorite(User user) {
-        Team team = findOneById(user.getCurrentTeamId().toString());
-        if (!team.isLeader(user.getId().toString()))
-            throw new CustomException(REQUEST_FORBIDDEN);
-
-        return team.getFavoriteUserIds();
-    }
-
-    /**
-     * 식별자로 팀 전체 조회 | main |
-     * 500(SERVER_ERROR)
-     */
-    public List<Team> findAllById(List<ObjectId> teamIds) {
-        List<Team> teams = new ArrayList<>();
-        try {
-            for (ObjectId teamId : teamIds) {
-                Optional<Team> team = teamRepository.findByIdAndIsDeletedIsFalse(teamId);
-                team.ifPresent(teams::add);
+                team.incrementUserFiredCnt();
+                teamMember.getUser().incrementFiredTeamCnt();
+                return;
             }
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-
-        return teams;
-    }
-
-    /**
-     * 팀 탈퇴 | main |
-     * 400(ID_CONVERT_INVALID)
-     * 404(TEAM_NOT_FOUND)
-     * 500(SERVER_ERROR)
-     */
-    public void leave(User user) {
-        Team team = findOneById(user.getCurrentTeamId().toString());
-
-        team.removeTeammate(user.getId(), false);
-
-        save(team);
-    }
-
-    /**
-     * 회원 또는 팀 제안 | main |
-     * 400(ID_CONVERT_INVALID)
-     * 404(TEAM_NOT_FOUND)
-     * 500(SERVER_ERROR)
-     */
-    public Team offer(String teamId, boolean isOfferedByUser) {
-        Team team = findOneById(teamId);
-
-        team.offer(isOfferedByUser);
-
-        return save(team);
-    }
-
-    /**
-     * 회원의 제안 결정 | main |
-     * 400(ID_CONVERT_INVALID)
-     * 404(TEAM_NOT_FOUND)
-     * 409(TEAM_POSITION_UNAVAILABLE)
-     * 500(SERVER_ERROR)
-     */
-    public Team decideOfferByUser(Offer offer, User user, boolean isAccepted) {
-        Team team = findOneById(offer.getTeamId().toString());
-
-        if (isAccepted) {
-            Position position = Position.fromChar(offer.getPosition());
-            join(team, user.getId(), position.getType());
-        }
-
-        return team;
-    }
-
-    /**
-     * 팀의 제안 결정 | main |
-     * 400(ID_CONVERT_INVALID)
-     * 403(REQUEST_FORBIDDEN)
-     * 404(TEAM_NOT_FOUND)
-     * 409(TEAM_POSITION_UNAVAILABLE)
-     * 500(SERVER_ERROR)
-     */
-    public void decideOfferByTeam(Offer offer, User user, User otherUser, boolean isAccepted) {
-        Team team = findOneById(user.getCurrentTeamId().toString());
-        if (!team.isLeader(user.getId().toString()))
-            throw new CustomException(REQUEST_FORBIDDEN);
-        if (!isAccepted)
-            return;
-        Position position = Position.fromChar(offer.getPosition());
-        join(team, otherUser.getId(), position.getType());
-    }
-
-    /**
-     * 리뷰 가능한 팀 전체 조회 | main |
-     * 500(SERVER_ERROR)
-     */
-    public List<Team> findReviewableTeam(List<ObjectId> teamIds) {
-        List<Team> teams = findAllById(teamIds);
-        List<Team> reviewableTeams = new ArrayList<>();
-
-        for (Team team : teams)
-            if (LocalDateTime.now().minusWeeks(4).isBefore(team.getModifiedDate()) && team.getIsComplete())
-                reviewableTeams.add(team);
-
-        return reviewableTeams;
-    }
-
-    /**
-     * 회원이 팀 지원전 검증 | sub |
-     * 400(POSITION_TYPE_INVALID / ID_CONVERT_INVALID)
-     * 404(TEAM_NOT_FOUND)
-     * 409(TEAM_POSITION_UNAVAILABLE)
-     * 500(SERVER_ERROR)
-     */
-    public void validatePreOfferByUser(String teamId, String position) {
-        Position p = Position.fromString(position);
-        Team team = findOneById(teamId);
-        validatePositionAvailability(team, p.getType());
-    }
-
-    /**
-     * 팀이 회원에게 채용 제안전 검증 | sub |
-     * 400(POSITION_TYPE_INVALID / ID_CONVERT_INVALID)
-     * 403(REQUEST_FORBIDDEN)
-     * 404(TEAM_NOT_FOUND)
-     * 409(TEAM_POSITION_UNAVAILABLE)
-     * 500(SERVER_ERROR)
-     */
-    public void validatePreOfferByTeam(String teamId, String leaderId, String userId, String position) {
-        Position p = Position.fromString(position);
-        Team team = findOneById(teamId);
-        validatePositionAvailability(team, p.getType());
-
-        if (!team.isLeader(leaderId))
-            throw new CustomException(REQUEST_FORBIDDEN);
     }
 
     /**
@@ -397,122 +135,165 @@ public class TeamService {
      * 409(TEAM_POSITION_UNAVAILABLE)
      * 500(SERVER_ERROR)
      */
-    private void join(Team team, ObjectId userId, char position) {
+    public void joinTeam(User user, Team team, TeamMemberStatus teamMemberStatus, Position position) {
         validatePositionAvailability(team, position);
 
-        team.addTeammate(userId, position);
+        TeamMember teamMember = TeamMember.builder()
+                .user(user)
+                .team(team)
+                .position(position)
+                .teamMemberStatus(teamMemberStatus)
+                .build();
 
-        save(team);
+        saveTeamMember(teamMember);
+
+        team.updateIsPositionFull(position);
+
+        if (teamMemberStatus.equals(TeamMemberStatus.LEADER))
+            user.incrementCreateTeamCnt();
+        else
+            user.incrementJoinTeamCnt();
+
     }
 
     /**
-     * 특정 포지션 합류 여부 검증 |
-     * 409(TEAM_POSITION_UNAVAILABLE)
+     * 팀 나가기 |
+     * 404(CURRENT_TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    private void validatePositionAvailability(Team team, char position) {
-        switch (position) {
-            case 'D':
-                if (team.getDesignerUserIds().size() >= team.getDesignerTotalRecruitCnt())
-                    throw new CustomException(TEAM_POSITION_UNAVAILABLE);
-                break;
-            case 'B':
-                if (team.getBackendUserIds().size() >= team.getBackendTotalRecruitCnt())
-                    throw new CustomException(TEAM_POSITION_UNAVAILABLE);
-                break;
-            case 'F':
-                if (team.getFrontendUserIds().size() >= team.getFrontendTotalRecruitCnt())
-                    throw new CustomException(TEAM_POSITION_UNAVAILABLE);
-                break;
-            case 'M':
-                if (team.getManagerUserIds().size() >= team.getManagerTotalRecruitCnt())
-                    throw new CustomException(TEAM_POSITION_UNAVAILABLE);
-                break;
-            default:
-                throw new CustomException(SERVER_ERROR);
-        }
-    }
+    public void leaveTeam(User user) {
+        TeamMember teamMember = findOneCurrentTeamMember(user);
 
-    /**
-     * 포지션별 총 팀원 수 검증 |
-     * 409(DESIGNER_CNT_UPDATE_UNAVAILABLE / BACKEND_CNT_UPDATE_UNAVAILABLE / FRONTEND_CNT_UPDATE_UNAVAILABLE /
-     * MANAGER_CNT_UPDATE_UNAVAILABLE)
-     */
-    private void validateAllPositionCnt(Team team,
-                                        short totalDesignerCnt,
-                                        short totalBackendCnt,
-                                        short totalFrontendCnt,
-                                        short totalManagerCnt) {
-        if (team.getDesignerUserIds().size() > totalDesignerCnt)
-            throw new CustomException(DESIGNER_CNT_UPDATE_UNAVAILABLE);
-        if (team.getBackendUserIds().size() > totalBackendCnt)
-            throw new CustomException(BACKEND_CNT_UPDATE_UNAVAILABLE);
-        if (team.getFrontendUserIds().size() > totalFrontendCnt)
-            throw new CustomException(FRONTEND_CNT_UPDATE_UNAVAILABLE);
-        if (team.getManagerUserIds().size() > totalManagerCnt)
-            throw new CustomException(MANAGER_CNT_UPDATE_UNAVAILABLE);
-    }
+        Team team = teamMember.getTeam();
 
-    /**
-     * 현재 팀 여부 검증
-     */
-    private boolean hasCurrentTeam(User user) {
-        return user.getCurrentTeamId() != null;
+        team.incrementUserLeftCnt();
+        user.incrementQuitTeamByUserCnt();
+
+        hardDeleteTeamMember(teamMember);
     }
 
     /**
      * 팀 저장 |
      * 500(SERVER_ERROR)
      */
-    public Team save(Team team) {
+    private void saveTeam(Team team) {
         try {
-            return teamRepository.save(team);
+            teamRepository.save(team);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
+    }
+
+    /**
+     * 팀 멤버 저장 |
+     * 500(SERVER_ERROR)
+     */
+    private void saveTeamMember(TeamMember teamMember) {
+        try {
+            teamMemberRepository.save(teamMember);
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 팀 멤버 하드 삭제 |
+     * 500(SERVER_ERROR)
+     */
+    public void hardDeleteTeamMember(TeamMember teamMember) {
+        try {
+            teamMemberRepository.delete(teamMember);
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 회원으로 현재 팀 단건 조회 |
+     * 404(CURRENT_TEAM_NOT_FOUND)
+     */
+    public Team findOneCurrentTeam(User user) {
+        TeamMember teamMember = findOneCurrentTeamMember(user);
+
+        return teamMember.getTeam();
+    }
+
+    /**
+     * 식별자로 팀 단건 조회 |
+     * 404(TEAM_NOT_FOUND)
+     * 500(SERVER_ERROR)
+     */
+    public TeamDetailResDto findOneOtherTeam(Long teamId, User user) {
+        Team team = findOneTeam(teamId);
+
+        boolean isTeamMember = user.isTeamMember(team);
+
+        if (!isTeamMember)
+            team.incrementVisitedCnt();
+
+        Boolean isFavorite = isFavoriteTeam(user, team);
+
+        return new TeamDetailResDto(team, isFavorite);
+    }
+
+    /**
+     * 포지션과 팀 정렬 기준으로 팀 페이징 다건 조회 | main |
+     * 500(SERVER_ERROR)
+     */
+    public Page<Team> findManyTeamByPositionOrder(String position, String teamOrder,Integer pageFrom, Integer pageSize) {
+        Position p = Position.fromString(position);
+        TeamOrder to = TeamOrder.fromString(teamOrder);
+        Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
+
+        Page<Team> teams;
+
+        if (p.equals(Position.NONE)) {
+            switch (to.name().toLowerCase()) {
+                case "active":
+                    teams = findManyTeamOrderByActive(pageable);
+                    break;
+                case "popularity":
+                    teams = findManyTeamOrderByPopularity(pageable);
+                    break;
+                default:
+                    teams = findManyTeamOrderByCreated(pageable);
+                    break;
+            }
+        } else {
+            switch (to.name()) {
+                case "active":
+                    teams = findManyTeamByPositionOrderByActive(p, pageable);
+                    break;
+                case "popularity":
+                    teams = findManyTeamByPositionOrderByPopularity(p, pageable);
+                    break;
+                default:
+                    teams = findManyTeamByPositionOrderByCreated(p, pageable);
+                    break;
+            }
+        }
+
+        return teams;
+    }
+
+    /**
+     * 식별자로 팀 단건 조회 |
+     * 404(TEAM_NOT_FOUND)
+     */
+    public Team findOneTeam(Long teamId) {
+        return teamRepository.findByIdAndIsDeletedIsFalse(teamId)
+                .orElseThrow(() -> {
+                    throw new CustomException(TEAM_NOT_FOUND);
+                });
     }
 
     /**
      * 전체 포지션을 활동순으로 팀 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
-    private Page<Team> findPageByActive(Pageable pageable) {
+    private Page<Team> findManyTeamOrderByActive(Pageable pageable) {
         try {
             return teamRepository.findAllByIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(pageable);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 특정 포지션을 활동순으로 팀 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private Page<Team> findPagePositionByActive(Position position, Pageable pageable) {
-        try {
-            Page<Team> teams;
-            switch (position.getType()) {
-                case 'D':
-                    teams = teamRepository
-                            .findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(pageable);
-                    break;
-                case 'B':
-                    teams = teamRepository
-                            .findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(pageable);
-                    break;
-                case 'F':
-                    teams = teamRepository
-                            .findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(pageable);
-                    break;
-                case 'M':
-                    teams = teamRepository
-                            .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(pageable);
-                    break;
-                default:
-                    throw new CustomException(SERVER_ERROR);
-            }
-
-            return teams;
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -522,43 +303,9 @@ public class TeamService {
      * 전체 포지션을 인기순으로 팀 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
-    private Page<Team> findPageByPopularity(Pageable pageable) {
+    private Page<Team> findManyTeamOrderByPopularity(Pageable pageable) {
         try {
             return teamRepository.findAllByIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(pageable);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 특정 포지션을 인기순으로 팀 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private Page<Team> findPagePositionByPopularity(Position position, Pageable pageable) {
-        try {
-            Page<Team> teams;
-            switch (position.getType()) {
-                case 'D':
-                    teams = teamRepository
-                            .findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(pageable);
-                    break;
-                case 'B':
-                    teams = teamRepository
-                            .findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(pageable);
-                    break;
-                case 'F':
-                    teams = teamRepository
-                            .findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(pageable);
-                    break;
-                case 'M':
-                    teams = teamRepository
-                            .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(pageable);
-                    break;
-                default:
-                    throw new CustomException(SERVER_ERROR);
-            }
-
-            return teams;
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -568,9 +315,93 @@ public class TeamService {
      * 전체 포지션을 생성순으로 팀 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
-    private Page<Team> findPageByCreated(Pageable pageable) {
+    private Page<Team> findManyTeamOrderByCreated(Pageable pageable) {
         try {
-            return teamRepository.findAllByIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedDateDesc(pageable);
+            return teamRepository.findAllByIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedAtDesc(pageable);
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 특정 포지션을 활동순으로 팀 페이징 다건 조회 |
+     * 500(SERVER_ERROR)
+     */
+    private Page<Team> findManyTeamByPositionOrderByActive(Position position, Pageable pageable) {
+        try {
+            Page<Team> teams;
+            switch (position.getType()) {
+                case 'D':
+                    teams = teamRepository
+                            .findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(
+                                    pageable
+                            );
+                    break;
+                case 'B':
+                    teams = teamRepository
+                            .findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(
+                                    pageable
+                            );
+                    break;
+                case 'F':
+                    teams = teamRepository
+                            .findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(
+                                    pageable
+                            );
+                    break;
+                case 'M':
+                    teams = teamRepository
+                            .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(
+                                    pageable
+                            );
+                    break;
+                default:
+                    throw new CustomException(SERVER_ERROR);
+            }
+
+            return teams;
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 특정 포지션을 인기순으로 팀 페이징 다건 조회 |
+     * 500(SERVER_ERROR)
+     */
+    private Page<Team> findManyTeamByPositionOrderByPopularity(Position position, Pageable pageable) {
+        try {
+            Page<Team> teams;
+            switch (position.getType()) {
+                case 'D':
+                    teams = teamRepository
+                            .findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
+                                    pageable
+                            );
+                    break;
+                case 'B':
+                    teams = teamRepository
+                            .findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
+                                    pageable
+                            );
+                    break;
+                case 'F':
+                    teams = teamRepository
+                            .findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
+                                    pageable
+                            );
+                    break;
+                case 'M':
+                    teams = teamRepository
+                            .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
+                                    pageable
+                            );
+                    break;
+                default:
+                    throw new CustomException(SERVER_ERROR);
+            }
+
+            return teams;
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -580,31 +411,174 @@ public class TeamService {
      * 특정 포지션을 생성순으로 팀 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
-    private Page<Team> findPagePositionByCreated(Position position, Pageable pageable) {
+    private Page<Team> findManyTeamByPositionOrderByCreated(Position position, Pageable pageable) {
         try {
             Page<Team> teams;
             switch (position.getType()) {
                 case 'D':
                     teams = teamRepository
-                            .findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedDateDesc(pageable);
+                            .findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedAtDesc(
+                                    pageable
+                            );
                     break;
                 case 'B':
                     teams = teamRepository
-                            .findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedDateDesc(pageable);
+                            .findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedAtDesc(
+                                    pageable
+                            );
                     break;
                 case 'F':
                     teams = teamRepository
-                            .findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedDateDesc(pageable);
+                            .findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedAtDesc(
+                                    pageable
+                            );
                     break;
                 case 'M':
                     teams = teamRepository
-                            .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedDateDesc(pageable);
+                            .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedAtDesc(
+                                    pageable
+                            );
                     break;
                 default:
                     throw new CustomException(SERVER_ERROR);
             }
 
             return teams;
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 현재 팀 멤버 단건 조회 |
+     * 404(CURRENT_TEAM_NOT_FOUND)
+     */
+    public TeamMember findOneCurrentTeamMember(User user) {
+        return teamMemberRepository.findByUserAndIsDeletedIsFalse(user)
+                .orElseThrow(() -> {
+                    throw new CustomException(CURRENT_TEAM_NOT_FOUND);
+                });
+    }
+
+    /**
+     * 리더 검증 |
+     * 403(REQUEST_FORBIDDEN)
+     */
+    public void validateIsLeader(TeamMember teamMember) {
+        if (!teamMember.isLeader())
+            throw new CustomException(REQUEST_FORBIDDEN);
+    }
+
+    /**
+     * 회원으로 현재 팀 미존재 검증 |
+     * 409(EXISTING_CURRENT_TEAM)
+     */
+    private void validateHasNoCurrentTeam(User user) {
+        if (user.getTeamMembers().isEmpty())
+            return;
+
+        if (!user.getTeamMembers().get(user.getTeamMembers().size() - 1).getIsDeleted())
+            throw new CustomException(EXISTING_CURRENT_TEAM);
+    }
+
+    /**
+     * 회원으로 현재 포지션 존재 검증 |
+     * 409(NON_EXISTING_POSITION)
+     */
+    private void validateCurrentPosition(User user) {
+        if (!user.hasPosition())
+            throw new CustomException(NON_EXISTING_POSITION);
+    }
+
+    /**
+     * 포지션별 총 팀원 수 검증 |
+     * 409(DESIGNER_CNT_UPDATE_UNAVAILABLE / BACKEND_CNT_UPDATE_UNAVAILABLE / FRONTEND_CNT_UPDATE_UNAVAILABLE /
+     * MANAGER_CNT_UPDATE_UNAVAILABLE)
+     */
+    private void validateAllPositionCnt(Team team,
+                                        byte designerTotalCnt,
+                                        byte backendTotalCnt,
+                                        byte frontendTotalCnt,
+                                        byte managerTotalCnt) {
+        byte designerCurrentCnt = 0;
+        byte backendCurrentCnt = 0;
+        byte frontendCurrentCnt = 0;
+        byte managerCurrentCnt = 0;
+
+        for (TeamMember teamMember : team.getTeamMembers())
+            switch (teamMember.getPosition()) {
+                case 'D':
+                    designerCurrentCnt++;
+                    break;
+                case 'B':
+                    backendCurrentCnt++;
+                    break;
+                case 'F':
+                    frontendCurrentCnt++;
+                    break;
+                case 'M':
+                    managerCurrentCnt++;
+                    break;
+            }
+
+        if (designerTotalCnt < designerCurrentCnt)
+            throw new CustomException(DESIGNER_CNT_UPDATE_UNAVAILABLE);
+        if (backendTotalCnt < backendCurrentCnt)
+            throw new CustomException(BACKEND_CNT_UPDATE_UNAVAILABLE);
+        if (frontendTotalCnt < frontendCurrentCnt)
+            throw new CustomException(FRONTEND_CNT_UPDATE_UNAVAILABLE);
+        if (managerTotalCnt < managerCurrentCnt)
+            throw new CustomException(MANAGER_CNT_UPDATE_UNAVAILABLE);
+    }
+
+    /**
+     * 포지션 여부 검증 |
+     * 409(TEAM_POSITION_UNAVAILABLE)
+     */
+    private void validatePositionAvailability(Team team, Position position) {
+        boolean isFull = team.isPositionFull(position);
+
+        if (isFull)
+            throw new CustomException(TEAM_POSITION_UNAVAILABLE);
+    }
+
+    /**
+     * 프로젝트 미완료 |
+     * 500(SERVER_ERROR)
+     */
+    private void incomplete(Team team) {
+        for(TeamMember teamMember : team.getTeamMembers()) {
+            hardDeleteTeamMember(teamMember);
+
+            teamMember.getUser().incrementQuitTeamByLeaderCnt();
+        }
+
+        team.incomplete();
+    }
+
+    /**
+     * 프로젝트 완료
+     */
+    private void complete(Team team, String projectUrl) {
+        for(TeamMember teamMember : team.getTeamMembers()) {
+            teamMember.complete();
+
+            teamMember.getUser().incrementCompleteTeamCnt();
+        }
+
+        team.complete(projectUrl);
+    }
+
+    /**
+     * 찜한 팀 여부 확인 |
+     * 500(SERVER_ERROR)
+     */
+    private boolean isFavoriteTeam(User user, Team team) {
+        try {
+            Optional<FavoriteTeam> favoriteTeam =
+                    favoriteTeamRepository.findByUserAndTeamAndIsDeletedIsFalse(user, team);
+
+            return favoriteTeam.isPresent();
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }

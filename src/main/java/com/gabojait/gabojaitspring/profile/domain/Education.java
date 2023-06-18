@@ -1,52 +1,47 @@
 package com.gabojait.gabojaitspring.profile.domain;
 
 import com.gabojait.gabojaitspring.common.entity.BaseTimeEntity;
+import com.gabojait.gabojaitspring.user.domain.User;
 import lombok.*;
-import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
+import javax.persistence.*;
 import java.time.LocalDate;
 
 @Getter
 @ToString
-@Document(collection = "education")
+@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Education extends BaseTimeEntity {
 
-    @Field(name = "user_id")
-    private ObjectId userId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "education_id")
+    private Long id;
 
-    @Field(name = "institution_name")
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    @ToString.Exclude
+    private User user;
+
     private String institutionName;
-
-    @Field(name = "started_date")
-    private LocalDate startedDate;
-
-    @Field(name = "ended_date")
-    private LocalDate endedDate;
-
-    @Field(name = "is_current")
+    private LocalDate startedAt;
+    private LocalDate endedAt;
     private Boolean isCurrent;
 
     @Builder
-    public Education(ObjectId userId,
-                     String institutionName,
-                     LocalDate startedDate,
-                     LocalDate endedDate,
-                     boolean isCurrent) {
-        this.userId = userId;
+    public Education(String institutionName, LocalDate startedAt, LocalDate endedAt, boolean isCurrent, User user) {
         this.institutionName = institutionName;
-        this.startedDate = startedDate;
-        this.endedDate = endedDate;
+        this.startedAt = startedAt;
+        this.endedAt = endedAt;
         this.isCurrent = isCurrent;
+        this.user = user;
         this.isDeleted = false;
     }
 
-    public void update(String institutionName, LocalDate startedDate, LocalDate endedDate, boolean isCurrent) {
+    public void update(String institutionName, LocalDate startedAt, LocalDate endedAt, boolean isCurrent) {
         this.institutionName = institutionName;
-        this.startedDate = startedDate;
-        this.endedDate = endedDate;
+        this.startedAt = startedAt;
+        this.endedAt = endedAt;
         this.isCurrent = isCurrent;
     }
 

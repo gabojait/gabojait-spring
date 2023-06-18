@@ -2,38 +2,43 @@ package com.gabojait.gabojaitspring.profile.domain;
 
 import com.gabojait.gabojaitspring.common.entity.BaseTimeEntity;
 import com.gabojait.gabojaitspring.profile.domain.type.Media;
+import com.gabojait.gabojaitspring.user.domain.User;
 import lombok.*;
-import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+
+import javax.persistence.*;
 
 @Getter
 @ToString
-@Document(collection = "portfolio")
+@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Portfolio extends BaseTimeEntity {
 
-    @Field(name = "user_id")
-    private ObjectId userId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "portfolio_id")
+    private Long id;
 
-    @Field(name = "portfolio_name")
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    @ToString.Exclude
+    private User user;
+
     private String portfolioName;
-
+    private String portfolioUrl;
     private Character media;
-    private String url;
 
     @Builder
-    public Portfolio(ObjectId userId, Media media, String portfolioName, String url) {
-        this.userId = userId;
-        this.media = media.getType();
+    public Portfolio(String portfolioName, String portfolioUrl, Media media, User user) {
         this.portfolioName = portfolioName;
-        this.url = url;
+        this.portfolioUrl = portfolioUrl;
+        this.media = media.getType();
+        this.user = user;
         this.isDeleted = false;
     }
 
-    public void update(String portfolioName, String url) {
+    public void update(String portfolioName, String portfolioUrl) {
         this.portfolioName = portfolioName;
-        this.url = url;
+        this.portfolioUrl = portfolioUrl;
     }
 
     public void delete() {

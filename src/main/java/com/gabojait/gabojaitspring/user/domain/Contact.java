@@ -2,32 +2,33 @@ package com.gabojait.gabojaitspring.user.domain;
 
 import com.gabojait.gabojaitspring.common.entity.BaseTimeEntity;
 import lombok.*;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+
+import javax.persistence.*;
 
 @Getter
 @ToString
-@Document(collection = "contact")
+@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Contact extends BaseTimeEntity {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "contact_id")
+    private Long id;
+
+    @OneToOne(mappedBy = "contact")
+    @ToString.Exclude
+    private User user;
+
     private String email;
-
-    @Field(name = "verification_code")
     private String verificationCode;
-
-    @Field(name = "is_verified")
     private Boolean isVerified;
-
-    @Field(name = "is_registered")
-    private Boolean isRegistered;
 
     @Builder
     public Contact(String email, String verificationCode) {
         this.email = email;
         this.verificationCode = verificationCode;
         this.isVerified = false;
-        this.isRegistered = false;
         this.isDeleted = false;
     }
 
@@ -35,11 +36,12 @@ public class Contact extends BaseTimeEntity {
         this.isVerified = true;
     }
 
-    public void registered() {
-        this.isRegistered = true;
+    public void delete() {
+        this.isDeleted = true;
     }
 
-    public void delete() {
+    public void deleteAccount() {
+        this.email = null;
         this.isDeleted = true;
     }
 }

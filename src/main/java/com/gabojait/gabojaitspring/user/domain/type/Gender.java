@@ -4,7 +4,6 @@ import com.gabojait.gabojaitspring.exception.CustomException;
 import lombok.Getter;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.GENDER_TYPE_INVALID;
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.SERVER_ERROR;
 
 @Getter
 public enum Gender {

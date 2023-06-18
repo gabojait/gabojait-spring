@@ -2,15 +2,31 @@ spring:
   profiles:
     active: ${PROFILES_ACTIVE}
 
-  data:
-    mongodb:
-      host: ${DB_HOST}
-      port: ${DB_PORT}
-      database: ${DB_NAME}
-      username: ${DB_USERNAME}
-      password: ${DB_PASSWORD}
-      auto-index-creation: true
-      authentication-database: admin
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: ${DB_DDL_TYPE}
+      use-new-id-generator-mappings: false
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+
+  servlet:
+    multipart:
+      max-request-size: ${MAX_FILE_SIZE}
+      max-file-size: ${MAX_FILE_SIZE}
 
   mail:
     host: ${MAIL_HOST}
@@ -24,22 +40,17 @@ spring:
           auth: true
           starttls:
             enable: true
-
-  servlet:
-    multipart:
-      max-file-size: ${MAX_FILE_SIZE}
-      max-request-size: ${MAX_REQUEST_SIZE}
-
-springfox:
-  documentation:
-    swagger-ui:
-      enabled: ${SWAGGER_ENABLED}
-
 logging:
   config: classpath:logback/${PROFILES_ACTIVE}-logback.xml
   file:
     path: ${LOG_FILE_PATH}
     name: gabojait-rolling.log
+
+springfox:
+  documentation:
+    swagger-ui:
+      enabled: ${SWAGGER_ENABLED}
+      base-url: ${SWAGGER_BASE_URL}
 
 api:
   name: ${PROFILES_ACTIVE}

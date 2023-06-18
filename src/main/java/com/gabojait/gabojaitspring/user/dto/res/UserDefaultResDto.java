@@ -17,48 +17,40 @@ import java.time.LocalDateTime;
 public class UserDefaultResDto {
 
     @ApiModelProperty(position = 1, required = true, value = "회원 식별자")
-    private String userId;
+    private Long userId;
 
     @ApiModelProperty(position = 2, required = true, value = "아이디")
     private String username;
 
-    @ApiModelProperty(position = 3, required = true, value = "실명")
-    private String legalName;
-
-    @ApiModelProperty(position = 4, required = true, value = "닉네임")
+    @ApiModelProperty(position = 3, required = true, value = "닉네임")
     private String nickname;
 
-    @ApiModelProperty(position = 5, required = true, value = "성별", allowableValues = "male, female, none")
+    @ApiModelProperty(position = 4, required = true, value = "성별", allowableValues = "male, female, none")
     private String gender;
 
-    @ApiModelProperty(position = 6, required = true, value = "생년월일")
+    @ApiModelProperty(position = 5, required = true, value = "생년월일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthdate;
 
-    @ApiModelProperty(position = 7, required = true, value = "연락처")
+    @ApiModelProperty(position = 6, required = true, value = "연락처")
     private ContactDefaultResDto contact;
 
-    @ApiModelProperty(position = 8, required = true, value = "생성일")
+    @ApiModelProperty(position = 7, required = true, value = "생성일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createdDate;
+    private LocalDateTime createdAt;
 
-    @ApiModelProperty(position = 9, required = true, value = "수정일")
+    @ApiModelProperty(position = 8, required = true, value = "수정일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime modifiedDate;
-
-    @ApiModelProperty(position = 10, required = true, value = "스키마 버전")
-    private String schemaVersion;
+    private LocalDateTime updatedAt;
 
     public UserDefaultResDto(User user) {
-        this.userId = user.getId().toString();
+        this.userId = user.getId();
         this.username = user.getUsername();
-        this.legalName = user.getLegalName();
         this.nickname = user.getNickname();
-        this.gender = Gender.fromChar(user.getGender()).name().toLowerCase();
+        this.gender = Gender.fromChar(user.getGender()).name();
         this.birthdate = user.getBirthdate();
         this.contact = new ContactDefaultResDto(user.getContact());
-        this.createdDate = user.getCreatedDate();
-        this.modifiedDate = user.getModifiedDate();
-        this.schemaVersion = user.getSchemaVersion();
+        this.createdAt = user.getCreatedAt();
+        this.updatedAt = user.getUpdatedAt();
     }
 }
