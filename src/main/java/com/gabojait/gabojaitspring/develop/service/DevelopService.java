@@ -1,5 +1,6 @@
 package com.gabojait.gabojaitspring.develop.service;
 
+import com.gabojait.gabojaitspring.common.util.FcmProvider;
 import com.gabojait.gabojaitspring.common.util.GeneralProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.profile.domain.Education;
@@ -57,6 +58,7 @@ public class DevelopService {
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final GeneralProvider generalProvider;
+    private final FcmProvider fcmProvider;
 
     /**
      * 서버명 반환
@@ -89,6 +91,13 @@ public class DevelopService {
         injectPortfolios(users);
         injectPositionAndSkills(users);
         injectTeam(users.get(0));
+    }
+
+    /**
+     * 테스트 FCM 전송
+     */
+    public void sendTestFcm(User user, String title, String body) {
+        fcmProvider.sendOne(user, title, body);
     }
 
     /**

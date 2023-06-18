@@ -1,5 +1,6 @@
 package com.gabojait.gabojaitspring.offer.service;
 
+import com.gabojait.gabojaitspring.common.util.FcmProvider;
 import com.gabojait.gabojaitspring.common.util.GeneralProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.offer.domain.Offer;
@@ -28,6 +29,7 @@ public class OfferService {
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
     private final GeneralProvider generalProvider;
+    private final FcmProvider fcmProvider;
 
     /**
      * 회원이 팀에 제안 |
@@ -46,6 +48,8 @@ public class OfferService {
 
         team.incrementUserOfferCnt();
         user.incrementUserOfferCnt();
+
+        fcmProvider.sendOfferByUser(offer);
     }
 
     /**
@@ -70,6 +74,8 @@ public class OfferService {
 
         team.incrementTeamOfferCnt();
         user.incrementTeamOfferCnt();
+
+        fcmProvider.sendOfferByTeam(offer);
     }
 
     /**
@@ -90,6 +96,8 @@ public class OfferService {
 
             user.incrementJoinTeamCnt();
             team.incrementUserJoinCnt();
+
+            fcmProvider.sendTeamMemberJoin(offer);
         } else {
             offer.decline();
         }
@@ -116,6 +124,8 @@ public class OfferService {
 
             user.incrementJoinTeamCnt();
             team.incrementUserJoinCnt();
+
+            fcmProvider.sendTeamMemberJoin(offer);
         } else {
             offer.decline();
         }

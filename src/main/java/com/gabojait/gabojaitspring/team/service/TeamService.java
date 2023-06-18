@@ -1,5 +1,6 @@
 package com.gabojait.gabojaitspring.team.service;
 
+import com.gabojait.gabojaitspring.common.util.FcmProvider;
 import com.gabojait.gabojaitspring.common.util.GeneralProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.favorite.domain.FavoriteTeam;
@@ -33,6 +34,7 @@ public class TeamService {
     private final TeamMemberRepository teamMemberRepository;
     private final FavoriteTeamRepository favoriteTeamRepository;
     private final GeneralProvider generalProvider;
+    private final FcmProvider fcmProvider;
 
     /**
      * 팀 생성 |
@@ -75,6 +77,8 @@ public class TeamService {
                 request.getManagerTotalRecruitCnt(),
                 request.getExpectation(),
                 request.getOpenChatUrl());
+
+        fcmProvider.sendTeamProfileUpdated(team);
 
         return team;
     }
@@ -126,6 +130,8 @@ public class TeamService {
 
                 team.incrementUserFiredCnt();
                 teamMember.getUser().incrementFiredTeamCnt();
+
+                fcmProvider.sendTeamMemberFired(teamMember.getUser(), team);
                 return;
             }
     }
@@ -170,6 +176,8 @@ public class TeamService {
         user.incrementQuitTeamByUserCnt();
 
         hardDeleteTeamMember(teamMember);
+
+        fcmProvider.sendTeamMemberQuit(user, team);
     }
 
     /**
@@ -554,6 +562,8 @@ public class TeamService {
         }
 
         team.incomplete();
+
+        fcmProvider.sendTeamIncomplete(team);
     }
 
     /**
@@ -567,6 +577,8 @@ public class TeamService {
         }
 
         team.complete(projectUrl);
+
+        fcmProvider.sendTeamComplete(team);
     }
 
     /**

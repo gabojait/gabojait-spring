@@ -2,6 +2,7 @@ package com.gabojait.gabojaitspring.develop.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.develop.dto.req.DevelopFcmReqDto;
 import com.gabojait.gabojaitspring.develop.service.DevelopService;
 import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.Api;
@@ -15,10 +16,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "개발")
 @RestController
@@ -103,6 +107,38 @@ public class DevelopController {
                 .body(DefaultResDto.noDataBuilder()
                         .responseCode(TOKEN_ISSUED.name())
                         .responseMessage(TOKEN_ISSUED.getMessage())
+                        .build());
+    }
+
+    @ApiOperation(value = "테스트 FCM 전송",
+            notes = "<응답 코드>\n" +
+                    "- 200 = TEST_FCM_SENT\n" +
+                    "- 400 = FCM_TITLE_FIELD_REQUIRED || FCM_MESSAGE_FIELD_REQUIRED\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION\n")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
+    })
+    @PostMapping("/test/fcm")
+    public ResponseEntity<DefaultResDto<Object>> sendTestFcm(HttpServletRequest servletRequest,
+                                                             @RequestBody @Valid
+                                                             DevelopFcmReqDto request) {
+        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        developService.sendTestFcm(user, request.getFcmTitle(), request.getFcmMessage());
+
+        return ResponseEntity.status(TEST_FCM_SENT.getHttpStatus())
+                .body(DefaultResDto.noDataBuilder()
+                        .responseCode(TEST_FCM_SENT.name())
+                        .responseMessage(TEST_FCM_SENT.getMessage())
                         .build());
     }
 }
