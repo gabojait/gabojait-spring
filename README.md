@@ -12,9 +12,10 @@ Play Store:
 
 ![Java](https://img.shields.io/badge/Java-11.0.11-6db33f?logo=Java&style=flat)
 ![SpringBoot](https://img.shields.io/badge/SpringBoot-2.6.6-6db33f?logo=Spring-Boot&style=flat)
+![JPA](https://img.shields.io/badge/JPA--6db33f?logo=Hibernate&style=flat)
 [![Swagger](https://img.shields.io/badge/Swagger-gabojait-6db33f?logo=Swagger&style=flat)](https://gabojait-dev.nogamsung.com/api/v1/docs/swagger-ui/index.html)
 
-![MongoDB](https://img.shields.io/badge/Mongodb-5.0.10-003545?logo=mongodb&style=flat)
+![MySQL](https://img.shields.io/badge/MySQL-8.0.28-003545?logo=mysql&style=flat)
 ![S3](https://img.shields.io/badge/S3--003545?logo=Amazon-S3&style=flat)
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
@@ -33,11 +34,6 @@ Play Store:
 
 ## Database 
 
-![Database Schema 1](docs/img/database-schema-1.png)
-
-![Database Schema 2](docs/img/database-schema-2.png)
-
-![Database Schema 3](docs/img/database-schema-3.png)
 
 ---
 
