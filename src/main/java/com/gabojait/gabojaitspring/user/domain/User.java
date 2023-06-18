@@ -138,16 +138,17 @@ public class User extends BaseTimeEntity implements UserDetails {
     }
 
     @Builder(builderMethodName = "adminBuilder", builderClassName = "adminBuilder")
-    public User(String username, String password, Gender gender, LocalDate birthdate) {
+    public User(String username, String password, Gender gender, LocalDate birthdate, String legalName) {
         this.username = username;
         this.password = password;
         this.gender = gender.getType();
         this.birthdate = birthdate;
+        this.nickname = legalName;
 
         this.roles.addAll(List.of(Role.USER.name(), Role.ADMIN.name()));
 
         this.lastRequestAt = LocalDateTime.now();
-        this.isDeleted = null;
+        this.isDeleted = true;
     }
 
     @Builder(builderMethodName = "masterBuilder", builderClassName = "masterBuilder")
@@ -178,7 +179,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.lastRequestAt = LocalDateTime.now();
     }
 
-    public void approveAdminRegistration(boolean isDeleted) {
+    public void decideAdminRegistration(Boolean isDeleted) {
         this.isDeleted = isDeleted;
     }
 

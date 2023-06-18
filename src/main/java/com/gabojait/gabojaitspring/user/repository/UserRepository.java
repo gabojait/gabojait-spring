@@ -29,4 +29,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Page<User> findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByLastRequestAtDesc(Character position,
                                                                                                   Pageable pageable);
+
+    Page<User> findAllByUsernameEndsWithAndIsDeletedIsTrue(String username, Pageable pageable);
+
+    Optional<User> findByIdAndIsDeletedIsTrue(Long id);
+
+    Optional<User> findByIdAndIsDeletedIsNull(Long id);
+
+    Optional<User> findByUsernameAndIsDeletedIsNull(String username);
+
+    Optional<User> findByUsername(String username);
 }

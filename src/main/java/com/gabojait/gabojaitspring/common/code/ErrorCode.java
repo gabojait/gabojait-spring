@@ -64,6 +64,7 @@ public enum ErrorCode {
     IS_NOTIFIED_FIELD_REQUIRED(BAD_REQUEST, "알림 여부는 필수 입력입니다."),
     FCM_TITLE_FIELD_REQUIRED(BAD_REQUEST, "FCM 제목은 필수 입력입니다."),
     FCM_MESSAGE_FIELD_REQUIRED(BAD_REQUEST, "FCM 메세지는 필수 입력입니다."),
+    ADMIN_ID_FIELD_REQUIRED(BAD_REQUEST, "관리자 식별자는 필수 입력입니다."),
 
     // @Size
     USERNAME_LENGTH_INVALID(BAD_REQUEST, "아이디는 5~15자만 가능합니다."),
@@ -119,6 +120,7 @@ public enum ErrorCode {
     FRONTEND_TOTAL_CNT_POSITIVE_OR_ZERO_ONLY(BAD_REQUEST, "프론트엔드 개발자 수는 0 또는 양수만 가능합니다."),
     MANAGER_TOTAL_CNT_POSITIVE_OR_ZERO_ONLY(BAD_REQUEST, "매니저 수는 0 또는 양수만 가능합니다."),
     OFFER_ID_POSITIVE_ONLY(BAD_REQUEST, "제안 식별자는 양수만 가능합니다."),
+    ADMIN_ID_POSITIVE_ONLY(BAD_REQUEST, "관리자 식별자는 양수만 가능합니다."),
 
     // Custom
     VERIFICATION_CODE_INVALID(BAD_REQUEST, "인증코드가 틀렸습니다."),
@@ -157,6 +159,7 @@ public enum ErrorCode {
     CURRENT_TEAM_NOT_FOUND(NOT_FOUND, "현재 팀이 존재하지 않습니다."),
     TEAM_MEMBER_NOT_FOUND(NOT_FOUND, "존재하지 않는 팀원입니다."),
     OFFER_NOT_FOUND(NOT_FOUND, "존재하지 않는 제안입니다."),
+    ADMIN_NOT_FOUND(NOT_FOUND, "존재하지 않는 관리자입니다."),
 
     /**
      * 405 Method not allowed

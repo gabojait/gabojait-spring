@@ -78,10 +78,8 @@ public enum SuccessCode {
     USERS_SEEKING_TEAM_FOUND(OK, "팀을 구하는 회원 다건 조회를 했습니다."),
     USER_LEFT_TEAM(OK, "회원이 팀을 탈퇴 했습니다."),
 
-    // 201 Created
-
     /**
-     * User Controller
+     * User controller
      */
     // 200 Ok
     USERNAME_AVAILABLE(OK, "아이디 중복 확인을 했습니다."),
@@ -103,7 +101,7 @@ public enum SuccessCode {
     USER_REGISTERED(CREATED, "회원 가입을 했습니다."),
 
     /**
-     * Contact Controller
+     * Contact controller
      */
     // 200 Ok
     EMAIL_VERIFIED(OK, "이메일 인증번호 확인을 했습니다."),
@@ -112,7 +110,18 @@ public enum SuccessCode {
     VERIFICATION_CODE_SENT(CREATED, "인증코드를 이메일로 전송 했습니다."),
 
     /**
-     * Develop Controller
+     * Admin controller
+     */
+    // 200 Ok
+    ADMIN_LOGIN(OK, "관리자가 로그인을 했습니다."),
+    UNREGISTERED_ADMIN_FOUND(OK, "관리자 가입 대기자 다건 조회를 했습니다."),
+    ADMIN_REGISTER_DECIDED(OK, "관리자 가입 결정을 했습니다."),
+
+    // 201 Created
+    ADMIN_REGISTERED(CREATED, "관리자 가입을 했습니다."),
+
+    /**
+     * Develop controller
      */
     // 200 Ok
     SERVER_OK(OK, "헬스 체크를 했습니다."),

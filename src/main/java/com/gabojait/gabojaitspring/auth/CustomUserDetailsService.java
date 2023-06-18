@@ -35,4 +35,11 @@ public class CustomUserDetailsService implements UserDetailsService {
                     throw new CustomException(TOKEN_UNAUTHORIZED);
                 });
     }
+
+    public User loadAdminByUserId(Long userId) {
+        return userRepository.findByIdAndIsDeletedIsNull(userId)
+                .orElseThrow(() -> {
+                    throw new CustomException(TOKEN_UNAUTHORIZED);
+                });
+    }
 }

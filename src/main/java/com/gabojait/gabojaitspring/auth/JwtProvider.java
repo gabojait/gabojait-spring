@@ -166,6 +166,8 @@ public class JwtProvider {
         User user;
         if (userId == 0L && roles.contains(Role.GUEST.name()))
             user = null;
+        else if (userId > 0L && roles.contains(Role.ADMIN.name()))
+            user = customuserDetailsService.loadAdminByUserId(userId);
         else if (userId > 0L && roles.contains(Role.USER.name()))
             user = customuserDetailsService.loadUserByUserId(userId);
         else
