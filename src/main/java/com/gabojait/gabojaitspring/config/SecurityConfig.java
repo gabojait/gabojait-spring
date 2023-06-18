@@ -37,19 +37,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-//                .antMatchers(HttpMethod.GET,
-//                        "/swagger-ui/**", "/swagger-resources/**", "/v2/api-docs", "/api/**/docs",
-//                        "/api/**/health", "/api/**/user/username", "/api/**/user/nickname", "/api/**/test/user/**")
-//                .permitAll()
-//                .antMatchers(HttpMethod.POST,
-//                        "/api/**/contact", "/api/**/user/login", "/api/**/user/username",
-//                        "/api/**/user/password")
-//                .permitAll()
-//                .antMatchers(HttpMethod.DELETE, "/api/**/test")
-//                .permitAll()
+                .antMatchers(HttpMethod.GET,
+                        "/swagger-resources/**", "/v2/api-docs", "/api/**/docs/**/**", "/api/**/health",
+                        "/api/**/user/username", "/api/**/user/nickname", "/api/**/test/user/**")
+                .permitAll()
+                .antMatchers(HttpMethod.POST,
+                        "/api/**/contact", "/api/**/user/login", "/api/**/user/username",
+                        "/api/**/user/password")
+                .permitAll()
+                .antMatchers(HttpMethod.DELETE, "/api/**/test")
+                .permitAll()
                 .anyRequest()
-                .permitAll() //
-//                .authenticated()
+                .authenticated()
                 .and()
                 .addFilterBefore(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling()

@@ -2,6 +2,7 @@ package com.gabojait.gabojaitspring.profile.dto.req;
 
 import com.gabojait.gabojaitspring.common.util.validator.ValidIfPresent;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,7 @@ import java.util.List;
         ValidationSequence.Size.class,
         ValidationSequence.Format.class
 })
+@ApiModel(value = "포지션과 기술 기본 요청")
 public class PositionAndSkillDefaultReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "포지션", example = "none",

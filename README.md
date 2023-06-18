@@ -52,4 +52,3 @@ Play Store:
 ## Rule
 - [Commit Convention](https://doublesprogramming.tistory.com/256)
 - [Semantic Versioning](https://semver.org/lang/ko/)
-
