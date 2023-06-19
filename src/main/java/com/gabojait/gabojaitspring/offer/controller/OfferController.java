@@ -33,7 +33,7 @@ import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.OFFER_CANCEL_BY_USER;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-@Api(tags = "팀")
+@Api(tags = "제안")
 @Validated
 @RestController
 @RequiredArgsConstructor
