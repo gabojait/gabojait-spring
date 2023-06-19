@@ -34,7 +34,7 @@ public class ContactController {
 
     @ApiOperation(value = "인증코드 전송",
             notes = "<응답 코드>\n" +
-                    "- 201 = VERIFICATION\n" +
+                    "- 201 = VERIFICATION_CODE_SENT\n" +
                     "- 400 = EMAIL_FIELD_REQUIRED || EMAIL_FORMAT_INVALID\n" +
                     "- 409 = EXISTING_CONTACT\n" +
                     "- 500 = SERVER_ERROR || EMAIL_SEND_ERROR\n" +
