@@ -19,16 +19,15 @@ Play Store:
 ![S3](https://img.shields.io/badge/S3--003545?logo=Amazon-S3&style=flat)
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
-![Develop-CI](https://img.shields.io/github/workflow/status/gabojait/gabojait-spring/Develop%20-%20CI?&logo=GitHub-Actions&label=alpha-ci&style=flat)
-![Master-CI](https://img.shields.io/github/workflow/status/gabojait/gabojait-spring/Master%20-%20CI?&logo=GitHub-Actions&label=release-ci&style=flat)
-
+![Develop-CI](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fgabojait%2Fgabojait-spring%2Fbadge%3Fref%3Ddevelop%26token%3D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&style=flat&label=Alpha-CI&logo=GitHub-Actions)
+![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fgabojait%2Fgabojait-spring%2Fbadge%3Fref%3Dmaster%26token%3D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&style=flat&label=Master-CI&logo=GitHub-Actions)
 </div>
 
 ---
 
 ## Link
-- [Test API Swagger](https://gabojait-dev.nogamsung.com/api/v1/docs/swagger-ui/index.html)
-- [React Native](https://github.com/gabojait/gabojait-react-native)
+- ### [Test API Swagger](https://gabojait-dev.nogamsung.com/api/v1/docs/swagger-ui/index.html)
+- ### [React Native](https://github.com/gabojait/gabojait-react-native)
 
 ---
 
