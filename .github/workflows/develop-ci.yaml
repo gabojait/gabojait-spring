@@ -33,7 +33,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew build --debug
+        run: ./gradlew build
         env:
           API_NAME: ${{ secrets.API_NAME }}
           DB_DDL_TYPE: ${{ secrets.DB_DDL_TYPE }}
