@@ -28,11 +28,6 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
 
-      - name: Set up MySQL
-        run: |
-          sudo systemctl start mysql.service
-          mysql -u${{ secrets.DB_USERNAME }} -p${{ secrets.DB_PASSWORD }} -e"CREATE DATABASE IF NOT EXISTS ${{ secrets.DB_NAME }};"
-
       - name: Grant execute permission for Gradlew
         run: chmod +x gradlew
 
