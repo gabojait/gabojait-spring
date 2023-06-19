@@ -9,6 +9,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
+        ports:
+          - 3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=10
 
     steps:
       - uses: actions/checkout@v3
@@ -21,11 +30,8 @@ jobs:
 
       - name: Set up MySQL
         run: |
-          sudo apt update
-          sudo apt install mysql-server
           sudo systemctl start mysql.service
-          mysql --user=root --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY '${{ secrets.DB_PASSWORD }}';"
-          mysql --user=root --execute="CREATE DATABASE IF NOT EXISTS ${{ secrets.DB_NAME }};"
+          mysql -u${{ secrets.DB_USERNAME }} -p${{ secrets.DB_PASSWORD }} -e"CREATE DATABASE IF NOT EXISTS ${{ secrets.DB_NAME }};"
 
       - name: Grant execute permission for Gradlew
         run: chmod +x gradlew
