@@ -274,31 +274,30 @@ public class DevelopService {
             entityManager.createNativeQuery("DELETE FROM skill").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM work").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM fcm").executeUpdate();
-            entityManager.createNativeQuery("DELETE FROM team").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM team_member").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM favorite_member").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM favorite_team").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM offer").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM review").executeUpdate();
-            entityManager.createNativeQuery("DELETE FROM education").executeUpdate();
-            entityManager.createNativeQuery("DELETE FROM contact").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM team").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM member_role").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM member").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM contact").executeUpdate();
 
             entityManager.createNativeQuery("ALTER TABLE education AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE portfolio AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE skill AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE work AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE fcm AUTO_INCREMENT = 1").executeUpdate();
-            entityManager.createNativeQuery("ALTER TABLE team AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE team_member AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE favorite_member AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE favorite_team AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE offer AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE review AUTO_INCREMENT = 1").executeUpdate();
-            entityManager.createNativeQuery("ALTER TABLE contact AUTO_INCREMENT = 1").executeUpdate();
+            entityManager.createNativeQuery("ALTER TABLE team AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE member_role AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE member AUTO_INCREMENT = 1").executeUpdate();
+            entityManager.createNativeQuery("ALTER TABLE contact AUTO_INCREMENT = 1").executeUpdate();
 
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
