@@ -28,9 +28,6 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
 
-      - name: Set up MySQL
-        run: sudo systemctl start mysql.service
-
       - name: Create database
         run: mysql -e 'CREATE DATABASE IF NOT EXISTS ${{ secrets.DB_NAME }};' -u${{ secrets.DB_USER }} -p${{ secrets.DB_PASSWORD }}
 
