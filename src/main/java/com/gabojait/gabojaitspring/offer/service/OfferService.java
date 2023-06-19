@@ -8,7 +8,10 @@ import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
 import com.gabojait.gabojaitspring.offer.dto.req.OfferCreateReqDto;
 import com.gabojait.gabojaitspring.offer.repository.OfferRepository;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
+import com.gabojait.gabojaitspring.profile.domain.type.TeamMemberStatus;
 import com.gabojait.gabojaitspring.team.domain.Team;
+import com.gabojait.gabojaitspring.team.domain.TeamMember;
+import com.gabojait.gabojaitspring.team.repository.TeamMemberRepository;
 import com.gabojait.gabojaitspring.team.repository.TeamRepository;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.repository.UserRepository;
@@ -28,6 +31,7 @@ public class OfferService {
     private final OfferRepository offerRepository;
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
+    private final TeamMemberRepository teamMemberRepository;
     private final GeneralProvider generalProvider;
     private final FcmProvider fcmProvider;
 
@@ -93,6 +97,7 @@ public class OfferService {
 
         if (isAccepted) {
             offer.accept();
+            createTeamMember(user, team, Position.fromChar(offer.getPosition()));
 
             user.incrementJoinTeamCnt();
             team.incrementUserJoinCnt();
@@ -121,6 +126,7 @@ public class OfferService {
 
         if (isAccepted) {
             offer.accept();
+            createTeamMember(user, team, Position.fromChar(offer.getPosition()));
 
             user.incrementJoinTeamCnt();
             team.incrementUserJoinCnt();
@@ -164,6 +170,33 @@ public class OfferService {
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
+    }
+
+    /**
+     * 팀원 저장 |
+     * 500(SERVER_ERROR)
+     */
+    private void saveTeamMember(TeamMember teamMember) {
+        try {
+            teamMemberRepository.save(teamMember);
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 팀원 생성 |
+     * 500(SERVER_ERROR)
+     */
+    private void createTeamMember(User user, Team team, Position position) {
+        TeamMember teamMember = TeamMember.builder()
+                .user(user)
+                .team(team)
+                .position(position)
+                .teamMemberStatus(TeamMemberStatus.MEMBER)
+                .build();
+
+        saveTeamMember(teamMember);
     }
 
     /**
