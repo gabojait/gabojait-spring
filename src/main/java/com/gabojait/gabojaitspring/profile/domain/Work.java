@@ -23,10 +23,14 @@ public class Work extends BaseTimeEntity {
     @ToString.Exclude
     private User user;
 
+    @Column(nullable = false, length = 20)
     private String corporationName;
+    @Column(length = 100)
     private String workDescription;
+    @Column(nullable = false)
     private LocalDate startedAt;
     private LocalDate endedAt;
+    @Column(nullable = false)
     private Boolean isCurrent;
 
     @Builder
@@ -34,7 +38,7 @@ public class Work extends BaseTimeEntity {
                 String workDescription,
                 LocalDate startedAt,
                 LocalDate endedAt,
-                boolean isCurrent,
+                Boolean isCurrent,
                 User user) {
         this.corporationName = corporationName;
         this.workDescription = workDescription;

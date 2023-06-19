@@ -20,8 +20,13 @@ public class Contact extends BaseTimeEntity {
     @ToString.Exclude
     private User user;
 
+    @Column(nullable = false)
     private String email;
+
+    @Column(nullable = false)
     private String verificationCode;
+
+    @Column(nullable = false)
     private Boolean isVerified;
 
     @Builder

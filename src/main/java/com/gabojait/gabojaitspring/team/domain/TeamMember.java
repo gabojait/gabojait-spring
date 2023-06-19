@@ -29,7 +29,9 @@ public class TeamMember extends BaseTimeEntity {
     @ToString.Exclude
     private Team team;
 
+    @Column(nullable = false)
     private Character position;
+    @Column(nullable = false)
     private Character teamMemberStatus;
 
     @Builder

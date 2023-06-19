@@ -23,8 +23,11 @@ public class Portfolio extends BaseTimeEntity {
     @ToString.Exclude
     private User user;
 
+    @Column(nullable = false, length = 10)
     private String portfolioName;
+    @Column(nullable = false, length = 1000)
     private String portfolioUrl;
+    @Column(nullable = false)
     private Character media;
 
     @Builder

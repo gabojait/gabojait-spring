@@ -31,7 +31,9 @@ public class Offer extends BaseTimeEntity {
     private Team team;
 
     private Boolean isAccepted;
+    @Column(nullable = false)
     private Character offeredBy;
+    @Column(nullable = false)
     private Character position;
 
     @Builder

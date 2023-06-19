@@ -75,15 +75,22 @@ public class User extends BaseTimeEntity implements UserDetails {
     @ToString.Exclude
     private List<TeamMember> teamMembers = new ArrayList<>();
 
+    @Column(nullable = false, length = 15)
     private String username;
+    @Column(nullable = false)
     private String password;
+    @Column(length = 8)
     private String nickname;
+    @Column(length = 120)
+    private String profileDescription;
     private LocalDate birthdate;
+    @Column(nullable = false)
+    private LocalDateTime lastRequestAt;
+
     private Character gender;
     private Character position;
-    private String imageUrl;
-    private String profileDescription;
     private Boolean isSeekingTeam;
+    private String imageUrl;
 
     private Float rating;
     private Long userOfferCnt;
@@ -98,7 +105,6 @@ public class User extends BaseTimeEntity implements UserDetails {
     private Integer reviewCnt;
     private Boolean isTemporaryPassword;
     private Boolean isNotified;
-    private LocalDateTime lastRequestAt;
 
     @Builder(builderMethodName = "userBuilder", builderClassName = "userBuilder")
     public User(String username,
@@ -155,6 +161,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     public User(String username, String password) {
         this.username = username;
         this.password = password;
+        this.gender = Gender.NONE.getType();
 
         this.roles.addAll(List.of(Role.USER.name(), Role.ADMIN.name(), Role.MASTER.name()));
 

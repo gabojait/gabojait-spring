@@ -23,8 +23,11 @@ public class Skill extends BaseTimeEntity {
     @ToString.Exclude
     private User user;
 
+    @Column(nullable = false, length = 20)
     private String skillName;
+    @Column(nullable = false)
     private Boolean isExperienced;
+    @Column(nullable = false)
     private Character level;
 
     @Builder

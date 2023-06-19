@@ -30,7 +30,9 @@ public class Review extends BaseTimeEntity {
     @JoinColumn(name = "team_id")
     private Team team;
 
+    @Column(nullable = false)
     private Byte rate;
+    @Column(nullable = false, length = 200)
     private String post;
 
     @Builder

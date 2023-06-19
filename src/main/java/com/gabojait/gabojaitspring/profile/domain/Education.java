@@ -23,9 +23,12 @@ public class Education extends BaseTimeEntity {
     @ToString.Exclude
     private User user;
 
+    @Column(nullable = false, length = 20)
     private String institutionName;
+    @Column(nullable = false)
     private LocalDate startedAt;
     private LocalDate endedAt;
+    @Column(nullable = false)
     private Boolean isCurrent;
 
     @Builder

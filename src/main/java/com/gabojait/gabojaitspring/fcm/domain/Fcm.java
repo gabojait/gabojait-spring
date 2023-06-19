@@ -22,6 +22,7 @@ public class Fcm extends BaseTimeEntity {
     @ToString.Exclude
     private User user;
 
+    @Column(nullable = false)
     private String fcmToken;
 
     @Builder

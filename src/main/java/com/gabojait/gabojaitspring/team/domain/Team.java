@@ -29,27 +29,46 @@ public class Team extends BaseTimeEntity {
     @ToString.Exclude
     private List<FavoriteUser> favoriteUsers = new ArrayList<>();
 
+    @Column(nullable = false, length = 20)
     private String projectName;
+    @Column(nullable = false, length = 500)
     private String projectDescription;
+    @Column(nullable = false)
     private Byte designerTotalRecruitCnt;
+    @Column(nullable = false)
     private Byte backendTotalRecruitCnt;
+    @Column(nullable = false)
     private Byte frontendTotalRecruitCnt;
+    @Column(nullable = false)
     private Byte managerTotalRecruitCnt;
+    @Column(nullable = false, length = 200)
     private String expectation;
+    @Column(nullable = false, length = 100)
     private String openChatUrl;
     private String projectUrl;
 
+    @Column(nullable = false)
     private Boolean isRecruiting;
+    @Column(nullable = false)
     private Boolean isDesignerFull;
+    @Column(nullable = false)
     private Boolean isBackendFull;
+    @Column(nullable = false)
     private Boolean isFrontendFull;
+    @Column(nullable = false)
     private Boolean isManagerFull;
     private LocalDateTime completedAt;
+    @Column(nullable = false)
     private Long visitedCnt;
+    @Column(nullable = false)
     private Integer userOfferCnt;
+    @Column(nullable = false)
     private Integer teamOfferCnt;
+    @Column(nullable = false)
     private Integer userJoinCnt;
+    @Column(nullable = false)
     private Integer userFiredCnt;
+    @Column(nullable = false)
     private Integer userLeftCnt;
 
     @Builder
