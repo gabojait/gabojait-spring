@@ -1,17 +1,20 @@
 spring:
+  profiles:
+    active: ${PROFILES_ACTIVE}
+
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/${DB_NAME}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${DB_DDL_TYPE}
       use-new-id-generator-mappings: false
     properties:
       hibernate:
@@ -37,6 +40,17 @@ spring:
           auth: true
           starttls:
             enable: true
+logging:
+  config: classpath:logback/${PROFILES_ACTIVE}-logback.xml
+  file:
+    path: ${LOG_FILE_PATH}
+    name: gabojait-rolling.log
+
+springfox:
+  documentation:
+    swagger-ui:
+      enabled: ${SWAGGER_ENABLED}
+      base-url: ${SWAGGER_BASE_URL}
 
 api:
   name: ${PROFILES_ACTIVE}
