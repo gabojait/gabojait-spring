@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     services:
       mysql:
         images: mysql:latest
@@ -27,9 +28,6 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: '11'
-
-      - name: Set up MySQL
-        uses:
 
       - name: Grant execute permission for Gradlew
         run: chmod +x gradlew
