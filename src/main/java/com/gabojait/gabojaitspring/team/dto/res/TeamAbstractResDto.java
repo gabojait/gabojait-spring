@@ -1,5 +1,6 @@
 package com.gabojait.gabojaitspring.team.dto.res;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -32,9 +33,11 @@ public class TeamAbstractResDto {
     private Byte managerTotalRecruitCnt;
 
     @ApiModelProperty(position = 7, required = true, value = "생성일")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime createdAt;
 
     @ApiModelProperty(position = 8, required = true, value = "수정일")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime updatedAt;
 
     public TeamAbstractResDto(Team team) {
