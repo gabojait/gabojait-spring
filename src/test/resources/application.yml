@@ -40,11 +40,6 @@ spring:
           auth: true
           starttls:
             enable: true
-logging:
-  config: classpath:logback/${PROFILES_ACTIVE}-logback.xml
-  file:
-    path: ${LOG_FILE_PATH}
-    name: gabojait-rolling.log
 
 springfox:
   documentation:
