@@ -91,6 +91,8 @@ public class ValidIfPresentValidator implements ConstraintValidator<ValidIfPrese
             return true;
         if (dto.getIsCurrent() == null)
             return true;
+        if (dto.getIsCurrent() == false && dto.getEndedAt() == null)
+            return true;
 
         // Size
         if (dto.getInstitutionName().length() < 3 || dto.getInstitutionName().length() > 20)
@@ -126,6 +128,8 @@ public class ValidIfPresentValidator implements ConstraintValidator<ValidIfPrese
         if (dto.getStartedAt() == null)
             return true;
         if (dto.getIsCurrent() == null)
+            return true;
+        if (dto.getIsCurrent() == false && dto.getEndedAt() == null)
             return true;
 
         // Size
