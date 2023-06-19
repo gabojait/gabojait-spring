@@ -40,10 +40,14 @@ public enum SuccessCode {
      * Favorite controller
      */
     // 200 Ok
-    FAVORITE_TEAM_UPDATED(OK, "팀 찜 목록을 업데이트 했습니다."),
-    FAVORITE_TEAMS_FOUND(OK, "찜한 팀 전체 조회를 했습니다."),
-    FAVORITE_USER_UPDATED(OK, "회원 찜 목록을 업데이트 했습니다."),
-    FAVORITE_USERS_FOUND(OK, "찜한 회원 전체 조회를 했습니다."),
+    FAVORITE_TEAM_DELETED(OK, "찜 목록에 팀을 제거하였습니다."),
+    FAVORITE_TEAMS_FOUND(OK, "찜한 팀 다건 조회를 했습니다."),
+    FAVORITE_USER_DELETED(OK, "찜 목록에 회원을 제거하였습니다."),
+    FAVORITE_USERS_FOUND(OK, "찜한 회원 다건 조회를 했습니다."),
+
+    // 201 Created
+    FAVORITE_TEAM_ADDED(OK, "찜 목록에 팀을 추가하였습니다."),
+    FAVORITE_USER_ADDED(OK, "찜 목록에 회원을 추가하였습니다."),
 
     /**
      * Team controller

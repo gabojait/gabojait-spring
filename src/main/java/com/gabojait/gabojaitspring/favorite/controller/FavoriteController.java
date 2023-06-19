@@ -44,9 +44,10 @@ public class FavoriteController {
     private final FavoriteUserService favoriteUserService;
     private final JwtProvider jwtProvider;
 
-    @ApiOperation(value = "회원이 찜한 팀 업데이트",
+    @ApiOperation(value = "회원이 팀 찜하기 및 찜 취소하기",
             notes = "<응답 코드>\n" +
-                    "- 200 = FAVORITE_TEAM_UPDATED\n" +
+                    "- 200 = FAVORITE_TEAM_DELETED\n" +
+                    "- 200 = FAVORITE_TEAM_ADDED\n" +
                     "- 400 = TEAM_ID_FIELD_REQUIRED IS_ADD_FAVORITE_FIELD_REQUIRED || TEAM_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
@@ -63,8 +64,8 @@ public class FavoriteController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @PatchMapping(value = "/user/favorite/team/{team-id}")
-    public ResponseEntity<DefaultResDto<Object>> updateFavoriteTeam(
+    @PostMapping(value = "/user/favorite/team/{team-id}")
+    public ResponseEntity<DefaultResDto<Object>> addOrDeleteFavoriteTeam(
             HttpServletRequest servletRequest,
             @PathVariable(value = "team-id")
             @NotNull(message = "팀 식별자는 필수 입력입니다.")
@@ -78,11 +79,18 @@ public class FavoriteController {
 
         favoriteTeamService.update(user, teamId, request.getIsAddFavorite());
 
-        return ResponseEntity.status(FAVORITE_TEAM_UPDATED.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
-                        .responseCode(FAVORITE_TEAM_UPDATED.name())
-                        .responseMessage(FAVORITE_TEAM_UPDATED.getMessage())
-                        .build());
+        if (request.getIsAddFavorite())
+            return ResponseEntity.status(FAVORITE_TEAM_ADDED.getHttpStatus())
+                    .body(DefaultResDto.noDataBuilder()
+                            .responseCode(FAVORITE_TEAM_ADDED.name())
+                            .responseMessage(FAVORITE_TEAM_ADDED.getMessage())
+                            .build());
+        else
+            return ResponseEntity.status(FAVORITE_TEAM_DELETED.getHttpStatus())
+                    .body(DefaultResDto.noDataBuilder()
+                            .responseCode(FAVORITE_TEAM_DELETED.name())
+                            .responseMessage(FAVORITE_TEAM_DELETED.getMessage())
+                            .build());
     }
 
     @ApiOperation(value = "회원이 찜한 팀 다건 조회",
@@ -130,9 +138,10 @@ public class FavoriteController {
                         .build());
     }
 
-    @ApiOperation(value = "팀의 회원 찜 업데이트",
+    @ApiOperation(value = "팀이 회원 찜하기 및 찜 취소하기",
             notes = "<응답 코드>\n" +
-                    "- 200 = USER_FAVORITE_UPDATED\n" +
+                    "- 200 = USER_FAVORITE_DELETED\n" +
+                    "- 201 = USER_FAVORITE_ADDED" +
                     "- 400 = USER_ID_FIELD_REQUIRED || USER_ID_POSITIVE_ONLY || IS_ADD_FAVORITE_FIELD_REQUIRED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
@@ -142,6 +151,8 @@ public class FavoriteController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
+            @ApiResponse(responseCode = "201", description = "CREATED",
+                    content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -150,12 +161,12 @@ public class FavoriteController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @PatchMapping("/team/favorite/user/{user-id}")
-    public ResponseEntity<DefaultResDto<Object>> updateFavoriteUser(
+    @PostMapping("/team/favorite/user/{user-id}")
+    public ResponseEntity<DefaultResDto<Object>> addOrDeleteFavoriteUser(
             HttpServletRequest servletRequest,
             @PathVariable(value = "user-id")
-            @NotNull(message = "팀 식별자는 필수 입력입니다.")
-            @Positive(message = "팀 식별자는 양수만 가능합니다.")
+            @NotNull(message = "회원 식별자는 필수 입력입니다.")
+            @Positive(message = "회원 식별자는 양수만 가능합니다.")
             Long userId,
             @RequestBody
             @Valid
@@ -165,11 +176,18 @@ public class FavoriteController {
 
         favoriteUserService.update(user, userId, request.getIsAddFavorite());
 
-        return ResponseEntity.status(FAVORITE_USER_UPDATED.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
-                        .responseCode(FAVORITE_USER_UPDATED.name())
-                        .responseMessage(FAVORITE_USER_UPDATED.getMessage())
-                        .build());
+        if (request.getIsAddFavorite())
+            return ResponseEntity.status(FAVORITE_USER_ADDED.getHttpStatus())
+                    .body(DefaultResDto.noDataBuilder()
+                            .responseCode(FAVORITE_USER_ADDED.name())
+                            .responseMessage(FAVORITE_USER_ADDED.getMessage())
+                            .build());
+        else
+            return ResponseEntity.status(FAVORITE_USER_DELETED.getHttpStatus())
+                    .body(DefaultResDto.noDataBuilder()
+                            .responseCode(FAVORITE_USER_DELETED.name())
+                            .responseMessage(FAVORITE_USER_DELETED.getMessage())
+                            .build());
     }
 
     @ApiOperation(value = "찜한 회원 전체 조회",
