@@ -9,19 +9,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql
+        env:
+          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - uses: actions/checkout@v3
-
-      - name: Stop Ubuntu MySQL
-        run: sudo systemctl stop mysql
-
-      - name: Set up MySQL
-        uses: mirromutth/mysql-action@v1.1
-        with:
-          character set server: 'utf8'
-          mysql database: ${{ secrets.DB_NAME }}
-          mysql root password: ${{ secrets.DB_PASSWORD }}
 
       - name: Set up JDK
         uses: actions/setup-java@v3
