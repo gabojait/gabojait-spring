@@ -36,8 +36,7 @@ public class WorkCreateReqDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate startedAt;
 
-    @ApiModelProperty(position = 3, required = true, value = "종료일", notes = "string", example = "2000-01-02")
-    @NotNull(message = "종료일을 입력해 주세요.", groups = ValidationSequence.Blank.class)
+    @ApiModelProperty(position = 3, value = "종료일", notes = "string", example = "2000-01-02")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate endedAt;
 

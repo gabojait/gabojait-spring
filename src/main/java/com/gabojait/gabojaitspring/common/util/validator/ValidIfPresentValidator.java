@@ -125,8 +125,6 @@ public class ValidIfPresentValidator implements ConstraintValidator<ValidIfPrese
             return true;
         if (dto.getStartedAt() == null)
             return true;
-        if (dto.getEndedAt() == null)
-            return true;
         if (dto.getIsCurrent() == null)
             return true;
 
