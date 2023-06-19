@@ -37,7 +37,6 @@ public class EducationCreateReqDto {
     private LocalDate startedAt;
 
     @ApiModelProperty(position = 3, required = true, value = "종료일", notes = "string", example = "2000-01-02")
-    @NotNull(message = "종료일은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate endedAt;
 
