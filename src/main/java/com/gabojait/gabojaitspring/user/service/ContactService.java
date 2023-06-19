@@ -43,7 +43,6 @@ public class ContactService {
      * 인증코드 확인 |
      * 400(VERIFICATION_CODE_INVALID)
      * 404(EMAIL_NOT_FOUND)
-     * 500(SERVER_ERROR)
      */
     public void verify(ContactVerifyReqDto request) {
         Contact contact = findOneUnverifiedUnregisteredContact(request.getEmail());
@@ -94,19 +93,12 @@ public class ContactService {
     /**
      * 인증되지 않고 가입되지 않은 연락처 단건 조회 |
      * 404(EMAIL_NOT_FOUND)
-     * 500(SERVER_ERROR)
      */
     private Contact findOneUnverifiedUnregisteredContact(String email) {
-        try {
-            Optional<Contact> contact = contactRepository.findByEmailAndIsVerifiedIsFalseAndIsDeletedIsFalse(email);
-
-            if (contact.isEmpty())
-                throw new CustomException(EMAIL_NOT_FOUND);
-
-            return contact.get();
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
+        return contactRepository.findByEmailAndIsVerifiedIsFalseAndIsDeletedIsFalse(email)
+                .orElseThrow(() -> {
+                    throw new CustomException(EMAIL_NOT_FOUND);
+                });
     }
 
     /**

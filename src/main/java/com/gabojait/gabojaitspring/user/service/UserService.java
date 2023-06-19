@@ -14,6 +14,7 @@ import com.gabojait.gabojaitspring.user.domain.type.Role;
 import com.gabojait.gabojaitspring.user.dto.req.UserFindPasswordReqDto;
 import com.gabojait.gabojaitspring.user.dto.req.UserLoginReqDto;
 import com.gabojait.gabojaitspring.user.dto.req.UserRegisterReqDto;
+import com.gabojait.gabojaitspring.user.dto.req.UserRenewTokenReqDto;
 import com.gabojait.gabojaitspring.user.repository.ContactRepository;
 import com.gabojait.gabojaitspring.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -83,7 +84,8 @@ public class UserService {
         User user = request.toEntity(password, contact);
         saveUser(user);
 
-        createFcm(request.getFcmToken(), user);
+        if (request.getFcmToken() != null)
+            createFcm(request.getFcmToken(), user);
 
         return user;
     }
@@ -100,8 +102,9 @@ public class UserService {
         if (!isVerified)
             throw new CustomException(LOGIN_UNAUTHENTICATED);
 
-        createFcm(request.getFcmToken(), user);
-        updateLastRequestAt(user, request.getFcmToken());
+        if (request.getFcmToken() != null)
+            createFcm(request.getFcmToken(), user);
+        updateLastRequestAt(user);
 
         return user;
     }
@@ -120,10 +123,8 @@ public class UserService {
      * 마지막 요청일 업데이트 |
      * 500(SERVER_ERROR)
      */
-    public void updateLastRequestAt(User user, String fcmToken) {
+    public void updateLastRequestAt(User user) {
         user.updateLastRequestAt();
-
-        createFcm(fcmToken, user);
     }
 
     /**
@@ -235,6 +236,17 @@ public class UserService {
      */
     public void updateProfileDescription(User user, String profileDescription) {
         user.updateProfileDescription(profileDescription);
+    }
+
+    /**
+     * 토큰 업데이트 |
+     * 500(SERVER_ERROR)
+     */
+    public void updateToken(User user, UserRenewTokenReqDto request) {
+        updateLastRequestAt(user);
+
+        if (request.getFcmToken() != null)
+            createFcm(request.getFcmToken(), user);
     }
 
     /**

@@ -293,7 +293,7 @@ public class UserController {
                                                             @RequestBody @Valid UserRenewTokenReqDto request) {
         User user = jwtProvider.authorizeUserRefreshJwt(servletRequest.getHeader("Refresh-Token"));
 
-        userService.updateLastRequestAt(user, request.getFcmToken());
+        userService.updateToken(user, request);
 
         HttpHeaders headers = jwtProvider.generateUserJwt(user.getId(), user.getRoles());
 
