@@ -23,7 +23,6 @@ jobs:
           mysql database: ${{ secrets.DB_NAME }}
           mysql root password: ${{ secrets.DB_PASSWORD }}
 
-
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
@@ -34,7 +33,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew build --debug
         env:
           API_NAME: ${{ secrets.API_NAME }}
           DB_DDL_TYPE: ${{ secrets.DB_DDL_TYPE }}
