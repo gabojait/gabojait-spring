@@ -38,11 +38,13 @@ public class FcmProvider {
             for (Fcm fcm : user.getFcms())
                 fcmTokens.add(fcm.getFcmToken());
 
-            MulticastMessage multicastMessage = createMulticastMessage(fcmTokens,
-                    team.getProjectName() + "팀 합류",
-                    Position.toKorean(offer.getPosition()) + "로서 역량을 펼쳐보세요!");
+            if (!fcmTokens.isEmpty()) {
+                MulticastMessage multicastMessage = createMulticastMessage(fcmTokens,
+                        team.getProjectName() + "팀 합류",
+                        Position.toKorean(offer.getPosition()) + "로서 역량을 펼쳐보세요!");
 
-            sendMulticast(multicastMessage);
+                sendMulticast(multicastMessage);
+            }
         }
 
         Set<String> fcmTokens = getAllFcmTokenExceptOne(team, user);
@@ -66,11 +68,13 @@ public class FcmProvider {
             for (Fcm fcm : user.getFcms())
                 fcmTokens.add(fcm.getFcmToken());
 
-            MulticastMessage multicastMessage = createMulticastMessage(fcmTokens,
-                    team.getProjectName() + "팀에서 추방",
-                    team.getProjectName() + "팀에서 추방 되었어요. 아쉽지만 새로운 팀을 찾아보세요.");
+            if (!fcmTokens.isEmpty()) {
+                MulticastMessage multicastMessage = createMulticastMessage(fcmTokens,
+                        team.getProjectName() + "팀에서 추방",
+                        team.getProjectName() + "팀에서 추방 되었어요. 아쉽지만 새로운 팀을 찾아보세요.");
 
-            sendMulticast(multicastMessage);
+                sendMulticast(multicastMessage);
+            }
         }
 
         Set<String> fcmTokens = getAllFcmTokenExceptOne(team, user);
@@ -166,11 +170,13 @@ public class FcmProvider {
             for (Fcm fcm : user.getFcms())
                 fcmTokens.add(fcm.getFcmToken());
 
-            MulticastMessage multicastMessage = createMulticastMessage(fcmTokens,
-                    Position.toKorean(offer.getPosition()) + " 스카웃 제의",
-                    team.getProjectName() + "팀에서 " + Position.toKorean(offer.getPosition()) + " 스카웃 제의가 왔어요!");
+            if (!fcmTokens.isEmpty()) {
+                MulticastMessage multicastMessage = createMulticastMessage(fcmTokens,
+                        Position.toKorean(offer.getPosition()) + " 스카웃 제의",
+                        team.getProjectName() + "팀에서 " + Position.toKorean(offer.getPosition()) + " 스카웃 제의가 왔어요!");
 
-            sendMulticast(multicastMessage);
+                sendMulticast(multicastMessage);
+            }
         }
     }
 
@@ -195,11 +201,13 @@ public class FcmProvider {
             for(Fcm fcm : leader.getFcms())
                 fcmTokens.add(fcm.getFcmToken());
 
-            MulticastMessage multicastMessage = createMulticastMessage(fcmTokens,
-                    Position.toKorean(offer.getPosition()) + " 지원",
-                    Position.toKorean(offer.getPosition()) + offer.getUser().getUsername() + "님이 지원을 했습니다!");
+            if (!fcmTokens.isEmpty()) {
+                MulticastMessage multicastMessage = createMulticastMessage(fcmTokens,
+                        Position.toKorean(offer.getPosition()) + " 지원",
+                        Position.toKorean(offer.getPosition()) + offer.getUser().getUsername() + "님이 지원을 했습니다!");
 
-            sendMulticast(multicastMessage);
+                sendMulticast(multicastMessage);
+            }
         }
     }
 
