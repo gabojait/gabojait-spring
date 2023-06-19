@@ -269,9 +269,6 @@ public class DevelopService {
      */
     private void resetDatabase() {
         try {
-            entityManager.createNativeQuery("DELETE FROM contact").executeUpdate();
-            entityManager.createNativeQuery("DELETE FROM member").executeUpdate();
-            entityManager.createNativeQuery("DELETE FROM member_role").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM education").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM portfolio").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM skill").executeUpdate();
@@ -284,10 +281,10 @@ public class DevelopService {
             entityManager.createNativeQuery("DELETE FROM offer").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM review").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM education").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM contact").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM member_role").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM member").executeUpdate();
 
-            entityManager.createNativeQuery("ALTER TABLE contact AUTO_INCREMENT = 1").executeUpdate();
-            entityManager.createNativeQuery("ALTER TABLE member AUTO_INCREMENT = 1").executeUpdate();
-            entityManager.createNativeQuery("ALTER TABLE member_role AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE education AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE portfolio AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE skill AUTO_INCREMENT = 1").executeUpdate();
@@ -299,6 +296,9 @@ public class DevelopService {
             entityManager.createNativeQuery("ALTER TABLE favorite_team AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE offer AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE review AUTO_INCREMENT = 1").executeUpdate();
+            entityManager.createNativeQuery("ALTER TABLE contact AUTO_INCREMENT = 1").executeUpdate();
+            entityManager.createNativeQuery("ALTER TABLE member_role AUTO_INCREMENT = 1").executeUpdate();
+            entityManager.createNativeQuery("ALTER TABLE member AUTO_INCREMENT = 1").executeUpdate();
 
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
