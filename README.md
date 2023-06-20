@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="docs/img/gabojait-logo.png" alt="gabojait-logo.png" width=300 height=300>
+<img src="docs/gabojait-logo.png" alt="gabojait-logo.png" width=300 height=300>
 
 ### 가보자it으로 사이드 프로젝트를 함께할 팀원을 찾다.
 
@@ -33,18 +33,19 @@ Play Store:
 
 ## Database 
 
+![Database Diagram](docs/database-diagram.png)
 
 ---
 
 ## Architecture
 
-![Architecture Diagram](docs/img/architecture-diagram.png)
+![Architecture Diagram](docs/architecture-diagram.png)
 
 ---
 
 ## CI/CD Pipeline
 
-![CI/CD Pipeline Diagram](docs/img/cicd-pipeline-diagram.png)
+![CI/CD Pipeline Diagram](docs/cicd-pipeline-diagram.png)
 
 ---
 
