@@ -21,9 +21,12 @@ import com.gabojait.gabojaitspring.team.repository.TeamMemberRepository;
 import com.gabojait.gabojaitspring.team.repository.TeamRepository;
 import com.gabojait.gabojaitspring.user.domain.Contact;
 import com.gabojait.gabojaitspring.user.domain.User;
+import com.gabojait.gabojaitspring.user.domain.UserRole;
 import com.gabojait.gabojaitspring.user.domain.type.Gender;
+import com.gabojait.gabojaitspring.user.domain.type.Role;
 import com.gabojait.gabojaitspring.user.repository.ContactRepository;
 import com.gabojait.gabojaitspring.user.repository.UserRepository;
+import com.gabojait.gabojaitspring.user.repository.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -35,8 +38,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.SERVER_ERROR;
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.USER_NOT_FOUND;
+import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 
 @Service
 @Transactional
@@ -51,6 +53,7 @@ public class DevelopService {
 
     private final ContactRepository contactRepository;
     private final UserRepository userRepository;
+    private final UserRoleRepository userRoleRepository;
     private final EducationRepository educationRepository;
     private final PortfolioRepository portfolioRepository;
     private final SkillRepository skillRepository;
@@ -68,13 +71,13 @@ public class DevelopService {
     }
 
     /**
-     * 회원 단건 조회 |
-     * 404(USER_NOT_FOUND)
+     * 테스터 단건 조회 |
+     * 404(TESTER_NOT_FOUND)
      */
-    public User findOneUser(String username) {
+    public User findOneTester(String username) {
         return userRepository.findByUsernameAndIsDeletedIsFalse(username)
                 .orElseThrow(() -> {
-                    throw new CustomException(USER_NOT_FOUND);
+                    throw new CustomException(TESTER_NOT_FOUND);
                 });
     }
 
@@ -86,6 +89,7 @@ public class DevelopService {
 
         List<Contact> contacts = injectContacts();
         List<User> users = injectUsers(contacts);
+        injectUserRoles(users);
         injectProfileDescriptions(users);
         injectEducationsAndWorks(users);
         injectPortfolios(users);
@@ -144,6 +148,21 @@ public class DevelopService {
         }
 
         return users;
+    }
+
+    /**
+     * 회원 권한 주입
+     */
+    private void injectUserRoles(List<User> users) {
+        List<UserRole> userRoles = new ArrayList<>();
+        for(User user : users) {
+            UserRole userRole = UserRole.builder()
+                    .user(user)
+                    .role(Role.USER)
+                    .build();
+
+            userRoleRepository.save(userRole);
+        }
     }
 
     /**

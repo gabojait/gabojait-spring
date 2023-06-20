@@ -79,11 +79,11 @@ public class DevelopController {
 
     @ApiOperation(value = "테스트 계정 토큰 발급",
             notes = "<값>\n" +
-                    "- user-id = 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9 || 10\n\n" +
+                    "- tester-id = 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9 || 10\n\n" +
                     "<응답 코드>\n" +
                     "- 200 = TOKEN_ISSUED\n" +
-                    "- 400 = USER_ID_FIELD_REQUIRED || USER_ID_POSITIVE_ONLY\n" +
-                    "- 404 = USER_NOT_FOUND\n" +
+                    "- 400 = TESTER_ID_FIELD_REQUIRED || TESTER_ID_POSITIVE_ONLY\n" +
+                    "- 404 = TESTER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION\n")
     @ApiResponses(value = {
@@ -94,11 +94,11 @@ public class DevelopController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/test/user/{user-id}")
-    public ResponseEntity<DefaultResDto<Object>> testDataToken(@PathVariable(value = "user-id")
+    public ResponseEntity<DefaultResDto<Object>> testDataToken(@PathVariable(value = "tester-id")
                                                                @NotNull(message = "회원 식별자는 필수 입력입니다.")
                                                                @Positive(message = "회원 식별자는 양수만 가능합니다.")
-                                                               Integer userId) {
-        User user = developService.findOneUser("test" + userId);
+                                                               Integer testerId) {
+        User user = developService.findOneTester("test" + testerId);
 
         HttpHeaders headers = jwtProvider.generateUserJwt(user.getId(), user.getRoles());
 

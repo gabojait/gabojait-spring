@@ -34,14 +34,14 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(name = "member_id")
     private Long id;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "member_role", joinColumns = @JoinColumn(name = "member_id"))
-    private Set<String> roles = new HashSet<>();
-
     @OneToOne
     @JoinColumn(name = "contact_id")
     @ToString.Exclude
     private Contact contact;
+
+    @OneToMany(mappedBy = "user")
+    @ToString.Exclude
+    private List<UserRole> userRoles = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     @ToString.Exclude
@@ -86,7 +86,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     private LocalDate birthdate;
     @Column(nullable = false)
     private LocalDateTime lastRequestAt;
-
+    @Column(nullable = false)
     private Character gender;
     private Character position;
     private Boolean isSeekingTeam;
@@ -124,7 +124,6 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.imageUrl = null;
         this.profileDescription = null;
         this.isSeekingTeam = true;
-        this.roles.add(Role.USER.name());
 
         this.rating = 0F;
         this.userOfferCnt = 0L;
@@ -151,8 +150,6 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.birthdate = birthdate;
         this.nickname = legalName;
 
-        this.roles.addAll(List.of(Role.USER.name(), Role.ADMIN.name()));
-
         this.lastRequestAt = LocalDateTime.now();
         this.isDeleted = true;
     }
@@ -162,8 +159,6 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.username = username;
         this.password = password;
         this.gender = Gender.NONE.getType();
-
-        this.roles.addAll(List.of(Role.USER.name(), Role.ADMIN.name(), Role.MASTER.name()));
 
         this.lastRequestAt = LocalDateTime.now();
         this.isDeleted = null;
@@ -197,9 +192,18 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .map(SimpleGrantedAuthority::new)
+        return this.userRoles.stream()
+                .map(userRole ->
+                        new SimpleGrantedAuthority(userRole.getRole()))
                 .collect(Collectors.toList());
+    }
+
+    public List<String> getRoles() {
+        List<String> roles = new ArrayList<>();
+        for(UserRole userRole : this.userRoles)
+            roles.add(userRole.getRole());
+
+        return roles;
     }
 
     @Override

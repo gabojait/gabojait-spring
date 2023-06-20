@@ -5,12 +5,16 @@ import com.gabojait.gabojaitspring.admin.dto.req.AdminRegisterReqDto;
 import com.gabojait.gabojaitspring.common.util.GeneralProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.user.domain.User;
+import com.gabojait.gabojaitspring.user.domain.UserRole;
 import com.gabojait.gabojaitspring.user.domain.type.Role;
 import com.gabojait.gabojaitspring.user.repository.UserRepository;
+import com.gabojait.gabojaitspring.user.repository.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
@@ -21,6 +25,7 @@ import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 public class AdminService {
 
     private final UserRepository userRepository;
+    private final UserRoleRepository userRoleRepository;
     private final GeneralProvider generalProvider;
 
     /**
@@ -52,19 +57,51 @@ public class AdminService {
 
         String password = generalProvider.encodePassword(request.getPassword());
 
-        saveAdmin(request.toEntity(password));
+        User admin = saveAdmin(request.toEntity(password));
+        List<UserRole> adminRoles = createAdminRoles(admin);
+        saveAdminRoles(adminRoles);
     }
 
     /**
      * 관리자 저장 |
      * 500(SERVER_ERROR)
      */
-    private void saveAdmin(User admin) {
+    private User saveAdmin(User admin) {
         try {
-            userRepository.save(admin);
+            return userRepository.save(admin);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
+    }
+
+    /**
+     * 관리자 권한 저장 |
+     * 500(SERVER_ERROR)
+     */
+    private void saveAdminRoles(List<UserRole> adminRoles) {
+        try {
+            userRoleRepository.saveAll(adminRoles);
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 관리자 권한 생성
+     */
+    private List<UserRole> createAdminRoles(User admin) {
+        List<UserRole> adminRoles = new ArrayList<>();
+
+        adminRoles.add(UserRole.builder()
+                .user(admin)
+                .role(Role.USER)
+                .build());
+        adminRoles.add(UserRole.builder()
+                .user(admin)
+                .role(Role.ADMIN)
+                .build());
+
+        return adminRoles;
     }
 
     /**

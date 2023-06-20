@@ -3,7 +3,10 @@ package com.gabojait.gabojaitspring.admin.service;
 import com.gabojait.gabojaitspring.common.util.GeneralProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.user.domain.User;
+import com.gabojait.gabojaitspring.user.domain.UserRole;
+import com.gabojait.gabojaitspring.user.domain.type.Role;
 import com.gabojait.gabojaitspring.user.repository.UserRepository;
+import com.gabojait.gabojaitspring.user.repository.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +18,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
@@ -29,6 +34,7 @@ public class MasterService implements ApplicationRunner {
     private String masterName;
 
     private final UserRepository userRepository;
+    private final UserRoleRepository userRoleRepository;
     private final GeneralProvider generalProvider;
 
     /**
@@ -79,6 +85,18 @@ public class MasterService implements ApplicationRunner {
     }
 
     /**
+     * 마스터 권한 저장 |
+     * 500(SERVER_ERROR)
+     */
+    private void saveMasterRole(List<UserRole> masterRoles) {
+        try {
+            userRoleRepository.saveAll(masterRoles);
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
+    }
+
+    /**
      * 가입 승인을 기다리는 관리자 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
@@ -116,6 +134,28 @@ public class MasterService implements ApplicationRunner {
     }
 
     /**
+     * 마스터 권한 생성
+     */
+    private List<UserRole> createMasterRoles(User master) {
+        List<UserRole> masterRoles = new ArrayList<>();
+
+        masterRoles.add(UserRole.builder()
+                .user(master)
+                .role(Role.USER)
+                .build());
+        masterRoles.add(UserRole.builder()
+                .user(master)
+                .role(Role.ADMIN)
+                .build());
+        masterRoles.add(UserRole.builder()
+                .user(master)
+                .role(Role.MASTER)
+                .build());
+
+        return masterRoles;
+    }
+
+    /**
      * 마스터 계정 주입 |
      * 500(SERVER_ERROR)
      */
@@ -127,8 +167,10 @@ public class MasterService implements ApplicationRunner {
                 .username(masterName)
                 .password(encodedPassword)
                 .build();
-
         saveAdmin(master);
+
+        List<UserRole> masterRoles = createMasterRoles(master);
+        saveMasterRole(masterRoles);
 
         masterLogging("[NEW MASTER]", password);
     }

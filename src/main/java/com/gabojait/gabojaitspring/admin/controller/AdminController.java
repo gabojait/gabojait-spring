@@ -95,6 +95,7 @@ public class AdminController {
         User admin = adminService.login(request);
 
         HttpHeaders headers;
+
         if (admin.getRoles().contains(Role.MASTER.name()))
             headers = jwtProvider.generateMasterJwt(admin.getId(), admin.getRoles());
         else

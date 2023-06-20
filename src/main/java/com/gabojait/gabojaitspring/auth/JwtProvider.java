@@ -8,6 +8,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.gabojait.gabojaitspring.auth.type.Jwt;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.user.domain.User;
+import com.gabojait.gabojaitspring.user.domain.UserRole;
 import com.gabojait.gabojaitspring.user.domain.type.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,44 +45,43 @@ public class JwtProvider {
      * Guest Access JWT 생성
      */
     public HttpHeaders generateGuestJwt() {
-        return jwtGenerator(0L, Collections.singleton(Role.GUEST.name()), false);
+        return jwtGenerator(0L, Collections.singletonList(Role.GUEST.name()), false);
     }
 
     /**
      * User Access & Refresh JWT 생성
      */
-    public HttpHeaders generateUserJwt(Long userId, Set<String> roles) {
+    public HttpHeaders generateUserJwt(Long userId, List<String> roles) {
         return jwtGenerator(userId, roles, true);
     }
 
     /**
      * Admin Access & Refresh JWT 생성
      */
-    public HttpHeaders generateAdminJwt(Long userId, Set<String> roles) {
+    public HttpHeaders generateAdminJwt(Long userId, List<String> roles) {
         return jwtGenerator(userId, roles, true);
     }
 
     /**
      * Master Access JWT 생성
      */
-    public HttpHeaders generateMasterJwt(Long userId, Set<String> roles) {
+    public HttpHeaders generateMasterJwt(Long userId, List<String> roles) {
         return jwtGenerator(userId, roles, false);
     }
 
     /**
      * 토큰 생성자
      */
-    private HttpHeaders jwtGenerator(Long userId, Set<String> roleSet, boolean isRefreshToken) {
+    private HttpHeaders jwtGenerator(Long userId, List<String> roles, boolean isRefreshToken) {
         long time = System.currentTimeMillis();
         Algorithm algorithm = Algorithm.HMAC256(secret.getBytes(StandardCharsets.UTF_8));
-        List<String> roleList = new ArrayList<>(roleSet);
 
         String accessJwt = JWT.create()
                 .withSubject(userId.toString())
                 .withIssuedAt(new Date(time))
                 .withExpiresAt(new Date(time + accessTokenTime))
                 .withIssuer(domain)
-                .withClaim("roles", roleList)
+                .withClaim("roles", roles)
                 .sign(algorithm);
 
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -93,7 +93,7 @@ public class JwtProvider {
                     .withIssuedAt(new Date(time))
                     .withExpiresAt(new Date(time + refreshTokenTime))
                     .withIssuer(domain)
-                    .withClaim("roles", roleList)
+                    .withClaim("roles", roles)
                     .sign(algorithm);
 
             httpHeaders.add("Refresh-Token", refreshJwt);
@@ -141,7 +141,7 @@ public class JwtProvider {
      * JWT Master Access 인가
      */
     public User authorizeMasterAccessJwt(String token) {
-        return authorizeJwt(token, Role.USER, Jwt.ACCESS);
+        return authorizeJwt(token, Role.MASTER, Jwt.ACCESS);
     }
 
     /**
@@ -216,7 +216,8 @@ public class JwtProvider {
             if (!roles.contains(role.name()))
                 throw new CustomException(TOKEN_UNAUTHORIZED);
         } else {
-            if (!roles.contains(role.name()) || !user.getRoles().equals(roles))
+            Set<String> roleSets = new HashSet<>(user.getRoles());
+            if (!roles.contains(role.name()) || !roleSets.containsAll(roles))
                 throw new CustomException(TOKEN_UNAUTHORIZED);
         }
 

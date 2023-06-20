@@ -10,6 +10,7 @@ import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.profile.domain.type.ProfileOrder;
 import com.gabojait.gabojaitspring.user.domain.Contact;
 import com.gabojait.gabojaitspring.user.domain.User;
+import com.gabojait.gabojaitspring.user.domain.UserRole;
 import com.gabojait.gabojaitspring.user.domain.type.Role;
 import com.gabojait.gabojaitspring.user.dto.req.UserFindPasswordReqDto;
 import com.gabojait.gabojaitspring.user.dto.req.UserLoginReqDto;
@@ -17,6 +18,7 @@ import com.gabojait.gabojaitspring.user.dto.req.UserRegisterReqDto;
 import com.gabojait.gabojaitspring.user.dto.req.UserRenewTokenReqDto;
 import com.gabojait.gabojaitspring.user.repository.ContactRepository;
 import com.gabojait.gabojaitspring.user.repository.UserRepository;
+import com.gabojait.gabojaitspring.user.repository.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -39,6 +41,7 @@ public class UserService {
     private String bucketName;
 
     private final UserRepository userRepository;
+    private final UserRoleRepository userRoleRepository;
     private final ContactRepository contactRepository;
     private final FcmRepository fcmRepository;
     private final GeneralProvider generalProvider;
@@ -83,6 +86,9 @@ public class UserService {
 
         User user = request.toEntity(password, contact);
         saveUser(user);
+
+        UserRole userRole = createUserRole(user);
+        saveUserRole(userRole);
 
         if (request.getFcmToken() != null)
             createFcm(request.getFcmToken(), user);
@@ -341,18 +347,46 @@ public class UserService {
     }
 
     /**
+     * 회원 권한 저장 |
+     * 500(SERVER_ERROR)
+     */
+    private void saveUserRole(UserRole userRole) {
+        try {
+            userRoleRepository.save(userRole);
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
+    }
+
+    /**
      * 아이디로 회원 단건 조회 |
      * 401(LOGIN_UNAUTHENTICATED)
+     * 500(SERVER_ERROR)
      */
     private User findOneUser(String username) {
         Optional<User> user = userRepository.findByUsernameAndIsDeletedIsFalse(username);
 
         if (user.isEmpty())
             throw new CustomException(LOGIN_UNAUTHENTICATED);
-        if (!user.get().getRoles().contains(Role.USER.name()))
+
+        Optional<UserRole> userRole = findOneUserRole(user.get());
+
+        if (userRole.isEmpty())
             throw new CustomException(LOGIN_UNAUTHENTICATED);
 
         return user.get();
+    }
+
+    /**
+     * 회원과 권한으로 회원 권한 단건 조회 |
+     * 500(SERVER_ERROR)
+     */
+    private Optional<UserRole> findOneUserRole(User user) {
+        try {
+            return userRoleRepository.findByUserAndRole(user, Role.USER.name());
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
     }
 
     /**
@@ -515,15 +549,29 @@ public class UserService {
     }
 
     /**
+     * 회원 권한 생성
+     */
+    private UserRole createUserRole(User user) {
+        return UserRole.builder()
+                .user(user)
+                .role(Role.USER)
+                .build();
+    }
+
+    /**
      * 중복 아이디 여부 검증 |
      * 409(EXISTING_USERNAME)
+     * 500(SERVER_ERROR)
      */
     private void validateDuplicateUsername(String username) {
         Optional<User> user = userRepository.findByUsernameAndIsDeletedIsFalse(username);
 
-        if (user.isPresent())
-            if (user.get().getRoles().contains(Role.USER.name()))
+        if (user.isPresent()) {
+            Optional<UserRole> userRole = findOneUserRole(user.get());
+
+            if (userRole.isPresent())
                 throw new CustomException(EXISTING_USERNAME);
+        }
     }
 
     /**

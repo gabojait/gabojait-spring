@@ -19,15 +19,15 @@ public class Review extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "reviewer_id")
+    @JoinColumn(name = "reviewer_id", nullable = false)
     private User reviewer;
 
     @ManyToOne
-    @JoinColumn(name = "reviewee_id")
+    @JoinColumn(name = "reviewee_id", nullable = false)
     private User reviewee;
 
     @ManyToOne
-    @JoinColumn(name = "team_id")
+    @JoinColumn(name = "team_id", nullable = false)
     private Team team;
 
     @Column(nullable = false)

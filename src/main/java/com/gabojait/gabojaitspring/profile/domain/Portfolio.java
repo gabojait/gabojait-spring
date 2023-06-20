@@ -19,7 +19,7 @@ public class Portfolio extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", nullable = false)
     @ToString.Exclude
     private User user;
 
