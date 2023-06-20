@@ -22,8 +22,8 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException, JWTVerificationException {
-        String token = request.getHeader(AUTHORIZATION) == null ?
-                request.getHeader("Refresh-Token") : request.getHeader(AUTHORIZATION);
+        String token = request.getHeader("Refresh-Token") == null ?
+                request.getHeader(AUTHORIZATION) : request.getHeader("Refresh-Token");
 
         if (token != null && token.startsWith("Bearer "))
             jwtProvider.authenticateJwt(token);
