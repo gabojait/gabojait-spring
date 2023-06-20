@@ -93,7 +93,7 @@ public class DevelopController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @GetMapping("/test/user/{user-id}")
+    @GetMapping("/test/user/{tester-id}")
     public ResponseEntity<DefaultResDto<Object>> testDataToken(@PathVariable(value = "tester-id")
                                                                @NotNull(message = "회원 식별자는 필수 입력입니다.")
                                                                @Positive(message = "회원 식별자는 양수만 가능합니다.")
