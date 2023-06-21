@@ -16,7 +16,7 @@ jobs:
           MYSQL_DATABASE: ${{ secrets.DB_NAME }}
           MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
         ports:
-          - 3306:3306
+          - 3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
@@ -34,7 +34,6 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
         env:
-          API_NAME: ${{ secrets.API_NAME }}
           DB_DDL_TYPE: ${{ secrets.DB_DDL_TYPE }}
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_NAME: ${{ secrets.DB_NAME }}
@@ -59,8 +58,8 @@ jobs:
           MAX_REQUEST_SIZE: ${{ secrets.MAX_REQUEST_SIZE }}
           PROFILES_ACTIVE: ${{ secrets.PROFILES_ACTIVE }}
           S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
-          S3_PORTFOLIO_FILE_BUCKET: ${{ secrets.S3_PORTFOLIO_FILE_BUCKET }}
-          S3_PROFILE_IMG_BUCKET: ${{ secrets.S3_PROFILE_IMG_BUCKET }}
+          S3_PORTFOLIO_FILE_BUCKET: ${{ secrets.S3_PORTFOLIO_FILE_ALPHA_BUCKET }}
+          S3_PROFILE_IMG_BUCKET: ${{ secrets.S3_PROFILE_IMG_ALPHA_BUCKET }}
           S3_REGION: ${{ secrets.S3_REGION }}
           S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
           SWAGGER_BASE_URL: ${{ secrets.SWAGGER_BASE_URL }}
