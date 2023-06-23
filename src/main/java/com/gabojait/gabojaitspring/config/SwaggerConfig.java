@@ -107,7 +107,10 @@ public class SwaggerConfig {
                         "2. 로그인 또는 회원 가입시 발급 받은 Refresh Token을 헤더에 \"Refresh-Token\": \"Bearer XXXXX\"와 같이 " +
                         "담아 토큰 재발급을 받는다.\n" +
                         "3. 재발급 받은 Access Token과 Refresh Token을 저장하고 새로운 Access Token으로 처음 보내려는 요청을 보낸다.\n" +
-                        "- Refresh Token으로 토큰 재발급시 Refresh Token 만료로 인한 401 응답을 받을시 로그아웃 처리를 한다.")
+                        "- Refresh Token으로 토큰 재발급시 Refresh Token 만료로 인한 401 응답을 받을시 로그아웃 처리를 한다.\n\n" +
+                        "<문서>\n" +
+                        "1. 개인정보처리방침 -> /docs/privacy\n" +
+                        "2. 서비스이용약관 -> /docs/service")
                 .build();
     }
 }
