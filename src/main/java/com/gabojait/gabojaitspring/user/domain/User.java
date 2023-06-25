@@ -274,6 +274,9 @@ public class User extends BaseTimeEntity implements UserDetails {
 
         TeamMember teamMember = this.teamMembers.get(this.teamMembers.size() - 1);
 
+        if (teamMember.getTeam().getIsDeleted())
+            return false;
+
         return teamMember.isLeader();
     }
 

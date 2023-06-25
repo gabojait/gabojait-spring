@@ -31,6 +31,7 @@ import java.util.List;
 
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.OFFER_CANCEL_BY_USER;
+import static java.util.Map.of;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "제안")
@@ -295,7 +296,7 @@ public class OfferController {
     }
 
     @ApiOperation(value = "회원이 보낸 제안 취소",
-            notes = "<응답 코드>" +
+            notes = "<응답 코드>\n" +
                     "- 200 = OFFER_CANCEL_BY_USER\n" +
                     "- 400 = OFFER_ID_REQUIRED_ID || OFFERED_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
@@ -331,7 +332,7 @@ public class OfferController {
     }
 
     @ApiOperation(value = "팀이 보낸 제안 취소",
-            notes = "<응답 코드>" +
+            notes = "<응답 코드>\n" +
                     "- 200 = OFFER_CANCEL_BY_TEAM\n" +
                     "- 400 = OFFER_ID_REQUIRED_ID || OFFERED_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
@@ -363,6 +364,90 @@ public class OfferController {
                 .body(DefaultResDto.noDataBuilder()
                         .responseCode(OFFER_CANCEL_BY_TEAM.name())
                         .responseMessage(OFFER_CANCEL_BY_TEAM.getMessage())
+                        .build());
+    }
+
+    @ApiOperation(value = "회원이 팀에게 보낸 제안 전체 조회",
+            notes = "<응답 코드>\n" +
+                    "- 200 = OFFER_TO_TEAM_FOUND\n" +
+                    "- 400 = TEAM_ID_FIELD_REQUIRED || TEAM_ID_POSITIVE_ONLY" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = OFFER_NOT_FOUND || TEAM_NOT_FOUND\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(schema = @Schema(implementation = OfferDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
+    })
+    @GetMapping("/team/{team-id}/offer")
+    public ResponseEntity<DefaultResDto<Object>> findAllOfferToTeam(HttpServletRequest servletRequest,
+                                                                    @PathVariable(value = "team-id")
+                                                                    @NotNull(message = "팀 식별자는 필수 입력입니다.")
+                                                                    @Positive(message = "팀 식별자는 양수만 가능합니다.")
+                                                                    Long teamId) {
+        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        List<Offer> offers = offerService.findAllOffersToTeam(user, teamId);
+
+        List<OfferDefaultResDto> responses = new ArrayList<>();
+        for(Offer offer : offers)
+            responses.add(new OfferDefaultResDto(offer));
+
+        return ResponseEntity.status(OFFER_TO_TEAM_FOUND.getHttpStatus())
+                .body(DefaultResDto.multiDataBuilder()
+                        .responseCode(OFFER_TO_TEAM_FOUND.name())
+                        .responseMessage(OFFER_TO_TEAM_FOUND.getMessage())
+                        .data(responses)
+                        .size(responses.size())
+                        .build());
+    }
+
+    @ApiOperation(value = "팀이 회원에게 보낸 제안 전체 조회",
+            notes = "<응답 코드>\n" +
+                    "- 200 = OFFER_TO_USER_FOUND\n" +
+                    "- 400 = USER_ID_FIELD_REQUIRED || USER_ID_POSITIVE_ONLY\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 404 = OFFER_NOT_FOUND || USER_NOT_FOUND || TEAM_NOT_FOUND\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(schema = @Schema(implementation = OfferDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
+    })
+    @GetMapping("/user/{user-id}/offer")
+    public ResponseEntity<DefaultResDto<Object>> findAllOfferToUser(HttpServletRequest servletRequest,
+                                                                    @PathVariable(value = "user-id")
+                                                                    @NotNull(message = "회원 식별자는 필수 입력입니다.")
+                                                                    @Positive(message = "회원 식별자는 양수만 가능합니다.")
+                                                                    Long userId) {
+        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        List<Offer> offers = offerService.findAllOffersToUser(user, userId);
+
+        List<OfferDefaultResDto> responses = new ArrayList<>();
+        for(Offer offer : offers)
+            responses.add(new OfferDefaultResDto(offer));
+
+        return ResponseEntity.status(OFFER_TO_USER_FOUND.getHttpStatus())
+                .body(DefaultResDto.multiDataBuilder()
+                        .responseCode(OFFER_TO_USER_FOUND.name())
+                        .responseMessage(OFFER_TO_USER_FOUND.getMessage())
+                        .data(responses)
+                        .size(responses.size())
                         .build());
     }
 }

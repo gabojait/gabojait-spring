@@ -21,6 +21,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 
 @Service
@@ -229,6 +232,48 @@ public class OfferService {
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
+    }
+
+    /**
+     * 회원와 팀 식별자로 회원이 특정 팀에게 보낸 전체 제안 조회 |
+     * 404(TEAM_NOT_FOUND / OFFER_NOT_FOUND)
+     */
+    public List<Offer> findAllOffersToTeam(User user, Long teamId) {
+        Team team = findOneTeam(teamId);
+
+        List<Offer> offers =  offerRepository.findAllByUserAndTeamAndOfferedByAndIsAcceptedIsNullAndIsDeletedIsFalse(
+                user,
+                team,
+                OfferedBy.USER.getType()
+        );
+
+        if (offers.isEmpty())
+            throw new CustomException(OFFER_NOT_FOUND);
+
+        return offers;
+    }
+
+    /**
+     * 리더와 회원 식별자로 리더가 특정 회원에게 보낸 전체 제안 조회 |
+     * 403(REQUEST_FORBIDDEN)
+     * 404(USER_NOT_FOUND / TEAM_NOT_FOUND / OFFER_NOT_FOUND)
+     */
+    public List<Offer> findAllOffersToUser(User leader, Long userId) {
+        validateLeader(leader);
+
+        User user = findOneUser(userId);
+        Team team = leader.getTeamMembers().get(leader.getTeamMembers().size() - 1).getTeam();
+
+        List<Offer> offers = offerRepository.findAllByUserAndTeamAndOfferedByAndIsAcceptedIsNullAndIsDeletedIsFalse(
+                user,
+                team,
+                OfferedBy.TEAM.getType()
+        );
+
+        if (offers.isEmpty())
+            throw new CustomException(OFFER_NOT_FOUND);
+
+        return offers;
     }
 
     /**

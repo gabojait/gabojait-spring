@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface OfferRepository extends JpaRepository<Offer, Long> {
@@ -22,4 +23,8 @@ public interface OfferRepository extends JpaRepository<Offer, Long> {
     Page<Offer> findAllByUserAndIsDeletedIsFalse(User user, Pageable pageable);
 
     Page<Offer> findAllByTeamAndIsDeletedIsFalse(Team team, Pageable pageable);
+
+    List<Offer> findAllByUserAndTeamAndOfferedByAndIsAcceptedIsNullAndIsDeletedIsFalse(User user,
+                                                                                       Team team,
+                                                                                       Character offeredBy);
 }
