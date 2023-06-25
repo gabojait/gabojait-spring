@@ -11,7 +11,7 @@ import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.team.domain.type.TeamOrder;
 import com.gabojait.gabojaitspring.team.dto.req.TeamDefaultReqDto;
-import com.gabojait.gabojaitspring.team.dto.req.TeamMemberRecruitReqDto;
+import com.gabojait.gabojaitspring.team.dto.req.TeamMemberRecruitCntReqDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamDetailResDto;
 import com.gabojait.gabojaitspring.team.repository.TeamMemberRepository;
 import com.gabojait.gabojaitspring.team.repository.TeamRepository;
@@ -68,21 +68,21 @@ public class TeamService {
         validateIsLeader(teamMember);
 
         Map<Character, Byte> teamMemberRecruits = new HashMap<>();
-        for(TeamMemberRecruitReqDto teamMemberRecruit : request.getTeamMemberRecruits()) {
-            Position position = Position.fromString(teamMemberRecruit.getPosition());
+        for(TeamMemberRecruitCntReqDto teamMemberRecruitCnt : request.getTeamMemberRecruitCnts()) {
+            Position position = Position.fromString(teamMemberRecruitCnt.getPosition());
 
             switch (position.getType()) {
                 case 'D':
-                    teamMemberRecruits.put(Position.DESIGNER.getType(), teamMemberRecruit.getTotalRecruitCnt());
+                    teamMemberRecruits.put(Position.DESIGNER.getType(), teamMemberRecruitCnt.getTotalRecruitCnt());
                     break;
                 case 'B':
-                    teamMemberRecruits.put(Position.BACKEND.getType(), teamMemberRecruit.getTotalRecruitCnt());
+                    teamMemberRecruits.put(Position.BACKEND.getType(), teamMemberRecruitCnt.getTotalRecruitCnt());
                     break;
                 case 'F':
-                    teamMemberRecruits.put(Position.FRONTEND.getType(), teamMemberRecruit.getTotalRecruitCnt());
+                    teamMemberRecruits.put(Position.FRONTEND.getType(), teamMemberRecruitCnt.getTotalRecruitCnt());
                     break;
                 case 'M':
-                    teamMemberRecruits.put(Position.MANAGER.getType(), teamMemberRecruit.getTotalRecruitCnt());
+                    teamMemberRecruits.put(Position.MANAGER.getType(), teamMemberRecruitCnt.getTotalRecruitCnt());
                     break;
             }
         }

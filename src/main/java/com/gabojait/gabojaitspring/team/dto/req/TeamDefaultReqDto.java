@@ -42,7 +42,7 @@ public class TeamDefaultReqDto {
 
     @ApiModelProperty(position = 3, required = true, value = "팀원 수")
     @Valid
-    private List<TeamMemberRecruitReqDto> teamMemberRecruits = new ArrayList<>();
+    private List<TeamMemberRecruitCntReqDto> teamMemberRecruitCnts = new ArrayList<>();
 
     @ApiModelProperty(position = 7, required = true, value = "바라는 점", example = "열정적인 팀원을 구합니다.")
     @NotBlank(message = "바라는 점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -79,7 +79,7 @@ public class TeamDefaultReqDto {
                 throw new CustomException(NON_EXISTING_POSITION);
         }
 
-        for(TeamMemberRecruitReqDto recruit : teamMemberRecruits) {
+        for(TeamMemberRecruitCntReqDto recruit : teamMemberRecruitCnts) {
             Position position = Position.fromString(recruit.getPosition());
 
             switch (position.getType()) {

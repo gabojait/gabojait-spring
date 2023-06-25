@@ -1,7 +1,9 @@
 package com.gabojait.gabojaitspring.common.util.validator;
 
 import com.gabojait.gabojaitspring.profile.domain.type.Level;
+import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.profile.dto.req.*;
+import com.gabojait.gabojaitspring.team.dto.req.TeamMemberRecruitCntReqDto;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -48,6 +50,9 @@ public class ValidIfPresentValidator implements ConstraintValidator<ValidIfPrese
                 if (isInvalidId(dto.getWorkId()))
                     return false;
             }
+        } else if (value instanceof TeamMemberRecruitCntReqDto) {
+            if (isInvalidTeamRecruitCntRequest(value))
+                return false;
         }
 
         return true;
@@ -136,6 +141,27 @@ public class ValidIfPresentValidator implements ConstraintValidator<ValidIfPrese
         if (dto.getCorporationName().length() < 1 || dto.getCorporationName().length() > 20)
             return true;
         if (dto.getWorkDescription().length() > 100)
+            return true;
+
+        return false;
+    }
+
+    private boolean isInvalidTeamRecruitCntRequest(Object value) {
+        TeamMemberRecruitCntReqDto dto = (TeamMemberRecruitCntReqDto) value;
+
+        // Blank
+        if (dto.getPosition().isBlank())
+            return true;
+        if (dto.getTotalRecruitCnt() == null)
+            return true;
+
+        // Format
+        if (dto.getTotalRecruitCnt() <= 0)
+            return true;
+        if (!dto.getPosition().equals(Position.DESIGNER.name()) &&
+                !dto.getPosition().equals(Position.BACKEND.name()) &&
+                !dto.getPosition().equals(Position.FRONTEND.name()) &&
+                !dto.getPosition().equals(Position.MANAGER.name()))
             return true;
 
         return false;
