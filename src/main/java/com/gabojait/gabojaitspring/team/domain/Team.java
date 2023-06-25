@@ -9,6 +9,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @ToString
@@ -107,20 +108,30 @@ public class Team extends BaseTimeEntity {
 
     public void update(String projectName,
                        String projectDescription,
-                       Byte designerTotalRecruitCnt,
-                       Byte backendTotalRecruitCnt,
-                       Byte frontendTotalRecruitCnt,
-                       Byte managerTotalRecruitCnt,
                        String expectation,
-                       String openChatUrl) {
+                       String openChatUrl,
+                       Map<Character, Byte> teamMemberRecruits) {
         this.projectName = projectName;
         this.projectDescription = projectDescription;
-        this.designerTotalRecruitCnt = designerTotalRecruitCnt;
-        this.backendTotalRecruitCnt = backendTotalRecruitCnt;
-        this.frontendTotalRecruitCnt = frontendTotalRecruitCnt;
-        this.managerTotalRecruitCnt = managerTotalRecruitCnt;
         this.expectation = expectation;
         this.openChatUrl = openChatUrl;
+
+        if (teamMemberRecruits.containsKey(Position.DESIGNER.getType()))
+            this.designerTotalRecruitCnt = teamMemberRecruits.get(Position.DESIGNER.getType());
+        else
+            this.designerTotalRecruitCnt = 0;
+        if (teamMemberRecruits.containsKey(Position.BACKEND.getType()))
+            this.backendTotalRecruitCnt = teamMemberRecruits.get(Position.BACKEND.getType());
+        else
+            this.backendTotalRecruitCnt = 0;
+        if (teamMemberRecruits.containsKey(Position.FRONTEND.getType()))
+            this.frontendTotalRecruitCnt = teamMemberRecruits.get(Position.FRONTEND.getType());
+        else
+            this.frontendTotalRecruitCnt = 0;
+        if (teamMemberRecruits.containsKey(Position.MANAGER.getType()))
+            this.managerTotalRecruitCnt = teamMemberRecruits.get(Position.MANAGER.getType());
+        else
+            this.managerTotalRecruitCnt = 0;
     }
 
     public void updateIsPositionFull(Position position) {

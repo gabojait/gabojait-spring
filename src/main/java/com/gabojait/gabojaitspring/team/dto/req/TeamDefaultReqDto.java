@@ -1,7 +1,9 @@
 package com.gabojait.gabojaitspring.team.dto.req;
 
+import com.gabojait.gabojaitspring.common.util.validator.ValidIfPresent;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
@@ -10,7 +12,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.GroupSequence;
+import javax.validation.Valid;
 import javax.validation.constraints.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.NON_EXISTING_POSITION;
 
@@ -21,6 +27,7 @@ import static com.gabojait.gabojaitspring.common.code.ErrorCode.NON_EXISTING_POS
         ValidationSequence.Size.class,
         ValidationSequence.Format.class})
 @ApiModel(value = "팀 기본 요청")
+@ValidIfPresent
 public class TeamDefaultReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "프로젝트명", example = "가보자잇")
@@ -33,25 +40,9 @@ public class TeamDefaultReqDto {
     @Size(min = 1, max = 500, message = "프로젝트 설명은 1~500자만 가능합니다.", groups = ValidationSequence.Size.class)
     private String projectDescription;
 
-    @ApiModelProperty(position = 3, required = true, value = "디자이너 총 팀원 수", example = "2")
-    @NotNull(message = "디자이너 총 팀원 수는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-    @PositiveOrZero(message = "디자이너 총 팀원 수는 0 또는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-    private Byte designerTotalRecruitCnt;
-
-    @ApiModelProperty(position = 4, required = true, value = "백엔드 개발자 총 팀원 수", example = "2")
-    @NotNull(message = "백엔드 개발자 총 팀원 수는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-    @PositiveOrZero(message = "백엔드 개발자 총 팀원 수는 0 또는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-    private Byte backendTotalRecruitCnt;
-
-    @ApiModelProperty(position = 5, required = true, value = "프론트엔드 개발자 총 팀원 수", example = "2")
-    @NotNull(message = "프론트엔드 개발자 총 팀원 수는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-    @PositiveOrZero(message = "프론트엔드 개발자 총 팀원 수는 0 또는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-    private Byte frontendTotalRecruitCnt;
-
-    @ApiModelProperty(position = 6, required = true, value = "매니저 총 팀원 수", example = "2")
-    @NotNull(message = "매니저 총 팀원 수는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-    @PositiveOrZero(message = "매니저 총 팀원 수는 0 또는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-    private Byte managerTotalRecruitCnt;
+    @ApiModelProperty(position = 3, required = true, value = "팀원 수")
+    @Valid
+    private List<TeamMemberRecruitReqDto> teamMemberRecruits = new ArrayList<>();
 
     @ApiModelProperty(position = 7, required = true, value = "바라는 점", example = "열정적인 팀원을 구합니다.")
     @NotBlank(message = "바라는 점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -66,30 +57,54 @@ public class TeamDefaultReqDto {
     private String openChatUrl;
 
     public Team toEntity(User user) {
+        byte designerTotalRecruitCnt = 0;
+        byte backendTotalRecruitCnt = 0;
+        byte frontendTotalRecruitCnt = 0;
+        byte managerTotalRecruitCnt = 0;
+
         switch (user.getPosition()) {
             case 'D':
-                this.designerTotalRecruitCnt++;
+                designerTotalRecruitCnt++;
                 break;
             case 'B':
-                this.backendTotalRecruitCnt++;
+                backendTotalRecruitCnt++;
                 break;
             case 'F':
-                this.frontendTotalRecruitCnt++;
+                frontendTotalRecruitCnt++;
                 break;
             case 'M':
-                this.managerTotalRecruitCnt++;
+                managerTotalRecruitCnt++;
                 break;
             default:
                 throw new CustomException(NON_EXISTING_POSITION);
         }
 
+        for(TeamMemberRecruitReqDto recruit : teamMemberRecruits) {
+            Position position = Position.fromString(recruit.getPosition());
+
+            switch (position.getType()) {
+                case 'D':
+                    designerTotalRecruitCnt += recruit.getTotalRecruitCnt();
+                    break;
+                case 'B':
+                    backendTotalRecruitCnt += recruit.getTotalRecruitCnt();
+                    break;
+                case 'F':
+                    frontendTotalRecruitCnt += recruit.getTotalRecruitCnt();
+                    break;
+                case 'M':
+                    managerTotalRecruitCnt += recruit.getTotalRecruitCnt();
+                    break;
+            }
+        }
+
         return Team.builder()
                 .projectName(this.projectName)
                 .projectDescription(this.projectDescription)
-                .designerTotalRecruitCnt(this.designerTotalRecruitCnt)
-                .backendTotalRecruitCnt(this.backendTotalRecruitCnt)
-                .frontendTotalRecruitCnt(this.frontendTotalRecruitCnt)
-                .managerTotalRecruitCnt(this.managerTotalRecruitCnt)
+                .designerTotalRecruitCnt(designerTotalRecruitCnt)
+                .backendTotalRecruitCnt(backendTotalRecruitCnt)
+                .frontendTotalRecruitCnt(frontendTotalRecruitCnt)
+                .managerTotalRecruitCnt(managerTotalRecruitCnt)
                 .expectation(this.expectation)
                 .openChatUrl(this.openChatUrl)
                 .build();

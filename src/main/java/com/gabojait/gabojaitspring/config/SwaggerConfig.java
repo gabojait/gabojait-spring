@@ -8,9 +8,7 @@ import com.gabojait.gabojaitspring.common.dto.ExceptionResDto;
 import com.gabojait.gabojaitspring.offer.dto.res.OfferDefaultResDto;
 import com.gabojait.gabojaitspring.profile.dto.res.*;
 import com.gabojait.gabojaitspring.review.dto.res.ReviewDefaultResDto;
-import com.gabojait.gabojaitspring.team.dto.res.TeamAbstractResDto;
-import com.gabojait.gabojaitspring.team.dto.res.TeamDefaultResDto;
-import com.gabojait.gabojaitspring.team.dto.res.TeamDetailResDto;
+import com.gabojait.gabojaitspring.team.dto.res.*;
 import com.gabojait.gabojaitspring.user.dto.res.ContactDefaultResDto;
 import com.gabojait.gabojaitspring.user.dto.res.UserDefaultResDto;
 import org.springframework.context.annotation.Bean;
@@ -79,6 +77,8 @@ public class SwaggerConfig {
                 .additionalModels(typeResolver.resolve(TeamAbstractResDto.class))
                 .additionalModels(typeResolver.resolve(TeamDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(TeamDetailResDto.class))
+                .additionalModels(typeResolver.resolve(TeamMemberPositionResDto.class))
+                .additionalModels(typeResolver.resolve(TeamMemberRecruitCntResDto.class))
                 .additionalModels(typeResolver.resolve(OfferDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(ReviewDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(AdminAbstractResDto.class))

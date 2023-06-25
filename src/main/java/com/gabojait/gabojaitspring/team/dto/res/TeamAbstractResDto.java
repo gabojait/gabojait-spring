@@ -1,13 +1,17 @@
 package com.gabojait.gabojaitspring.team.dto.res;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.team.domain.Team;
+import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @ToString
@@ -20,33 +24,59 @@ public class TeamAbstractResDto {
     @ApiModelProperty(position = 2, required = true, value = "프로젝트 이름")
     private String projectName;
 
-    @ApiModelProperty(position = 3, required = true, value = "디자이너 총 팀원 수")
-    private Byte designerTotalRecruitCnt;
+    @ApiModelProperty(position = 3, required = true, value = "총 모집 팀원 수")
+    private List<TeamMemberRecruitCntResDto> teamMemberRecruitCnts = new ArrayList<>();
 
-    @ApiModelProperty(position = 4, required = true, value = "백엔드 개발자 총 팀원 수")
-    private Byte backendTotalRecruitCnt;
+    @ApiModelProperty(position = 4, required = true, value = "현재 팀원")
+    private List<TeamMemberPositionResDto> teamMembers = new ArrayList<>();
 
-    @ApiModelProperty(position = 5, required = true, value = "프론트엔드 개발자 총 팀원 수")
-    private Byte frontendTotalRecruitCnt;
-
-    @ApiModelProperty(position = 6, required = true, value = "매니저 총 팀원 수")
-    private Byte managerTotalRecruitCnt;
-
-    @ApiModelProperty(position = 7, required = true, value = "생성일")
+    @ApiModelProperty(position = 5, required = true, value = "생성일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime createdAt;
 
-    @ApiModelProperty(position = 8, required = true, value = "수정일")
+    @ApiModelProperty(position = 6, required = true, value = "수정일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime updatedAt;
 
     public TeamAbstractResDto(Team team) {
         this.teamId = team.getId();
         this.projectName = team.getProjectName();
-        this.designerTotalRecruitCnt = team.getDesignerTotalRecruitCnt();
-        this.backendTotalRecruitCnt = team.getBackendTotalRecruitCnt();
-        this.frontendTotalRecruitCnt = team.getFrontendTotalRecruitCnt();
-        this.managerTotalRecruitCnt = team.getManagerTotalRecruitCnt();
+
+        if (team.getDesignerTotalRecruitCnt() != 0)
+            this.teamMemberRecruitCnts.add(
+                    new TeamMemberRecruitCntResDto(
+                        team.getDesignerTotalRecruitCnt(),
+                        Position.DESIGNER.name()
+                        )
+            );
+
+        if (team.getBackendTotalRecruitCnt() != 0)
+            this.teamMemberRecruitCnts.add(
+                    new TeamMemberRecruitCntResDto(
+                            team.getBackendTotalRecruitCnt(),
+                            Position.BACKEND.name()
+                    )
+            );
+
+        if (team.getFrontendTotalRecruitCnt() != 0)
+            this.teamMemberRecruitCnts.add(
+                    new TeamMemberRecruitCntResDto(
+                            team.getFrontendTotalRecruitCnt(),
+                            Position.FRONTEND.name()
+                    )
+            );
+
+        if (team.getManagerTotalRecruitCnt() != 0)
+            this.teamMemberRecruitCnts.add(
+                    new TeamMemberRecruitCntResDto(
+                            team.getManagerTotalRecruitCnt(),
+                            Position.MANAGER.name()
+                    )
+            );
+
+        for(TeamMember teamMember : team.getTeamMembers())
+            this.teamMembers.add(new TeamMemberPositionResDto(teamMember));
+
         this.createdAt = team.getCreatedAt();
         this.updatedAt = team.getUpdatedAt();
     }

@@ -11,7 +11,7 @@ import lombok.ToString;
 @ApiModel(value = "팀 상세 응답")
 public class TeamDetailResDto extends TeamDefaultResDto {
 
-    @ApiModelProperty(position = 17, required = true, value = "찜 여부")
+    @ApiModelProperty(position = 11, required = true, value = "찜 여부")
     private Boolean isFavorite;
 
     public TeamDetailResDto(Team team, Boolean isFavorite) {

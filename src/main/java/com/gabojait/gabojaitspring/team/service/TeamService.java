@@ -11,6 +11,7 @@ import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.team.domain.type.TeamOrder;
 import com.gabojait.gabojaitspring.team.dto.req.TeamDefaultReqDto;
+import com.gabojait.gabojaitspring.team.dto.req.TeamMemberRecruitReqDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamDetailResDto;
 import com.gabojait.gabojaitspring.team.repository.TeamMemberRepository;
 import com.gabojait.gabojaitspring.team.repository.TeamRepository;
@@ -21,6 +22,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
@@ -62,21 +66,35 @@ public class TeamService {
     public Team update(TeamDefaultReqDto request, User user) {
         TeamMember teamMember = findOneCurrentTeamMember(user);
         validateIsLeader(teamMember);
-        validateAllPositionCnt(teamMember.getTeam(),
-                request.getDesignerTotalRecruitCnt(),
-                request.getBackendTotalRecruitCnt(),
-                request.getFrontendTotalRecruitCnt(),
-                request.getManagerTotalRecruitCnt());
+
+        Map<Character, Byte> teamMemberRecruits = new HashMap<>();
+        for(TeamMemberRecruitReqDto teamMemberRecruit : request.getTeamMemberRecruits()) {
+            Position position = Position.fromString(teamMemberRecruit.getPosition());
+
+            switch (position.getType()) {
+                case 'D':
+                    teamMemberRecruits.put(Position.DESIGNER.getType(), teamMemberRecruit.getTotalRecruitCnt());
+                    break;
+                case 'B':
+                    teamMemberRecruits.put(Position.BACKEND.getType(), teamMemberRecruit.getTotalRecruitCnt());
+                    break;
+                case 'F':
+                    teamMemberRecruits.put(Position.FRONTEND.getType(), teamMemberRecruit.getTotalRecruitCnt());
+                    break;
+                case 'M':
+                    teamMemberRecruits.put(Position.MANAGER.getType(), teamMemberRecruit.getTotalRecruitCnt());
+                    break;
+            }
+        }
+
+        validateAllPositionCnt(teamMember.getTeam(), teamMemberRecruits);
 
         Team team = teamMember.getTeam();
         team.update(request.getProjectName(),
                 request.getProjectDescription(),
-                request.getDesignerTotalRecruitCnt(),
-                request.getBackendTotalRecruitCnt(),
-                request.getFrontendTotalRecruitCnt(),
-                request.getManagerTotalRecruitCnt(),
                 request.getExpectation(),
-                request.getOpenChatUrl());
+                request.getOpenChatUrl(),
+                teamMemberRecruits);
 
         fcmProvider.sendTeamProfileUpdated(team);
 
@@ -504,10 +522,7 @@ public class TeamService {
      * MANAGER_CNT_UPDATE_UNAVAILABLE)
      */
     private void validateAllPositionCnt(Team team,
-                                        byte designerTotalCnt,
-                                        byte backendTotalCnt,
-                                        byte frontendTotalCnt,
-                                        byte managerTotalCnt) {
+                                        Map<Character, Byte> teamMemberRecruits) {
         byte designerCurrentCnt = 0;
         byte backendCurrentCnt = 0;
         byte frontendCurrentCnt = 0;
@@ -528,6 +543,21 @@ public class TeamService {
                     managerCurrentCnt++;
                     break;
             }
+
+        byte designerTotalCnt = 0;
+        byte backendTotalCnt = 0;
+        byte frontendTotalCnt = 0;
+        byte managerTotalCnt = 0;
+
+        if (teamMemberRecruits.containsKey(Position.DESIGNER.getType()))
+            designerTotalCnt += teamMemberRecruits.get(Position.DESIGNER.getType());
+        if (teamMemberRecruits.containsKey(Position.BACKEND.getType()))
+            backendTotalCnt += teamMemberRecruits.get(Position.BACKEND.getType());
+        if (teamMemberRecruits.containsKey(Position.FRONTEND.getType()))
+            frontendTotalCnt += teamMemberRecruits.get(Position.FRONTEND.getType());
+        if (teamMemberRecruits.containsKey(Position.MANAGER.getType()))
+            managerTotalCnt += teamMemberRecruits.get(Position.MANAGER.getType());
+
 
         if (designerTotalCnt < designerCurrentCnt)
             throw new CustomException(DESIGNER_CNT_UPDATE_UNAVAILABLE);
