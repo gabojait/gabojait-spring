@@ -93,7 +93,7 @@ public class DevelopService {
         injectEducationsAndWorks(users);
         injectPortfolios(users);
         injectPositionAndSkills(users);
-        injectTeam(users.get(0));
+        injectTeam(users);
     }
 
     /**
@@ -108,7 +108,7 @@ public class DevelopService {
      */
     private List<Contact> injectContacts() {
         List<Contact> contacts = new ArrayList<>();
-        for(int i = 1; i <= 10; i++) {
+        for(int i = 1; i <= 100; i++) {
             Contact contact = Contact.builder()
                     .email("test" + i + "@gabojait.com")
                     .verificationCode("000000")
@@ -136,7 +136,7 @@ public class DevelopService {
                     .username("test" + n)
                     .password(generalProvider.encodePassword("password1!"))
                     .gender(Gender.NONE)
-                    .birthdate(LocalDate.of(2000, 1, n))
+                    .birthdate(LocalDate.of(2000, 1, (i % 30) + 1))
                     .nickname("테스트" + n)
                     .contact(contacts.get(i))
                     .build();
@@ -153,7 +153,6 @@ public class DevelopService {
      * 회원 권한 주입
      */
     private void injectUserRoles(List<User> users) {
-        List<UserRole> userRoles = new ArrayList<>();
         for(User user : users) {
             UserRole userRole = UserRole.builder()
                     .user(user)
@@ -223,23 +222,26 @@ public class DevelopService {
         for(int i = 0; i < users.size(); i++) {
             Position position;
 
-            switch (i % 5) {
-                case 0:
-                    position = Position.DESIGNER;
-                    break;
-                case 1:
-                    position = Position.BACKEND;
-                    break;
-                case 2:
-                    position = Position.FRONTEND;
-                    break;
-                case 3:
-                    position = Position.MANAGER;
-                    break;
-                default:
-                    position = Position.NONE;
-                    break;
-            }
+            if (i < 50)
+                switch (i % 4) {
+                    case 0:
+                        position = Position.DESIGNER;
+                        break;
+                    case 1:
+                        position = Position.BACKEND;
+                        break;
+                    case 2:
+                        position = Position.FRONTEND;
+                        break;
+                    case 3:
+                        position = Position.MANAGER;
+                        break;
+                    default:
+                        position = Position.NONE;
+                        break;
+                }
+            else
+                position = Position.NONE;
 
             users.get(i).updatePosition(position);
 
@@ -257,28 +259,30 @@ public class DevelopService {
     /**
      * 팀 주입
      */
-    private void injectTeam(User user) {
-        Team team = Team.builder()
-                .projectName("가보자잇")
-                .projectDescription("가보자잇 프로젝트 설명입니다.")
-                .designerTotalRecruitCnt((byte) 2)
-                .backendTotalRecruitCnt((byte) 2)
-                .frontendTotalRecruitCnt((byte) 2)
-                .managerTotalRecruitCnt((byte) 2)
-                .expectation("열정적인 팀원을 구합니다.")
-                .openChatUrl("https://open.kakao.com/o/test")
-                .build();
+    private void injectTeam(List<User> users) {
+        for(int i = 0; i < 50; i++) {
+            Team team = Team.builder()
+                    .projectName("가보자잇팀" + i)
+                    .projectDescription("가보자잇 프로젝트 설명입니다.")
+                    .designerTotalRecruitCnt((byte) 2)
+                    .backendTotalRecruitCnt((byte) 2)
+                    .frontendTotalRecruitCnt((byte) 2)
+                    .managerTotalRecruitCnt((byte) 2)
+                    .expectation("열정적인 팀원을 구합니다.")
+                    .openChatUrl("https://open.kakao.com/o/test")
+                    .build();
 
-        teamRepository.save(team);
+            teamRepository.save(team);
 
-        TeamMember teamMember = TeamMember.builder()
-                .user(user)
-                .team(team)
-                .position(Position.fromChar(user.getPosition()))
-                .isLeader(true)
-                .build();
+            TeamMember teamMember = TeamMember.builder()
+                    .user(users.get(i))
+                    .team(team)
+                    .position(Position.fromChar(users.get(i).getPosition()))
+                    .isLeader(true)
+                    .build();
 
-        teamMemberRepository.save(teamMember);
+            teamMemberRepository.save(teamMember);
+        }
     }
 
     /**
