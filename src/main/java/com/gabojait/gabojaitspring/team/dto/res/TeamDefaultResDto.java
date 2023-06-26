@@ -1,6 +1,7 @@
 package com.gabojait.gabojaitspring.team.dto.res;
 
 import com.gabojait.gabojaitspring.team.domain.Team;
+import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -32,5 +33,8 @@ public class TeamDefaultResDto extends TeamAbstractResDto {
         this.projectDescription = team.getProjectDescription();
         this.openChatUrl = team.getOpenChatUrl();
         this.expectation = team.getExpectation();
+
+        for(TeamMember teamMember : team.getTeamMembers())
+            teamMembers.add(new TeamMemberPositionResDto(teamMember));
     }
 }
