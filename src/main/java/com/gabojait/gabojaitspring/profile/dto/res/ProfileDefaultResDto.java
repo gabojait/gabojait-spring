@@ -1,6 +1,5 @@
 package com.gabojait.gabojaitspring.profile.dto.res;
 
-import com.gabojait.gabojaitspring.profile.domain.type.TeamMemberStatus;
 import com.gabojait.gabojaitspring.review.dto.res.ReviewDefaultResDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamAbstractResDto;
 import com.gabojait.gabojaitspring.user.domain.User;
@@ -23,8 +22,8 @@ public class ProfileDefaultResDto extends ProfileAbstractResDto {
     @ApiModelProperty(position = 9, required = true, value = "프로필 사진")
     private String imageUrl;
 
-    @ApiModelProperty(position = 10, required = true, value = "팀 멤버 상태", allowableValues = "leader, member, none")
-    private String teamMemberStatus;
+    @ApiModelProperty(position = 10, required = true, value = "리더 여부")
+    private Boolean isLeader;
 
     @ApiModelProperty(position = 11, required = true, value = "팀 찾기 여부")
     private Boolean isSeekingTeam;
@@ -55,7 +54,7 @@ public class ProfileDefaultResDto extends ProfileAbstractResDto {
 
         this.profileDescription = user.getProfileDescription();
         this.imageUrl = user.getImageUrl();
-        this.teamMemberStatus = TeamMemberStatus.NONE.name();
+        this.isLeader = user.isLeader();
         this.isSeekingTeam = user.getIsSeekingTeam();
 
         if (!user.getReceivedReviews().isEmpty())
@@ -73,7 +72,7 @@ public class ProfileDefaultResDto extends ProfileAbstractResDto {
                 if (teamMember.getTeam().getCompletedAt() != null) {
                     this.completedTeams.add(new TeamAbstractResDto(teamMember.getTeam()));
                 } else {
-                    this.teamMemberStatus = TeamMemberStatus.fromChar(teamMember.getTeamMemberStatus()).name();
+                    this.isLeader = teamMember.getIsLeader();
                     this.currentTeam = new TeamAbstractResDto(teamMember.getTeam());
                 }
             });

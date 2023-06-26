@@ -3,7 +3,6 @@ package com.gabojait.gabojaitspring.common.util;
 import com.gabojait.gabojaitspring.fcm.domain.Fcm;
 import com.gabojait.gabojaitspring.offer.domain.Offer;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
-import com.gabojait.gabojaitspring.profile.domain.type.TeamMemberStatus;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.user.domain.User;
@@ -188,7 +187,7 @@ public class FcmProvider {
         Team team = offer.getTeam();
         User leader = null;
         for(TeamMember teamMember : team.getTeamMembers())
-            if (teamMember.getTeamMemberStatus().equals(TeamMemberStatus.LEADER.getType())) {
+            if (teamMember.getIsLeader()) {
                 leader = teamMember.getUser();
                 break;
             }

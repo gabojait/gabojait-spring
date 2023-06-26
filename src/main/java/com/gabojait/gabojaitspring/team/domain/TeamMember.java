@@ -2,7 +2,6 @@ package com.gabojait.gabojaitspring.team.domain;
 
 import com.gabojait.gabojaitspring.common.entity.BaseTimeEntity;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
-import com.gabojait.gabojaitspring.profile.domain.type.TeamMemberStatus;
 import com.gabojait.gabojaitspring.user.domain.User;
 import lombok.*;
 
@@ -32,22 +31,15 @@ public class TeamMember extends BaseTimeEntity {
     @Column(nullable = false)
     private Character position;
     @Column(nullable = false)
-    private Character teamMemberStatus;
+    private Boolean isLeader;
 
     @Builder
-    public TeamMember(User user, Team team, Position position, TeamMemberStatus teamMemberStatus) {
+    public TeamMember(User user, Team team, Position position, Boolean isLeader) {
         this.user = user;
         this.team = team;
         this.position = position.getType();
-        this.teamMemberStatus = teamMemberStatus.getType();
+        this.isLeader = isLeader;
         this.isDeleted = false;
-    }
-
-    public boolean isLeader() {
-        if (this.team.getCompletedAt() != null)
-            return false;
-
-        return teamMemberStatus.equals(TeamMemberStatus.LEADER.getType());
     }
 
     public void complete() {

@@ -10,7 +10,6 @@ import com.gabojait.gabojaitspring.profile.domain.Work;
 import com.gabojait.gabojaitspring.profile.domain.type.Level;
 import com.gabojait.gabojaitspring.profile.domain.type.Media;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
-import com.gabojait.gabojaitspring.profile.domain.type.TeamMemberStatus;
 import com.gabojait.gabojaitspring.profile.repository.EducationRepository;
 import com.gabojait.gabojaitspring.profile.repository.PortfolioRepository;
 import com.gabojait.gabojaitspring.profile.repository.SkillRepository;
@@ -276,7 +275,7 @@ public class DevelopService {
                 .user(user)
                 .team(team)
                 .position(Position.fromChar(user.getPosition()))
-                .teamMemberStatus(TeamMemberStatus.LEADER)
+                .isLeader(true)
                 .build();
 
         teamMemberRepository.save(teamMember);

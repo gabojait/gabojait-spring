@@ -186,7 +186,7 @@ public class FavoriteUserService {
      * 403(REQUEST_FORBIDDEN)
      */
     private void validateIsLeader(TeamMember teamMember) {
-        if (teamMember.isLeader())
+        if (teamMember.getIsLeader())
             throw new CustomException(REQUEST_FORBIDDEN);
     }
 }

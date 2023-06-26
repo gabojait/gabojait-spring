@@ -6,7 +6,6 @@ import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.favorite.domain.FavoriteTeam;
 import com.gabojait.gabojaitspring.favorite.repository.FavoriteTeamRepository;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
-import com.gabojait.gabojaitspring.profile.domain.type.TeamMemberStatus;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.team.domain.type.TeamOrder;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -51,7 +49,7 @@ public class TeamService {
 
         Team team = request.toEntity(user);
         saveTeam(team);
-        joinTeam(user, team, TeamMemberStatus.LEADER, Position.fromChar(user.getPosition()));
+        joinTeam(user, team, true, Position.fromChar(user.getPosition()));
 
         return team;
     }
@@ -159,25 +157,24 @@ public class TeamService {
      * 409(TEAM_POSITION_UNAVAILABLE)
      * 500(SERVER_ERROR)
      */
-    public void joinTeam(User user, Team team, TeamMemberStatus teamMemberStatus, Position position) {
+    public void joinTeam(User user, Team team, Boolean isLeader, Position position) {
         validatePositionAvailability(team, position);
 
         TeamMember teamMember = TeamMember.builder()
                 .user(user)
                 .team(team)
                 .position(position)
-                .teamMemberStatus(teamMemberStatus)
+                .isLeader(isLeader)
                 .build();
 
         saveTeamMember(teamMember);
 
         team.updateIsPositionFull(position);
 
-        if (teamMemberStatus.equals(TeamMemberStatus.LEADER))
+        if (isLeader)
             user.incrementCreateTeamCnt();
         else
             user.incrementJoinTeamCnt();
-
     }
 
     /**
@@ -491,7 +488,7 @@ public class TeamService {
      * 403(REQUEST_FORBIDDEN)
      */
     public void validateIsLeader(TeamMember teamMember) {
-        if (!teamMember.isLeader())
+        if (!teamMember.getIsLeader())
             throw new CustomException(REQUEST_FORBIDDEN);
     }
 

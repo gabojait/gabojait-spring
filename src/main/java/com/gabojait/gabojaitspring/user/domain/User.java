@@ -276,7 +276,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         if (teamMember.getTeam().getIsDeleted())
             return false;
 
-        return teamMember.isLeader();
+        return teamMember.getIsLeader();
     }
 
     public boolean isTeamMember(Team team) {

@@ -1,7 +1,6 @@
 package com.gabojait.gabojaitspring.team.dto.res;
 
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
-import com.gabojait.gabojaitspring.profile.domain.type.TeamMemberStatus;
 import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
@@ -24,8 +23,8 @@ public class TeamMemberPositionResDto {
             allowableValues = "designer, frontend, backend, manager")
     private String position;
 
-    @ApiModelProperty(position = 4, required = true, value = "팀원 상태")
-    private String teamMemberStatus;
+    @ApiModelProperty(position = 4, required = true, value = "리더 여부")
+    private Boolean isLeader;
 
     public TeamMemberPositionResDto(TeamMember teamMember) {
         User user = teamMember.getUser();
@@ -33,7 +32,7 @@ public class TeamMemberPositionResDto {
         this.userId = user.getId();
         this.nickname = user.getNickname();
         this.position = Position.fromChar(teamMember.getPosition()).name().toLowerCase();
-        this.teamMemberStatus = TeamMemberStatus.fromChar(teamMember.getTeamMemberStatus()).name().toLowerCase();
+        this.isLeader = teamMember.getIsLeader();
     }
 
 }

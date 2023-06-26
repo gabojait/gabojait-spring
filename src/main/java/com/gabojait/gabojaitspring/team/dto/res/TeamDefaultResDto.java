@@ -1,9 +1,6 @@
 package com.gabojait.gabojaitspring.team.dto.res;
 
-import com.gabojait.gabojaitspring.profile.domain.type.TeamMemberStatus;
-import com.gabojait.gabojaitspring.profile.dto.res.ProfileAbstractResDto;
 import com.gabojait.gabojaitspring.team.domain.Team;
-import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;

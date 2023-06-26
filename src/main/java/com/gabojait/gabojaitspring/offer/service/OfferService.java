@@ -8,7 +8,6 @@ import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
 import com.gabojait.gabojaitspring.offer.dto.req.OfferCreateReqDto;
 import com.gabojait.gabojaitspring.offer.repository.OfferRepository;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
-import com.gabojait.gabojaitspring.profile.domain.type.TeamMemberStatus;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.team.repository.TeamMemberRepository;
@@ -21,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
@@ -196,7 +194,7 @@ public class OfferService {
                 .user(user)
                 .team(team)
                 .position(position)
-                .teamMemberStatus(TeamMemberStatus.MEMBER)
+                .isLeader(false)
                 .build();
 
         saveTeamMember(teamMember);
