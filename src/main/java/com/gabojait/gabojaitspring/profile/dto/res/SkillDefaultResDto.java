@@ -39,7 +39,7 @@ public class SkillDefaultResDto {
         this.skillId = skill.getId();
         this.skillName = skill.getSkillName();
         this.isExperienced = skill.getIsExperienced();
-        this.level = Level.fromChar(skill.getLevel()).name();
+        this.level = Level.fromChar(skill.getLevel()).name().toLowerCase();
         this.createdAt = skill.getCreatedAt();
         this.updatedAt = skill.getUpdatedAt();
     }

@@ -47,7 +47,7 @@ public class UserDefaultResDto {
         this.userId = user.getId();
         this.username = user.getUsername();
         this.nickname = user.getNickname();
-        this.gender = Gender.fromChar(user.getGender()).name();
+        this.gender = Gender.fromChar(user.getGender()).name().toLowerCase();
         this.birthdate = user.getBirthdate();
         this.contact = new ContactDefaultResDto(user.getContact());
         this.createdAt = user.getCreatedAt();

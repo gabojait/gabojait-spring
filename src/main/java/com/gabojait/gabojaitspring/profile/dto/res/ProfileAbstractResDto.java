@@ -42,7 +42,7 @@ public class ProfileAbstractResDto {
     public ProfileAbstractResDto(User user) {
         this.userId = user.getId();
         this.nickname = user.getNickname();
-        this.position = Position.fromChar(user.getPosition()).name();
+        this.position = Position.fromChar(user.getPosition()).name().toLowerCase();
         this.reviewCnt = user.getReviewCnt();
         this.rating = user.getRating();
         this.createdAt = user.getCreatedAt();

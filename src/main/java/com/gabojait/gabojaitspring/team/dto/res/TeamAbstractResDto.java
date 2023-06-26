@@ -46,7 +46,7 @@ public class TeamAbstractResDto {
             this.teamMemberRecruitCnts.add(
                     new TeamMemberRecruitCntResDto(
                         team.getDesignerTotalRecruitCnt(),
-                        Position.DESIGNER.name()
+                        Position.DESIGNER.name().toLowerCase()
                         )
             );
 
@@ -54,7 +54,7 @@ public class TeamAbstractResDto {
             this.teamMemberRecruitCnts.add(
                     new TeamMemberRecruitCntResDto(
                             team.getBackendTotalRecruitCnt(),
-                            Position.BACKEND.name()
+                            Position.BACKEND.name().toLowerCase()
                     )
             );
 
@@ -62,7 +62,7 @@ public class TeamAbstractResDto {
             this.teamMemberRecruitCnts.add(
                     new TeamMemberRecruitCntResDto(
                             team.getFrontendTotalRecruitCnt(),
-                            Position.FRONTEND.name()
+                            Position.FRONTEND.name().toLowerCase()
                     )
             );
 
@@ -70,7 +70,7 @@ public class TeamAbstractResDto {
             this.teamMemberRecruitCnts.add(
                     new TeamMemberRecruitCntResDto(
                             team.getManagerTotalRecruitCnt(),
-                            Position.MANAGER.name()
+                            Position.MANAGER.name().toLowerCase()
                     )
             );
 

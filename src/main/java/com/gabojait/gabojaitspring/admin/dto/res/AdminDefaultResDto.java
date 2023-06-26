@@ -29,7 +29,7 @@ public class AdminDefaultResDto extends AdminAbstractResDto {
         super(admin);
 
         this.legalName = admin.getNickname();
-        this.gender = Gender.fromChar(admin.getGender()).name();
+        this.gender = Gender.fromChar(admin.getGender()).name().toLowerCase();
         this.birthdate = admin.getBirthdate();
     }
 }

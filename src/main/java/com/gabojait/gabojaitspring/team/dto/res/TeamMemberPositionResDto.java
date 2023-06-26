@@ -32,8 +32,8 @@ public class TeamMemberPositionResDto {
 
         this.userId = user.getId();
         this.nickname = user.getNickname();
-        this.position = Position.fromChar(teamMember.getPosition()).name();
-        this.teamMemberStatus = TeamMemberStatus.fromChar(teamMember.getTeamMemberStatus()).name();
+        this.position = Position.fromChar(teamMember.getPosition()).name().toLowerCase();
+        this.teamMemberStatus = TeamMemberStatus.fromChar(teamMember.getTeamMemberStatus()).name().toLowerCase();
     }
 
 }

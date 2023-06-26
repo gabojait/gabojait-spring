@@ -39,7 +39,7 @@ public class PortfolioDefaultResDto {
         this.portfolioId = portfolio.getId();
         this.portfolioName = portfolio.getPortfolioName();
         this.portfolioUrl = portfolio.getPortfolioUrl();
-        this.media = Media.fromChar(portfolio.getMedia()).name();
+        this.media = Media.fromChar(portfolio.getMedia()).name().toLowerCase();
         this.createdAt = portfolio.getCreatedAt();
         this.updatedAt = portfolio.getUpdatedAt();
     }

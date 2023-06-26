@@ -11,7 +11,6 @@ import com.gabojait.gabojaitspring.review.domain.Review;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.user.domain.type.Gender;
-import com.gabojait.gabojaitspring.user.domain.type.Role;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
