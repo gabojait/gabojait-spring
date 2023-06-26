@@ -15,10 +15,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class GeneralProvider {
 
-    @Bean
-    private PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 랜덤 코드 생성
@@ -52,13 +49,13 @@ public class GeneralProvider {
      * 비밀번호 암호화
      */
     public String encodePassword(String password) {
-        return passwordEncoder().encode(password);
+        return passwordEncoder.encode(password);
     }
 
     /**
      * 비밀번호 검증
      */
     public boolean verifyPassword(User user, String password) {
-        return passwordEncoder().matches(password, user.getPassword());
+        return passwordEncoder.matches(password, user.getPassword());
     }
 }
