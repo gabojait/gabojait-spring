@@ -262,7 +262,7 @@ public class DevelopService {
     private void injectTeam(List<User> users) {
         for(int i = 0; i < 50; i++) {
             Team team = Team.builder()
-                    .projectName("가보자잇팀" + i)
+                    .projectName("가보자잇팀" + (i + 1))
                     .projectDescription("가보자잇 프로젝트 설명입니다.")
                     .designerTotalRecruitCnt((byte) 2)
                     .backendTotalRecruitCnt((byte) 2)
