@@ -61,10 +61,11 @@ public class MasterService implements ApplicationRunner {
     @Scheduled(cron = "0 0 0 * * *")
     public void resetMasterPasswordScheduler() {
         String password = generalProvider.generateRandomCode(10);
+        String encodedPassword = generalProvider.encodePassword(password);
 
         Optional<User> master = findOneMaster();
         if (master.isPresent()) {
-            master.get().updatePassword(password, false);
+            master.get().updatePassword(encodedPassword, false);
         } else {
             injectMaster();
         }
