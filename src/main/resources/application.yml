@@ -53,7 +53,7 @@ springfox:
       base-url: ${SWAGGER_BASE_URL}
 
 api:
-  name: ${PROFILES_ACTIVE}
+  name: ${API_NAME}
   master:
     id: ${MASTER_ID}
 

@@ -34,6 +34,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
         env:
+          API_NAME: ${{ secrets.API_NAME }}
           DB_DDL_TYPE: ${{ secrets.DB_DDL_TYPE }}
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_NAME: ${{ secrets.DB_NAME }}
