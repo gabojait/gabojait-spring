@@ -47,7 +47,7 @@ jobs:
           FIREBASE_PRIVATE_KEY_ID: ${{ secrets.FIREBASE_PRIVATE_KEY_ID }}
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           JWT_DOMAIN: ${{ secrets.JWT_DOMAIN }}
-          JWT_SECRETS: ${{ secrets.JWT_SECRETS }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
           LOG_FILE_PATH: ${{ secrets.LOG_FILE_PATH }}
           MAIL_HOST: ${{ secrets.MAIL_HOST }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
