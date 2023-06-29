@@ -9,6 +9,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql
+        env:
+          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - uses: actions/checkout@v3
@@ -25,7 +34,6 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
         env:
-          API_NAME: ${{ secrets.API_NAME }}
           DB_DDL_TYPE: ${{ secrets.DB_DDL_TYPE }}
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_NAME: ${{ secrets.DB_NAME }}
@@ -39,7 +47,7 @@ jobs:
           FIREBASE_PRIVATE_KEY_ID: ${{ secrets.FIREBASE_PRIVATE_KEY_ID }}
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           JWT_DOMAIN: ${{ secrets.JWT_DOMAIN }}
-          JWT_SECRETS: ${{ secrets.JWT_SECRETS }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
           LOG_FILE_PATH: ${{ secrets.LOG_FILE_PATH }}
           MAIL_HOST: ${{ secrets.MAIL_HOST }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
@@ -48,13 +56,14 @@ jobs:
           MASTER_ID: ${{ secrets.MASTER_ID }}
           MAX_FILE_SIZE: ${{ secrets.MAX_FILE_SIZE }}
           MAX_REQUEST_SIZE: ${{ secrets.MAX_REQUEST_SIZE }}
+          PROFILES_ACTIVE: ${{ secrets.PROFILES_ACTIVE }}
           S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
-          S3_PORTFOLIO_FILE_BUCKET: ${{ secrets.S3_PORTFOLIO_FILE_RELEASE_BUCKET }}
-          S3_PROFILE_IMG_BUCKET: ${{ secrets.S3_PROFILE_IMG_RELEASE_BUCKET }}
+          S3_PORTFOLIO_FILE_BUCKET: ${{ secrets.S3_PORTFOLIO_FILE_BUCKET }}
+          S3_PROFILE_IMG_BUCKET: ${{ secrets.S3_PROFILE_IMG_BUCKET }}
           S3_REGION: ${{ secrets.S3_REGION }}
           S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
-          SWAGGER_ENABLED: ${{ secrets.SWAGGER_ENABLED }}
           SWAGGER_BASE_URL: ${{ secrets.SWAGGER_BASE_URL }}
+          SWAGGER_ENABLED: ${{ secrets.SWAGGER_ENABLED }}
 
       - name: Build and push Docker image
         uses: mr-smithers-excellent/docker-build-push@v5
