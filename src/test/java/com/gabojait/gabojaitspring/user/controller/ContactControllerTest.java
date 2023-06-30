@@ -28,8 +28,8 @@ class ContactControllerTest extends ControllerTestSetup {
     private JwtProvider jwtProvider;
 
     @Test
-    @DisplayName("인증코드 전송_201VERIFICATION_CODE_SENT")
-    void sendVerificationCode_return201VerificationCodeSent() throws Exception {
+    @DisplayName("인증코드 전송_올바른 요청시_201반환")
+    void sendVerificationCode_givenValidReq_return201() throws Exception {
         ContactSaveReqDto requestDto = new ContactSaveReqDto();
         requestDto.setEmail("tester@gabojait.com");
         String request = mapToJson(requestDto);
@@ -47,8 +47,8 @@ class ContactControllerTest extends ControllerTestSetup {
     }
 
     @Test
-    @DisplayName("인증코드 전송_400EMAIL_FIELD_REQUIRED")
-    void sendVerificationCode_return400EmailFieldRequired() throws Exception {
+    @DisplayName("인증코드 전송_이메일 미입력시_400반환")
+    void sendVerificationCode_givenEmailFieldRequired_return400() throws Exception {
         ContactSaveReqDto requestDto = new ContactSaveReqDto();
         String request = mapToJson(requestDto);
 
@@ -65,8 +65,8 @@ class ContactControllerTest extends ControllerTestSetup {
     }
 
     @Test
-    @DisplayName("인증코드 전송_400EMAIL_FORMAT_INVALID")
-    void sendVerificationCode_return400EmailFormatInvalid() throws Exception {
+    @DisplayName("인증코드 전송_잘못된 이메일 포맷시_400반환")
+    void sendVerificationCode_givenEmailFormatInvalid_return400() throws Exception {
         ContactSaveReqDto requestDto = new ContactSaveReqDto();
         requestDto.setEmail("testgabojait.com");
         String request = mapToJson(requestDto);
@@ -85,8 +85,8 @@ class ContactControllerTest extends ControllerTestSetup {
 
     @Test
     @WithMockUser(roles = "GUEST")
-    @DisplayName("인증코드 확인_200EMAIL_VERIFIED")
-    void verifyCode_return200EmailVerified() throws Exception {
+    @DisplayName("인증코드 확인_올바른 요청시_200반환")
+    void verifyCode_givenValidReq_return200() throws Exception {
         ContactVerifyReqDto requestDto = new ContactVerifyReqDto();
         requestDto.setEmail("tester@gabojait.com");
         requestDto.setVerificationCode("000000");
@@ -106,8 +106,8 @@ class ContactControllerTest extends ControllerTestSetup {
 
     @Test
     @WithMockUser(roles = "GUEST")
-    @DisplayName("인증코드 확인_400EMAIL_FIELD_REQUIRED")
-    void verifyCode_return400EmailFieldRequired() throws Exception {
+    @DisplayName("인증코드 확인_이메일 미입력시_400반환")
+    void verifyCode_givenEmailFieldRequired_return400() throws Exception {
         ContactVerifyReqDto requestDto = new ContactVerifyReqDto();
         requestDto.setVerificationCode("000000");
         String request = mapToJson(requestDto);
@@ -126,8 +126,8 @@ class ContactControllerTest extends ControllerTestSetup {
 
     @Test
     @WithMockUser(roles = "GUEST")
-    @DisplayName("인증코드 확인_400VERIFICATION_FIELD_REQUIRED")
-    void verifyCode_return400VerificationCodeFieldRequired() throws Exception {
+    @DisplayName("인증코드 확인_인증코드 미입력시_400반환")
+    void verifyCode_givenVerificationCodeFieldRequired_return400() throws Exception {
         ContactVerifyReqDto requestDto = new ContactVerifyReqDto();
         requestDto.setEmail("tester@gabojait.com");
         String request = mapToJson(requestDto);
@@ -146,8 +146,8 @@ class ContactControllerTest extends ControllerTestSetup {
 
     @Test
     @WithMockUser(roles = "GUEST")
-    @DisplayName("인증코드 확인_400EMAIL_FORMAT_INVALID")
-    void verifyCode_return400EmailFormatInvalid() throws Exception {
+    @DisplayName("인증코드 확인_잘못된 이메일 포맷시_400반환")
+    void verifyCode_givenEmailFormatInvalid_return400() throws Exception {
         ContactVerifyReqDto requestDto = new ContactVerifyReqDto();
         requestDto.setEmail("testergabojait.com");
         requestDto.setVerificationCode("000000");
