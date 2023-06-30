@@ -11,6 +11,7 @@ import com.gabojait.gabojaitspring.review.domain.Review;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.user.domain.type.Gender;
+import com.gabojait.gabojaitspring.user.domain.type.Role;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -161,6 +162,20 @@ public class User extends BaseTimeEntity implements UserDetails {
 
         this.lastRequestAt = LocalDateTime.now();
         this.isDeleted = null;
+    }
+
+    @Builder(builderMethodName = "testOnlyBuilder", builderClassName = "testOnlyBuilder")
+    public User (Long id) {
+        this.id = id;
+        this.gender = Gender.NONE.getType();
+        this.contact = Contact.builder()
+                .email("tester@gabojait.com")
+                .verificationCode("000000")
+                .build();
+        this.userRoles.add(UserRole.builder()
+                .user(this)
+                .role(Role.USER)
+                .build());
     }
 
     public void updatePassword(String password, boolean isTemporaryPassword) {
