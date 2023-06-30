@@ -251,7 +251,7 @@ public class UserController {
     @ApiOperation(value = "단건 조회",
             notes = "<응답 코드>\n" +
                     "- 200 = USER_FOUND\n" +
-                    "- 400 = ID_CONVERT_INVALID\n" +
+                    "- 400 = USER_ID_FIELD_REQUIRED || USER_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = USER_NOT_FOUND\n" +
@@ -502,7 +502,7 @@ public class UserController {
                         .build());
     }
 
-    @ApiOperation(value = "탈퇴",
+    @ApiOperation(value = "회원 탈퇴",
             notes = "<응답 코드>\n" +
                     "- 200 = USER_DELETED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
