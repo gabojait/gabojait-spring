@@ -669,7 +669,7 @@ class UserControllerTest extends ControllerTestSetup {
     }
 
     @Test
-    @DisplayName("단건 조회_회원 식별자 양수아닐시_400반환")
+    @DisplayName("단건 조회_회원 식별자가 양수아닐시_400반환")
     void findOther_givenUserIdPositiveOnly_return400() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/{user-id}", -1))
                 .andReturn();
