@@ -99,9 +99,10 @@ public class UserController {
     @GetMapping("/nickname")
     public ResponseEntity<DefaultResDto<Object>> duplicateNickname(
             @RequestParam(value = "nickname")
-            @NotBlank(message = "닉네임은 필수 입력입니다.")
-            @Size(min = 2, max = 8, message = "닉네임은 2~8자만 가능합니다.")
-            @Pattern(regexp = "^[가-힣]+$", message = "닉닉네임은 한글 조합으로 입력해 주세요.")
+            @NotBlank(message = "닉네임은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Size(min = 2, max = 8, message = "닉네임은 2~8자만 가능합니다.", groups = ValidationSequence.Size.class)
+            @Pattern(regexp = "^[가-힣]+$", message = "닉닉네임은 한글 조합으로 입력해 주세요.",
+                    groups = ValidationSequence.Format.class)
             String nickname
     ) {
         userService.validateNickname(nickname);
@@ -113,7 +114,7 @@ public class UserController {
                         .build());
     }
 
-    @ApiOperation(value = "가입",
+    @ApiOperation(value = "회원 가입",
             notes = "<응답 코드>\n" +
                     "- 201 = USER_REGISTERED\n" +
                     "- 400 = USERNAME_FIELD_REQUIRED || PASSWORD_FIELD_REQUIRED || PASSWORD_RE_ENTERED_FIELD_REQUIRED" +
@@ -227,7 +228,11 @@ public class UserController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = UserDefaultResDto.class)))
+                    content = @Content(schema = @Schema(implementation = UserDefaultResDto.class))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping
     public ResponseEntity<DefaultResDto<Object>> findMyself(HttpServletRequest servletRequest) {
@@ -263,11 +268,13 @@ public class UserController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/{user-id}")
-    public ResponseEntity<DefaultResDto<Object>> findOther(HttpServletRequest servletRequest,
-                                                           @PathVariable(value = "user-id")
-                                                           @NotNull(message = "회원 식별자는 필수 입력입니다.")
-                                                           @Positive(message = "회원 식별자는 양수만 가능합니다.")
-                                                           Long userId) {
+    public ResponseEntity<DefaultResDto<Object>> findOther(
+            HttpServletRequest servletRequest,
+            @PathVariable(value = "user-id")
+            @NotNull(message = "회원 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            Long userId
+    ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         User otherUser = favoriteUserService.findOneOtherUser(user, userId);
