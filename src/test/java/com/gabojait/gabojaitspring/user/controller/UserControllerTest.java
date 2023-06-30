@@ -1,14 +1,11 @@
 package com.gabojait.gabojaitspring.user.controller;
 
-import com.gabojait.gabojaitspring.auth.CustomAuthenticationFilter;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.ControllerTestSetup;
 import com.gabojait.gabojaitspring.favorite.service.FavoriteUserService;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.dto.req.*;
 import com.gabojait.gabojaitspring.user.service.UserService;
-import org.aspectj.lang.annotation.Before;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +20,6 @@ import java.time.LocalDate;
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
