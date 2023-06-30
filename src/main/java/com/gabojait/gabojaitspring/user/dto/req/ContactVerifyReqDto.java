@@ -4,12 +4,15 @@ import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
-@Data
+@Getter
+@Setter
 @GroupSequence({ContactVerifyReqDto.class, ValidationSequence.Blank.class, ValidationSequence.Format.class})
 @ApiModel(value = "연락처 인증코드 확인 요청")
 public class ContactVerifyReqDto {
