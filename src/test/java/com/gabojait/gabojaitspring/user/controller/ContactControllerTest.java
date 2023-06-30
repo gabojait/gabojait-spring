@@ -7,10 +7,10 @@ import com.gabojait.gabojaitspring.user.dto.req.ContactVerifyReqDto;
 import com.gabojait.gabojaitspring.user.service.ContactService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 @WebMvcTest(ContactController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class ContactControllerTest extends ControllerTestSetup {
 
     @MockBean
@@ -84,7 +85,6 @@ class ContactControllerTest extends ControllerTestSetup {
     }
 
     @Test
-    @WithMockUser(roles = "GUEST")
     @DisplayName("인증코드 확인_올바른 요청시_200반환")
     void verifyCode_givenValidReq_return200() throws Exception {
         ContactVerifyReqDto requestDto = new ContactVerifyReqDto();
@@ -105,7 +105,6 @@ class ContactControllerTest extends ControllerTestSetup {
     }
 
     @Test
-    @WithMockUser(roles = "GUEST")
     @DisplayName("인증코드 확인_이메일 미입력시_400반환")
     void verifyCode_givenEmailFieldRequired_return400() throws Exception {
         ContactVerifyReqDto requestDto = new ContactVerifyReqDto();
@@ -125,7 +124,6 @@ class ContactControllerTest extends ControllerTestSetup {
     }
 
     @Test
-    @WithMockUser(roles = "GUEST")
     @DisplayName("인증코드 확인_인증코드 미입력시_400반환")
     void verifyCode_givenVerificationCodeFieldRequired_return400() throws Exception {
         ContactVerifyReqDto requestDto = new ContactVerifyReqDto();
@@ -145,7 +143,6 @@ class ContactControllerTest extends ControllerTestSetup {
     }
 
     @Test
-    @WithMockUser(roles = "GUEST")
     @DisplayName("인증코드 확인_잘못된 이메일 포맷시_400반환")
     void verifyCode_givenEmailFormatInvalid_return400() throws Exception {
         ContactVerifyReqDto requestDto = new ContactVerifyReqDto();
