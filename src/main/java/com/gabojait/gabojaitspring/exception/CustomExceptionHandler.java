@@ -69,7 +69,10 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
             int propertyPathSize = constraintViolation.getPropertyPath().toString().split("\\.").length;
 
             responseCode = constraintViolation.getPropertyPath()
-                    .toString().split("\\.")[propertyPathSize - 1]
+                    .toString().split("\\.")[propertyPathSize - 1];
+
+            responseCode = responseCode.replaceAll("[^\\p{Alnum}]+", "_")
+                    .replaceAll("(\\p{Lower})(\\p{Upper})", "$1_$2")
                     .toUpperCase();
 
             responseCode = formatIfInnerDto(responseCode);
