@@ -657,19 +657,19 @@ class UserControllerTest extends ControllerTestSetup {
     @Test
     @DisplayName("단건 조회_회원 식별자 미입력시_400반환")
     void findOther_givenUserIdFieldRequired_return400() throws Exception {
+        // TODO 식별자 미입력
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/{user-id}", ""))
                 .andReturn();
 
         int status = mvcResult.getResponse().getStatus();
         String response = mvcResult.getResponse().getContentAsString();
 
-        // TODO
 //        assertThat(status).isEqualTo(USER_ID_FIELD_REQUIRED.getHttpStatus().value());
 //        assertThat(response).contains(USER_ID_FIELD_REQUIRED.name());
     }
 
     @Test
-    @DisplayName("단건 조회_양수 아닌 회원 식별자시_400반환")
+    @DisplayName("단건 조회_회원 식별자 양수아닐시_400반환")
     void findOther_givenUserIdPositiveOnly_return400() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/{user-id}", -1))
                 .andReturn();
