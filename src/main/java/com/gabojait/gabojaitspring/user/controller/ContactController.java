@@ -65,7 +65,7 @@ public class ContactController {
     @ApiOperation(value = "인증코드 확인",
             notes = "<응답 코드>\n" +
                     "- 200 = EMAIL_VERIFIED\n" +
-                    "- 400 = EMAIL_FIELD_REQUIRED || VERIFICATION_FIELD_REQUIRED || EMAIL_FORMAT_INVALID || " +
+                    "- 400 = EMAIL_FIELD_REQUIRED || VERIFICATION_CODE_FIELD_REQUIRED || EMAIL_FORMAT_INVALID || " +
                     "VERIFICATION_CODE_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 404 = EMAIL_NOT_FOUND\n" +
