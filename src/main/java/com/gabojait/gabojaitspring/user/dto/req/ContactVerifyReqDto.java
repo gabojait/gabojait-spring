@@ -10,7 +10,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 @Data
-@GroupSequence({ContactVerifyReqDto.class, ValidationSequence.Blank.class})
+@GroupSequence({ContactVerifyReqDto.class, ValidationSequence.Blank.class, ValidationSequence.Format.class})
 @ApiModel(value = "연락처 인증코드 확인 요청")
 public class ContactVerifyReqDto {
 
