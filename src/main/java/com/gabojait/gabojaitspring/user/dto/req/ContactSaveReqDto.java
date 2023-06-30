@@ -5,7 +5,6 @@ import com.gabojait.gabojaitspring.user.domain.Contact;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.GroupSequence;
@@ -14,7 +13,6 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @GroupSequence({ContactSaveReqDto.class, ValidationSequence.Blank.class, ValidationSequence.Format.class})
 @ApiModel(value = "연락처 저장 요청")
 public class ContactSaveReqDto {
