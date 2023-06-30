@@ -19,7 +19,7 @@ public enum ErrorCode {
     USER_ID_FIELD_REQUIRED(BAD_REQUEST, "회원 식별자는 필수 입력입니다."),
     USERNAME_FIELD_REQUIRED(BAD_REQUEST, "아이디는 필수 입력입니다."),
     PASSWORD_FIELD_REQUIRED(BAD_REQUEST, "비밀번호는 필수 입력입니다."),
-    PASSWORD_RE_ENTERED_REQUIRED(BAD_REQUEST, "비밀번호 재입력은 필수 입력입니다."),
+    PASSWORD_RE_ENTERED_FIELD_REQUIRED(BAD_REQUEST, "비밀번호 재입력은 필수 입력입니다."),
     NICKNAME_FIELD_REQUIRED(BAD_REQUEST, "닉네임은 필수 입력입니다."),
     GENDER_FIELD_REQUIRED(BAD_REQUEST, "성별은 필수 입력입니다."),
     IS_SEEKING_TEAM_FIELD_REQUIRED(BAD_REQUEST, "팀 찾기 여부는 필수 입력입니다."),
