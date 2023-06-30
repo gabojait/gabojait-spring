@@ -4,7 +4,7 @@ import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.GroupSequence;
@@ -13,8 +13,8 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Getter
+@Setter
 @ToString
-@NoArgsConstructor
 @GroupSequence({UserUpdatePasswordReqDto.class,
         ValidationSequence.Blank.class,
         ValidationSequence.Size.class,

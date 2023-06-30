@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.Email;
@@ -13,6 +14,7 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
+@ToString
 @GroupSequence({ContactSaveReqDto.class, ValidationSequence.Blank.class, ValidationSequence.Format.class})
 @ApiModel(value = "연락처 저장 요청")
 public class ContactSaveReqDto {

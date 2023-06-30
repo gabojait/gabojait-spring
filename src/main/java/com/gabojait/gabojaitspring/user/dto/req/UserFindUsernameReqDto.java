@@ -4,7 +4,7 @@ import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.GroupSequence;
@@ -12,9 +12,9 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 @Getter
+@Setter
 @ToString
 @ApiModel(value = "회원 아이디 찾기 요청")
-@NoArgsConstructor
 @GroupSequence({UserFindUsernameReqDto.class, ValidationSequence.Blank.class, ValidationSequence.Format.class})
 public class UserFindUsernameReqDto {
 

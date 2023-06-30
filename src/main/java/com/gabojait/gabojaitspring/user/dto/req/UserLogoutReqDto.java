@@ -3,12 +3,12 @@ package com.gabojait.gabojaitspring.user.dto.req;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Getter
+@Setter
 @ToString
-@NoArgsConstructor
 @ApiModel(value = "회원 로그아웃 요청")
 public class UserLogoutReqDto {
 
