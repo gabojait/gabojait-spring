@@ -168,6 +168,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     public User (Long id) {
         this.id = id;
         this.gender = Gender.NONE.getType();
+        this.position = Position.NONE.getType();
         this.contact = Contact.builder()
                 .email("tester@gabojait.com")
                 .verificationCode("000000")
