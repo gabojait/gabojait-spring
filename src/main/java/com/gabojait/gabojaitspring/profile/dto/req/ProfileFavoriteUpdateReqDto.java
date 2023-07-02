@@ -4,15 +4,15 @@ import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotNull;
 
 @Getter
+@Setter
 @ToString
-@NoArgsConstructor
 @GroupSequence({ProfileFavoriteUpdateReqDto.class, ValidationSequence.Blank.class})
 @ApiModel(value = "회원의 팀 찜 업데이트 요청")
 public class ProfileFavoriteUpdateReqDto {

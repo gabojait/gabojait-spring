@@ -7,7 +7,7 @@ import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.GroupSequence;
@@ -17,8 +17,8 @@ import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 @Getter
+@Setter
 @ToString
-@NoArgsConstructor
 @GroupSequence({WorkCreateReqDto.class,
         ValidationSequence.Blank.class,
         ValidationSequence.Size.class,
@@ -27,7 +27,7 @@ import java.time.LocalDate;
 public class WorkCreateReqDto {
 
     @ApiModelProperty(position = 1, required = true, value = "기관명", example = "가보자잇사")
-    @NotBlank(message = "기관명을 입력해 주세요.", groups = ValidationSequence.Blank.class)
+    @NotBlank(message = "기관명은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
     @Size(min = 1, max = 20, message = "기관명은 1~20자만 가능합니다.", groups = ValidationSequence.Size.class)
     private String corporationName;
 
@@ -36,7 +36,7 @@ public class WorkCreateReqDto {
     private String workDescription;
 
     @ApiModelProperty(position = 3, required = true, value = "시작일", notes = "string", example = "2000-01-01")
-    @NotNull(message = "시작일을 입력해 주세요.", groups = ValidationSequence.Blank.class)
+    @NotNull(message = "시작일은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate startedAt;
 
@@ -46,7 +46,7 @@ public class WorkCreateReqDto {
 
     @ApiModelProperty(position = 5, required = true, value = "현재 여부", example = "true",
             allowableValues = "true, false")
-    @NotNull(message = "현재 여부를 입력해 주세요.", groups = ValidationSequence.Blank.class)
+    @NotNull(message = "현재 여부은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
     private Boolean isCurrent;
 
     public Work toEntity(User user) {

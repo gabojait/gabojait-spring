@@ -4,15 +4,15 @@ import com.gabojait.gabojaitspring.common.util.validator.ValidIfPresent;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.Valid;
 import java.util.List;
 
 @Getter
+@Setter
 @ToString
-@NoArgsConstructor
 @ValidIfPresent
 @ApiModel(value = "학력과 경력 기본 요청")
 public class EducationAndWorkDefaultReqDto {
