@@ -2,6 +2,7 @@ package com.gabojait.gabojaitspring.profile.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.favorite.service.FavoriteUserService;
 import com.gabojait.gabojaitspring.profile.dto.req.*;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileAbstractResDto;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.GroupSequence;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.util.ArrayList;
@@ -38,6 +40,10 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "프로필")
 @Validated
+@GroupSequence({ProfileController.class,
+        ValidationSequence.Blank.class,
+        ValidationSequence.Size.class,
+        ValidationSequence.Format.class})
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
@@ -62,7 +68,6 @@ public class ProfileController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "404", description = "NOT FOUND"),
@@ -105,11 +110,13 @@ public class ProfileController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/{user-id}/profile")
-    public ResponseEntity<DefaultResDto<Object>> findOther(HttpServletRequest servletRequest,
-                                                           @PathVariable(value = "user-id")
-                                                           @NotNull(message = "회원 식별자는 필수 입력입니다.")
-                                                           @Positive(message = "회원 식별자는 양수만 가능합니다.")
-                                                           Long userId) {
+    public ResponseEntity<DefaultResDto<Object>> findOther(
+            HttpServletRequest servletRequest,
+            @PathVariable(value = "user-id", required = false)
+            @NotNull(message = "회원 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            Long userId
+    ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         ProfileDetailResDto response = favoriteUserService.findOneOtherProfile(user, userId);
@@ -147,7 +154,7 @@ public class ProfileController {
     })
     @PostMapping(value = "/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DefaultResDto<Object>> uploadProfileImage(HttpServletRequest servletRequest,
-                                                                    @RequestPart(value = "image")
+                                                                    @RequestPart(value = "image", required = false)
                                                                     MultipartFile image) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
@@ -197,7 +204,7 @@ public class ProfileController {
     @ApiOperation(value = "팀 찾기 여부 수정",
             notes = "<응답 코드>\n" +
                     "- 200 = PROFILE_SEEKING_TEAM_UPDATED\n" +
-                    "- 400 = IS_PUBLIC_FIELD_REQUIRED\n" +
+                    "- 400 = IS_SEEKING_TEAM_FIELD_REQUIRED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 500 = SERVER_ERROR\n" +
@@ -300,8 +307,8 @@ public class ProfileController {
                     "- 400 = EDUCATION_ID_FIELD_REQUIRED || INSTITUTION_NAME_FIELD_REQUIRED || " +
                     "STARTED_AT_FIELD_REQUIRED || ENDED_AT_FIELD_REQUIRED || IS_CURRENT_FIELD_REQUIRED || " +
                     "WORK_ID_FIELD_REQUIRED || CORPORATION_NAME_FIELD_REQUIRED || INSTITUTION_NAME_LENGTH_INVALID " +
-                    "CORPORATION_NAME_LENGTH_INVALID || WORK_DESCRIPTION_LENGTH_INVALID || EDUCATION_ID_POSITIVE_ONLY || " +
-                    "WORK_ID_POSITIVE_ONLY\n" +
+                    "CORPORATION_NAME_LENGTH_INVALID || WORK_DESCRIPTION_LENGTH_INVALID || " +
+                    "EDUCATION_ID_POSITIVE_ONLY || WORK_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = EDUCATION_NOT_FOUND || WORK_NOT_FOUND\n" +
@@ -456,22 +463,24 @@ public class ProfileController {
     @GetMapping("/seeking-team")
     public ResponseEntity<DefaultResDto<Object>> findUsersLookingForTeam(
             HttpServletRequest servletRequest,
-            @RequestParam(value = "position")
-            @NotBlank(message = "포지션은 필수 입력입니다.")
+            @RequestParam(value = "position", required = false)
+            @NotBlank(message = "포지션은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @Pattern(regexp = "^(designer|backend|frontend|manager|none)",
-                    message = "포지션은 'designer', 'backend', 'frontend', 'manager', 또는 'none' 중 하나여야 됩니다.")
+                    message = "포지션은 'designer', 'backend', 'frontend', 'manager', 또는 'none' 중 하나여야 됩니다.",
+                    groups = ValidationSequence.Format.class)
             String position,
-            @RequestParam(value = "profile-order")
-            @NotBlank(message = "프로필 정렬 기준은 필수 입력입니다.")
+            @RequestParam(value = "profile-order", required = false)
+            @NotBlank(message = "프로필 정렬 기준은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @Pattern(regexp = "^(active|popularity|rating)",
-                    message = "정렬 기준은 'active', 'popularity', 'rating' 중 하나여야 됩니다.")
+                    message = "정렬 기준은 'active', 'popularity', 'rating' 중 하나여야 됩니다.",
+                    groups = ValidationSequence.Format.class)
             String profileOrder,
-            @RequestParam(value = "page-from")
-            @NotNull(message = "페이지 시작점은 필수 입력입니다.")
-            @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.")
+            @RequestParam(value = "page-from", required = false)
+            @NotNull(message = "페이지 시작점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageFrom,
             @RequestParam(value = "page-size", required = false)
-            @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
         jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
