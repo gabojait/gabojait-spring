@@ -78,7 +78,7 @@ public class SwaggerConfig {
                 .additionalModels(typeResolver.resolve(TeamDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(TeamDetailResDto.class))
                 .additionalModels(typeResolver.resolve(TeamMemberPositionResDto.class))
-                .additionalModels(typeResolver.resolve(TeamMemberRecruitCntResDto.class))
+                .additionalModels(typeResolver.resolve(TeamMemberCntResDto.class))
                 .additionalModels(typeResolver.resolve(OfferDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(ReviewDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(AdminAbstractResDto.class))

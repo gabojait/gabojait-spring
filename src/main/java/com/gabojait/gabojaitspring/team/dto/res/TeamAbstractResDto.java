@@ -10,8 +10,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Getter
 @ToString
@@ -24,11 +23,11 @@ public class TeamAbstractResDto {
     @ApiModelProperty(position = 2, required = true, value = "프로젝트 이름")
     private String projectName;
 
-    @ApiModelProperty(position = 3, required = true, value = "총 모집 팀원 수")
-    private List<TeamMemberRecruitCntResDto> teamMemberRecruitCnts = new ArrayList<>();
-
-    @ApiModelProperty(position = 4, required = true, value = "현재 팀원")
+    @ApiModelProperty(position = 3, required = true, value = "현재 팀원")
     private List<TeamMemberPositionResDto> teamMembers = new ArrayList<>();
+
+    @ApiModelProperty(position = 4, required = true, value = "포지션별 팀원 수")
+    private List<TeamMemberCntResDto> teamMemberCnts = new ArrayList<>();
 
     @ApiModelProperty(position = 5, required = true, value = "생성일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
@@ -42,40 +41,65 @@ public class TeamAbstractResDto {
         this.teamId = team.getId();
         this.projectName = team.getProjectName();
 
+        byte designerCnt = 0;
+        byte backendCnt = 0;
+        byte frontendCnt = 0;
+        byte managerCnt = 0;
+
+        for(TeamMember teamMember : team.getTeamMembers()) {
+            this.teamMembers.add(new TeamMemberPositionResDto(teamMember));
+
+            switch (teamMember.getPosition()) {
+                case 'D':
+                    designerCnt++;
+                    break;
+                case 'B':
+                    backendCnt++;
+                    break;
+                case 'F':
+                    frontendCnt++;
+                    break;
+                case 'M':
+                    managerCnt++;
+                    break;
+            }
+        }
+
         if (team.getDesignerTotalRecruitCnt() != 0)
-            this.teamMemberRecruitCnts.add(
-                    new TeamMemberRecruitCntResDto(
-                        team.getDesignerTotalRecruitCnt(),
-                        Position.DESIGNER.name().toLowerCase()
-                        )
+            this.teamMemberCnts.add(
+                    new TeamMemberCntResDto(
+                            Position.DESIGNER.name().toLowerCase(),
+                            team.getDesignerTotalRecruitCnt(),
+                            designerCnt
+                    )
             );
 
         if (team.getBackendTotalRecruitCnt() != 0)
-            this.teamMemberRecruitCnts.add(
-                    new TeamMemberRecruitCntResDto(
+            this.teamMemberCnts.add(
+                    new TeamMemberCntResDto(
+                            Position.BACKEND.name().toLowerCase(),
                             team.getBackendTotalRecruitCnt(),
-                            Position.BACKEND.name().toLowerCase()
+                            backendCnt
                     )
             );
 
         if (team.getFrontendTotalRecruitCnt() != 0)
-            this.teamMemberRecruitCnts.add(
-                    new TeamMemberRecruitCntResDto(
+            this.teamMemberCnts.add(
+                    new TeamMemberCntResDto(
+                            Position.FRONTEND.name().toLowerCase(),
                             team.getFrontendTotalRecruitCnt(),
-                            Position.FRONTEND.name().toLowerCase()
+                            frontendCnt
                     )
             );
 
         if (team.getManagerTotalRecruitCnt() != 0)
-            this.teamMemberRecruitCnts.add(
-                    new TeamMemberRecruitCntResDto(
+            this.teamMemberCnts.add(
+                    new TeamMemberCntResDto(
+                            Position.MANAGER.name().toLowerCase(),
                             team.getManagerTotalRecruitCnt(),
-                            Position.MANAGER.name().toLowerCase()
+                            managerCnt
                     )
             );
-
-        for(TeamMember teamMember : team.getTeamMembers())
-            this.teamMembers.add(new TeamMemberPositionResDto(teamMember));
 
         this.createdAt = team.getCreatedAt();
         this.updatedAt = team.getUpdatedAt();
