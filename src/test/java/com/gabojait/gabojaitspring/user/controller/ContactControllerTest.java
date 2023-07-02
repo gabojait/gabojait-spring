@@ -28,18 +28,33 @@ class ContactControllerTest extends ControllerTestSetup {
     @MockBean
     private JwtProvider jwtProvider;
 
-    @Test
-    @DisplayName("인증코드 전송_올바른 요청시_201반환")
-    void sendVerificationCode_givenValidReq_return201() throws Exception {
-        ContactSaveReqDto requestDto = new ContactSaveReqDto();
-        requestDto.setEmail("tester@gabojait.com");
-        String request = mapToJson(requestDto);
+    private ContactSaveReqDto getValidContactSaveReqDto() {
+        ContactSaveReqDto reqDto = new ContactSaveReqDto();
+        reqDto.setEmail("tester@gabojait.com");
+        return reqDto;
+    }
 
+    private ContactVerifyReqDto getValidContactVerifyReqDto() {
+        ContactVerifyReqDto reqDto = new ContactVerifyReqDto();
+        reqDto.setEmail("tester@gabojait.com");
+        reqDto.setVerificationCode("000000");
+        return reqDto;
+    }
+
+    @Test
+    @DisplayName("인증코드 전송 | 올바른 요청시 | 201응답")
+    void sendVerificationCode_givenValidReq_return201() throws Exception {
+        // given
+        ContactSaveReqDto reqDto = getValidContactSaveReqDto();
+        String request = mapToJson(reqDto);
+
+        // when
         MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/contact")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(request))
                 .andReturn();
 
+        // then
         int status = mvcResult.getResponse().getStatus();
         String response = mvcResult.getResponse().getContentAsString();
 
@@ -48,16 +63,20 @@ class ContactControllerTest extends ControllerTestSetup {
     }
 
     @Test
-    @DisplayName("인증코드 전송_이메일 미입력시_400반환")
+    @DisplayName("인증코드 전송 | 이메일 미입력시 | 400응답")
     void sendVerificationCode_givenEmailFieldRequired_return400() throws Exception {
-        ContactSaveReqDto requestDto = new ContactSaveReqDto();
-        String request = mapToJson(requestDto);
+        // given
+        ContactSaveReqDto reqDto = getValidContactSaveReqDto();
+        reqDto.setEmail("");
+        String request = mapToJson(reqDto);
 
+        // when
         MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/contact")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(request))
                 .andReturn();
 
+        // then
         int status = mvcResult.getResponse().getStatus();
         String response = mvcResult.getResponse().getContentAsString();
 
@@ -66,17 +85,20 @@ class ContactControllerTest extends ControllerTestSetup {
     }
 
     @Test
-    @DisplayName("인증코드 전송_잘못된 이메일 포맷시_400반환")
+    @DisplayName("인증코드 전송 | 잘못된 이메일 포맷시 | 400응답")
     void sendVerificationCode_givenEmailFormatInvalid_return400() throws Exception {
-        ContactSaveReqDto requestDto = new ContactSaveReqDto();
-        requestDto.setEmail("testgabojait.com");
-        String request = mapToJson(requestDto);
+        // given
+        ContactSaveReqDto reqDto = getValidContactSaveReqDto();
+        reqDto.setEmail("testergabojait.com");
+        String request = mapToJson(reqDto);
 
+        // when
         MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/contact")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andReturn();
 
+        // then
         int status = mvcResult.getResponse().getStatus();
         String response = mvcResult.getResponse().getContentAsString();
 
@@ -85,18 +107,19 @@ class ContactControllerTest extends ControllerTestSetup {
     }
 
     @Test
-    @DisplayName("인증코드 확인_올바른 요청시_200반환")
+    @DisplayName("인증코드 확인 | 올바른 요청시 | 200응답")
     void verifyCode_givenValidReq_return200() throws Exception {
-        ContactVerifyReqDto requestDto = new ContactVerifyReqDto();
-        requestDto.setEmail("tester@gabojait.com");
-        requestDto.setVerificationCode("000000");
-        String request = mapToJson(requestDto);
+        // given
+        ContactVerifyReqDto reqDto = getValidContactVerifyReqDto();
+        String request = mapToJson(reqDto);
 
+        // when
         MvcResult mvcResult = this.mockMvc.perform(patch("/api/v1/contact")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andReturn();
 
+        // then
         int status = mvcResult.getResponse().getStatus();
         String response = mvcResult.getResponse().getContentAsString();
 
@@ -105,17 +128,20 @@ class ContactControllerTest extends ControllerTestSetup {
     }
 
     @Test
-    @DisplayName("인증코드 확인_이메일 미입력시_400반환")
+    @DisplayName("인증코드 확인 | 이메일 미입력시 | 400응답")
     void verifyCode_givenEmailFieldRequired_return400() throws Exception {
-        ContactVerifyReqDto requestDto = new ContactVerifyReqDto();
-        requestDto.setVerificationCode("000000");
-        String request = mapToJson(requestDto);
+        // given
+        ContactVerifyReqDto reqDto = getValidContactVerifyReqDto();
+        reqDto.setEmail("");
+        String request = mapToJson(reqDto);
 
+        // when
         MvcResult mvcResult = this.mockMvc.perform(patch("/api/v1/contact")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andReturn();
 
+        // then
         int status = mvcResult.getResponse().getStatus();
         String response = mvcResult.getResponse().getContentAsString();
 
@@ -124,17 +150,20 @@ class ContactControllerTest extends ControllerTestSetup {
     }
 
     @Test
-    @DisplayName("인증코드 확인_인증코드 미입력시_400반환")
+    @DisplayName("인증코드 확인 | 인증코드 미입력시 | 400응답")
     void verifyCode_givenVerificationCodeFieldRequired_return400() throws Exception {
-        ContactVerifyReqDto requestDto = new ContactVerifyReqDto();
-        requestDto.setEmail("tester@gabojait.com");
-        String request = mapToJson(requestDto);
+        // given
+        ContactVerifyReqDto reqDto = getValidContactVerifyReqDto();
+        reqDto.setVerificationCode("");
+        String request = mapToJson(reqDto);
 
+        // when
         MvcResult mvcResult = this.mockMvc.perform(patch("/api/v1/contact")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andReturn();
 
+        // then
         int status = mvcResult.getResponse().getStatus();
         String response = mvcResult.getResponse().getContentAsString();
 
@@ -143,18 +172,20 @@ class ContactControllerTest extends ControllerTestSetup {
     }
 
     @Test
-    @DisplayName("인증코드 확인_잘못된 이메일 포맷시_400반환")
+    @DisplayName("인증코드 확인 | 잘못된 이메일 포맷시 | 400응답")
     void verifyCode_givenEmailFormatInvalid_return400() throws Exception {
-        ContactVerifyReqDto requestDto = new ContactVerifyReqDto();
-        requestDto.setEmail("testergabojait.com");
-        requestDto.setVerificationCode("000000");
-        String request = mapToJson(requestDto);
+        // given
+        ContactVerifyReqDto reqDto = getValidContactVerifyReqDto();
+        reqDto.setEmail("testergabojait.com");
+        String request = mapToJson(reqDto);
 
+        // when
         MvcResult mvcResult = this.mockMvc.perform(patch("/api/v1/contact")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andReturn();
 
+        // then
         int status = mvcResult.getResponse().getStatus();
         String response = mvcResult.getResponse().getContentAsString();
 
