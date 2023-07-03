@@ -360,7 +360,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @PostMapping("/portfolio/link")
+    @PostMapping("/profile/portfolio/link")
     public ResponseEntity<DefaultResDto<Object>> updateLinkPortfolio(HttpServletRequest servletRequest,
                                                                      @RequestBody @Valid
                                                                      PortfolioLinkDefaultReqDto request) {
@@ -399,7 +399,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @PostMapping(value = "/portfolio/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/profile/portfolio/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DefaultResDto<Object>> updateFilePortfolio(
             HttpServletRequest servletRequest,
             @RequestParam(value = "create-portfolio-names", required = false)
