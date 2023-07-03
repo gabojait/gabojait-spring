@@ -152,7 +152,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @PostMapping(value = "/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DefaultResDto<Object>> uploadProfileImage(HttpServletRequest servletRequest,
                                                                     @RequestPart(value = "image", required = false)
                                                                     MultipartFile image) {
@@ -185,7 +185,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @DeleteMapping("/profile/image")
+    @DeleteMapping("/image")
     public ResponseEntity<DefaultResDto<Object>> deleteProfileImage(HttpServletRequest servletRequest) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
@@ -250,7 +250,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @PatchMapping("/profile/description")
+    @PatchMapping("/description")
     public ResponseEntity<DefaultResDto<Object>> updateDescription(HttpServletRequest servletRequest,
                                                                    @RequestBody @Valid
                                                                    ProfileDescriptionUpdateReqDto request) {
@@ -286,7 +286,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @PostMapping("/profile/position-and-skill")
+    @PostMapping("/position-and-skill")
     public ResponseEntity<DefaultResDto<Object>> updatePositionAndSkill(HttpServletRequest servletRequest,
                                                                         @RequestBody @Valid
                                                                         PositionAndSkillDefaultReqDto request) {
@@ -324,7 +324,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @PostMapping("/profile/education-and-work")
+    @PostMapping("/education-and-work")
     public ResponseEntity<DefaultResDto<Object>> updateEducationAndWork(HttpServletRequest servletRequest,
                                                                         @RequestBody @Valid
                                                                         EducationAndWorkDefaultReqDto request) {
@@ -360,7 +360,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @PostMapping("/profile/portfolio/link")
+    @PostMapping("/portfolio/link")
     public ResponseEntity<DefaultResDto<Object>> updateLinkPortfolio(HttpServletRequest servletRequest,
                                                                      @RequestBody @Valid
                                                                      PortfolioLinkDefaultReqDto request) {
@@ -399,7 +399,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @PostMapping(value = "/profile/portfolio/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/portfolio/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DefaultResDto<Object>> updateFilePortfolio(
             HttpServletRequest servletRequest,
             @RequestParam(value = "create-portfolio-names", required = false)
