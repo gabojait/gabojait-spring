@@ -11,7 +11,7 @@ import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.team.domain.type.TeamOrder;
 import com.gabojait.gabojaitspring.team.dto.req.TeamDefaultReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamMemberRecruitCntReqDto;
-import com.gabojait.gabojaitspring.team.dto.res.TeamDetailResDto;
+import com.gabojait.gabojaitspring.team.dto.res.TeamFavoriteResDto;
 import com.gabojait.gabojaitspring.team.repository.TeamMemberRepository;
 import com.gabojait.gabojaitspring.team.repository.TeamRepository;
 import com.gabojait.gabojaitspring.user.domain.User;
@@ -246,7 +246,7 @@ public class TeamService {
      * 404(TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public TeamDetailResDto findOneOtherTeam(Long teamId, User user) {
+    public TeamFavoriteResDto findOneOtherTeam(Long teamId, User user) {
         Team team = findOneTeam(teamId);
 
         boolean isTeamMember = user.isTeamMember(team);
@@ -256,7 +256,7 @@ public class TeamService {
 
         Boolean isFavorite = isFavoriteTeam(user, team);
 
-        return new TeamDetailResDto(team, isFavorite);
+        return new TeamFavoriteResDto(team, isFavorite);
     }
 
     /**

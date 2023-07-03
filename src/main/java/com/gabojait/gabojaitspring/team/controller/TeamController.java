@@ -8,7 +8,7 @@ import com.gabojait.gabojaitspring.team.dto.req.TeamDefaultReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamIsRecruitingUpdateReqDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamAbstractResDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamDefaultResDto;
-import com.gabojait.gabojaitspring.team.dto.res.TeamDetailResDto;
+import com.gabojait.gabojaitspring.team.dto.res.TeamFavoriteResDto;
 import com.gabojait.gabojaitspring.team.service.TeamService;
 import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.Api;
@@ -173,7 +173,7 @@ public class TeamController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = TeamDetailResDto.class))),
+                    content = @Content(schema = @Schema(implementation = TeamFavoriteResDto.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -189,7 +189,7 @@ public class TeamController {
                                                              Long teamId) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        TeamDetailResDto response = teamService.findOneOtherTeam(teamId, user);
+        TeamFavoriteResDto response = teamService.findOneOtherTeam(teamId, user);
 
         return ResponseEntity.status(TEAM_FOUND.getHttpStatus())
                 .body(DefaultResDto.singleDataBuilder()

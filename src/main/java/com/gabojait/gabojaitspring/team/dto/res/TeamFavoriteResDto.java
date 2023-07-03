@@ -8,13 +8,13 @@ import lombok.ToString;
 
 @Getter
 @ToString
-@ApiModel(value = "팀 상세 응답")
-public class TeamDetailResDto extends TeamDefaultResDto {
+@ApiModel(value = "팀 찜 응답")
+public class TeamFavoriteResDto extends TeamDefaultResDto {
 
     @ApiModelProperty(position = 11, required = true, value = "찜 여부")
     private Boolean isFavorite;
 
-    public TeamDetailResDto(Team team, Boolean isFavorite) {
+    public TeamFavoriteResDto(Team team, Boolean isFavorite) {
         super(team);
 
         this.isFavorite = isFavorite;

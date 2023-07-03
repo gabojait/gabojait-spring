@@ -5,9 +5,7 @@ import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.favorite.service.FavoriteUserService;
 import com.gabojait.gabojaitspring.profile.dto.req.*;
-import com.gabojait.gabojaitspring.profile.dto.res.ProfileAbstractResDto;
-import com.gabojait.gabojaitspring.profile.dto.res.ProfileDefaultResDto;
-import com.gabojait.gabojaitspring.profile.dto.res.ProfileDetailResDto;
+import com.gabojait.gabojaitspring.profile.dto.res.*;
 import com.gabojait.gabojaitspring.profile.service.EducationAndWorkService;
 import com.gabojait.gabojaitspring.profile.service.PortfolioService;
 import com.gabojait.gabojaitspring.profile.service.PositionAndSkillService;
@@ -21,7 +19,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -32,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.GroupSequence;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
@@ -101,7 +97,7 @@ public class ProfileController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = ProfileDetailResDto.class))),
+                    content = @Content(schema = @Schema(implementation = ProfileFavoriteResDto.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -119,7 +115,7 @@ public class ProfileController {
     ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        ProfileDetailResDto response = favoriteUserService.findOneOtherProfile(user, userId);
+        ProfileFavoriteResDto response = favoriteUserService.findOneOtherProfile(user, userId);
 
         return ResponseEntity.status(PROFILE_FOUND.getHttpStatus())
                 .body(DefaultResDto.singleDataBuilder()
@@ -343,8 +339,8 @@ public class ProfileController {
             notes = "<응답 코드>\n" +
                     "- 200 = LINK_PORTFOLIO_UPDATED\n" +
                     "- 400 = PORTFOLIO_ID_FIELD_REQUIRED || PORTFOLIO_NAME_FIELD_REQUIRED || " +
-                    "PORTFOLIO_URL_FIELD_REQUIRED || PORTFOLIO_NAME_LENGTH_INVALID || PORTFOLIO_URL_LENGTH_INVALID || " +
-                    "PORTFOLIO_ID_POSITIVE_ONLY\n" +
+                    "PORTFOLIO_URL_FIELD_REQUIRED || PORTFOLIO_NAME_LENGTH_INVALID || " +
+                    "PORTFOLIO_URL_LENGTH_INVALID || PORTFOLIO_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = PORTFOLIO_NOT_FOUND\n" +
@@ -483,20 +479,20 @@ public class ProfileController {
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        Page<User> users = userService.findManyUsersByPositionWithProfileOrder(position, profileOrder, pageFrom, pageSize);
-
-        List<ProfileAbstractResDto> responses = new ArrayList<>();
-        for (User user : users)
-            responses.add(new ProfileAbstractResDto(user));
+        ProfileSeekPageResDto profileSeekPageResDto = userService.findManyUsersByPositionWithProfileOrder(position,
+                profileOrder,
+                pageFrom,
+                pageSize,
+                user);
 
         return ResponseEntity.status(USERS_SEEKING_TEAM_FOUND.getHttpStatus())
                 .body(DefaultResDto.multiDataBuilder()
                         .responseCode(USERS_SEEKING_TEAM_FOUND.name())
                         .responseMessage(USERS_SEEKING_TEAM_FOUND.getMessage())
-                        .data(responses)
-                        .size(users.getTotalPages())
+                        .data(profileSeekPageResDto.getProfileSeekResDtos())
+                        .size(profileSeekPageResDto.getTotalPage())
                         .build());
     }
 

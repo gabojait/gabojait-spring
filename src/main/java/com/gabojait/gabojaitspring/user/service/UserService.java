@@ -6,8 +6,14 @@ import com.gabojait.gabojaitspring.common.util.GeneralProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.fcm.domain.Fcm;
 import com.gabojait.gabojaitspring.fcm.repository.FcmRepository;
+import com.gabojait.gabojaitspring.offer.domain.Offer;
+import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
+import com.gabojait.gabojaitspring.offer.repository.OfferRepository;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.profile.domain.type.ProfileOrder;
+import com.gabojait.gabojaitspring.profile.dto.res.ProfileSeekPageResDto;
+import com.gabojait.gabojaitspring.profile.dto.res.ProfileSeekResDto;
+import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.Contact;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.domain.UserRole;
@@ -27,6 +33,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -44,6 +52,7 @@ public class UserService {
     private final UserRoleRepository userRoleRepository;
     private final ContactRepository contactRepository;
     private final FcmRepository fcmRepository;
+    private final OfferRepository offerRepository;
     private final GeneralProvider generalProvider;
     private final EmailProvider emailProvider;
     private final FileProvider fileProvider;
@@ -102,7 +111,7 @@ public class UserService {
      * 500(SERVER_ERROR)
      */
     public User login(UserLoginReqDto request) {
-        User user = findOneUser(request.getUsername());
+        User user = findOneUserByUsername(request.getUsername());
 
         boolean isVerified = generalProvider.verifyPassword(user, request.getPassword());
         if (!isVerified)
@@ -259,10 +268,11 @@ public class UserService {
      * 포지션과 프로필 정렬 기준으로 회원 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
-    public Page<User> findManyUsersByPositionWithProfileOrder(String position,
-                                                         String profileOrder,
-                                                         Integer pageFrom,
-                                                         Integer pageSize) {
+    public ProfileSeekPageResDto findManyUsersByPositionWithProfileOrder(String position,
+                                                                         String profileOrder,
+                                                                         Integer pageFrom,
+                                                                         Integer pageSize,
+                                                                         User user) {
         Position p = Position.fromString(position);
         ProfileOrder po = ProfileOrder.fromString(profileOrder);
         Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
@@ -295,7 +305,23 @@ public class UserService {
             }
         }
 
-        return users;
+        List<ProfileSeekResDto> profileSeekResDtos = new ArrayList<>();
+
+        if (user.isLeader()) {
+            for (User u : users) {
+                List<Offer> offers = findAllOffersToUser(user, u);
+                profileSeekResDtos.add(new ProfileSeekResDto(u, offers));
+            }
+        } else {
+            for (User u : users)
+                profileSeekResDtos.add(new ProfileSeekResDto(u, List.of()));
+        }
+
+        ProfileSeekPageResDto response = new ProfileSeekPageResDto();
+        response.setTotalPage(users.getTotalPages());
+        response.setProfileSeekResDtos(profileSeekResDtos);
+
+        return response;
     }
 
     /**
@@ -363,7 +389,7 @@ public class UserService {
      * 401(LOGIN_UNAUTHENTICATED)
      * 500(SERVER_ERROR)
      */
-    private User findOneUser(String username) {
+    private User findOneUserByUsername(String username) {
         Optional<User> user = userRepository.findByUsernameAndIsDeletedIsFalse(username);
 
         if (user.isEmpty())
@@ -375,6 +401,17 @@ public class UserService {
             throw new CustomException(LOGIN_UNAUTHENTICATED);
 
         return user.get();
+    }
+
+    /**
+     * 식별자로 회원 단건 조회 |
+     * 404(USER_NOT_FOUND)
+     */
+    private User findOneUserByUserId(Long userId) {
+        return userRepository.findByIdAndIsDeletedIsFalse(userId)
+                .orElseThrow(() -> {
+                    throw new CustomException(USER_NOT_FOUND);
+                });
     }
 
     /**
@@ -509,6 +546,25 @@ public class UserService {
     private Optional<Fcm> findOneFcm(String fcmToken, User user) {
         try {
             return fcmRepository.findByFcmTokenAndUserAndIsDeletedIsFalse(fcmToken, user);
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 리더와 회원으로 리더가 특정 회원에게 보낸 전체 제안 조회 |
+     */
+    private List<Offer> findAllOffersToUser(User leader, User user) {
+        Team team = leader.getTeamMembers().get(leader.getTeamMembers().size() - 1).getTeam();
+
+        try {
+            List<Offer> offers = offerRepository.findAllByUserAndTeamAndOfferedByAndIsAcceptedIsNullAndIsDeletedIsFalse(
+                    user,
+                    team,
+                    OfferedBy.TEAM.getType()
+            );
+
+            return offers;
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }

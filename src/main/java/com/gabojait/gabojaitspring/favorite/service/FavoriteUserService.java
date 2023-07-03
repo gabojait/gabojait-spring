@@ -4,7 +4,7 @@ import com.gabojait.gabojaitspring.common.util.GeneralProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.favorite.domain.FavoriteUser;
 import com.gabojait.gabojaitspring.favorite.repository.FavoriteUserRepository;
-import com.gabojait.gabojaitspring.profile.dto.res.ProfileDetailResDto;
+import com.gabojait.gabojaitspring.profile.dto.res.ProfileFavoriteResDto;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.team.repository.TeamMemberRepository;
@@ -158,7 +158,7 @@ public class FavoriteUserService {
      * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public ProfileDetailResDto findOneOtherProfile(User user, long userId) {
+    public ProfileFavoriteResDto findOneOtherProfile(User user, long userId) {
         User otherUser = findOneOtherUser(user, userId);
 
         Boolean isFavorite = null;
@@ -167,7 +167,7 @@ public class FavoriteUserService {
             isFavorite = isFavoriteUser(user.getTeamMembers().get(otherUser.getTeamMembers().size() - 1).getTeam(),
                     otherUser);
 
-        return new ProfileDetailResDto(otherUser, isFavorite);
+        return new ProfileFavoriteResDto(otherUser, isFavorite);
     }
 
     /**
