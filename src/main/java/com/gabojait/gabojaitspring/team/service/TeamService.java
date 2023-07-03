@@ -6,7 +6,6 @@ import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.favorite.domain.FavoriteTeam;
 import com.gabojait.gabojaitspring.favorite.repository.FavoriteTeamRepository;
 import com.gabojait.gabojaitspring.offer.domain.Offer;
-import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
 import com.gabojait.gabojaitspring.offer.repository.OfferRepository;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.team.domain.Team;
@@ -148,6 +147,8 @@ public class TeamService {
             if (teamMember.getUser().getId().equals(userId)) {
                 hardDeleteTeamMember(teamMember);
 
+                teamMember.getUser().updateIsSeekingTeam(true);
+
                 team.incrementUserFiredCnt();
                 teamMember.getUser().incrementFiredTeamCnt();
 
@@ -172,6 +173,7 @@ public class TeamService {
                 .build();
 
         saveTeamMember(teamMember);
+        user.updateIsSeekingTeam(false);
 
         team.updateIsPositionFull(position);
 
@@ -190,6 +192,8 @@ public class TeamService {
         TeamMember teamMember = findOneCurrentTeamMember(user);
 
         Team team = teamMember.getTeam();
+
+        user.updateIsSeekingTeam(true);
 
         team.incrementUserLeftCnt();
         user.incrementQuitTeamByUserCnt();
@@ -504,10 +508,9 @@ public class TeamService {
      */
     public List<Offer> findAllOffersToTeam(User user, Team team) {
         try {
-            return offerRepository.findAllByUserAndTeamAndOfferedByAndIsAcceptedIsNullAndIsDeletedIsFalse(
+            return offerRepository.findAllByUserAndTeamAndIsAcceptedIsNullAndIsDeletedIsFalse(
                     user,
-                    team,
-                    OfferedBy.USER.getType()
+                    team
             );
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
@@ -615,6 +618,7 @@ public class TeamService {
     private void incomplete(Team team) {
         for(TeamMember teamMember : team.getTeamMembers()) {
             hardDeleteTeamMember(teamMember);
+            teamMember.getUser().updateIsSeekingTeam(true);
 
             teamMember.getUser().incrementQuitTeamByLeaderCnt();
         }
@@ -630,6 +634,7 @@ public class TeamService {
     private void complete(Team team, String projectUrl) {
         for(TeamMember teamMember : team.getTeamMembers()) {
             teamMember.complete();
+            teamMember.getUser().updateIsSeekingTeam(true);
 
             teamMember.getUser().incrementCompleteTeamCnt();
         }
