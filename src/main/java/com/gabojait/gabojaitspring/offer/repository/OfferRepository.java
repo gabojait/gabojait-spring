@@ -24,6 +24,8 @@ public interface OfferRepository extends JpaRepository<Offer, Long> {
 
     Page<Offer> findAllByTeamAndIsDeletedIsFalse(Team team, Pageable pageable);
 
+    List<Offer> findAllByUserAndTeamAndIsAcceptedIsNullAndIsDeletedIsFalse(User user, Team team);
+
     List<Offer> findAllByUserAndTeamAndOfferedByAndIsAcceptedIsNullAndIsDeletedIsFalse(User user,
                                                                                        Team team,
                                                                                        Character offeredBy);

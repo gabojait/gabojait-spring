@@ -7,7 +7,6 @@ import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.fcm.domain.Fcm;
 import com.gabojait.gabojaitspring.fcm.repository.FcmRepository;
 import com.gabojait.gabojaitspring.offer.domain.Offer;
-import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
 import com.gabojait.gabojaitspring.offer.repository.OfferRepository;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.profile.domain.type.ProfileOrder;
@@ -544,10 +543,9 @@ public class UserService {
         Team team = leader.getTeamMembers().get(leader.getTeamMembers().size() - 1).getTeam();
 
         try {
-            return offerRepository.findAllByUserAndTeamAndOfferedByAndIsAcceptedIsNullAndIsDeletedIsFalse(
+            return offerRepository.findAllByUserAndTeamAndIsAcceptedIsNullAndIsDeletedIsFalse(
                     user,
-                    team,
-                    OfferedBy.TEAM.getType()
+                    team
             );
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
