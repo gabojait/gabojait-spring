@@ -11,7 +11,7 @@ import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
 import com.gabojait.gabojaitspring.offer.repository.OfferRepository;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.profile.domain.type.ProfileOrder;
-import com.gabojait.gabojaitspring.profile.dto.res.ProfileSeekPageResDto;
+import com.gabojait.gabojaitspring.profile.dto.ProfileSeekPageDto;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileSeekResDto;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.Contact;
@@ -268,11 +268,11 @@ public class UserService {
      * 포지션과 프로필 정렬 기준으로 회원 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
-    public ProfileSeekPageResDto findManyUsersByPositionWithProfileOrder(String position,
-                                                                         String profileOrder,
-                                                                         Integer pageFrom,
-                                                                         Integer pageSize,
-                                                                         User user) {
+    public ProfileSeekPageDto findManyUsersByPositionWithProfileOrder(String position,
+                                                                      String profileOrder,
+                                                                      Integer pageFrom,
+                                                                      Integer pageSize,
+                                                                      User user) {
         Position p = Position.fromString(position);
         ProfileOrder po = ProfileOrder.fromString(profileOrder);
         Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
@@ -317,11 +317,7 @@ public class UserService {
                 profileSeekResDtos.add(new ProfileSeekResDto(u, List.of()));
         }
 
-        ProfileSeekPageResDto response = new ProfileSeekPageResDto();
-        response.setTotalPage(users.getTotalPages());
-        response.setProfileSeekResDtos(profileSeekResDtos);
-
-        return response;
+        return new ProfileSeekPageDto(profileSeekResDtos, users.getTotalPages());
     }
 
     /**

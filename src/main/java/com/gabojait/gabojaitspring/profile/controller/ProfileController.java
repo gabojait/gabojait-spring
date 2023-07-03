@@ -4,6 +4,7 @@ import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.favorite.service.FavoriteUserService;
+import com.gabojait.gabojaitspring.profile.dto.ProfileSeekPageDto;
 import com.gabojait.gabojaitspring.profile.dto.req.*;
 import com.gabojait.gabojaitspring.profile.dto.res.*;
 import com.gabojait.gabojaitspring.profile.service.EducationAndWorkService;
@@ -481,7 +482,7 @@ public class ProfileController {
     ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        ProfileSeekPageResDto profileSeekPageResDto = userService.findManyUsersByPositionWithProfileOrder(position,
+        ProfileSeekPageDto profileSeekPageDto = userService.findManyUsersByPositionWithProfileOrder(position,
                 profileOrder,
                 pageFrom,
                 pageSize,
@@ -491,8 +492,8 @@ public class ProfileController {
                 .body(DefaultResDto.multiDataBuilder()
                         .responseCode(USERS_SEEKING_TEAM_FOUND.name())
                         .responseMessage(USERS_SEEKING_TEAM_FOUND.getMessage())
-                        .data(profileSeekPageResDto.getProfileSeekResDtos())
-                        .size(profileSeekPageResDto.getTotalPage())
+                        .data(profileSeekPageDto.getProfileSeekResDtos())
+                        .size(profileSeekPageDto.getTotalPage())
                         .build());
     }
 

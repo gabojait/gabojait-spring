@@ -6,14 +6,12 @@ import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@Setter
 @ToString
 @ApiModel(value = "프로필 제안 응답")
 public class ProfileSeekResDto extends ProfileAbstractResDto {
