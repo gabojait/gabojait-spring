@@ -10,6 +10,7 @@ import com.gabojait.gabojaitspring.team.dto.req.TeamIsRecruitingUpdateReqDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamAbstractResDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamDefaultResDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamFavoriteResDto;
+import com.gabojait.gabojaitspring.team.dto.res.TeamRecruitResDto;
 import com.gabojait.gabojaitspring.team.service.TeamService;
 import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.Api;
@@ -220,7 +221,7 @@ public class TeamController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = TeamAbstractResDto.class))),
+                    content = @Content(schema = @Schema(implementation = TeamRecruitResDto.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
