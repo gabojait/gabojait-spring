@@ -42,7 +42,7 @@ public class TeamMember extends BaseTimeEntity {
         this.isDeleted = false;
     }
 
-    public void complete() {
+    public void delete() {
         this.isDeleted = true;
     }
 }

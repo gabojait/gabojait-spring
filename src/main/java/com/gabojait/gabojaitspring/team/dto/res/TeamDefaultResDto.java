@@ -35,6 +35,7 @@ public class TeamDefaultResDto extends TeamAbstractResDto {
         this.expectation = team.getExpectation();
 
         for(TeamMember teamMember : team.getTeamMembers())
-            teamMembers.add(new TeamMemberPositionResDto(teamMember));
+            if (!teamMember.getIsDeleted())
+                teamMembers.add(new TeamMemberPositionResDto(teamMember));
     }
 }

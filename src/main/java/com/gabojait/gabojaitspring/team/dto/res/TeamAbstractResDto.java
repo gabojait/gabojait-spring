@@ -47,6 +47,9 @@ public class TeamAbstractResDto {
         byte managerCnt = 0;
 
         for(TeamMember teamMember : team.getTeamMembers()) {
+            if (teamMember.getIsDeleted())
+                continue;
+
             this.teamMembers.add(new TeamMemberPositionResDto(teamMember));
 
             switch (teamMember.getPosition()) {

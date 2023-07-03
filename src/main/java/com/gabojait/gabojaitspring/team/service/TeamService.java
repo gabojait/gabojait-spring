@@ -145,7 +145,7 @@ public class TeamService {
         Team team = leaderTeamMember.getTeam();
         for(TeamMember teamMember : team.getTeamMembers())
             if (teamMember.getUser().getId().equals(userId)) {
-                hardDeleteTeamMember(teamMember);
+                teamMember.delete();
 
                 teamMember.getUser().updateIsSeekingTeam(true);
 
@@ -198,7 +198,7 @@ public class TeamService {
         team.incrementUserLeftCnt();
         user.incrementQuitTeamByUserCnt();
 
-        hardDeleteTeamMember(teamMember);
+        teamMember.delete();
 
         fcmProvider.sendTeamMemberQuit(user, team);
     }
@@ -225,6 +225,14 @@ public class TeamService {
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
+    }
+
+    /**
+     * 팀 멤버 소프트 삭제 |
+     * 500(SERVER_ERROR)
+     */
+    private void delete(TeamMember teamMember) {
+        teamMember.delete();
     }
 
     /**
@@ -614,7 +622,7 @@ public class TeamService {
      */
     private void incomplete(Team team) {
         for(TeamMember teamMember : team.getTeamMembers()) {
-            hardDeleteTeamMember(teamMember);
+            teamMember.delete();
             teamMember.getUser().updateIsSeekingTeam(true);
 
             teamMember.getUser().incrementQuitTeamByLeaderCnt();
@@ -630,7 +638,7 @@ public class TeamService {
      */
     private void complete(Team team, String projectUrl) {
         for(TeamMember teamMember : team.getTeamMembers()) {
-            teamMember.complete();
+            teamMember.delete();
             teamMember.getUser().updateIsSeekingTeam(true);
 
             teamMember.getUser().incrementCompleteTeamCnt();
