@@ -508,10 +508,7 @@ public class TeamService {
      */
     public List<Offer> findAllOffersToTeam(User user, Team team) {
         try {
-            return offerRepository.findAllByUserAndTeamAndIsAcceptedIsNullAndIsDeletedIsFalse(
-                    user,
-                    team
-            );
+            return offerRepository.findAllByUserAndTeamAndIsAcceptedIsNullAndIsDeletedIsFalse(user, team);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }

@@ -543,10 +543,7 @@ public class UserService {
         Team team = leader.getTeamMembers().get(leader.getTeamMembers().size() - 1).getTeam();
 
         try {
-            return offerRepository.findAllByUserAndTeamAndIsAcceptedIsNullAndIsDeletedIsFalse(
-                    user,
-                    team
-            );
+            return offerRepository.findAllByUserAndTeamAndIsAcceptedIsNullAndIsDeletedIsFalse(user, team);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
