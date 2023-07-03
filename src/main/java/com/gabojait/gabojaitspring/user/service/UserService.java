@@ -111,7 +111,7 @@ public class UserService {
      * 500(SERVER_ERROR)
      */
     public User login(UserLoginReqDto request) {
-        User user = findOneUserByUsername(request.getUsername());
+        User user = findOneUser(request.getUsername());
 
         boolean isVerified = generalProvider.verifyPassword(user, request.getPassword());
         if (!isVerified)
@@ -385,7 +385,7 @@ public class UserService {
      * 401(LOGIN_UNAUTHENTICATED)
      * 500(SERVER_ERROR)
      */
-    private User findOneUserByUsername(String username) {
+    private User findOneUser(String username) {
         Optional<User> user = userRepository.findByUsernameAndIsDeletedIsFalse(username);
 
         if (user.isEmpty())
@@ -397,17 +397,6 @@ public class UserService {
             throw new CustomException(LOGIN_UNAUTHENTICATED);
 
         return user.get();
-    }
-
-    /**
-     * 식별자로 회원 단건 조회 |
-     * 404(USER_NOT_FOUND)
-     */
-    private User findOneUserByUserId(Long userId) {
-        return userRepository.findByIdAndIsDeletedIsFalse(userId)
-                .orElseThrow(() -> {
-                    throw new CustomException(USER_NOT_FOUND);
-                });
     }
 
     /**
@@ -549,18 +538,17 @@ public class UserService {
 
     /**
      * 리더와 회원으로 리더가 특정 회원에게 보낸 전체 제안 조회 |
+     * 500(SERVER_ERROR)
      */
     private List<Offer> findAllOffersToUser(User leader, User user) {
         Team team = leader.getTeamMembers().get(leader.getTeamMembers().size() - 1).getTeam();
 
         try {
-            List<Offer> offers = offerRepository.findAllByUserAndTeamAndOfferedByAndIsAcceptedIsNullAndIsDeletedIsFalse(
+            return offerRepository.findAllByUserAndTeamAndOfferedByAndIsAcceptedIsNullAndIsDeletedIsFalse(
                     user,
                     team,
                     OfferedBy.TEAM.getType()
             );
-
-            return offers;
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }

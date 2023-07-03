@@ -482,7 +482,7 @@ public class ProfileController {
     ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        ProfileSeekPageDto profileSeekPageDto = userService.findManyUsersByPositionWithProfileOrder(position,
+        ProfileSeekPageDto response = userService.findManyUsersByPositionWithProfileOrder(position,
                 profileOrder,
                 pageFrom,
                 pageSize,
@@ -492,8 +492,8 @@ public class ProfileController {
                 .body(DefaultResDto.multiDataBuilder()
                         .responseCode(USERS_SEEKING_TEAM_FOUND.name())
                         .responseMessage(USERS_SEEKING_TEAM_FOUND.getMessage())
-                        .data(profileSeekPageDto.getProfileSeekResDtos())
-                        .size(profileSeekPageDto.getTotalPage())
+                        .data(response.getProfileSeekResDtos())
+                        .size(response.getTotalPages())
                         .build());
     }
 

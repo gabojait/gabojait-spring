@@ -3,6 +3,7 @@ package com.gabojait.gabojaitspring.team.controller;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
 import com.gabojait.gabojaitspring.team.domain.Team;
+import com.gabojait.gabojaitspring.team.dto.TeamRecruitPageDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamCompleteReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamDefaultReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamIsRecruitingUpdateReqDto;
@@ -18,7 +19,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -248,20 +248,20 @@ public class TeamController {
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
             Integer pageSize
     ) {
-        jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        Page<Team> teams = teamService.findManyTeamByPositionOrder(position, teamOrder, pageFrom, pageSize);
-
-        List<TeamAbstractResDto> responses = new ArrayList<>();
-        for (Team team : teams)
-            responses.add(new TeamAbstractResDto(team));
+        TeamRecruitPageDto response = teamService.findManyTeamByPositionOrder(position,
+                teamOrder,
+                pageFrom,
+                pageSize,
+                user);
 
         return ResponseEntity.status(TEAMS_RECRUITING_USERS_FOUND.getHttpStatus())
                 .body(DefaultResDto.multiDataBuilder()
                         .responseCode(TEAMS_RECRUITING_USERS_FOUND.name())
                         .responseMessage(TEAMS_RECRUITING_USERS_FOUND.getMessage())
-                        .data(responses)
-                        .size(teams.getTotalPages())
+                        .data(response.getTeamOfferResDtos())
+                        .size(response.getTotalPages())
                         .build());
     }
 

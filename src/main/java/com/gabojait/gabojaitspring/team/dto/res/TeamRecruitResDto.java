@@ -1,8 +1,8 @@
-package com.gabojait.gabojaitspring.profile.dto.res;
+package com.gabojait.gabojaitspring.team.dto.res;
 
 import com.gabojait.gabojaitspring.offer.domain.Offer;
 import com.gabojait.gabojaitspring.offer.dto.res.OfferAbstractResDto;
-import com.gabojait.gabojaitspring.user.domain.User;
+import com.gabojait.gabojaitspring.team.domain.Team;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -13,14 +13,14 @@ import java.util.List;
 
 @Getter
 @ToString
-@ApiModel(value = "프로필 제안 응답")
-public class ProfileSeekResDto extends ProfileAbstractResDto {
+@ApiModel(value = "팀 제안 응답")
+public class TeamRecruitResDto extends TeamAbstractResDto {
 
     @ApiModelProperty(position = 7, required = true, value = "제안들")
     private List<OfferAbstractResDto> offers = new ArrayList<>();
 
-    public ProfileSeekResDto(User user, List<Offer> offers) {
-        super(user);
+    public TeamRecruitResDto(Team team, List<Offer> offers) {
+        super(team);
 
         for (Offer offer : offers)
             this.offers.add(new OfferAbstractResDto(offer));

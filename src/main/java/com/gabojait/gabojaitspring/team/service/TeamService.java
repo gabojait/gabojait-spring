@@ -5,13 +5,18 @@ import com.gabojait.gabojaitspring.common.util.GeneralProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.favorite.domain.FavoriteTeam;
 import com.gabojait.gabojaitspring.favorite.repository.FavoriteTeamRepository;
+import com.gabojait.gabojaitspring.offer.domain.Offer;
+import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
+import com.gabojait.gabojaitspring.offer.repository.OfferRepository;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.team.domain.type.TeamOrder;
+import com.gabojait.gabojaitspring.team.dto.TeamRecruitPageDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamDefaultReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamMemberRecruitCntReqDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamFavoriteResDto;
+import com.gabojait.gabojaitspring.team.dto.res.TeamRecruitResDto;
 import com.gabojait.gabojaitspring.team.repository.TeamMemberRepository;
 import com.gabojait.gabojaitspring.team.repository.TeamRepository;
 import com.gabojait.gabojaitspring.user.domain.User;
@@ -21,9 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 
@@ -35,6 +38,7 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final FavoriteTeamRepository favoriteTeamRepository;
+    private final OfferRepository offerRepository;
     private final GeneralProvider generalProvider;
     private final FcmProvider fcmProvider;
 
@@ -263,7 +267,11 @@ public class TeamService {
      * 포지션과 팀 정렬 기준으로 팀 페이징 다건 조회 | main |
      * 500(SERVER_ERROR)
      */
-    public Page<Team> findManyTeamByPositionOrder(String position, String teamOrder,Integer pageFrom, Integer pageSize) {
+    public TeamRecruitPageDto findManyTeamByPositionOrder(String position,
+                                                          String teamOrder,
+                                                          Integer pageFrom,
+                                                          Integer pageSize,
+                                                          User user) {
         Position p = Position.fromString(position);
         TeamOrder to = TeamOrder.fromString(teamOrder);
         Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
@@ -296,7 +304,14 @@ public class TeamService {
             }
         }
 
-        return teams;
+        List<TeamRecruitResDto> teamRecruitResDtos = new ArrayList<>();
+
+        for (Team team : teams) {
+            List<Offer> offers = findAllOffersToTeam(user, team);
+            teamRecruitResDtos.add(new TeamRecruitResDto(team, offers));
+        }
+
+        return new TeamRecruitPageDto(teamRecruitResDtos, teams.getTotalPages());
     }
 
     /**
@@ -481,6 +496,22 @@ public class TeamService {
                 .orElseThrow(() -> {
                     throw new CustomException(CURRENT_TEAM_NOT_FOUND);
                 });
+    }
+
+    /**
+     * 회원와 팀으로 회원이 특정 팀에게 보낸 전체 제안 조회 |
+     * 500(SERVER_ERROR)
+     */
+    public List<Offer> findAllOffersToTeam(User user, Team team) {
+        try {
+            return offerRepository.findAllByUserAndTeamAndOfferedByAndIsAcceptedIsNullAndIsDeletedIsFalse(
+                    user,
+                    team,
+                    OfferedBy.USER.getType()
+            );
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
     }
 
     /**

@@ -11,11 +11,11 @@ import java.util.List;
 @ToString
 public class ProfileSeekPageDto {
 
-    private List<ProfileSeekResDto> profileSeekResDtos = new ArrayList<>();
-    private int totalPage;
+    private final List<ProfileSeekResDto> profileSeekResDtos;
+    private final int totalPages;
 
-    public ProfileSeekPageDto(List<ProfileSeekResDto> profileSeekResDtos, int totalPage) {
+    public ProfileSeekPageDto(List<ProfileSeekResDto> profileSeekResDtos, int totalPages) {
         this.profileSeekResDtos = profileSeekResDtos;
-        this.totalPage = totalPage;
+        this.totalPages = totalPages;
     }
 }
