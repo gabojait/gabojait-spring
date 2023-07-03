@@ -281,6 +281,8 @@ public class DevelopService {
                     .isLeader(true)
                     .build();
 
+            users.get(i).updateIsSeekingTeam(false);
+
             teamMemberRepository.save(teamMember);
         }
     }
