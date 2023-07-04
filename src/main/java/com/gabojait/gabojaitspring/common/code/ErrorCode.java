@@ -112,7 +112,7 @@ public enum ErrorCode {
     TEAM_ID_POSITIVE_ONLY(BAD_REQUEST, "팀 식별자는 양수만 가능합니다."),
     PAGE_FROM_POSITIVE_OR_ZERO_ONLY(BAD_REQUEST, "페이지 시작점은 0 또는 양수만 가능합니다."),
     PAGE_SIZE_POSITIVE_ONLY(BAD_REQUEST, "페이지 사이즈는 양수만 가능합니다."),
-    TOTAL_RECRUIT_CNT_POSITIVE_ONLY(BAD_REQUEST, "팀원 수는 0 또는 양수만 가능합니다."),
+    TOTAL_RECRUIT_CNT_POSITIVE_OR_ZERO_ONLY(BAD_REQUEST, "팀원 수는 0 또는 양수만 가능합니다."),
     OFFER_ID_POSITIVE_ONLY(BAD_REQUEST, "제안 식별자는 양수만 가능합니다."),
     ADMIN_ID_POSITIVE_ONLY(BAD_REQUEST, "관리자 식별자는 양수만 가능합니다."),
     TESTER_ID_POSITIVE_ONLY(BAD_REQUEST, "테스터 식별자는 양수만 가능합니다."),
