@@ -2,11 +2,13 @@ package com.gabojait.gabojaitspring.favorite.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.favorite.domain.FavoriteTeam;
 import com.gabojait.gabojaitspring.favorite.domain.FavoriteUser;
 import com.gabojait.gabojaitspring.favorite.dto.req.FavoriteUpdateReqDto;
 import com.gabojait.gabojaitspring.favorite.service.FavoriteTeamService;
 import com.gabojait.gabojaitspring.favorite.service.FavoriteUserService;
+import com.gabojait.gabojaitspring.profile.controller.ProfileController;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileAbstractResDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamAbstractResDto;
 import com.gabojait.gabojaitspring.user.domain.User;
@@ -23,6 +25,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.GroupSequence;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -35,6 +38,10 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "찜")
 @Validated
+@GroupSequence({ProfileController.class,
+        ValidationSequence.Blank.class,
+        ValidationSequence.Size.class,
+        ValidationSequence.Format.class})
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -67,9 +74,9 @@ public class FavoriteController {
     @PostMapping(value = "/user/favorite/team/{team-id}")
     public ResponseEntity<DefaultResDto<Object>> addOrDeleteFavoriteTeam(
             HttpServletRequest servletRequest,
-            @PathVariable(value = "team-id")
-            @NotNull(message = "팀 식별자는 필수 입력입니다.")
-            @Positive(message = "팀 식별자는 양수만 가능합니다.")
+            @PathVariable(value = "team-id", required = false)
+            @NotNull(message = "팀 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Positive(message = "팀 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long teamId,
             @RequestBody
             @Valid
@@ -113,12 +120,12 @@ public class FavoriteController {
     @GetMapping("/user/favorite/team")
     public ResponseEntity<DefaultResDto<Object>> findAllFavoriteTeams(
             HttpServletRequest servletRequest,
-            @RequestParam(value = "page-from")
-            @NotNull(message = "페이지 시작점은 필수 입력입니다.")
-            @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.")
+            @RequestParam(value = "page-from", required = false)
+            @NotNull(message = "페이지 시작점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageFrom,
             @RequestParam(value = "page-size", required = false)
-            @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
@@ -164,9 +171,9 @@ public class FavoriteController {
     @PostMapping("/team/favorite/user/{user-id}")
     public ResponseEntity<DefaultResDto<Object>> addOrDeleteFavoriteUser(
             HttpServletRequest servletRequest,
-            @PathVariable(value = "user-id")
-            @NotNull(message = "회원 식별자는 필수 입력입니다.")
-            @Positive(message = "회원 식별자는 양수만 가능합니다.")
+            @PathVariable(value = "user-id", required = false)
+            @NotNull(message = "회원 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long userId,
             @RequestBody
             @Valid
@@ -212,12 +219,12 @@ public class FavoriteController {
     @GetMapping("/team/favorite/user")
     public ResponseEntity<DefaultResDto<Object>> findAllFavoriteUsers(
             HttpServletRequest servletRequest,
-            @RequestParam(value = "page-from")
-            @NotNull(message = "페이지 시작점은 필수 입력입니다.")
-            @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.")
+            @RequestParam(value = "page-from", required = false)
+            @NotNull(message = "페이지 시작점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageFrom,
             @RequestParam(value = "page-size", required = false)
-            @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
