@@ -2,6 +2,7 @@ package com.gabojait.gabojaitspring.team.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.dto.TeamRecruitPageDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamCompleteReqDto;
@@ -25,6 +26,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.GroupSequence;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
@@ -33,6 +35,10 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "팀")
 @Validated
+@GroupSequence({TeamController.class,
+        ValidationSequence.Blank.class,
+        ValidationSequence.Size.class,
+        ValidationSequence.Format.class})
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -45,7 +51,7 @@ public class TeamController {
             notes = "<응답 코드>\n" +
                     "- 201 = TEAM_CREATED\n" +
                     "- 400 = PROJECT_NAME_FIELD_REQUIRED || PROJECT_DESCRIPTION_FIELD_REQUIRED || " +
-                    "TOTAL_RECRUIT_CNT_FIELD_REQUIRED || POSITION_FIELD_REQUIRED || EXCEPTION_FIELD_REQUIRED || " +
+                    "TOTAL_RECRUIT_CNT_FIELD_REQUIRED || POSITION_FIELD_REQUIRED || EXPECTATION_FIELD_REQUIRED || " +
                     "OPEN_CHAT_URL_FIELD_REQUIRED || PROJECT_NAME_LENGTH_INVALID || " +
                     "PROJECT_DESCRIPTION_LENGTH_INVALID || EXPECTATION_LENGTH_INVALID || " +
                     "OPEN_CHAT_URL_LENGTH_INVALID || TOTAL_RECRUIT_CNT_POSITIVE_OR_ZERO_ONLY || " +
@@ -87,11 +93,11 @@ public class TeamController {
             notes = "<응답 코드>\n" +
                     "- 200 = TEAM_UPDATED\n" +
                     "- 400 = PROJECT_NAME_FIELD_REQUIRED || PROJECT_DESCRIPTION_FIELD_REQUIRED || " +
-                    "TOTAL_RECRUIT_CNT_FIELD_REQUIRED || POSITION_FIELD_REQUIRED || EXCEPTION_FIELD_REQUIRED || " +
+                    "TOTAL_RECRUIT_CNT_FIELD_REQUIRED || POSITION_FIELD_REQUIRED || EXPECTATION_FIELD_REQUIRED || " +
                     "OPEN_CHAT_URL_FIELD_REQUIRED || PROJECT_NAME_LENGTH_INVALID || " +
                     "PROJECT_DESCRIPTION_LENGTH_INVALID || EXPECTATION_LENGTH_INVALID || " +
-                    "OPEN_CHAT_URL_LENGTH_INVALID || TOTAL_CNT_POSITIVE__ONLY || POSITION_TYPE_INVALID || " +
-                    "OPEN_CHAT_URL_FORMAT_INVALID\n" +
+                    "OPEN_CHAT_URL_LENGTH_INVALID || TOTAL_RECRUIT_CNT_POSITIVE_OR_ZERO_ONLY || " +
+                    "POSITION_TYPE_INVALID || OPEN_CHAT_URL_FORMAT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
                     "- 404 = CURRENT_TEAM_NOT_FOUND" +
@@ -208,7 +214,7 @@ public class TeamController {
                     "- page-from = NotNull && PositiveOrZero\n" +
                     "- page-size = Positive\n\n" +
                     "<응답 코드>\n" +
-                    "- 200 = TEAMS_FINDING_USERS_FOUND\n" +
+                    "- 200 = TEAMS_RECRUITING_USERS_FOUND\n" +
                     "- 400 = POSITION_FIELD_REQUIRED || TEAM_ORDER_FIELD_REQUIRED || PAGE_FROM_FIELD_REQUIRED || " +
                     "POSITION_TYPE_INVALID || TEAM_ORDER_TYPE_INVALID || PAGE_FROM_POSITIVE_OR_ZERO_ONLY || " +
                     "PAGE_SIZE_POSITIVE_ONLY\n" +
@@ -228,22 +234,24 @@ public class TeamController {
     @GetMapping("/team/recruiting")
     public ResponseEntity<DefaultResDto<Object>> findTeamsLookingForUsers(
             HttpServletRequest servletRequest,
-            @RequestParam(value = "position")
-            @NotBlank(message = "포지션은 필수 입력입니다.")
+            @RequestParam(value = "position", required = false)
+            @NotBlank(message = "포지션은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @Pattern(regexp = "^(designer|backend|frontend|manager|none)",
-                    message = "포지션은 'designer', 'backend', 'frontend', 'manager', 또는 'none' 중 하나여야 됩니다.")
+                    message = "포지션은 'designer', 'backend', 'frontend', 'manager', 또는 'none' 중 하나여야 됩니다.",
+                    groups = ValidationSequence.Format.class)
             String position,
-            @RequestParam(value = "team-order")
-            @NotBlank(message = "팀 정렬 기준은 필수 입력입니다.")
+            @RequestParam(value = "team-order", required = false)
+            @NotBlank(message = "팀 정렬 기준은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @Pattern(regexp = "^(created|active|popularity)",
-                    message = "팀 정렬 기준은 'created', 'active', 또는 'popularity', 중 하나여야 됩니다.")
+                    message = "팀 정렬 기준은 'created', 'active', 또는 'popularity', 중 하나여야 됩니다.",
+                    groups = ValidationSequence.Format.class)
             String teamOrder,
-            @RequestParam(value = "page-from")
-            @NotNull(message = "페이지 시작점은 필수 입력입니다.")
-            @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.")
+            @RequestParam(value = "page-from", required = false)
+            @NotNull(message = "페이지 시작점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageFrom,
             @RequestParam(value = "page-size", required = false)
-            @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
@@ -385,11 +393,13 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/team/user/{user-id}/fire")
-    public ResponseEntity<DefaultResDto<Object>> fireTeammate(HttpServletRequest servletRequest,
-                                                              @PathVariable(value = "user-id")
-                                                              @NotNull(message = "회원 식별자를 입력해 주세요.")
-                                                              @Positive(message = "회원 식별자는 양수만 가능합니다.")
-                                                              Long userId) {
+    public ResponseEntity<DefaultResDto<Object>> fireTeammate(
+            HttpServletRequest servletRequest,
+            @PathVariable(value = "user-id")
+            @NotNull(message = "회원 식별자를 입력해 주세요.", groups = ValidationSequence.Blank.class)
+            @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            Long userId
+    ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         teamService.fire(user, userId);
