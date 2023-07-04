@@ -4,7 +4,6 @@ import com.gabojait.gabojaitspring.profile.dto.res.ProfileSeekResDto;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
