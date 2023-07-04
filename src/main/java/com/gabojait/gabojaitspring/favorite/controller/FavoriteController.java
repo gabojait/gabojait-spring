@@ -38,7 +38,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "찜")
 @Validated
-@GroupSequence({ProfileController.class,
+@GroupSequence({FavoriteController.class,
         ValidationSequence.Blank.class,
         ValidationSequence.Size.class,
         ValidationSequence.Format.class})
