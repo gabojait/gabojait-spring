@@ -165,7 +165,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     }
 
     @Builder(builderMethodName = "testOnlyBuilder", builderClassName = "testOnlyBuilder")
-    public User (Long id) {
+    public User(Long id) {
         this.id = id;
         this.gender = Gender.NONE.getType();
         this.position = Position.NONE.getType();
