@@ -9,7 +9,7 @@ import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.validation.GroupSequence;
 import javax.validation.Valid;
@@ -21,7 +21,7 @@ import java.util.List;
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.NON_EXISTING_POSITION;
 
 @Getter
-@NoArgsConstructor
+@Setter
 @GroupSequence({TeamDefaultReqDto.class,
         ValidationSequence.Blank.class,
         ValidationSequence.Size.class,
@@ -44,12 +44,12 @@ public class TeamDefaultReqDto {
     @Valid
     private List<TeamMemberRecruitCntReqDto> teamMemberRecruitCnts = new ArrayList<>();
 
-    @ApiModelProperty(position = 7, required = true, value = "바라는 점", example = "열정적인 팀원을 구합니다.")
+    @ApiModelProperty(position = 4, required = true, value = "바라는 점", example = "열정적인 팀원을 구합니다.")
     @NotBlank(message = "바라는 점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
     @Size(min = 1, max = 200, message = "바라는 점은 1~200자만 가능합니다.", groups = ValidationSequence.Size.class)
     private String expectation;
 
-    @ApiModelProperty(position = 8, required = true, value = "오픈 채팅 링크", example = "https://open.kakao.com/o/test")
+    @ApiModelProperty(position = 5, required = true, value = "오픈 채팅 링크", example = "https://open.kakao.com/o/test")
     @NotBlank(message = "오픈 채팅 URL은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
     @Size(min = 25, max = 100, message = "오픈 채팅 URL은 25~100자만 가능합니다.", groups = ValidationSequence.Size.class)
     @Pattern(regexp = "^https\\:\\/\\/open\\.kakao\\.com\\/.+$", message = "오픈 채팅 URL은 카카오 오픈 채팅 형식만 가능합니다.",
