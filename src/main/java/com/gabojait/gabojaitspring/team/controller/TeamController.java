@@ -7,7 +7,6 @@ import com.gabojait.gabojaitspring.team.dto.TeamRecruitPageDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamCompleteReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamDefaultReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamIsRecruitingUpdateReqDto;
-import com.gabojait.gabojaitspring.team.dto.res.TeamAbstractResDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamDefaultResDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamFavoriteResDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamRecruitResDto;
@@ -28,8 +27,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -51,7 +48,7 @@ public class TeamController {
                     "TOTAL_RECRUIT_CNT_FIELD_REQUIRED || POSITION_FIELD_REQUIRED || EXCEPTION_FIELD_REQUIRED || " +
                     "OPEN_CHAT_URL_FIELD_REQUIRED || PROJECT_NAME_LENGTH_INVALID || " +
                     "PROJECT_DESCRIPTION_LENGTH_INVALID || EXPECTATION_LENGTH_INVALID || " +
-                    "OPEN_CHAT_URL_LENGTH_INVALID || TOTAL_CNT_POSITIVE__ONLY || POSITION_TYPE_INVALID || " +
+                    "OPEN_CHAT_URL_LENGTH_INVALID || TOTAL_RECRUIT_CNT_POSITIVE_ONLY || POSITION_TYPE_INVALID || " +
                     "OPEN_CHAT_URL_FORMAT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
