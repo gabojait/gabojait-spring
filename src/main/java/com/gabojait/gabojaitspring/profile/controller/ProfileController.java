@@ -440,7 +440,7 @@ public class ProfileController {
                     "- page-from = NotNull && PositiveOrZero\n" +
                     "- page-size = Positive\n\n" +
                     "<응답 코드>\n" +
-                    "- 200 = USERS_FINDING_TEAM_FOUND\n" +
+                    "- 200 = USERS_SEEKING_TEAM_FOUND\n" +
                     "- 400 = POSITION_FIELD_REQUIRED || PROFILE_ORDER_FIELD_REQUIRED || PAGE_FROM_FIELD_REQUIRED || " +
                     "POSITION_TYPE_INVALID || PROFILE_RATING_TYPE_INVALID || PAGE_FROM_POSITIVE_OR_ZERO_ONLY || " +
                     "|| PAGE_SIZE_POSITIVE_ONLY\n" +
