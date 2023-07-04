@@ -28,19 +28,6 @@ class ContactControllerTest extends ControllerTestSetup {
     @MockBean
     private JwtProvider jwtProvider;
 
-    private ContactSaveReqDto getValidContactSaveReqDto() {
-        ContactSaveReqDto reqDto = new ContactSaveReqDto();
-        reqDto.setEmail("tester@gabojait.com");
-        return reqDto;
-    }
-
-    private ContactVerifyReqDto getValidContactVerifyReqDto() {
-        ContactVerifyReqDto reqDto = new ContactVerifyReqDto();
-        reqDto.setEmail("tester@gabojait.com");
-        reqDto.setVerificationCode("000000");
-        return reqDto;
-    }
-
     @Test
     @DisplayName("인증코드 전송 | 올바른 요청시 | 201응답")
     void sendVerificationCode_givenValidReq_return201() throws Exception {
@@ -191,5 +178,18 @@ class ContactControllerTest extends ControllerTestSetup {
 
         assertThat(status).isEqualTo(EMAIL_FORMAT_INVALID.getHttpStatus().value());
         assertThat(response).contains(EMAIL_FORMAT_INVALID.name());
+    }
+
+    private ContactSaveReqDto getValidContactSaveReqDto() {
+        ContactSaveReqDto reqDto = new ContactSaveReqDto();
+        reqDto.setEmail("tester@gabojait.com");
+        return reqDto;
+    }
+
+    private ContactVerifyReqDto getValidContactVerifyReqDto() {
+        ContactVerifyReqDto reqDto = new ContactVerifyReqDto();
+        reqDto.setEmail("tester@gabojait.com");
+        reqDto.setVerificationCode("000000");
+        return reqDto;
     }
 }
