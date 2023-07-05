@@ -9,8 +9,11 @@ import com.gabojait.gabojaitspring.admin.service.AdminService;
 import com.gabojait.gabojaitspring.admin.service.MasterService;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.domain.type.Role;
+import com.gabojait.gabojaitspring.user.dto.res.UserDefaultResDto;
+import com.gabojait.gabojaitspring.user.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,9 +24,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.GroupSequence;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -36,6 +41,11 @@ import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "관리자")
+@Validated
+@GroupSequence({AdminController.class,
+        ValidationSequence.Blank.class,
+        ValidationSequence.Size.class,
+        ValidationSequence.Format.class})
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin")
@@ -134,12 +144,12 @@ public class AdminController {
     @GetMapping
     public ResponseEntity<DefaultResDto<Object>> findUnregisteredAdmin(
             HttpServletRequest servletRequest,
-            @RequestParam(value = "page-from")
-            @NotNull(message = "페이지 시작점은 필수 입력란입니다.")
-            @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.")
+            @RequestParam(value = "page-from", required = false)
+            @NotNull(message = "페이지 시작점은 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
+            @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageFrom,
             @RequestParam(value = "page-size", required = false)
-            @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
         jwtProvider.authorizeMasterAccessJwt(servletRequest.getHeader(AUTHORIZATION));
@@ -179,13 +189,15 @@ public class AdminController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/{admin-id}/decide")
-    public ResponseEntity<DefaultResDto<Object>> decideAdminRegistration(HttpServletRequest servletRequest,
-                                                                         @PathVariable(value = "admin-id")
-                                                                         @NotNull(message = "관리자 식별자는 필수 입력입니다.")
-                                                                         @Positive(message = "관리자 식별자는 양수만 가능합니다.")
-                                                                         Long adminId,
-                                                                         @RequestBody @Valid
-                                                                         AdminRegisterDecideReqDto request) {
+    public ResponseEntity<DefaultResDto<Object>> decideAdminRegistration(
+            HttpServletRequest servletRequest,
+            @PathVariable(value = "admin-id", required = false)
+            @NotNull(message = "관리자 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Positive(message = "관리자 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            Long adminId,
+            @RequestBody @Valid
+            AdminRegisterDecideReqDto request
+    ) {
         jwtProvider.authorizeMasterAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         masterService.decideAdminRegistration(adminId, request.getIsApproved());
@@ -194,6 +206,47 @@ public class AdminController {
                 .body(DefaultResDto.noDataBuilder()
                         .responseCode(ADMIN_REGISTER_DECIDED.name())
                         .responseMessage(ADMIN_REGISTER_DECIDED.getMessage())
+                        .build());
+    }
+
+    @ApiOperation(value = "회원 단건 조회",
+            notes = "<응답 코드>\n" +
+                    "- 200 = USER_FOUND\n" +
+                    "- 400 = USER_ID_FIELD_REQUIRED || USER_ID_POSITIVE_ONLY\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(schema = @Schema(implementation = UserDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
+    })
+    @GetMapping("/{user-id}")
+    public ResponseEntity<DefaultResDto<Object>> findOther(
+            HttpServletRequest servletRequest,
+            @PathVariable(value = "user-id", required = false)
+            @NotNull(message = "회원 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            Long userId
+    ) {
+        jwtProvider.authorizeAdminAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        User otherUser = adminService.findOneUser(userId);
+
+        UserDefaultResDto response = new UserDefaultResDto(otherUser);
+
+        return ResponseEntity.status(USER_FOUND.getHttpStatus())
+                .body(DefaultResDto.singleDataBuilder()
+                        .responseCode(USER_FOUND.name())
+                        .responseMessage(USER_FOUND.getMessage())
+                        .data(response)
                         .build());
     }
 }

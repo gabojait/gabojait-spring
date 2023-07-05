@@ -8,13 +8,13 @@ import lombok.ToString;
 
 @Getter
 @ToString
-@ApiModel(value = "프로필 찜 응답")
-public class ProfileFavoriteResDto extends ProfileDefaultResDto {
+@ApiModel(value = "프로필 제안과 찜 포함 응답")
+public class ProfileOfferAndFavoriteResDto extends ProfileDefaultResDto {
 
     @ApiModelProperty(position = 19, required = true, value = "찜 여부", allowableValues = "true, false, null")
     private Boolean isFavorite;
 
-    public ProfileFavoriteResDto(User user, Boolean isFavorite) {
+    public ProfileOfferAndFavoriteResDto(User user, Boolean isFavorite) {
         super(user);
 
         this.isFavorite = isFavorite;

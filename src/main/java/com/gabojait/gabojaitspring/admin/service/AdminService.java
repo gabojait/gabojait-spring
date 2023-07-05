@@ -63,6 +63,17 @@ public class AdminService {
     }
 
     /**
+     * 식별자로 회원 단건 조회 |
+     * 404(USER_NOT_FOUND)
+     */
+    public User findOneUser(Long userId) {
+        return userRepository.findByIdAndIsDeletedIsFalse(userId)
+                .orElseThrow(() -> {
+                    throw new CustomException(USER_NOT_FOUND);
+                });
+    }
+
+    /**
      * 관리자 저장 |
      * 500(SERVER_ERROR)
      */
