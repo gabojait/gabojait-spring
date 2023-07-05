@@ -4,13 +4,12 @@ import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.team.domain.Team;
-import com.gabojait.gabojaitspring.team.dto.TeamRecruitPageDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamCompleteReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamDefaultReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamIsRecruitingUpdateReqDto;
+import com.gabojait.gabojaitspring.team.dto.res.TeamAbstractResDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamDefaultResDto;
-import com.gabojait.gabojaitspring.team.dto.res.TeamFavoriteResDto;
-import com.gabojait.gabojaitspring.team.dto.res.TeamRecruitResDto;
+import com.gabojait.gabojaitspring.team.dto.res.TeamOfferAndFavoriteResDto;
 import com.gabojait.gabojaitspring.team.service.TeamService;
 import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.Api;
@@ -20,6 +19,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -29,6 +29,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.GroupSequence;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -177,7 +180,7 @@ public class TeamController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = TeamFavoriteResDto.class))),
+                    content = @Content(schema = @Schema(implementation = TeamOfferAndFavoriteResDto.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -195,7 +198,7 @@ public class TeamController {
     ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        TeamFavoriteResDto response = teamService.findOneOtherTeam(teamId, user);
+        TeamOfferAndFavoriteResDto response = teamService.findOneOtherTeam(teamId, user);
 
         return ResponseEntity.status(TEAM_FOUND.getHttpStatus())
                 .body(DefaultResDto.singleDataBuilder()
@@ -226,7 +229,7 @@ public class TeamController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = TeamRecruitResDto.class))),
+                    content = @Content(schema = @Schema(implementation = TeamAbstractResDto.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -256,20 +259,20 @@ public class TeamController {
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        TeamRecruitPageDto response = teamService.findManyTeamByPositionOrder(position,
-                teamOrder,
-                pageFrom,
-                pageSize,
-                user);
+        Page<Team> teams = teamService.findManyTeamByPositionOrder(position, teamOrder, pageFrom, pageSize);
+
+        List<TeamAbstractResDto> responses = new ArrayList<>();
+        for (Team team : teams)
+            responses.add(new TeamAbstractResDto(team));
 
         return ResponseEntity.status(TEAMS_RECRUITING_USERS_FOUND.getHttpStatus())
                 .body(DefaultResDto.multiDataBuilder()
                         .responseCode(TEAMS_RECRUITING_USERS_FOUND.name())
                         .responseMessage(TEAMS_RECRUITING_USERS_FOUND.getMessage())
-                        .data(response.getTeamOfferResDtos())
-                        .size(response.getTotalPages())
+                        .data(responses)
+                        .size(teams.getTotalPages())
                         .build());
     }
 

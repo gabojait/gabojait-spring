@@ -4,6 +4,8 @@ import com.gabojait.gabojaitspring.common.util.EmailProvider;
 import com.gabojait.gabojaitspring.common.util.FileProvider;
 import com.gabojait.gabojaitspring.common.util.GeneralProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.favorite.domain.FavoriteUser;
+import com.gabojait.gabojaitspring.favorite.repository.FavoriteUserRepository;
 import com.gabojait.gabojaitspring.fcm.domain.Fcm;
 import com.gabojait.gabojaitspring.fcm.repository.FcmRepository;
 import com.gabojait.gabojaitspring.offer.domain.Offer;
@@ -11,6 +13,7 @@ import com.gabojait.gabojaitspring.offer.repository.OfferRepository;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.profile.domain.type.ProfileOrder;
 import com.gabojait.gabojaitspring.profile.dto.ProfileSeekPageDto;
+import com.gabojait.gabojaitspring.profile.dto.res.ProfileOfferAndFavoriteResDto;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileSeekResDto;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.Contact;
@@ -52,6 +55,7 @@ public class UserService {
     private final ContactRepository contactRepository;
     private final FcmRepository fcmRepository;
     private final OfferRepository offerRepository;
+    private final FavoriteUserRepository favoriteUserRepository;
     private final GeneralProvider generalProvider;
     private final EmailProvider emailProvider;
     private final FileProvider fileProvider;
@@ -264,6 +268,28 @@ public class UserService {
     }
 
     /**
+     * 회원 식별자로 회원으로 타 회원 프로필 단건 조회 |
+     * 404(USER_NOT_FOUND)
+     * 500(SERVER_ERROR)
+     */
+    public ProfileOfferAndFavoriteResDto findOneOtherProfile(Long otherUserId, User user) {
+        if (user.getId().equals(otherUserId))
+            return new ProfileOfferAndFavoriteResDto(user, List.of(), null);
+
+        User otherUser = findOneUser(otherUserId);
+
+        List<Offer> offers = new ArrayList<>();
+        Boolean isFavorite = null;
+
+        if (user.isLeader()) {
+            offers = findAllOffersToUser(user, otherUser);
+            isFavorite = isFavoriteUser(otherUser, user);
+        }
+
+        return new ProfileOfferAndFavoriteResDto(otherUser, offers, isFavorite);
+    }
+
+    /**
      * 포지션과 프로필 정렬 기준으로 회원 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
@@ -396,6 +422,17 @@ public class UserService {
             throw new CustomException(LOGIN_UNAUTHENTICATED);
 
         return user.get();
+    }
+
+    /**
+     * 식별자로 회원 단건 조회 |
+     * 404(USER_NOT_FOUND)
+     */
+    private User findOneUser(Long userId) {
+        return userRepository.findByIdAndIsDeletedIsFalse(userId)
+                .orElseThrow(() -> {
+                    throw new CustomException(USER_NOT_FOUND);
+                });
     }
 
     /**
@@ -591,6 +628,23 @@ public class UserService {
                 .user(user)
                 .role(Role.USER)
                 .build();
+    }
+
+    /**
+     * 찜한 회원 여부 확인 |
+     * 500(SERVER_ERROR)
+     */
+    private boolean isFavoriteUser(User user, User leader) {
+        Team team = leader.getTeamMembers().get(leader.getTeamMembers().size() - 1).getTeam();
+
+        try {
+            Optional<FavoriteUser> favoriteUser =
+                    favoriteUserRepository.findByTeamAndUserAndIsDeletedIsFalse(team, user);
+
+            return favoriteUser.isPresent();
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
     }
 
     /**

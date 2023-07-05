@@ -4,7 +4,6 @@ import com.gabojait.gabojaitspring.common.util.GeneralProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.favorite.domain.FavoriteUser;
 import com.gabojait.gabojaitspring.favorite.repository.FavoriteUserRepository;
-import com.gabojait.gabojaitspring.profile.dto.res.ProfileFavoriteResDto;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.team.repository.TeamMemberRepository;
@@ -15,8 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 
@@ -90,21 +87,6 @@ public class FavoriteUserService {
     }
 
     /**
-     * 찜한 회원 여부 확인 |
-     * 500(SERVER_ERROR)
-     */
-    public boolean isFavoriteUser(Team team, User user) {
-        try {
-            Optional<FavoriteUser> favoriteUser =
-                    favoriteUserRepository.findByTeamAndUserAndIsDeletedIsFalse(team, user);
-
-            return favoriteUser.isPresent();
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
      * 찜한 회원 저장 |
      * 500(SERVER_ERROR)
      */
@@ -136,38 +118,6 @@ public class FavoriteUserService {
                 .orElseThrow(() -> {
                     throw new CustomException(USER_NOT_FOUND);
                 });
-    }
-
-    /**
-     * 식별자로 타 회원 단건 조회 |
-     * 404(USER_NOT_FOUND)
-     * 500(SERVER_ERROR)
-     */
-    public User findOneOtherUser(User user, Long otherUserId) {
-        if (user.getId().equals(otherUserId))
-            return user;
-
-        User otherUser = findOneUser(otherUserId);
-        otherUser.incrementVisitedCnt();
-
-        return otherUser;
-    }
-
-    /**
-     * 식별자로 타 회원 프로필 단건 조회 |
-     * 404(USER_NOT_FOUND)
-     * 500(SERVER_ERROR)
-     */
-    public ProfileFavoriteResDto findOneOtherProfile(User user, long userId) {
-        User otherUser = findOneOtherUser(user, userId);
-
-        Boolean isFavorite = null;
-
-        if (user.isLeader())
-            isFavorite = isFavoriteUser(user.getTeamMembers().get(otherUser.getTeamMembers().size() - 1).getTeam(),
-                    otherUser);
-
-        return new ProfileFavoriteResDto(otherUser, isFavorite);
     }
 
     /**

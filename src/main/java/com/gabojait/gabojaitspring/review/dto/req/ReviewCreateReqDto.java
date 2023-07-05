@@ -3,7 +3,7 @@ package com.gabojait.gabojaitspring.review.dto.req;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.GroupSequence;
@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 @ToString
-@NoArgsConstructor
 @GroupSequence({ReviewCreateReqDto.class})
 @ApiModel(value = "리뷰 생성 요청")
 public class ReviewCreateReqDto {

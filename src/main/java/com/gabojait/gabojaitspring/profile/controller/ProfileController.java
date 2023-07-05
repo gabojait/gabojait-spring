@@ -93,12 +93,12 @@ public class ProfileController {
                     "- 400 = USER_ID_FIELD_REQUIRED || USER_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 404 = USER_NOT_FOUND || TEAM_NOT_FOUND\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = ProfileFavoriteResDto.class))),
+                    content = @Content(schema = @Schema(implementation = ProfileOfferAndFavoriteResDto.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -116,7 +116,7 @@ public class ProfileController {
     ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
-        ProfileFavoriteResDto response = favoriteUserService.findOneOtherProfile(user, userId);
+        ProfileOfferAndFavoriteResDto response = userService.findOneOtherProfile(userId, user);
 
         return ResponseEntity.status(PROFILE_FOUND.getHttpStatus())
                 .body(DefaultResDto.singleDataBuilder()

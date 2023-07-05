@@ -11,11 +11,9 @@ import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.team.domain.type.TeamOrder;
-import com.gabojait.gabojaitspring.team.dto.TeamRecruitPageDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamDefaultReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamMemberRecruitCntReqDto;
-import com.gabojait.gabojaitspring.team.dto.res.TeamFavoriteResDto;
-import com.gabojait.gabojaitspring.team.dto.res.TeamRecruitResDto;
+import com.gabojait.gabojaitspring.team.dto.res.TeamOfferAndFavoriteResDto;
 import com.gabojait.gabojaitspring.team.repository.TeamMemberRepository;
 import com.gabojait.gabojaitspring.team.repository.TeamRepository;
 import com.gabojait.gabojaitspring.user.domain.User;
@@ -228,26 +226,6 @@ public class TeamService {
     }
 
     /**
-     * 팀 멤버 소프트 삭제 |
-     * 500(SERVER_ERROR)
-     */
-    private void delete(TeamMember teamMember) {
-        teamMember.delete();
-    }
-
-    /**
-     * 팀 멤버 하드 삭제 |
-     * 500(SERVER_ERROR)
-     */
-    public void hardDeleteTeamMember(TeamMember teamMember) {
-        try {
-            teamMemberRepository.delete(teamMember);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
      * 회원으로 현재 팀 단건 조회 |
      * 404(CURRENT_TEAM_NOT_FOUND)
      */
@@ -258,11 +236,11 @@ public class TeamService {
     }
 
     /**
-     * 식별자로 팀 단건 조회 |
+     * 팀 식별자와 회원으로 타 팀 단건 조회 |
      * 404(TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public TeamFavoriteResDto findOneOtherTeam(Long teamId, User user) {
+    public TeamOfferAndFavoriteResDto findOneOtherTeam(Long teamId, User user) {
         Team team = findOneTeam(teamId);
 
         boolean isTeamMember = user.isTeamMember(team);
@@ -270,20 +248,20 @@ public class TeamService {
         if (!isTeamMember)
             team.incrementVisitedCnt();
 
+        List<Offer> offers = findAllOffersToTeam(user, team);
         Boolean isFavorite = isFavoriteTeam(user, team);
 
-        return new TeamFavoriteResDto(team, isFavorite);
+        return new TeamOfferAndFavoriteResDto(team, offers, isFavorite);
     }
 
     /**
      * 포지션과 팀 정렬 기준으로 팀 페이징 다건 조회 | main |
      * 500(SERVER_ERROR)
      */
-    public TeamRecruitPageDto findManyTeamByPositionOrder(String position,
-                                                          String teamOrder,
-                                                          Integer pageFrom,
-                                                          Integer pageSize,
-                                                          User user) {
+    public Page<Team> findManyTeamByPositionOrder(String position,
+                                                  String teamOrder,
+                                                  Integer pageFrom,
+                                                  Integer pageSize) {
         Position p = Position.fromString(position);
         TeamOrder to = TeamOrder.fromString(teamOrder);
         Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
@@ -316,14 +294,7 @@ public class TeamService {
             }
         }
 
-        List<TeamRecruitResDto> teamRecruitResDtos = new ArrayList<>();
-
-        for (Team team : teams) {
-            List<Offer> offers = findAllOffersToTeam(user, team);
-            teamRecruitResDtos.add(new TeamRecruitResDto(team, offers));
-        }
-
-        return new TeamRecruitPageDto(teamRecruitResDtos, teams.getTotalPages());
+        return teams;
     }
 
     /**

@@ -3,7 +3,6 @@ package com.gabojait.gabojaitspring.user.controller;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
-import com.gabojait.gabojaitspring.favorite.service.FavoriteUserService;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.dto.req.*;
 import com.gabojait.gabojaitspring.user.dto.res.UserDefaultResDto;
@@ -41,7 +40,6 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 public class UserController {
 
     private final UserService userService;
-    private final FavoriteUserService favoriteUserService;
     private final JwtProvider jwtProvider;
 
     @ApiOperation(value = "아이디 중복여부 확인",
@@ -63,7 +61,7 @@ public class UserController {
     })
     @GetMapping("/username")
     public ResponseEntity<DefaultResDto<Object>> duplicateUsername(
-            @RequestParam(value = "username")
+            @RequestParam(value = "username", required = false)
             @NotBlank(message = "아이디는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @Size(min = 5, max = 15, message = "아이디는 5~15자만 가능합니다.", groups = ValidationSequence.Size.class)
             @Pattern(regexp = "^(?=.*[a-z0-9])[a-z0-9]+$", message = "아이디는 소문자 영어와 숫자의 조합으로 입력해 주세요.",
@@ -98,7 +96,7 @@ public class UserController {
     })
     @GetMapping("/nickname")
     public ResponseEntity<DefaultResDto<Object>> duplicateNickname(
-            @RequestParam(value = "nickname")
+            @RequestParam(value = "nickname", required = false)
             @NotBlank(message = "닉네임은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @Size(min = 2, max = 8, message = "닉네임은 2~8자만 가능합니다.", groups = ValidationSequence.Size.class)
             @Pattern(regexp = "^[가-힣]+$", message = "닉닉네임은 한글 조합으로 입력해 주세요.",
@@ -244,47 +242,6 @@ public class UserController {
                 .body(DefaultResDto.singleDataBuilder()
                         .responseCode(SELF_USER_FOUND.name())
                         .responseMessage(SELF_USER_FOUND.getMessage())
-                        .data(response)
-                        .build());
-    }
-
-    @ApiOperation(value = "단건 조회",
-            notes = "<응답 코드>\n" +
-                    "- 200 = USER_FOUND\n" +
-                    "- 400 = USER_ID_FIELD_REQUIRED || USER_ID_POSITIVE_ONLY\n" +
-                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
-                    "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 404 = USER_NOT_FOUND\n" +
-                    "- 500 = SERVER_ERROR\n" +
-                    "- 503 = ONGOING_INSPECTION")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = UserDefaultResDto.class))),
-            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
-            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
-            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
-            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
-            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
-    })
-    @GetMapping("/{user-id}")
-    public ResponseEntity<DefaultResDto<Object>> findOther(
-            HttpServletRequest servletRequest,
-            @PathVariable(value = "user-id")
-            @NotNull(message = "회원 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-            @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-            Long userId
-    ) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
-
-        User otherUser = favoriteUserService.findOneOtherUser(user, userId);
-
-        UserDefaultResDto response = new UserDefaultResDto(otherUser);
-
-        return ResponseEntity.status(USER_FOUND.getHttpStatus())
-                .body(DefaultResDto.singleDataBuilder()
-                        .responseCode(USER_FOUND.name())
-                        .responseMessage(USER_FOUND.getMessage())
                         .data(response)
                         .build());
     }

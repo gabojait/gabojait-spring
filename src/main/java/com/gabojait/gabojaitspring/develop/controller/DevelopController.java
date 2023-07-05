@@ -2,6 +2,7 @@ package com.gabojait.gabojaitspring.develop.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.develop.dto.req.DevelopFcmReqDto;
 import com.gabojait.gabojaitspring.develop.service.DevelopService;
 import com.gabojait.gabojaitspring.user.domain.User;
@@ -14,9 +15,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.GroupSequence;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -25,6 +28,11 @@ import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "개발")
+@Validated
+@GroupSequence({DevelopController.class,
+        ValidationSequence.Blank.class,
+        ValidationSequence.Size.class,
+        ValidationSequence.Format.class})
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -94,10 +102,12 @@ public class DevelopController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/test/user/{tester-id}")
-    public ResponseEntity<DefaultResDto<Object>> testDataToken(@PathVariable(value = "tester-id")
-                                                               @NotNull(message = "회원 식별자는 필수 입력입니다.")
-                                                               @Positive(message = "회원 식별자는 양수만 가능합니다.")
-                                                               Integer testerId) {
+    public ResponseEntity<DefaultResDto<Object>> testDataToken(
+            @PathVariable(value = "tester-id", required = false)
+            @NotNull(message = "회원 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            Integer testerId
+    ) {
         User user = developService.findOneTester("test" + testerId);
 
         HttpHeaders headers = jwtProvider.generateUserJwt(user.getId(), user.getRoles());

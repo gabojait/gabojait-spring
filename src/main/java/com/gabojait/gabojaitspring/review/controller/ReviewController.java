@@ -2,6 +2,7 @@ package com.gabojait.gabojaitspring.review.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.review.domain.Review;
 import com.gabojait.gabojaitspring.review.dto.req.ReviewCreateReqDto;
 import com.gabojait.gabojaitspring.review.dto.res.ReviewDefaultResDto;
@@ -23,6 +24,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.GroupSequence;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -35,6 +37,10 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "리뷰")
 @Validated
+@GroupSequence({ReviewController.class,
+        ValidationSequence.Blank.class,
+        ValidationSequence.Size.class,
+        ValidationSequence.Format.class})
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -67,12 +73,14 @@ public class ReviewController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/user/team/{team-id}/review")
-    public ResponseEntity<DefaultResDto<Object>> createReview(HttpServletRequest servletRequest,
-                                                              @PathVariable(value = "team-id")
-                                                              @NotNull(message = "팀 식별자는 필수 입력입니다.")
-                                                              @Positive(message = "팀 식별자는 양수만 가능합니다.")
-                                                              Long teamId,
-                                                              @RequestBody @Valid ReviewCreateReqDto request) {
+    public ResponseEntity<DefaultResDto<Object>> createReview(
+            HttpServletRequest servletRequest,
+            @PathVariable(value = "team-id", required = false)
+            @NotNull(message = "팀 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Positive(message = "팀 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            Long teamId,
+            @RequestBody @Valid ReviewCreateReqDto request
+    ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         reviewService.create(user, teamId, request);
@@ -146,16 +154,16 @@ public class ReviewController {
     @GetMapping("/user/{user-id}/review")
     public ResponseEntity<DefaultResDto<Object>> findManyReview(
             HttpServletRequest servletRequest,
-            @PathVariable(value = "user-id")
-            @NotNull(message = "회원 식별자는 필수 입력입니다.")
-            @Positive(message = "회원 식별자는 양수만 가능합니다.")
+            @PathVariable(value = "user-id", required = false)
+            @NotNull(message = "회원 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long userId,
-            @RequestParam(value = "page-from")
-            @NotNull(message = "페이지 시작점은 필수 입력입니다.")
-            @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.")
+            @RequestParam(value = "page-from", required = false)
+            @NotNull(message = "페이지 시작점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageFrom,
             @RequestParam(value = "page-size", required = false)
-            @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
         jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
