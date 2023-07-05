@@ -13,7 +13,6 @@ import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.domain.type.Role;
 import com.gabojait.gabojaitspring.user.dto.res.UserDefaultResDto;
-import com.gabojait.gabojaitspring.user.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -228,8 +227,8 @@ public class AdminController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @GetMapping("/{user-id}")
-    public ResponseEntity<DefaultResDto<Object>> findOther(
+    @GetMapping("/user/{user-id}")
+    public ResponseEntity<DefaultResDto<Object>> findOneUser(
             HttpServletRequest servletRequest,
             @PathVariable(value = "user-id", required = false)
             @NotNull(message = "회원 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
