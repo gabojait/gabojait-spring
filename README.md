@@ -20,7 +20,7 @@ Play Store:
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 ![Alpha-CI](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fgabojait%2Fgabojait-spring%2Fbadge%3Fref%3Ddevelop%26token%3D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&style=flat&label=Alpha-CI&logo=GitHub-Actions)
-![Master-CI](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fgabojait%2Fgabojait-spring%2Fbadge%3Fref%3Dmaster%26token%3D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&style=flat&label=Master-CI&logo=GitHub-Actions)
+![Release-CI](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fgabojait%2Fgabojait-spring%2Fbadge%3Fref%3Dmaster%26token%3D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&style=flat&label=Release-CI&logo=GitHub-Actions)
 </div>
 
 ---
