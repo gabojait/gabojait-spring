@@ -278,6 +278,8 @@ public class UserService {
 
         User otherUser = findOneUser(otherUserId);
 
+        otherUser.incrementVisitedCnt();
+
         List<Offer> offers = new ArrayList<>();
         Boolean isFavorite = null;
 
