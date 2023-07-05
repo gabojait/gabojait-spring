@@ -20,6 +20,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 
 @Service
@@ -85,6 +87,7 @@ public class OfferService {
      * 회원이 받은 제안 결정 |
      * 404(OFFER_NOT_FOUND)
      * 409(EXISTING_CURRENT_TEAM / TEAM_POSITION_UNAVAILABLE)
+     * 500(SERVER_ERROR)
      */
     public void decideByUser(User user, Long offerId, Boolean isAccepted) {
         Offer offer = findOneOfferByIdAndUser(offerId, user);
@@ -97,6 +100,10 @@ public class OfferService {
         if (isAccepted) {
             offer.accept();
             createTeamMember(user, team, Position.fromChar(offer.getPosition()));
+
+            List<Offer> offers = findAllOfferByUserAndTeam(user, team);
+            for (Offer o : offers)
+                o.cancel();
 
             user.incrementJoinTeamCnt();
             team.incrementUserJoinCnt();
@@ -112,6 +119,7 @@ public class OfferService {
      * 403(REQUEST_FORBIDDEN)
      * 404(OFFER_NOT_FOUND / USER_NOT_FOUND)
      * 409(EXISTING_CURRENT_TEAM / TEAM_POSITION_UNAVAILABLE)
+     * 500(SERVER_ERROR)
      */
     public void decideByTeam(User leader, Long offerId, Boolean isAccepted) {
         Team team = leader.getTeamMembers().get(leader.getTeamMembers().size() - 1).getTeam();
@@ -126,6 +134,10 @@ public class OfferService {
         if (isAccepted) {
             offer.accept();
             createTeamMember(user, team, Position.fromChar(offer.getPosition()));
+
+            List<Offer> offers = findAllOfferByUserAndTeam(user, team);
+            for (Offer o : offers)
+                o.cancel();
 
             user.incrementJoinTeamCnt();
             team.incrementUserJoinCnt();
@@ -272,6 +284,18 @@ public class OfferService {
                 .orElseThrow(() -> {
                     throw new CustomException(OFFER_NOT_FOUND);
                 });
+    }
+
+    /**
+     * 회원와 팀으로 회원이 특정 팀에게 보낸 전체 제안 조회 |
+     * 500(SERVER_ERROR)
+     */
+    private List<Offer> findAllOfferByUserAndTeam(User user, Team team) {
+        try {
+            return offerRepository.findAllByUserAndTeamAndIsAcceptedIsNullAndIsDeletedIsFalse(user, team);
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
     }
 
     /**
