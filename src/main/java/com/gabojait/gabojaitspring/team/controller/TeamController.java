@@ -186,11 +186,13 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/team/{team-id}")
-    public ResponseEntity<DefaultResDto<Object>> findOneTeam(HttpServletRequest servletRequest,
-                                                             @PathVariable(value = "team-id")
-                                                             @NotNull(message = "팀 식별자는 필수 입력입니다.")
-                                                             @Positive(message = "팀 식별자는 양수만 가능합니다.")
-                                                             Long teamId) {
+    public ResponseEntity<DefaultResDto<Object>> findOneTeam(
+            HttpServletRequest servletRequest,
+            @PathVariable(value = "team-id", required = false)
+            @NotNull(message = "팀 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Positive(message = "팀 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            Long teamId
+    ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         TeamFavoriteResDto response = teamService.findOneOtherTeam(teamId, user);
@@ -395,7 +397,7 @@ public class TeamController {
     @PatchMapping("/team/user/{user-id}/fire")
     public ResponseEntity<DefaultResDto<Object>> fireTeammate(
             HttpServletRequest servletRequest,
-            @PathVariable(value = "user-id")
+            @PathVariable(value = "user-id", required = false)
             @NotNull(message = "회원 식별자를 입력해 주세요.", groups = ValidationSequence.Blank.class)
             @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long userId

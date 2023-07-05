@@ -2,6 +2,7 @@ package com.gabojait.gabojaitspring.offer.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.offer.domain.Offer;
 import com.gabojait.gabojaitspring.offer.dto.req.OfferCreateReqDto;
 import com.gabojait.gabojaitspring.offer.dto.req.OfferUpdateReqDto;
@@ -22,6 +23,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.GroupSequence;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -31,11 +33,14 @@ import java.util.List;
 
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.OFFER_CANCEL_BY_USER;
-import static java.util.Map.of;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "제안")
 @Validated
+@GroupSequence({OfferController.class,
+        ValidationSequence.Blank.class,
+        ValidationSequence.Size.class,
+        ValidationSequence.Format.class})
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -68,11 +73,13 @@ public class OfferController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/user/team/{team-id}/offer")
-    public ResponseEntity<DefaultResDto<Object>> userOffer(HttpServletRequest servletRequest,
-                                                           @PathVariable(value = "team-id")
-                                                           @NotNull(message = "팀 식별자는 필수 입력입니다.")
-                                                           @Positive(message = "팀 식별자는 양수만 가능합니다.") Long teamId,
-                                                           @RequestBody @Valid OfferCreateReqDto request) {
+    public ResponseEntity<DefaultResDto<Object>> userOffer(
+            HttpServletRequest servletRequest,
+            @PathVariable(value = "team-id", required = false)
+            @NotNull(message = "팀 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Positive(message = "팀 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            Long teamId,
+            @RequestBody @Valid OfferCreateReqDto request) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         offerService.offerByUser(user, teamId, request);
@@ -108,12 +115,14 @@ public class OfferController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/team/user/{user-id}/offer")
-    public ResponseEntity<DefaultResDto<Object>> teamOffer(HttpServletRequest servletRequest,
-                                                           @PathVariable(value = "user-id")
-                                                           @NotNull(message = "회원 식별자는 필수 입력입니다.")
-                                                           @Positive(message = "회원 식별자는 양수만 가능합니다.")
-                                                           Long userId,
-                                                           @RequestBody @Valid OfferCreateReqDto request) {
+    public ResponseEntity<DefaultResDto<Object>> teamOffer(
+            HttpServletRequest servletRequest,
+            @PathVariable(value = "user-id", required = false)
+            @NotNull(message = "회원 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            Long userId,
+            @RequestBody @Valid OfferCreateReqDto request
+    ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         offerService.offerByTeam(user, userId, request);
@@ -145,12 +154,12 @@ public class OfferController {
     @GetMapping("/user/offer")
     public ResponseEntity<DefaultResDto<Object>> userFindOffers(
             HttpServletRequest servletRequest,
-            @RequestParam(value = "page-from")
-            @NotNull(message = "페이지 시작점은 필수 입력입니다.")
-            @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.")
+            @RequestParam(value = "page-from", required = false)
+            @NotNull(message = "페이지 시작점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageFrom,
             @RequestParam(value = "page-size", required = false)
-            @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
@@ -190,12 +199,12 @@ public class OfferController {
     @GetMapping("/team/offer")
     public ResponseEntity<DefaultResDto<Object>> teamFindOffers(
             HttpServletRequest servletRequest,
-            @RequestParam(value = "page-from")
-            @NotNull(message = "페이지 시작점은 필수 입력입니다.")
-            @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.")
+            @RequestParam(value = "page-from", required = false)
+            @NotNull(message = "페이지 시작점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageFrom,
             @RequestParam(value = "page-size", required = false)
-            @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
@@ -218,7 +227,7 @@ public class OfferController {
     @ApiOperation(value = "회원이 받은 제안 결정",
             notes = "<응답 코드>\n" +
                     "- 200 = USER_DECIDED_OFFER\n" +
-                    "- 400 = IS_ACCEPTED_FIELD_REQUIRED || OFFER_ID_REQUIRED_ID || OFFERED_ID_POSITIVE_ONLY\n" +
+                    "- 400 = IS_ACCEPTED_FIELD_REQUIRED || OFFER_ID_FIELD_REQUIRED || OFFER_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = OFFER_NOT_FOUND\n" +
@@ -237,13 +246,15 @@ public class OfferController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/user/offer/{offer-id}")
-    public ResponseEntity<DefaultResDto<Object>> decideOfferByUser(HttpServletRequest servletRequest,
-                                                                   @PathVariable(value = "offer-id")
-                                                                   @NotNull(message = "제안 식별자는 필수 입력입니다.")
-                                                                   @Positive(message = "제안 식별자는 양수만 가능합니다.")
-                                                                   Long offerId,
-                                                                   @RequestBody @Valid
-                                                                   OfferUpdateReqDto request) {
+    public ResponseEntity<DefaultResDto<Object>> decideOfferByUser(
+            HttpServletRequest servletRequest,
+            @PathVariable(value = "offer-id", required = false)
+            @NotNull(message = "제안 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Positive(message = "제안 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            Long offerId,
+            @RequestBody @Valid
+            OfferUpdateReqDto request
+    ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         offerService.decideByUser(user, offerId, request.getIsAccepted());
@@ -258,7 +269,7 @@ public class OfferController {
     @ApiOperation(value = "팀이 받은 제안 결정",
             notes = "<응답 코드>\n" +
                     "- 200 = TEAM_DECIDED_OFFER\n" +
-                    "- 400 = IS_ACCEPTED_FIELD_REQUIRED || OFFER_ID_REQUIRED_ID || OFFERED_ID_POSITIVE_ONLY\n" +
+                    "- 400 = IS_ACCEPTED_FIELD_REQUIRED || OFFER_ID_FIELD_REQUIRED || OFFER_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
                     "- 404 = OFFER_NOT_FOUND || USER_NOT_FOUND\n" +
@@ -277,13 +288,15 @@ public class OfferController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/team/offer/{offer-id}")
-    public ResponseEntity<DefaultResDto<Object>> decideOfferByTeam(HttpServletRequest servletRequest,
-                                                                   @PathVariable(value = "offer-id")
-                                                                   @NotNull(message = "제안 식별자는 필수 입력입니다.")
-                                                                   @Positive(message = "제안 식별자는 양수만 가능합니다.")
-                                                                   Long offerId,
-                                                                   @RequestBody @Valid
-                                                                   OfferUpdateReqDto request) {
+    public ResponseEntity<DefaultResDto<Object>> decideOfferByTeam(
+            HttpServletRequest servletRequest,
+            @PathVariable(value = "offer-id", required = false)
+            @NotNull(message = "제안 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Positive(message = "제안 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            Long offerId,
+            @RequestBody @Valid
+            OfferUpdateReqDto request
+    ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         offerService.decideByTeam(user, offerId, request.getIsAccepted());
@@ -298,7 +311,7 @@ public class OfferController {
     @ApiOperation(value = "회원이 보낸 제안 취소",
             notes = "<응답 코드>\n" +
                     "- 200 = OFFER_CANCEL_BY_USER\n" +
-                    "- 400 = OFFER_ID_REQUIRED_ID || OFFERED_ID_POSITIVE_ONLY\n" +
+                    "- 400 = OFFER_ID_FIELD_REQUIRED || OFFER_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = OFFER_NOT_FOUND\n" +
@@ -315,11 +328,13 @@ public class OfferController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping("/user/offer/{offer-id}")
-    public ResponseEntity<DefaultResDto<Object>> cancelOfferByUser(HttpServletRequest servletRequest,
-                                                                   @PathVariable(value = "offer-id")
-                                                                   @NotNull(message = "제안 식별자는 필수 입력입니다.")
-                                                                   @Positive(message = "제안 식별자는 양수만 가능합니다.")
-                                                                   Long offerId) {
+    public ResponseEntity<DefaultResDto<Object>> cancelOfferByUser(
+            HttpServletRequest servletRequest,
+            @PathVariable(value = "offer-id", required = false)
+            @NotNull(message = "제안 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Positive(message = "제안 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            Long offerId
+    ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         offerService.cancelByUser(user, offerId);
@@ -334,7 +349,7 @@ public class OfferController {
     @ApiOperation(value = "팀이 보낸 제안 취소",
             notes = "<응답 코드>\n" +
                     "- 200 = OFFER_CANCEL_BY_TEAM\n" +
-                    "- 400 = OFFER_ID_REQUIRED_ID || OFFERED_ID_POSITIVE_ONLY\n" +
+                    "- 400 = OFFER_ID_FIELD_REQUIRED || OFFER_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
                     "- 404 = OFFER_NOT_FOUND\n" +
@@ -351,11 +366,13 @@ public class OfferController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping("/team/offer/{offer-id}")
-    public ResponseEntity<DefaultResDto<Object>> cancelOfferByTeam(HttpServletRequest servletRequest,
-                                                                   @PathVariable(value = "offer-id")
-                                                                   @NotNull(message = "제안 식별자는 필수 입력입니다.")
-                                                                   @Positive(message = "제안 식별자는 양수만 가능합니다.")
-                                                                   Long offerId) {
+    public ResponseEntity<DefaultResDto<Object>> cancelOfferByTeam(
+            HttpServletRequest servletRequest,
+            @PathVariable(value = "offer-id", required = false)
+            @NotNull(message = "제안 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Positive(message = "제안 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            Long offerId
+    ) {
         User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
 
         offerService.cancelByTeam(user, offerId);

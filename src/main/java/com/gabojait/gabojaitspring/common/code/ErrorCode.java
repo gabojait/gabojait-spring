@@ -54,7 +54,7 @@ public enum ErrorCode {
     REVIEWEE_ID_FIELD_REQUIRED(BAD_REQUEST, "리뷰 대상자 식별자는 필수 입력입니다."),
     RATE_FIELD_REQUIRED(BAD_REQUEST, "평점은 필수 입력입니다."),
     POST_FIELD_REQUIRED(BAD_REQUEST, "후기는 필수 입력입니다."),
-    OFFER_ID_REQUIRED_ID(BAD_REQUEST, "제안 식별자는 필수 입력입니다."),
+    OFFER_ID_FIELD_REQUIRED(BAD_REQUEST, "제안 식별자는 필수 입력입니다."),
     ADMIN_NAME_FIELD_REQUIRED(BAD_REQUEST, "아이디는 필수 입력입니다."),
     BIRTHDATE_FIELD_REQUIRED(BAD_REQUEST, "생년월일은 필수 입력입니다."),
     IS_APPROVED_FIELD_REQUIRED(BAD_REQUEST, "승인 여부는 필수 입력입니다."),
