@@ -148,7 +148,7 @@ public class FavoriteController {
     @ApiOperation(value = "팀이 회원 찜하기 및 찜 취소하기",
             notes = "<응답 코드>\n" +
                     "- 200 = FAVORITE_USER_DELETED\n" +
-                    "- 201 = FAVORITE_USER_ADDED" +
+                    "- 201 = FAVORITE_USER_ADDED\n" +
                     "- 400 = USER_ID_FIELD_REQUIRED || USER_ID_POSITIVE_ONLY || IS_ADD_FAVORITE_FIELD_REQUIRED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
