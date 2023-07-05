@@ -2,7 +2,6 @@ package com.gabojait.gabojaitspring.user.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.ControllerTestSetup;
-import com.gabojait.gabojaitspring.favorite.service.FavoriteUserService;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.dto.req.*;
 import com.gabojait.gabojaitspring.user.service.UserService;
@@ -32,9 +31,6 @@ class UserControllerTest extends ControllerTestSetup {
     private UserService userService;
 
     @MockBean
-    private FavoriteUserService favoriteUserService;
-
-    @MockBean
     private JwtProvider jwtProvider;
 
     @BeforeEach
@@ -58,10 +54,6 @@ class UserControllerTest extends ControllerTestSetup {
         doReturn(tester)
                 .when(this.userService)
                 .login(any());
-
-        doReturn(tester)
-                .when(this.favoriteUserService)
-                .findOneOtherUser(any(), any());
     }
 
     @Test
@@ -620,51 +612,6 @@ class UserControllerTest extends ControllerTestSetup {
 
         assertThat(status).isEqualTo(SELF_USER_FOUND.getHttpStatus().value());
         assertThat(response).contains(SELF_USER_FOUND.name());
-    }
-
-    @Test
-    @DisplayName("단건 조회 | 올바른 요청시 | 200응답")
-    void findOther_givenValidReq_return200() throws Exception {
-        // given & when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/{user-id}", 1))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(status).isEqualTo(USER_FOUND.getHttpStatus().value());
-        assertThat(response).contains(USER_FOUND.name());
-    }
-
-    @Test
-    @DisplayName("단건 조회 | 회원 식별자 미입력시 | 400응답")
-    void findOther_givenUserIdFieldRequired_return400() throws Exception {
-        // given & when TODO 식별자 미입력
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/{user-id}", ""))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-//        assertThat(status).isEqualTo(USER_ID_FIELD_REQUIRED.getHttpStatus().value());
-//        assertThat(response).contains(USER_ID_FIELD_REQUIRED.name());
-    }
-
-    @Test
-    @DisplayName("단건 조회 | 회원 식별자가 양수 아닐시 | 400응답")
-    void findOther_givenUserIdPositiveOnly_return400() throws Exception {
-        // given & when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/{user-id}", -1))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(status).isEqualTo(USER_ID_POSITIVE_ONLY.getHttpStatus().value());
-        assertThat(response).contains(USER_ID_POSITIVE_ONLY.name());
     }
 
     @Test
