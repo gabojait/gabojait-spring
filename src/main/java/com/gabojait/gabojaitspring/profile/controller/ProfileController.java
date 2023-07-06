@@ -3,7 +3,6 @@ package com.gabojait.gabojaitspring.profile.controller;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
-import com.gabojait.gabojaitspring.favorite.service.FavoriteUserService;
 import com.gabojait.gabojaitspring.profile.dto.ProfileSeekPageDto;
 import com.gabojait.gabojaitspring.profile.dto.req.*;
 import com.gabojait.gabojaitspring.profile.dto.res.*;
@@ -51,7 +50,6 @@ public class ProfileController {
     private final EducationAndWorkService educationAndWorkService;
     private final PortfolioService portfolioService;
     private final TeamService teamService;
-    private final FavoriteUserService favoriteUserService;
     private final JwtProvider jwtProvider;
 
     @ApiOperation(value = "본인 프로필 조회",
