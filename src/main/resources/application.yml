@@ -52,6 +52,11 @@ springfox:
       enabled: ${SWAGGER_ENABLED}
       base-url: ${SWAGGER_BASE_URL}
 
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: ${P6SPY_ENABLED}
+
 api:
   name: ${API_NAME}
   master:
