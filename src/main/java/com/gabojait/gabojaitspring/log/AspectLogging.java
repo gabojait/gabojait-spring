@@ -77,9 +77,9 @@ public class AspectLogging {
 
             if (!method.getName().contains("resetMasterPasswordScheduler")) {
                 argsLog = new StringBuilder(argsLog.toString()
-                        .replaceAll("(?<=password = )\\S+", "******"));
+                        .replaceAll("(?<=password\\s?=\\s?)\\S+", "******"));
                 argsLog = new StringBuilder(argsLog.toString()
-                        .replaceAll("(?<=passwordReEntered = )\\S+", "******"));
+                        .replaceAll("(?<=passwordReEntered\\s?=\\s?)\\S+", "******"));
             }
 
             log.info("[PROGRESS] {} | {}({})", className, method.getName(), argsLog);
