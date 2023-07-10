@@ -43,7 +43,7 @@ public class DevelopController {
 
     @ApiOperation(value = "헬스 체크",
             notes = "<응답 코드>\n" +
-                    "* 200 = SERVER_HEALTH_OK\n" +
+                    "* 200 = SERVER_OK\n" +
                     "* 500 = SERVER_ERROR\n" +
                     "* 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -87,9 +87,9 @@ public class DevelopController {
 
     @ApiOperation(value = "테스트 계정 토큰 발급",
             notes = "<값>\n" +
-                    "- tester-id = 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9 || 10\n\n" +
+                    "- tester-id = 1 ~ 100\n\n" +
                     "<응답 코드>\n" +
-                    "- 200 = TOKEN_ISSUED\n" +
+                    "- 200 = TESTER_TOKEN_ISSUED\n" +
                     "- 400 = TESTER_ID_FIELD_REQUIRED || TESTER_ID_POSITIVE_ONLY\n" +
                     "- 404 = TESTER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
@@ -104,19 +104,19 @@ public class DevelopController {
     @GetMapping("/test/user/{tester-id}")
     public ResponseEntity<DefaultResDto<Object>> testDataToken(
             @PathVariable(value = "tester-id", required = false)
-            @NotNull(message = "회원 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-            @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @NotNull(message = "테스터 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Positive(message = "테스터 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer testerId
     ) {
         User user = developService.findOneTester("test" + testerId);
 
         HttpHeaders headers = jwtProvider.generateUserJwt(user.getId(), user.getRoles());
 
-        return ResponseEntity.status(TOKEN_ISSUED.getHttpStatus())
+        return ResponseEntity.status(TESTER_TOKEN_ISSUED.getHttpStatus())
                 .headers(headers)
                 .body(DefaultResDto.noDataBuilder()
-                        .responseCode(TOKEN_ISSUED.name())
-                        .responseMessage(TOKEN_ISSUED.getMessage())
+                        .responseCode(TESTER_TOKEN_ISSUED.name())
+                        .responseMessage(TESTER_TOKEN_ISSUED.getMessage())
                         .build());
     }
 
