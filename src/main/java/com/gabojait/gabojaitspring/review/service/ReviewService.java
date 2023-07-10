@@ -106,7 +106,7 @@ public class ReviewService {
      * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public Page<Review> findManyReviews(long userId, Integer pageFrom, Integer pageSize) {
+    public Page<Review> findManyReviews(Long userId, Integer pageFrom, Integer pageSize) {
         Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
         User reviewee = findOneUser(userId);
 
