@@ -3,14 +3,14 @@ package com.gabojait.gabojaitspring.develop.dto.req;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
 
 @Getter
+@Setter
 @ToString
-@NoArgsConstructor
 @ApiModel(value = "개발 FCM 요청")
 public class DevelopFcmReqDto {
 
