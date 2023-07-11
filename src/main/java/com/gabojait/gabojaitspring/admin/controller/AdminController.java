@@ -126,7 +126,7 @@ public class AdminController {
                     "- page-size = Positive\n\n" +
                     "<응답 코드>\n" +
                     "- 200 = UNREGISTERED_ADMIN_FOUND\n" +
-                    "- 400 = PAGE_FROM_FIELD_REQUIRED || PAGE_FROM_POS_OR_ZERO_ONLY || PAGE_SIZE_POS_ONLY\n" +
+                    "- 400 = PAGE_FROM_FIELD_REQUIRED || PAGE_FROM_POSITIVE_OR_ZERO_ONLY || PAGE_SIZE_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 500 = SERVER_ERROR\n" +
@@ -144,7 +144,7 @@ public class AdminController {
     public ResponseEntity<DefaultResDto<Object>> findUnregisteredAdmin(
             HttpServletRequest servletRequest,
             @RequestParam(value = "page-from", required = false)
-            @NotNull(message = "페이지 시작점은 필수 입력란입니다.", groups = ValidationSequence.Blank.class)
+            @NotNull(message = "페이지 시작점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageFrom,
             @RequestParam(value = "page-size", required = false)
