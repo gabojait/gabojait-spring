@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.team.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
-import com.gabojait.gabojaitspring.common.ControllerTestSetup;
+import com.gabojait.gabojaitspring.common.WebMvc;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.dto.req.TeamCompleteReqDto;
@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @WebMvcTest(TeamController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class TeamControllerTest extends ControllerTestSetup {
+class TeamControllerTest extends WebMvc {
 
     @MockBean
     private TeamService teamService;

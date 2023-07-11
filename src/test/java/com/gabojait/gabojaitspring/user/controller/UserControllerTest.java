@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.user.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
-import com.gabojait.gabojaitspring.common.ControllerTestSetup;
+import com.gabojait.gabojaitspring.common.WebMvc;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.domain.type.Role;
 import com.gabojait.gabojaitspring.user.dto.req.*;
@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @WebMvcTest(UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class UserControllerTest extends ControllerTestSetup {
+class UserControllerTest extends WebMvc {
 
     @MockBean
     private UserService userService;

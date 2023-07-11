@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.user.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
-import com.gabojait.gabojaitspring.common.ControllerTestSetup;
+import com.gabojait.gabojaitspring.common.WebMvc;
 import com.gabojait.gabojaitspring.user.dto.req.ContactSaveReqDto;
 import com.gabojait.gabojaitspring.user.dto.req.ContactVerifyReqDto;
 import com.gabojait.gabojaitspring.user.service.ContactService;
@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @WebMvcTest(ContactController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class ContactControllerTest extends ControllerTestSetup {
+class ContactControllerTest extends WebMvc {
 
     @MockBean
     private ContactService contactService;

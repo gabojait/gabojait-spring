@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.profile.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
-import com.gabojait.gabojaitspring.common.ControllerTestSetup;
+import com.gabojait.gabojaitspring.common.WebMvc;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.favorite.service.FavoriteUserService;
 import com.gabojait.gabojaitspring.offer.domain.Offer;
@@ -43,7 +43,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @WebMvcTest(ProfileController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class ProfileControllerTest extends ControllerTestSetup {
+class ProfileControllerTest extends WebMvc {
 
     @MockBean
     private UserService userService;

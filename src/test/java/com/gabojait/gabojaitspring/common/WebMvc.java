@@ -16,7 +16,7 @@ import java.util.TimeZone;
 
 @ExtendWith(SpringExtension.class)
 @MockBean(JpaMetamodelMappingContext.class)
-public abstract class ControllerTestSetup {
+public abstract class WebMvc {
 
     @Autowired
     protected MockMvc mockMvc;

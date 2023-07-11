@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.offer.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
-import com.gabojait.gabojaitspring.common.ControllerTestSetup;
+import com.gabojait.gabojaitspring.common.WebMvc;
 import com.gabojait.gabojaitspring.offer.domain.Offer;
 import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
 import com.gabojait.gabojaitspring.offer.dto.req.OfferCreateReqDto;
@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @WebMvcTest(OfferController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class OfferControllerTest extends ControllerTestSetup {
+class OfferControllerTest extends WebMvc {
 
     @MockBean
     private OfferService offerService;
