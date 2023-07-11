@@ -4,15 +4,15 @@ import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
 
 @Getter
+@Setter
 @ToString
-@NoArgsConstructor
 @GroupSequence({AdminLoginReqDto.class, ValidationSequence.Blank.class})
 @ApiModel(value = "관리자 로그인 요청")
 public class AdminLoginReqDto {

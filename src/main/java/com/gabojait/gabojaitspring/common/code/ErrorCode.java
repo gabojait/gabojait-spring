@@ -61,6 +61,7 @@ public enum ErrorCode {
     IS_NOTIFIED_FIELD_REQUIRED(BAD_REQUEST, "알림 여부는 필수 입력입니다."),
     FCM_TITLE_FIELD_REQUIRED(BAD_REQUEST, "FCM 제목은 필수 입력입니다."),
     FCM_MESSAGE_FIELD_REQUIRED(BAD_REQUEST, "FCM 메세지는 필수 입력입니다."),
+    LEGAL_NAME_FIELD_REQUIRED(BAD_REQUEST, "실명은 필수 입력입니다."),
     ADMIN_ID_FIELD_REQUIRED(BAD_REQUEST, "관리자 식별자는 필수 입력입니다."),
     TESTER_ID_FIELD_REQUIRED(BAD_REQUEST, "테스터 식별자는 필수 입력입니다."),
 
@@ -81,6 +82,7 @@ public enum ErrorCode {
     OPEN_CHAT_URL_LENGTH_INVALID(BAD_REQUEST, "오픈 채팅 URL집 25~100자만 가능합니다."),
     POST_LENGTH_INVALID(BAD_REQUEST, "후기는 1~200자만 가능합니다."),
     ADMIN_NAME_LENGTH_INVALID(BAD_REQUEST, "아이디는 5~15자만 가능합니다."),
+    LEGAL_NAME_LENGTH_INVALID(BAD_REQUEST, "실명은 1~5자만 가능합니다."),
 
     // @Pattern, @Email - format
     EMAIL_FORMAT_INVALID(BAD_REQUEST, "올바른 이메일 형식을 입력해 주세요."),
