@@ -71,7 +71,7 @@ jobs:
         uses: mr-smithers-excellent/docker-build-push@v5
         with:
           image: gs97ahn/server
-          tags: gabojait-release-latest, gabojait-v1.0.0
+          tags: gabojait-release, gabojait-v1.0.0
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
