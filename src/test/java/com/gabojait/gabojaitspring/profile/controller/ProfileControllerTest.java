@@ -17,6 +17,7 @@ import com.gabojait.gabojaitspring.profile.service.PositionAndSkillService;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.service.TeamService;
 import com.gabojait.gabojaitspring.user.domain.User;
+import com.gabojait.gabojaitspring.user.domain.type.Role;
 import com.gabojait.gabojaitspring.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -70,6 +71,7 @@ class ProfileControllerTest extends ControllerTestSetup {
     void setUp() {
         User tester = User.testOnlyBuilder()
                 .id(1L)
+                .role(Role.USER)
                 .build();
 
         Team team = Team.builder()

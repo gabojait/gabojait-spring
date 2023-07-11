@@ -165,7 +165,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     }
 
     @Builder(builderMethodName = "testOnlyBuilder", builderClassName = "testOnlyBuilder")
-    public User(Long id) {
+    public User(Long id, Role role) {
         this.id = id;
         this.gender = Gender.NONE.getType();
         this.position = Position.NONE.getType();
@@ -173,10 +173,31 @@ public class User extends BaseTimeEntity implements UserDetails {
                 .email("tester@gabojait.com")
                 .verificationCode("000000")
                 .build();
-        this.userRoles.add(UserRole.builder()
+
+        UserRole userRole = UserRole.builder()
                 .user(this)
                 .role(Role.USER)
-                .build());
+                .build();
+
+        this.userRoles.add(userRole);
+
+        if (role == Role.ADMIN || role == Role.MASTER) {
+            UserRole adminRole = UserRole.builder()
+                    .user(this)
+                    .role(Role.USER)
+                    .build();
+
+            this.userRoles.add(userRole);
+
+            if (role == Role.MASTER) {
+                UserRole masterRole = UserRole.builder()
+                        .user(this)
+                        .role(Role.MASTER)
+                        .build();
+
+                this.userRoles.add(masterRole);
+            }
+        }
     }
 
     public void updatePassword(String password, boolean isTemporaryPassword) {

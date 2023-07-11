@@ -10,6 +10,7 @@ import com.gabojait.gabojaitspring.offer.service.OfferService;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.User;
+import com.gabojait.gabojaitspring.user.domain.type.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,7 @@ class OfferControllerTest extends ControllerTestSetup {
     void setUp() {
         User tester = User.testOnlyBuilder()
                 .id(1L)
+                .role(Role.USER)
                 .build();
 
         Team team = Team.builder()
