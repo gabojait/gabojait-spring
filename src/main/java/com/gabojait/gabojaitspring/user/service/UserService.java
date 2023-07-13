@@ -1,21 +1,10 @@
 package com.gabojait.gabojaitspring.user.service;
 
 import com.gabojait.gabojaitspring.common.util.EmailProvider;
-import com.gabojait.gabojaitspring.common.util.FileProvider;
 import com.gabojait.gabojaitspring.common.util.GeneralProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
-import com.gabojait.gabojaitspring.favorite.domain.FavoriteUser;
-import com.gabojait.gabojaitspring.favorite.repository.FavoriteUserRepository;
 import com.gabojait.gabojaitspring.fcm.domain.Fcm;
 import com.gabojait.gabojaitspring.fcm.repository.FcmRepository;
-import com.gabojait.gabojaitspring.offer.domain.Offer;
-import com.gabojait.gabojaitspring.offer.repository.OfferRepository;
-import com.gabojait.gabojaitspring.profile.domain.type.Position;
-import com.gabojait.gabojaitspring.profile.domain.type.ProfileOrder;
-import com.gabojait.gabojaitspring.profile.dto.ProfileSeekPageDto;
-import com.gabojait.gabojaitspring.profile.dto.res.ProfileOfferAndFavoriteResDto;
-import com.gabojait.gabojaitspring.profile.dto.res.ProfileSeekResDto;
-import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.Contact;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.domain.UserRole;
@@ -28,17 +17,10 @@ import com.gabojait.gabojaitspring.user.repository.ContactRepository;
 import com.gabojait.gabojaitspring.user.repository.UserRepository;
 import com.gabojait.gabojaitspring.user.repository.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 
@@ -47,18 +29,12 @@ import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 @RequiredArgsConstructor
 public class UserService {
 
-    @Value(value = "${s3.bucket.profile-img}")
-    private String bucketName;
-
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
     private final ContactRepository contactRepository;
     private final FcmRepository fcmRepository;
-    private final OfferRepository offerRepository;
-    private final FavoriteUserRepository favoriteUserRepository;
     private final GeneralProvider generalProvider;
     private final EmailProvider emailProvider;
-    private final FileProvider fileProvider;
 
     /**
      * 아이디 검증 |
@@ -220,43 +196,6 @@ public class UserService {
     }
 
     /**
-     * 프로필 이미지 업로드 |
-     * 400(FILE_FIELD_REQUIRED)
-     * 415(IMAGE_TYPE_UNSUPPORTED)
-     * 500(SERVER_ERROR)
-     */
-    public void uploadProfileImage(User user, MultipartFile multipartFile) {
-        String url = fileProvider.upload(bucketName,
-                user.getId().toString(),
-                UUID.randomUUID().toString(),
-                multipartFile,
-                true);
-
-        user.updateImageUrl(url);
-    }
-
-    /**
-     * 프로필 이미지 삭제
-     */
-    public void deleteProfileImage(User user) {
-        user.updateImageUrl(null);
-    }
-
-    /**
-     * 팀 찾기 여부 업데이트
-     */
-    public void updateIsSeekingTeam(User user, boolean isSeekingTeam) {
-        user.updateIsSeekingTeam(isSeekingTeam);
-    }
-
-    /**
-     * 자기소개 업데이트
-     */
-    public void updateProfileDescription(User user, String profileDescription) {
-        user.updateProfileDescription(profileDescription);
-    }
-
-    /**
      * 토큰 업데이트 |
      * 500(SERVER_ERROR)
      */
@@ -265,86 +204,6 @@ public class UserService {
 
         if (request.getFcmToken() != null)
             createFcm(request.getFcmToken(), user);
-    }
-
-    /**
-     * 회원 식별자로 회원으로 타 회원 프로필 단건 조회 |
-     * 404(USER_NOT_FOUND)
-     * 500(SERVER_ERROR)
-     */
-    public ProfileOfferAndFavoriteResDto findOneOtherProfile(Long otherUserId, User user) {
-        if (user.getId().equals(otherUserId))
-            return new ProfileOfferAndFavoriteResDto(user, List.of(), null);
-
-        User otherUser = findOneUser(otherUserId);
-
-        otherUser.incrementVisitedCnt();
-
-        List<Offer> offers = new ArrayList<>();
-        Boolean isFavorite = null;
-
-        if (user.isLeader()) {
-            offers = findAllOffersToUser(user, otherUser);
-            isFavorite = isFavoriteUser(otherUser, user);
-        }
-
-        return new ProfileOfferAndFavoriteResDto(otherUser, offers, isFavorite);
-    }
-
-    /**
-     * 포지션과 프로필 정렬 기준으로 회원 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    public ProfileSeekPageDto findManyUsersByPositionWithProfileOrder(String position,
-                                                                      String profileOrder,
-                                                                      Integer pageFrom,
-                                                                      Integer pageSize,
-                                                                      User user) {
-        Position p = Position.fromString(position);
-        ProfileOrder po = ProfileOrder.fromString(profileOrder);
-        Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
-
-        Page<User> users;
-
-        if (p.equals(Position.NONE)) {
-            switch (po.name().toLowerCase()) {
-                case "rating":
-                    users = findManyUsersByRating(pageable);
-                    break;
-                case "popularity":
-                    users = findManyUsersByPopularity(pageable);
-                    break;
-                default:
-                    users = findManyUsersByActive(pageable);
-                    break;
-            }
-        } else {
-            switch (po.name().toLowerCase()) {
-                case "rating":
-                    users = findManyUsersPositionByRating(p, pageable);
-                    break;
-                case "popularity":
-                    users = findManyUsersPositionByPopularity(p, pageable);
-                    break;
-                default:
-                    users = findManyUsersPositionByActive(p, pageable);
-                    break;
-            }
-        }
-
-        List<ProfileSeekResDto> profileSeekResDtos = new ArrayList<>();
-
-        if (user.isLeader()) {
-            for (User u : users) {
-                List<Offer> offers = findAllOffersToUser(user, u);
-                profileSeekResDtos.add(new ProfileSeekResDto(u, offers));
-            }
-        } else {
-            for (User u : users)
-                profileSeekResDtos.add(new ProfileSeekResDto(u, List.of()));
-        }
-
-        return new ProfileSeekPageDto(profileSeekResDtos, users.getTotalPages());
     }
 
     /**
@@ -427,103 +286,12 @@ public class UserService {
     }
 
     /**
-     * 식별자로 회원 단건 조회 |
-     * 404(USER_NOT_FOUND)
-     */
-    private User findOneUser(Long userId) {
-        return userRepository.findByIdAndIsDeletedIsFalse(userId)
-                .orElseThrow(() -> {
-                    throw new CustomException(USER_NOT_FOUND);
-                });
-    }
-
-    /**
      * 회원과 권한으로 회원 권한 단건 조회 |
      * 500(SERVER_ERROR)
      */
     private Optional<UserRole> findOneUserRole(User user) {
         try {
             return userRoleRepository.findByUserAndRole(user, Role.USER.name());
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 전체 포지션을 평점순으로 회원 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private Page<User> findManyUsersByRating(Pageable pageable) {
-        try {
-            return userRepository.findAllByIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByRatingDesc(pageable);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 전체 포지션을 인기순으로 회원 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private Page<User> findManyUsersByPopularity(Pageable pageable) {
-        try {
-            return userRepository.findAllByIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(pageable);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 전체 포지션을 활동순으로 회원 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private Page<User> findManyUsersByActive(Pageable pageable) {
-        try {
-            return userRepository.findAllByIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByLastRequestAtDesc(pageable);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 특정 포지션을 평점순으로 회원 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private Page<User> findManyUsersPositionByRating(Position position, Pageable pageable) {
-        try {
-            return userRepository.findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByRatingDesc(
-                    position.getType(),
-                    pageable
-            );
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 특정 포지션을 인기순으로 회원 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private Page<User> findManyUsersPositionByPopularity(Position position, Pageable pageable) {
-        try {
-            return userRepository.findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
-                    position.getType(),
-                    pageable);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 특정 포지션을 활동순으로 회원 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private Page<User> findManyUsersPositionByActive(Position position, Pageable pageable) {
-        try {
-            return userRepository.findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByLastRequestAtDesc(
-                    position.getType(),
-                    pageable
-            );
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -575,20 +343,6 @@ public class UserService {
     }
 
     /**
-     * 리더와 회원으로 리더가 특정 회원에게 보낸 전체 제안 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private List<Offer> findAllOffersToUser(User leader, User user) {
-        Team team = leader.getTeamMembers().get(leader.getTeamMembers().size() - 1).getTeam();
-
-        try {
-            return offerRepository.findAllByUserAndTeamAndIsAcceptedIsNullAndIsDeletedIsFalse(user, team);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
      * 아이디 이메일로 전송 |
      * 500(EMAIL_SEND_ERROR)
      */
@@ -630,23 +384,6 @@ public class UserService {
                 .user(user)
                 .role(Role.USER)
                 .build();
-    }
-
-    /**
-     * 찜한 회원 여부 확인 |
-     * 500(SERVER_ERROR)
-     */
-    private boolean isFavoriteUser(User user, User leader) {
-        Team team = leader.getTeamMembers().get(leader.getTeamMembers().size() - 1).getTeam();
-
-        try {
-            Optional<FavoriteUser> favoriteUser =
-                    favoriteUserRepository.findByTeamAndUserAndIsDeletedIsFalse(team, user);
-
-            return favoriteUser.isPresent();
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
     }
 
     /**

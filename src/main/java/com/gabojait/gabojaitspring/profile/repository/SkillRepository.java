@@ -4,9 +4,9 @@ import com.gabojait.gabojaitspring.profile.domain.Skill;
 import com.gabojait.gabojaitspring.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface SkillRepository extends JpaRepository<Skill, Long> {
 
-    Optional<Skill> findByIdAndUserAndIsDeletedIsFalse(Long id, User user);
+    List<Skill> findAllByUserAndIsDeletedIsFalse(User user);
 }

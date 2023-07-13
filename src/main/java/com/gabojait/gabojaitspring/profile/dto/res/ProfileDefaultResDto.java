@@ -58,15 +58,35 @@ public class ProfileDefaultResDto extends ProfileAbstractResDto {
         this.isSeekingTeam = user.getIsSeekingTeam();
 
         if (!user.getReceivedReviews().isEmpty())
-            user.getReceivedReviews().forEach(review -> this.reviews.add(new ReviewDefaultResDto(review)));
+            user.getReceivedReviews()
+                    .forEach(review -> {
+                        if (!review.getIsDeleted())
+                            this.reviews.add(new ReviewDefaultResDto(review));
+                    });
         if (!user.getEducations().isEmpty())
-            user.getEducations().forEach(education -> this.educations.add(new EducationDefaultResDto(education)));
+            user.getEducations()
+                    .forEach(education -> {
+                        if (!education.getIsDeleted())
+                            this.educations.add(new EducationDefaultResDto(education));
+                    });
         if (!user.getPortfolios().isEmpty())
-            user.getPortfolios().forEach(portfolio -> this.portfolios.add(new PortfolioDefaultResDto(portfolio)));
+            user.getPortfolios()
+                    .forEach(portfolio -> {
+                        if (!portfolio.getIsDeleted())
+                            this.portfolios.add(new PortfolioDefaultResDto(portfolio));
+                    });
         if (!user.getSkills().isEmpty())
-            user.getSkills().forEach(skill -> this.skills.add(new SkillDefaultResDto(skill)));
+            user.getSkills()
+                    .forEach(skill -> {
+                        if (!skill.getIsDeleted())
+                            this.skills.add(new SkillDefaultResDto(skill));
+                    });
         if (!user.getWorks().isEmpty())
-            user.getWorks().forEach(work -> this.works.add(new WorkDefaultResDto(work)));
+            user.getWorks()
+                    .forEach(work -> {
+                        if (!work.getIsDeleted())
+                            this.works.add(new WorkDefaultResDto(work));
+                    });
         if (!user.getTeamMembers().isEmpty())
             user.getTeamMembers().forEach(teamMember -> {
                 if (teamMember.getTeam().getCompletedAt() != null) {

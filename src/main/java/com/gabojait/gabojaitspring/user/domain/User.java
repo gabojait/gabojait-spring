@@ -187,7 +187,7 @@ public class User extends BaseTimeEntity implements UserDetails {
                     .role(Role.USER)
                     .build();
 
-            this.userRoles.add(userRole);
+            this.userRoles.add(adminRole);
 
             if (role == Role.MASTER) {
                 UserRole masterRole = UserRole.builder()

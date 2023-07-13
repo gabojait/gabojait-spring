@@ -77,10 +77,7 @@ public enum SuccessCode {
     PROFILE_IMAGE_DELETED(OK, "프로필 이미지를 삭제 했습니다."),
     PROFILE_SEEKING_TEAM_UPDATED(OK, "프로필 팀 찾기 여부 수정을 업데이트 했습니다."),
     PROFILE_DESCRIPTION_UPDATED(OK, "자기소개를 업데이트 했습니다."),
-    POSITION_AND_SKILL_UPDATED(OK, "포지션과 기술을 업데이트 했습니다."),
-    EDUCATION_AND_WORK_UPDATED(OK, "학력과 경력을 업데이트 했습니다."),
-    LINK_PORTFOLIO_UPDATED(OK, "링크 포트폴리오를 업데이트 했습니다."),
-    FILE_PORTFOLIO_UPDATED(OK, "파일 포트폴리오를 업데이트 했습니다."),
+    PROFILE_UPDATED(OK, "프로필을 업데이트 했습니다."),
     USERS_SEEKING_TEAM_FOUND(OK, "팀을 구하는 회원 다건 조회를 했습니다."),
     USER_LEFT_TEAM(OK, "회원이 팀을 탈퇴 했습니다."),
 
