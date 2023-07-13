@@ -345,7 +345,7 @@ class TeamControllerTest extends WebMvc {
     }
 
     @Test
-    @DisplayName("팀 생성 | 오픈 채팅 링크 미입력시 | 400반환")
+    @DisplayName("팀 생성 | 잘못된 오픈 채팅 링크 길이시 | 400반환")
     void createTeam_givenOpenChatUrlLengthInvalid_return400() throws Exception {
         // given
         TeamDefaultReqDto reqDto = getValidTeamDefaultReqDto();
@@ -364,6 +364,28 @@ class TeamControllerTest extends WebMvc {
 
         assertThat(status).isEqualTo(OPEN_CHAT_URL_LENGTH_INVALID.getHttpStatus().value());
         assertThat(response).contains(OPEN_CHAT_URL_LENGTH_INVALID.name());
+    }
+
+    @Test
+    @DisplayName("팀 생성 | 잘못된 오픈 채팅 포맷시 | 400반환")
+    void createTeam_givenOpenChatUrlFormatInvalid_return400() throws Exception {
+        // given
+        TeamDefaultReqDto reqDto = getValidTeamDefaultReqDto();
+        reqDto.setOpenChatUrl("a".repeat(25));
+        String request = mapToJson(reqDto);
+
+        // when
+        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/team")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andReturn();
+
+        // then
+        int status = mvcResult.getResponse().getStatus();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(status).isEqualTo(OPEN_CHAT_URL_FORMAT_INVALID.getHttpStatus().value());
+        assertThat(response).contains(OPEN_CHAT_URL_FORMAT_INVALID.name());
     }
 
     @Test
@@ -630,7 +652,7 @@ class TeamControllerTest extends WebMvc {
     }
 
     @Test
-    @DisplayName("팀 정보 수정 | 오픈 채팅 링크 미입력시 | 400반환")
+    @DisplayName("팀 정보 수정 | 잘못된 오픈 채팅 링크 길이시 | 400반환")
     void updateTeam_givenOpenChatUrlLengthInvalid_return400() throws Exception {
         // given
         TeamDefaultReqDto reqDto = getValidTeamDefaultReqDto();
@@ -649,6 +671,28 @@ class TeamControllerTest extends WebMvc {
 
         assertThat(status).isEqualTo(OPEN_CHAT_URL_LENGTH_INVALID.getHttpStatus().value());
         assertThat(response).contains(OPEN_CHAT_URL_LENGTH_INVALID.name());
+    }
+
+    @Test
+    @DisplayName("팀 정보 수정 | 잘못된 오픈 채팅 포맷시 | 400반환")
+    void updateTeam_givenOpenChatUrlFormatInvalid_return400() throws Exception {
+        // given
+        TeamDefaultReqDto reqDto = getValidTeamDefaultReqDto();
+        reqDto.setOpenChatUrl("a".repeat(25));
+        String request = mapToJson(reqDto);
+
+        // when
+        MvcResult mvcResult = this.mockMvc.perform(put("/api/v1/team")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andReturn();
+
+        // then
+        int status = mvcResult.getResponse().getStatus();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(status).isEqualTo(OPEN_CHAT_URL_FORMAT_INVALID.getHttpStatus().value());
+        assertThat(response).contains(OPEN_CHAT_URL_FORMAT_INVALID.name());
     }
 
     @Test
