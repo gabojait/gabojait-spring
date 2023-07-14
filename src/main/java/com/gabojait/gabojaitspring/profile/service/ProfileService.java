@@ -84,6 +84,20 @@ public class ProfileService {
     }
 
     /**
+     * 포트폴리오 파일 업로드 |
+     * 400(FILE_FIELD_REQUIRED)
+     * 415(FILE_TYPE_UNSUPPORTED)
+     * 500(SERVER_ERROR)
+     */
+    public String uploadPortfolioFile(User user, MultipartFile multipartFile) {
+        return fileProvider.upload(portfolioBucketName,
+                user.getId().toString(),
+                UUID.randomUUID().toString(),
+                multipartFile,
+                false);
+    }
+
+    /**
      * 자기소개 업데이트
      */
     public void updateProfileDescription(User user, String profileDescription) {

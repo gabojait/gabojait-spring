@@ -70,6 +70,7 @@ public class SwaggerConfig {
                 .additionalModels(typeResolver.resolve(ProfileAbstractResDto.class))
                 .additionalModels(typeResolver.resolve(ProfileDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(ProfileOfferAndFavoriteResDto.class))
+                .additionalModels(typeResolver.resolve(PortfolioUrlResDto.class))
                 .additionalModels(typeResolver.resolve(ProfileSeekResDto.class))
                 .additionalModels(typeResolver.resolve(EducationDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(PortfolioDefaultResDto.class))

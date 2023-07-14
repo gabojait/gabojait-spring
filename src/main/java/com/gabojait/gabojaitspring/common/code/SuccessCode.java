@@ -81,6 +81,9 @@ public enum SuccessCode {
     USERS_SEEKING_TEAM_FOUND(OK, "팀을 구하는 회원 다건 조회를 했습니다."),
     USER_LEFT_TEAM(OK, "회원이 팀을 탈퇴 했습니다."),
 
+    // 201 Created
+    PORTFOLIO_FILE_UPLOADED(CREATED, "포트폴리오 파일을 업로드 했습니다."),
+
     /**
      * User controller
      */

@@ -72,6 +72,11 @@ public class FileProvider {
         return convertFile;
     }
 
+    /**
+     * 파일 타입 검증 |
+     * 400(FILE_FIELD_REQUIRED)
+     * 415(IMAGE_TYPE_UNSUPPORTED / FILE_TYPE_UNSUPPORTED)
+     */
     public void validateFileType(MultipartFile multipartFile, boolean isImage) {
         if (multipartFile == null || multipartFile.isEmpty())
             throw new CustomException(FILE_FIELD_REQUIRED);

@@ -39,9 +39,9 @@ public class User extends BaseTimeEntity implements UserDetails {
     @ToString.Exclude
     private Contact contact;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     @ToString.Exclude
-    private List<UserRole> userRoles = new ArrayList<>();
+    private Set<UserRole> userRoles = new HashSet<>();
 
     @OneToMany(mappedBy = "user")
     @ToString.Exclude

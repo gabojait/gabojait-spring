@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -228,7 +229,7 @@ public class ProfileController {
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 500 = SERVER_ERROR\n" +
-                    "- 503 = SERVICE UNAVAILABLE")
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
@@ -266,13 +267,15 @@ public class ProfileController {
                     "MEDIA_TYPE_INVALID || EDUCATION_DATE_INVALID || EDUCATION_ENDED_AT_FIELD_REQUIRED || " +
                     "WORK_DATE_INVALID || WORK_ENDED_AT_FIELD_REQUIRED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 500 = SERVER_ERROR\n" +
-                    "- 503 = SERVICE UNAVAILABLE")
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResDto.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
@@ -290,6 +293,46 @@ public class ProfileController {
                 .body(DefaultResDto.singleDataBuilder()
                         .responseCode(PROFILE_UPDATED.name())
                         .responseMessage(PROFILE_UPDATED.getMessage())
+                        .data(response)
+                        .build());
+    }
+
+    @ApiOperation(value = "파일 포트폴리오 업로드",
+            notes = "<응답 코드>\n" +
+                    "- 201 = PORTFOLIO_FILE_UPLOADED\n" +
+                    "- 400 = FILE_FIELD_REQUIRED\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 413 = FILE_SIZE_EXCEED\n" +
+                    "- 415 = FILE_TYPE_UNSUPPORTED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "CREATED",
+                    content = @Content(schema = @Schema(implementation = PortfolioUrlResDto.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "413", description = "PAYLOAD TOO LARGE"),
+            @ApiResponse(responseCode = "415", description = "UNSUPPORTED MEDIA TYPE"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
+    })
+    @ResponseStatus(value = HttpStatus.CREATED)
+    @PostMapping(value = "/portfolio/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<DefaultResDto<Object>> uploadPortfolioFile(HttpServletRequest servletRequest,
+                                                                    @RequestPart(value = "file", required = false)
+                                                                    MultipartFile file) {
+        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+
+        String portfolioUrl = profileService.uploadPortfolioFile(user, file);
+
+        PortfolioUrlResDto response = new PortfolioUrlResDto(portfolioUrl);
+
+        return ResponseEntity.status(PORTFOLIO_FILE_UPLOADED.getHttpStatus())
+                .body(DefaultResDto.singleDataBuilder()
+                        .responseCode(PORTFOLIO_FILE_UPLOADED.name())
+                        .responseMessage(PORTFOLIO_FILE_UPLOADED.getMessage())
                         .data(response)
                         .build());
     }
