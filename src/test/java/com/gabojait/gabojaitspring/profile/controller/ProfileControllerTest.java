@@ -26,7 +26,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -81,6 +80,8 @@ class ProfileControllerTest extends WebMvc {
                 .position(Position.FRONTEND)
                 .build();
 
+        String url = "https://google.com";
+
         ProfileSeekResDto profileSeekResDto = new ProfileSeekResDto(tester, List.of(offer));
 
         ProfileSeekPageDto profileSeekPageDto = new ProfileSeekPageDto(List.of(profileSeekResDto), 15);
@@ -96,6 +97,10 @@ class ProfileControllerTest extends WebMvc {
         doReturn(tester)
                 .when(this.profileService)
                 .updateProfile(any(), any());
+
+        doReturn(url)
+                .when(this.profileService)
+                .uploadPortfolioFile(any(), any());
     }
 
     @Test
@@ -162,12 +167,7 @@ class ProfileControllerTest extends WebMvc {
     @DisplayName("프로필 사진 업로드 또는 수정 | 올바른 요청시 | 200반환")
     void uploadProfileImage_givenValidReq_return200() throws Exception {
         // given
-        MockMultipartFile image = new MockMultipartFile(
-                "image",
-                "test.png",
-                MediaType.MULTIPART_FORM_DATA_VALUE,
-                "test image".getBytes()
-        );
+        MockMultipartFile image = getValidMultipartFile();
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(multipart("/api/v1/user/image")
@@ -809,6 +809,45 @@ class ProfileControllerTest extends WebMvc {
     }
 
     @Test
+    @DisplayName("파일 포트폴리오 업로드 | 올바른 요청시 | 201반환")
+    void uploadPortfolioFile_givenValidReq_return201() throws Exception {
+        // given
+        MockMultipartFile file = getValidMultipartFile();
+
+        // when
+        MvcResult mvcResult = this.mockMvc.perform(multipart("/api/v1/user/portfolio/file")
+                        .file(file))
+                .andReturn();
+
+        // then
+        int status = mvcResult.getResponse().getStatus();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(status).isEqualTo(PORTFOLIO_FILE_UPLOADED.getHttpStatus().value());
+        assertThat(response).contains(PORTFOLIO_FILE_UPLOADED.name());
+    }
+
+    @Test
+    @DisplayName("파일 포트폴리오 업로드 | 파일 미입력시 | 400반환")
+    void uploadPortfolioFile_givenFileFieldRequired_return400() throws Exception {
+        // given
+        doThrow(new CustomException(FILE_FIELD_REQUIRED))
+                .when(this.profileService)
+                .uploadPortfolioFile(any(), any());
+
+        // when
+        MvcResult mvcResult = this.mockMvc.perform(multipart("/api/v1/user/portfolio/file"))
+                .andReturn();
+
+        // then
+        int status = mvcResult.getResponse().getStatus();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(status).isEqualTo(FILE_FIELD_REQUIRED.getHttpStatus().value());
+        assertThat(response).contains(FILE_FIELD_REQUIRED.name());
+    }
+
+    @Test
     @DisplayName("팀을 찾는 회원 다건 조회 | 올바른 요청시 | 200반환")
     void findUsersLookingForTeam_givenValidReq_return200() throws Exception {
         // given
@@ -1069,17 +1108,13 @@ class ProfileControllerTest extends WebMvc {
         return reqDto;
     }
 
-    private MultipartFile getValidPortfolioFiles() {
+    private MockMultipartFile getValidMultipartFile() {
         return new MockMultipartFile(
                 "image",
                 "test.png",
                 MediaType.MULTIPART_FORM_DATA_VALUE,
                 "test image".getBytes()
         );
-    }
-
-    private Long getValidId() {
-        return 1L;
     }
 
     private String getValidPosition() {
