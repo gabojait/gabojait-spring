@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -36,18 +37,20 @@ class UserControllerTest extends WebMvc {
 
     @BeforeEach
     void setup() {
+        HttpHeaders headers = new HttpHeaders();
+
+        doReturn(1L)
+                .when(this.jwtProvider)
+                .getId(any());
+
+        doReturn(headers)
+                .when(this.jwtProvider)
+                .createJwt(any(), any());
+
         User tester = User.testOnlyBuilder()
                 .id(1L)
                 .role(Role.USER)
                 .build();
-
-        doReturn(tester)
-                .when(this.jwtProvider)
-                .authorizeUserAccessJwt(any());
-
-        doReturn(tester)
-                .when(this.jwtProvider)
-                .authorizeUserRefreshJwt(any());
 
         doReturn(tester)
                 .when(this.userService)
@@ -56,6 +59,14 @@ class UserControllerTest extends WebMvc {
         doReturn(tester)
                 .when(this.userService)
                 .login(any());
+
+        doReturn(tester)
+                .when(this.userService)
+                .findOneUser(anyLong());
+
+        doReturn(tester)
+                .when(this.userService)
+                .updateFcmToken(anyLong(), any());
     }
 
     @Test

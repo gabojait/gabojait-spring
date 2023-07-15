@@ -27,6 +27,7 @@ import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
@@ -45,6 +46,10 @@ class FavoriteControllerTest extends WebMvc {
 
     @BeforeEach
     void setUp() {
+        doReturn(1L)
+                .when(this.jwtProvider)
+                .getId(any());
+
         User tester = User.testOnlyBuilder()
                 .id(1L)
                 .role(Role.USER)
@@ -75,17 +80,13 @@ class FavoriteControllerTest extends WebMvc {
 
         Page<FavoriteUser> favoriteUsers = new PageImpl<>(List.of(favoriteUser));
 
-        doReturn(tester)
-                .when(this.jwtProvider)
-                .authorizeUserAccessJwt(any());
-
         doReturn(favoriteTeams)
                 .when(this.favoriteTeamService)
-                .findManyFavoriteTeams(any(), any(), any());
+                .findManyFavoriteTeams(anyLong(), any(), any());
 
         doReturn(favoriteUsers)
                 .when(this.favoriteUserService)
-                .findManyFavoriteUsers(any(), any(), any());
+                .findManyFavoriteUsers(anyLong(), any(), any());
     }
 
     @Test

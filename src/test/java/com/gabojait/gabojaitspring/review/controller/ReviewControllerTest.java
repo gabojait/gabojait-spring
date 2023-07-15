@@ -26,6 +26,7 @@ import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -42,6 +43,10 @@ class ReviewControllerTest extends WebMvc {
 
     @BeforeEach
     void setUp() {
+        doReturn(1L)
+                .when(this.jwtProvider)
+                .getId(any());
+
         User tester = User.testOnlyBuilder()
                 .id(1L)
                 .role(Role.USER)
@@ -68,13 +73,9 @@ class ReviewControllerTest extends WebMvc {
 
         Page<Review> reviews = new PageImpl<>(List.of(review));
 
-        doReturn(tester)
-                .when(this.jwtProvider)
-                .authorizeUserAccessJwt(any());
-
         doReturn(List.of(team))
                 .when(this.reviewService)
-                .findAllReviewableTeams(any());
+                .findAllReviewableTeams(anyLong());
 
         doReturn(reviews)
                 .when(this.reviewService)

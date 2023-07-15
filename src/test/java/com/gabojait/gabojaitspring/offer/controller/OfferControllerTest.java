@@ -28,6 +28,7 @@ import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
@@ -43,6 +44,10 @@ class OfferControllerTest extends WebMvc {
 
     @BeforeEach
     void setUp() {
+        doReturn(1L)
+                .when(this.jwtProvider)
+                .getId(any());
+
         User tester = User.testOnlyBuilder()
                 .id(1L)
                 .role(Role.USER)
@@ -68,17 +73,13 @@ class OfferControllerTest extends WebMvc {
 
         Page<Offer> offers = new PageImpl<>(List.of(offer));
 
-        doReturn(tester)
-                .when(this.jwtProvider)
-                .authorizeUserAccessJwt(any());
+        doReturn(offers)
+                .when(this.offerService)
+                .findManyOffersByUser(anyLong(), any(), any());
 
         doReturn(offers)
                 .when(this.offerService)
-                .findManyOffersByUser(any(), any(), any());
-
-        doReturn(offers)
-                .when(this.offerService)
-                .findManyOffersByTeam(any(), any(), any());
+                .findManyOffersByTeam(anyLong(), any(), any());
     }
 
     @Test

@@ -9,7 +9,6 @@ import com.gabojait.gabojaitspring.team.dto.req.TeamDefaultReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamIsRecruitingUpdateReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamMemberRecruitCntReqDto;
 import com.gabojait.gabojaitspring.team.service.TeamService;
-import com.gabojait.gabojaitspring.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,6 +27,7 @@ import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
@@ -43,9 +43,9 @@ class TeamControllerTest extends WebMvc {
 
     @BeforeEach
     void setUp() {
-        User tester = User.testOnlyBuilder()
-                .id(1L)
-                .build();
+        doReturn(1L)
+                .when(this.jwtProvider)
+                .getId(any());
 
         Team team = Team.builder()
                 .projectName("가보자잇")
@@ -60,21 +60,17 @@ class TeamControllerTest extends WebMvc {
 
         Page<Team> teams = new PageImpl<>(List.of(team));
 
-        doReturn(tester)
-                .when(this.jwtProvider)
-                .authorizeUserAccessJwt(any());
+        doReturn(team)
+                .when(this.teamService)
+                .create(anyLong(), any());
 
         doReturn(team)
                 .when(this.teamService)
-                .create(any(), any());
+                .update(anyLong(), any());
 
         doReturn(team)
                 .when(this.teamService)
-                .update(any(), any());
-
-        doReturn(team)
-                .when(this.teamService)
-                .findOneCurrentTeam(any());
+                .findOneCurrentTeam(anyLong());
 
         doReturn(teams)
                 .when(this.teamService)

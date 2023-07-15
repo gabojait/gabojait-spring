@@ -34,6 +34,7 @@ import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -57,6 +58,10 @@ class ProfileControllerTest extends WebMvc {
 
     @BeforeEach
     void setUp() {
+        doReturn(1L)
+                .when(this.jwtProvider)
+                .getId(any());
+
         User tester = User.testOnlyBuilder()
                 .id(1L)
                 .role(Role.USER)
@@ -86,21 +91,29 @@ class ProfileControllerTest extends WebMvc {
 
         ProfileSeekPageDto profileSeekPageDto = new ProfileSeekPageDto(List.of(profileSeekResDto), 15);
 
-        doReturn(tester)
-                .when(this.jwtProvider)
-                .authorizeUserAccessJwt(any());
-
         doReturn(profileSeekPageDto)
                 .when(this.profileService)
-                .findManyUsersByPositionWithProfileOrder(any(), any(), any(), any(), any());
+                .findManyUsersByPositionWithProfileOrder(anyLong(), any(), any(), any(), any());
 
         doReturn(tester)
                 .when(this.profileService)
-                .updateProfile(any(), any());
+                .updateProfile(anyLong(), any());
+
+        doReturn(tester)
+                .when(this.profileService)
+                .uploadProfileImage(anyLong(), any());
+
+        doReturn(tester)
+                .when(this.profileService)
+                .findOneUser(anyLong());
+
+        doReturn(tester)
+                .when(this.profileService)
+                .deleteProfileImage(anyLong());
 
         doReturn(url)
                 .when(this.profileService)
-                .uploadPortfolioFile(any(), any());
+                .uploadPortfolioFile(anyLong(), any());
     }
 
     @Test
@@ -188,7 +201,7 @@ class ProfileControllerTest extends WebMvc {
         // given
         doThrow(new CustomException(FILE_FIELD_REQUIRED))
                 .when(this.profileService)
-                .uploadProfileImage(any(), any());
+                .uploadProfileImage(anyLong(), any());
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(multipart("/api/v1/user/image"))
@@ -833,7 +846,7 @@ class ProfileControllerTest extends WebMvc {
         // given
         doThrow(new CustomException(FILE_FIELD_REQUIRED))
                 .when(this.profileService)
-                .uploadPortfolioFile(any(), any());
+                .uploadPortfolioFile(anyLong(), any());
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(multipart("/api/v1/user/portfolio/file"))
