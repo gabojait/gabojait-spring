@@ -1,14 +1,13 @@
 package com.gabojait.gabojaitspring.log;
 
+import com.gabojait.gabojaitspring.common.intercept.RequestInterceptor;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StopWatch;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -33,30 +32,6 @@ public class AspectLogging {
     @Pointcut("execution(public * com.gabojait.gabojaitspring..*Repository.delete(..))")
     private void deleteFromRepository() {}
 
-    @Pointcut("execution(public * com.gabojait.gabojaitspring..*Controller.*(..))")
-    private void apiTimer() {}
-
-    @Around("apiTimer()")
-    public Object ApiExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
-        final MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        final String className = signature.getDeclaringType().getSimpleName();
-        final String methodName = signature.getMethod().getName();
-
-        log.info("========== [API-START] {} {} ==========", className, methodName);
-
-        StopWatch stopWatch = new StopWatch();
-
-        stopWatch.start();
-        Object proceed = joinPoint.proceed();
-        stopWatch.stop();
-
-        long totalTimeMillis = stopWatch.getTotalTimeMillis();
-
-        log.info("========== [API-FINISH] {} {} | {} ms ==========", className, methodName, totalTimeMillis);
-
-        return proceed;
-    }
-
     @Before("allExceptRepository()")
     public void beforeExceptRepository(JoinPoint joinPoint) {
         try {
@@ -65,6 +40,7 @@ public class AspectLogging {
             final Method method = signature.getMethod();
             final String[] parameterNames = signature.getParameterNames();
             final Object[] args = joinPoint.getArgs();
+            final String uuid = RequestInterceptor.getRequestId() == null ? "SYSTEM" : RequestInterceptor.getRequestId();
 
             StringBuilder argsLog = new StringBuilder();
 
@@ -82,7 +58,7 @@ public class AspectLogging {
                         .replaceAll("(?<=passwordReEntered\\s?=\\s?)\\S+", "******"));
             }
 
-            log.info("[PROGRESS] {} | {}({})", className, method.getName(), argsLog);
+            log.info("[{} | PROGRESS] {} | {}({})", uuid, className, method.getName(), argsLog);
         } catch (Exception e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -110,6 +86,7 @@ public class AspectLogging {
             final Method method = methodSignature.getMethod();
             final Parameter[] parameters = method.getParameters();
             final Object[] args = joinPoint.getArgs();
+            final String uuid = RequestInterceptor.getRequestId() == null ? "SYSTEM" : RequestInterceptor.getRequestId();
 
             StringBuilder argsLog = new StringBuilder();
             for(int i = 0; i < parameters.length; i++) {
@@ -120,7 +97,7 @@ public class AspectLogging {
                     argsLog.append(parameters[i].getName()).append(" = ").append(args[i]);
             }
 
-            log.info("[{}] {} | {} ({})", logTitle, className, method.getName(), argsLog);
+            log.info("[{} | {}] {} | {} ({})", uuid, logTitle, className, method.getName(), argsLog);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -132,13 +109,14 @@ public class AspectLogging {
             final MethodSignature signature = (MethodSignature) joinPoint.getSignature();
             final String className = signature.getDeclaringType().getSimpleName();
             final String methodName = signature.getMethod().getName();
+            final String uuid = RequestInterceptor.getRequestId() == null ? "SYSTEM" : RequestInterceptor.getRequestId();
 
             if (result != null && !methodName.contains("resultMasterPasswordScheduler")) {
                 result = result.toString().replaceAll("(?<=password = )\\S+", "******");
                 result = result.toString().replaceAll("(?<=passwordReEntered = )\\S+", "******");
             }
 
-            log.info("[SUCCESS] {} | {} | return = {}", className, methodName, result);
+            log.info("[{} | SUCCESS] {} | {} | return = {}", uuid, className, methodName, result);
         } catch (Exception e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -163,8 +141,9 @@ public class AspectLogging {
         try {
             final String className = signature.getDeclaringType().getSimpleName();
             final String methodName = signature.getMethod().getName();
+            final String uuid = RequestInterceptor.getRequestId() == null ? "SYSTEM" : RequestInterceptor.getRequestId();
 
-            log.info("[{}] {} | {} return = {}", logTitle, className, methodName, result);
+            log.info("[{} | {}] {} | {} return = {}", uuid, logTitle, className, methodName, result);
         } catch (Exception e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -196,8 +175,10 @@ public class AspectLogging {
             final String className = signature.getDeclaringType().getSimpleName();
             final String methodName = signature.getMethod().getName();
             final String errorName = exception.getExceptionCode().name();
+            final String uuid = RequestInterceptor.getRequestId() == null ? "SYSTEM" : RequestInterceptor.getRequestId();
 
-            log.error("[{}] {} | {} | code = {}", logTitle, className, methodName, errorName);
+            log.error("========== [{} | API-FINISH | {}] {} | {} | code = {} ==========",
+                    uuid, logTitle, className, methodName, errorName);
 
             if (exception.getExceptionCode().getHttpStatus().equals(HttpStatus.INTERNAL_SERVER_ERROR))
                 if (exception.getThrowable() != null)
