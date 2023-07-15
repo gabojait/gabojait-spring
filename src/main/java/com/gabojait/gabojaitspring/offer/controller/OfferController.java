@@ -56,7 +56,7 @@ public class OfferController {
                     "TEAM_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 404 = TEAM_NOT_FOUND\n" +
+                    "- 404 = USER_NOT_FOUND || TEAM_NOT_FOUND\n" +
                     "- 409 = EXISTING_CURRENT_TEAM || TEAM_POSITION_UNAVAILABLE\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
@@ -80,9 +80,9 @@ public class OfferController {
             @Positive(message = "팀 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long teamId,
             @RequestBody @Valid OfferCreateReqDto request) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        offerService.offerByUser(user, teamId, request);
+        offerService.offerByUser(userId, teamId, request);
 
         return ResponseEntity.status(OFFERED_BY_USER.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -123,9 +123,9 @@ public class OfferController {
             Long userId,
             @RequestBody @Valid OfferCreateReqDto request
     ) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long uId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        offerService.offerByTeam(user, userId, request);
+        offerService.offerByTeam(uId, userId, request);
 
         return ResponseEntity.status(OFFERED_BY_TEAM.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -140,6 +140,7 @@ public class OfferController {
                     "- 400 = PAGE_FROM_FIELD_REQUIRED || PAGE_FROM_POSITIVE_OR_ZERO_ONLY || PAGE_SIZE_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -148,6 +149,7 @@ public class OfferController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
@@ -162,9 +164,9 @@ public class OfferController {
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        Page<Offer> offers = offerService.findManyOffersByUser(user, pageFrom, pageSize);
+        Page<Offer> offers = offerService.findManyOffersByUser(userId, pageFrom, pageSize);
 
         List<OfferDefaultResDto> responses = new ArrayList<>();
         for(Offer offer : offers)
@@ -185,6 +187,7 @@ public class OfferController {
                     "- 400 = PAGE_FROM_FIELD_REQUIRED || PAGE_FROM_POSITIVE_OR_ZERO_ONLY || PAGE_SIZE_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -207,9 +210,9 @@ public class OfferController {
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        Page<Offer> offers = offerService.findManyOffersByTeam(user, pageFrom, pageSize);
+        Page<Offer> offers = offerService.findManyOffersByTeam(userId, pageFrom, pageSize);
 
         List<OfferDefaultResDto> responses = new ArrayList<>();
         for (Offer offer : offers)
@@ -230,7 +233,7 @@ public class OfferController {
                     "- 400 = IS_ACCEPTED_FIELD_REQUIRED || OFFER_ID_FIELD_REQUIRED || OFFER_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 404 = OFFER_NOT_FOUND\n" +
+                    "- 404 = USER_NOT_FOUND || OFFER_NOT_FOUND\n" +
                     "- 409 = EXISTING_CURRENT_TEAM || TEAM_POSITION_UNAVAILABLE\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
@@ -255,9 +258,9 @@ public class OfferController {
             @RequestBody @Valid
             OfferUpdateReqDto request
     ) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        offerService.decideByUser(user, offerId, request.getIsAccepted());
+        offerService.decideByUser(userId, offerId, request.getIsAccepted());
 
         return ResponseEntity.status(USER_DECIDED_OFFER.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -272,7 +275,7 @@ public class OfferController {
                     "- 400 = IS_ACCEPTED_FIELD_REQUIRED || OFFER_ID_FIELD_REQUIRED || OFFER_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
-                    "- 404 = OFFER_NOT_FOUND || USER_NOT_FOUND\n" +
+                    "- 404 = USER_NOT_FOUND || OFFER_NOT_FOUND\n" +
                     "- 409 = EXISTING_CURRENT_TEAM || TEAM_POSITION_UNAVAILABLE\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
@@ -297,9 +300,9 @@ public class OfferController {
             @RequestBody @Valid
             OfferUpdateReqDto request
     ) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        offerService.decideByTeam(user, offerId, request.getIsAccepted());
+        offerService.decideByTeam(userId, offerId, request.getIsAccepted());
 
         return ResponseEntity.status(TEAM_DECIDED_OFFER.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -314,7 +317,7 @@ public class OfferController {
                     "- 400 = OFFER_ID_FIELD_REQUIRED || OFFER_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 404 = OFFER_NOT_FOUND\n" +
+                    "- 404 = USER_NOT_FOUND || OFFER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -335,9 +338,9 @@ public class OfferController {
             @Positive(message = "제안 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long offerId
     ) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        offerService.cancelByUser(user, offerId);
+        offerService.cancelByUser(userId, offerId);
 
         return ResponseEntity.status(OFFER_CANCEL_BY_USER.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -352,7 +355,7 @@ public class OfferController {
                     "- 400 = OFFER_ID_FIELD_REQUIRED || OFFER_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
-                    "- 404 = OFFER_NOT_FOUND\n" +
+                    "- 404 = USER_NOT_FOUND || OFFER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -373,9 +376,9 @@ public class OfferController {
             @Positive(message = "제안 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long offerId
     ) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        offerService.cancelByTeam(user, offerId);
+        offerService.cancelByTeam(userId, offerId);
 
         return ResponseEntity.status(OFFER_CANCEL_BY_TEAM.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()

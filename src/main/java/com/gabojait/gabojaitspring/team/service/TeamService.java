@@ -17,6 +17,7 @@ import com.gabojait.gabojaitspring.team.dto.res.TeamOfferAndFavoriteResDto;
 import com.gabojait.gabojaitspring.team.repository.TeamMemberRepository;
 import com.gabojait.gabojaitspring.team.repository.TeamRepository;
 import com.gabojait.gabojaitspring.user.domain.User;
+import com.gabojait.gabojaitspring.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,15 +37,19 @@ public class TeamService {
     private final TeamMemberRepository teamMemberRepository;
     private final FavoriteTeamRepository favoriteTeamRepository;
     private final OfferRepository offerRepository;
+    private final UserRepository userRepository;
     private final GeneralProvider generalProvider;
     private final FcmProvider fcmProvider;
 
     /**
      * 팀 생성 |
+     * 404(USER_NOT_FOUND)
      * 409(EXISTING_CURRENT_TEAM / NON_EXISTING_POSITION)
      * 500(SERVER_ERROR)
      */
-    public Team create(TeamDefaultReqDto request, User user) {
+    public Team create(long userId, TeamDefaultReqDto request) {
+        User user = findOneUser(userId);
+
         validateHasNoCurrentTeam(user);
         validateCurrentPosition(user);
 
@@ -58,11 +63,13 @@ public class TeamService {
     /**
      * 팀 수정 |
      * 403(REQUEST_FORBIDDEN)
+     * 404(USER_NOT_FOUND)
      * 404(CURRENT_TEAM_NOT_FOUND)
      * 409(DESIGNER_CNT_UPDATE_UNAVAILABLE / BACKEND_CNT_UPDATE_UNAVAILABLE / FRONTEND_CNT_UPDATE_UNAVAILABLE /
      * MANAGER_CNT_UPDATE_UNAVAILABLE)
      */
-    public Team update(TeamDefaultReqDto request, User user) {
+    public Team update(long userId, TeamDefaultReqDto request) {
+        User user = findOneUser(userId);
         TeamMember teamMember = findOneCurrentTeamMember(user);
         validateIsLeader(teamMember);
 
@@ -103,9 +110,10 @@ public class TeamService {
     /**
      * 팀원 모집 여부 업데이트 |
      * 403(REQUEST_FORBIDDEN)
-     * 404(CURRENT_TEAM_NOT_FOUND)
+     * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND)
      */
-    public void updateIsRecruiting(User user, boolean isRecruiting) {
+    public void updateIsRecruiting(long userId, boolean isRecruiting) {
+        User user = findOneUser(userId);
         TeamMember teamMember = findOneCurrentTeamMember(user);
 
         validateIsLeader(teamMember);
@@ -116,10 +124,11 @@ public class TeamService {
     /**
      * 프로젝트 종료 |
      * 403(REQUEST_FORBIDDEN)
-     * 404(CURRENT_TEAM_NOT_FOUND)
+     * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public void quit(User user, String projectUrl) {
+    public void quit(long userId, String projectUrl) {
+        User user = findOneUser(userId);
         TeamMember teamMember = findOneCurrentTeamMember(user);
 
         validateIsLeader(teamMember);
@@ -133,9 +142,10 @@ public class TeamService {
     /**
      * 팀원 추방 |
      * 403(REQUEST_FORBIDDEN)
-     * 404(CURRENT_TEAM_NOT_FOUND)
+     * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND)
      */
-    public void fire(User leader, Long userId) {
+    public void fire(long leaderUserId, Long userId) {
+        User leader = findOneUser(leaderUserId);
         TeamMember leaderTeamMember = findOneCurrentTeamMember(leader);
 
         validateIsLeader(leaderTeamMember);
@@ -186,7 +196,8 @@ public class TeamService {
      * 404(CURRENT_TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public void leaveTeam(User user) {
+    public void leaveTeam(long userId) {
+        User user = findOneUser(userId);
         TeamMember teamMember = findOneCurrentTeamMember(user);
 
         Team team = teamMember.getTeam();
@@ -205,9 +216,9 @@ public class TeamService {
      * 팀 저장 |
      * 500(SERVER_ERROR)
      */
-    private void saveTeam(Team team) {
+    private Team saveTeam(Team team) {
         try {
-            teamRepository.save(team);
+            return teamRepository.save(team);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -227,9 +238,10 @@ public class TeamService {
 
     /**
      * 회원으로 현재 팀 단건 조회 |
-     * 404(CURRENT_TEAM_NOT_FOUND)
+     * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND)
      */
-    public Team findOneCurrentTeam(User user) {
+    public Team findOneCurrentTeam(long userId) {
+        User user = findOneUser(userId);
         TeamMember teamMember = findOneCurrentTeamMember(user);
 
         return teamMember.getTeam();
@@ -237,10 +249,11 @@ public class TeamService {
 
     /**
      * 팀 식별자와 회원으로 타 팀 단건 조회 |
-     * 404(TEAM_NOT_FOUND)
+     * 404(USER_NOT_FOUND / TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public TeamOfferAndFavoriteResDto findOneOtherTeam(Long teamId, User user) {
+    public TeamOfferAndFavoriteResDto findOneOtherTeam(long userId, Long teamId) {
+        User user = findOneUser(userId);
         Team team = findOneTeam(teamId);
 
         boolean isTeamMember = user.isTeamMember(team);
@@ -301,10 +314,21 @@ public class TeamService {
      * 식별자로 팀 단건 조회 |
      * 404(TEAM_NOT_FOUND)
      */
-    public Team findOneTeam(Long teamId) {
+    private Team findOneTeam(Long teamId) {
         return teamRepository.findByIdAndIsDeletedIsFalse(teamId)
                 .orElseThrow(() -> {
                     throw new CustomException(TEAM_NOT_FOUND);
+                });
+    }
+
+    /**
+     * 식별자로 회원 단건 조회 |
+     * 404(USER_NOT_FOUND)
+     */
+    private User findOneUser(Long userId) {
+        return userRepository.findByIdAndIsDeletedIsFalse(userId)
+                .orElseThrow(() -> {
+                    throw new CustomException(USER_NOT_FOUND);
                 });
     }
 

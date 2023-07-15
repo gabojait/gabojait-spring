@@ -139,13 +139,10 @@ public class UserController {
     })
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping
-    public ResponseEntity<DefaultResDto<Object>> register(HttpServletRequest servletRequest,
-                                                          @RequestBody @Valid UserRegisterReqDto request) {
-        jwtProvider.authorizeGuestAccessJwt(servletRequest.getHeader(AUTHORIZATION));
-
+    public ResponseEntity<DefaultResDto<Object>> register(@RequestBody @Valid UserRegisterReqDto request) {
         User user = userService.register(request);
 
-        HttpHeaders headers = jwtProvider.generateUserJwt(user.getId(), user.getRoles());
+        HttpHeaders headers = jwtProvider.createJwt(user.getId(), user.getRoles());
         UserDefaultResDto response = new UserDefaultResDto(user);
 
         return ResponseEntity.status(USER_REGISTERED.getHttpStatus())
@@ -176,7 +173,7 @@ public class UserController {
     public ResponseEntity<DefaultResDto<Object>> login(@RequestBody @Valid UserLoginReqDto request) {
         User user = userService.login(request);
 
-        HttpHeaders headers = jwtProvider.generateUserJwt(user.getId(), user.getRoles());
+        HttpHeaders headers = jwtProvider.createJwt(user.getId(), user.getRoles());
         UserDefaultResDto response = new UserDefaultResDto(user);
 
         return ResponseEntity.status(USER_LOGIN.getHttpStatus())
@@ -193,6 +190,7 @@ public class UserController {
                     "- 200 = USER_LOGOUT\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -200,15 +198,16 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/logout")
     public ResponseEntity<DefaultResDto<Object>> logout(HttpServletRequest servletRequest,
                                                         @RequestBody @Valid UserLogoutReqDto request) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        userService.logout(user, request.getFcmToken());
+        userService.logout(userId, request.getFcmToken());
 
         return ResponseEntity.status(USER_LOGOUT.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -222,6 +221,7 @@ public class UserController {
                     "- 200 = SELF_USER_FOUND\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -229,12 +229,15 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = UserDefaultResDto.class))),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping
     public ResponseEntity<DefaultResDto<Object>> findMyself(HttpServletRequest servletRequest) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
+
+        User user = userService.findOneUser(userId);
 
         UserDefaultResDto response = new UserDefaultResDto(user);
 
@@ -251,6 +254,7 @@ public class UserController {
                     "- 200 = TOKEN_RENEWED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -258,17 +262,18 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/token")
     public ResponseEntity<DefaultResDto<Object>> renewToken(HttpServletRequest servletRequest,
                                                             @RequestBody @Valid UserRenewTokenReqDto request) {
-        User user = jwtProvider.authorizeUserRefreshJwt(servletRequest.getHeader("Refresh-Token"));
+        long userId = jwtProvider.getId(servletRequest.getHeader("Refresh-Token"));
 
-        userService.updateToken(user, request);
+        User user = userService.updateFcmToken(userId, request);
 
-        HttpHeaders headers = jwtProvider.generateUserJwt(user.getId(), user.getRoles());
+        HttpHeaders headers = jwtProvider.createJwt(user.getId(), user.getRoles());
 
         return ResponseEntity.status(TOKEN_RENEWED.getHttpStatus())
                 .headers(headers)
@@ -322,7 +327,7 @@ public class UserController {
     })
     @PostMapping("/password")
     public ResponseEntity<DefaultResDto<Object>> findPassword(@RequestBody @Valid UserFindPasswordReqDto request) {
-        userService.sendPasswordToEmail(request);
+        userService.sendPasswordByEmail(request);
 
         return ResponseEntity.status(PASSWORD_EMAIL_SENT.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -337,6 +342,7 @@ public class UserController {
                     "- 400 = PASSWORD_FIELD_REQUIRED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED || PASSWORD_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -345,15 +351,16 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/password/verify")
     public ResponseEntity<DefaultResDto<Object>> verifyPassword(HttpServletRequest servletRequest,
                                                                 @RequestBody @Valid UserVerifyReqDto request) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        userService.verifyPassword(user, request.getPassword());
+        userService.verifyPassword(userId, request.getPassword());
 
         return ResponseEntity.status(PASSWORD_VERIFIED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -368,6 +375,7 @@ public class UserController {
                     "- 400 = NICKNAME_FIELD_REQUIRED || NICKNAME_LENGTH_INVALID || NICKNAME_FORMAT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 409 = UNAVAILABLE_NICKNAME || EXISTING_NICKNAME\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
@@ -377,6 +385,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "409", description = "CONFLICT"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
@@ -384,9 +393,9 @@ public class UserController {
     @PatchMapping("/nickname")
     public ResponseEntity<DefaultResDto<Object>> updateNickname(HttpServletRequest servletRequest,
                                                                 @RequestBody @Valid UserNicknameUpdateReqDto request) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        userService.updateNickname(user, request.getNickname());
+        userService.updateNickname(userId, request.getNickname());
 
         return ResponseEntity.status(NICKNAME_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -402,6 +411,7 @@ public class UserController {
                     " || PASSWORD_FORMAT_INVALID || PASSWORD_MATCH_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -410,15 +420,16 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/password")
     public ResponseEntity<DefaultResDto<Object>> updatePassword(HttpServletRequest servletRequest,
                                                                 @RequestBody @Valid UserUpdatePasswordReqDto request) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        userService.updatePassword(user, request.getPassword(), request.getPassword(), false);
+        userService.updatePassword(userId, request.getPassword(), request.getPassword(), false);
 
         return ResponseEntity.status(PASSWORD_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -433,6 +444,7 @@ public class UserController {
                     "- 400 = IS_NOTIFIED_FIELD_REQUIRED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -441,6 +453,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
@@ -448,9 +461,9 @@ public class UserController {
     public ResponseEntity<DefaultResDto<Object>> updateIsNotified(HttpServletRequest servletRequest,
                                                                   @RequestBody @Valid
                                                                   UserIsNotifiedUpdateReqDto request) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        userService.updateIsNotified(user, request.getIsNotified());
+        userService.updateIsNotified(userId, request.getIsNotified());
 
         return ResponseEntity.status(IS_NOTIFIED_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -464,6 +477,7 @@ public class UserController {
                     "- 200 = USER_DELETED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -471,14 +485,15 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping
     public ResponseEntity<DefaultResDto<Object>> deactivate(HttpServletRequest servletRequest) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        userService.deleteAccount(user);
+        userService.deleteAccount(userId);
 
         return ResponseEntity.status(USER_DELETED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()

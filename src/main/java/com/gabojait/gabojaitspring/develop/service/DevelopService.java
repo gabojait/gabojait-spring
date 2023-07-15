@@ -81,6 +81,17 @@ public class DevelopService {
     }
 
     /**
+     * 식별자로 회원 단건 조회 |
+     * 404(USER_NOT_FOUND)
+     */
+    private User findOneUser(Long userId) {
+        return userRepository.findByIdAndIsDeletedIsFalse(userId)
+                .orElseThrow(() -> {
+                    throw new CustomException(USER_NOT_FOUND);
+                });
+    }
+
+    /**
      * 데이터베이스 초기화 후 테스트 데이터 주입
      */
     public void resetAndInjectData() {
@@ -97,9 +108,11 @@ public class DevelopService {
     }
 
     /**
-     * 테스트 FCM 전송
+     * 테스트 FCM 전송 |
+     * 404(USER_NOT_FOUND)
      */
-    public void sendTestFcm(User user, String title, String body) {
+    public void sendTestFcm(long userId, String title, String body) {
+        User user = findOneUser(userId);
         fcmProvider.sendOne(user, title, body);
     }
 

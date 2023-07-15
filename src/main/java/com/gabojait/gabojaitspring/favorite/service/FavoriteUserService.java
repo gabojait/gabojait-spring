@@ -30,29 +30,31 @@ public class FavoriteUserService {
     /**
      * 찜한 회원 업데이트 |
      * 403(REQUEST_FORBIDDEN)
-     * 404(CURRENT_TEAM_NOT_FOUND / FAVORITE_USER_NOT_FOUND / USER_NOT_FOUND)
+     * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND / FAVORITE_USER_NOT_FOUND)
      */
-    public void update(User leader, long userId, boolean isAdd) {
+    public void update(long userId, Long otherUserId, boolean isAdd) {
+        User leader = findOneUser(userId);
         TeamMember teamMember = findOneCurrentTeamMember(leader);
         validateIsLeader(teamMember);
 
         Team team = teamMember.getTeam();
-        User user = findOneUser(userId);
+        User otherUser = findOneUser(otherUserId);
 
         if (isAdd)
-            createFavoriteUser(team, user);
+            createFavoriteUser(team, otherUser);
         else
-            softDeleteFavoriteUser(team, user);
+            softDeleteFavoriteUser(team, otherUser);
     }
 
     /**
      * 찜한 회원 페이징 다건 조회 |
      * 403(REQUEST_FORBIDDEN)
-     * 404(CURRENT_TEAM_NOT_FOUND)
+     * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public Page<FavoriteUser> findManyFavoriteUsers(User leader, Integer pageFrom, Integer pageSize) {
+    public Page<FavoriteUser> findManyFavoriteUsers(long leaderId, Integer pageFrom, Integer pageSize) {
         Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
+        User leader = findOneUser(leaderId);
 
         TeamMember teamMember = findOneCurrentTeamMember(leader);
         validateIsLeader(teamMember);

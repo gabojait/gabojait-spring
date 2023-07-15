@@ -9,7 +9,6 @@ import com.gabojait.gabojaitspring.review.dto.res.ReviewDefaultResDto;
 import com.gabojait.gabojaitspring.review.service.ReviewService;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.dto.res.TeamAbstractResDto;
-import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -81,9 +80,9 @@ public class ReviewController {
             Long teamId,
             @RequestBody @Valid ReviewCreateReqDto request
     ) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        reviewService.create(user, teamId, request);
+        reviewService.create(userId, teamId, request);
 
         return ResponseEntity.status(USER_REVIEWED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -99,6 +98,7 @@ public class ReviewController {
                     "- 200 = REVIEWABLE_TEAMS_FOUND\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -106,14 +106,15 @@ public class ReviewController {
                     content = @Content(schema = @Schema(implementation = TeamAbstractResDto.class))),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/user/team/review")
     public ResponseEntity<DefaultResDto<Object>> findReviewableTeams(HttpServletRequest servletRequest) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        List<Team> reviewableTeams = reviewService.findAllReviewableTeams(user);
+        List<Team> reviewableTeams = reviewService.findAllReviewableTeams(userId);
 
         List<TeamAbstractResDto> responses = new ArrayList<>();
         for(Team reviewableTeam : reviewableTeams)
@@ -153,7 +154,6 @@ public class ReviewController {
     })
     @GetMapping("/user/{user-id}/review")
     public ResponseEntity<DefaultResDto<Object>> findManyReview(
-            HttpServletRequest servletRequest,
             @PathVariable(value = "user-id", required = false)
             @NotNull(message = "회원 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
@@ -166,8 +166,6 @@ public class ReviewController {
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
-
         Page<Review> reviews = reviewService.findManyReviews(userId, pageFrom, pageSize);
 
         List<ReviewDefaultResDto> responses = new ArrayList<>();

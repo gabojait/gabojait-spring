@@ -7,6 +7,7 @@ import com.gabojait.gabojaitspring.favorite.repository.FavoriteTeamRepository;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.repository.TeamRepository;
 import com.gabojait.gabojaitspring.user.domain.User;
+import com.gabojait.gabojaitspring.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,14 +24,16 @@ public class FavoriteTeamService {
     private final FavoriteTeamRepository favoriteTeamRepository;
     private final TeamRepository teamRepository;
     private final GeneralProvider generalProvider;
+    private final UserRepository userRepository;
 
     /**
      * 찜한 팀 업데이트 |
      * 404(TEAM_NOT_FOUND / FAVORITE_TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public void update(User user, Long teamId, boolean isAdd) {
+    public void update(long userId, Long teamId, boolean isAdd) {
         Team team = findOneTeam(teamId);
+        User user= findOneUser(userId);
 
         if (isAdd)
             create(user, team);
@@ -88,8 +91,9 @@ public class FavoriteTeamService {
      * 찜한 팀 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
-    public Page<FavoriteTeam> findManyFavoriteTeams(User user, Integer pageFrom, Integer pageSize) {
+    public Page<FavoriteTeam> findManyFavoriteTeams(long userId, Integer pageFrom, Integer pageSize) {
         Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
+        User user = findOneUser(userId);
 
         try {
             return favoriteTeamRepository.findAllByUserAndIsDeletedIsFalse(user, pageable);
@@ -106,6 +110,17 @@ public class FavoriteTeamService {
         return teamRepository.findByIdAndIsDeletedIsFalse(teamId)
                 .orElseThrow(() -> {
                     throw new CustomException(TEAM_NOT_FOUND);
+                });
+    }
+
+    /**
+     * 식별자로 회원 단건 조회 |
+     * 404(USER_NOT_FOUND)
+     */
+    private User findOneUser(Long userId) {
+        return userRepository.findByIdAndIsDeletedIsFalse(userId)
+                .orElseThrow(() -> {
+                    throw new CustomException(USER_NOT_FOUND);
                 });
     }
 }

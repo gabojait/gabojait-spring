@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
@@ -105,9 +106,11 @@ public class UserService {
 
     /**
      * 회원 로그아웃 |
+     * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public void logout(User user, String fcmToken) {
+    public void logout(long userId, String fcmToken) {
+        User user = findOneUser(userId);
         Optional<Fcm> fcm = findOneFcm(fcmToken, user);
 
         fcm.ifPresent(this::hardDeleteFcm);
@@ -137,7 +140,7 @@ public class UserService {
      * 404(CONTACT_NOT_FOUND)
      * 500(EMAIL_SEND_ERROR)
      */
-    public void sendPasswordToEmail(UserFindPasswordReqDto request) {
+    public void sendPasswordByEmail(UserFindPasswordReqDto request) {
         Contact contact = findOneRegisteredContact(request.getEmail());
         User user = contact.getUser();
 
@@ -145,7 +148,7 @@ public class UserService {
             throw new CustomException(USERNAME_EMAIL_MATCH_INVALID);
 
         String tempPassword = generalProvider.generateRandomCode(8);
-        updatePassword(user, tempPassword, tempPassword, true);
+        updatePassword(user.getId(), tempPassword, tempPassword, true);
 
         emailProvider.sendEmail(
                 user.getContact().getEmail(),
@@ -158,8 +161,11 @@ public class UserService {
     /**
      * 비밀번호 검증 |
      * 401(PASSWORD_UNAUTHENTICATED)
+     * 404(USER_NOT_FOUND)
      */
-    public void verifyPassword(User user, String password) {
+    public void verifyPassword(long userId, String password) {
+        User user = findOneUser(userId);
+
         boolean isVerified = generalProvider.verifyPassword(user, password);
 
         if (!isVerified)
@@ -168,9 +174,12 @@ public class UserService {
 
     /**
      * 닉네임 업데이트 |
+     * 404(USER_NOT_FOUND)
      * 409(UNAVAILABLE_NICKNAME / EXISTING_NICKNAME)
      */
-    public void updateNickname(User user, String nickname) {
+    public void updateNickname(long userId, String nickname) {
+        User user = findOneUser(userId);
+
         validateNickname(nickname);
 
         user.updateNickname(nickname);
@@ -179,8 +188,11 @@ public class UserService {
     /**
      * 비밀번호 업데이트 |
      * 400(PASSWORD_MATCH_INVALID)
+     * 404(USER_NOT_FOUND)
      */
-    public void updatePassword(User user, String password, String passwordReEntered, boolean isTemporaryPassword) {
+    public void updatePassword(long userId, String password, String passwordReEntered, boolean isTemporaryPassword) {
+        User user = findOneUser(userId);
+
         if (!isTemporaryPassword)
             validateMatchingPassword(password, passwordReEntered);
 
@@ -189,29 +201,39 @@ public class UserService {
     }
 
     /**
-     * 알림 여부 업데이트
+     * 알림 여부 업데이트 |
+     * 404(USER_NOT_FOUND)
      */
-    public void updateIsNotified(User user, boolean isNotified) {
+    public void updateIsNotified(long userId, boolean isNotified) {
+        User user = findOneUser(userId);
+
         user.updateIsNotified(isNotified);
     }
 
     /**
-     * 토큰 업데이트 |
+     * FCM 토큰 업데이트 |
+     * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public void updateToken(User user, UserRenewTokenReqDto request) {
+    public User updateFcmToken(long userId, UserRenewTokenReqDto request) {
+        User user = findOneUser(userId);
         updateLastRequestAt(user);
 
         if (request.getFcmToken() != null)
             createFcm(request.getFcmToken(), user);
+        return user;
     }
 
     /**
      * 회원 탈퇴 |
+     * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public void deleteAccount(User user) {
-        for(Fcm fcm : user.getFcms())
+    public void deleteAccount(long userId) {
+        User user = findOneUser(userId);
+        List<Fcm> fcms = user.getFcms();
+
+        for(Fcm fcm : fcms)
             hardDeleteFcm(fcm);
 
         user.getContact().deleteAccount();
@@ -267,6 +289,17 @@ public class UserService {
     }
 
     /**
+     * 식별자로 회원 단건 조회 |
+     * 404(USER_NOT_FOUND)
+     */
+    public User findOneUser(long userId) {
+        return userRepository.findByIdAndIsDeletedIsFalse(userId)
+                .orElseThrow(() -> {
+                    throw new CustomException(USER_NOT_FOUND);
+                });
+    }
+
+    /**
      * 아이디로 회원 단건 조회 |
      * 401(LOGIN_UNAUTHENTICATED)
      * 500(SERVER_ERROR)
@@ -318,16 +351,12 @@ public class UserService {
      * 500(SERVER_ERROR)
      */
     private Contact findOneRegisteredContact(String email) {
-        try {
-            Optional<Contact> contact = contactRepository.findByEmailAndIsVerifiedIsTrueAndIsDeletedIsFalse(email);
+        Optional<Contact> contact = contactRepository.findByEmailAndIsVerifiedIsTrueAndIsDeletedIsFalse(email);
 
-            if (contact.isEmpty() || contact.get().getUser() == null)
-                throw new CustomException(CONTACT_NOT_FOUND);
+        if (contact.isEmpty() || contact.get().getUser() == null)
+            throw new CustomException(CONTACT_NOT_FOUND);
 
-            return contact.get();
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
+        return contact.get();
     }
 
     /**

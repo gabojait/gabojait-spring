@@ -110,7 +110,7 @@ public class DevelopController {
     ) {
         User user = developService.findOneTester("test" + testerId);
 
-        HttpHeaders headers = jwtProvider.generateUserJwt(user.getId(), user.getRoles());
+        HttpHeaders headers = jwtProvider.createJwt(user.getId(), user.getRoles());
 
         return ResponseEntity.status(TESTER_TOKEN_ISSUED.getHttpStatus())
                 .headers(headers)
@@ -126,6 +126,7 @@ public class DevelopController {
                     "- 400 = FCM_TITLE_FIELD_REQUIRED || FCM_MESSAGE_FIELD_REQUIRED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION\n")
     @ApiResponses(value = {
@@ -134,6 +135,7 @@ public class DevelopController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
@@ -141,9 +143,9 @@ public class DevelopController {
     public ResponseEntity<DefaultResDto<Object>> sendTestFcm(HttpServletRequest servletRequest,
                                                              @RequestBody @Valid
                                                              DevelopFcmReqDto request) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        developService.sendTestFcm(user, request.getFcmTitle(), request.getFcmMessage());
+        developService.sendTestFcm(userId, request.getFcmTitle(), request.getFcmMessage());
 
         return ResponseEntity.status(TEST_FCM_SENT.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()

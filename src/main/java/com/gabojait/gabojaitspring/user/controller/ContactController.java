@@ -17,11 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "연락처")
 @RestController
@@ -52,7 +50,7 @@ public class ContactController {
     public ResponseEntity<DefaultResDto<Object>> sendVerificationCode(@RequestBody @Valid ContactSaveReqDto request) {
         contactService.sendRegisterVerificationCode(request);
 
-        HttpHeaders headers = jwtProvider.generateGuestJwt();
+        HttpHeaders headers = jwtProvider.createGuestJwt();
 
         return ResponseEntity.status(VERIFICATION_CODE_SENT.getHttpStatus())
                 .headers(headers)
@@ -81,10 +79,7 @@ public class ContactController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping
-    public ResponseEntity<DefaultResDto<Object>> verifyCode(HttpServletRequest servletRequest,
-                                                            @RequestBody @Valid ContactVerifyReqDto request) {
-        jwtProvider.authorizeGuestAccessJwt(servletRequest.getHeader(AUTHORIZATION));
-
+    public ResponseEntity<DefaultResDto<Object>> verifyCode(@RequestBody @Valid ContactVerifyReqDto request) {
         contactService.verify(request);
 
         return ResponseEntity.status(EMAIL_VERIFIED.getHttpStatus())

@@ -42,7 +42,8 @@ public class OfferService {
      * 409(EXISTING_CURRENT_TEAM / TEAM_POSITION_UNAVAILABLE)
      * 500(SERVER_ERROR)
      */
-    public void offerByUser(User user, Long teamId, OfferCreateReqDto request) {
+    public void offerByUser(long userId, Long teamId, OfferCreateReqDto request) {
+        User user = findOneUser(userId);
         Team team = findOneTeam(teamId);
 
         validateHasNoCurrentTeam(user);
@@ -64,7 +65,8 @@ public class OfferService {
      * 409(EXISTING_CURRENT_TEAM / TEAM_POSITION_UNAVAILABLE)
      * 500(SERVER_ERROR)
      */
-    public void offerByTeam(User leader, Long userId, OfferCreateReqDto request) {
+    public void offerByTeam(long leaderId, Long userId, OfferCreateReqDto request) {
+        User leader = findOneUser(leaderId);
         User user = findOneUser(userId);
 
         validateLeader(leader);
@@ -85,11 +87,12 @@ public class OfferService {
 
     /**
      * 회원이 받은 제안 결정 |
-     * 404(OFFER_NOT_FOUND)
+     * 404(USER_NOT_FOUND / OFFER_NOT_FOUND)
      * 409(EXISTING_CURRENT_TEAM / TEAM_POSITION_UNAVAILABLE)
      * 500(SERVER_ERROR)
      */
-    public void decideByUser(User user, Long offerId, Boolean isAccepted) {
+    public void decideByUser(long userId, Long offerId, Boolean isAccepted) {
+        User user = findOneUser(userId);
         Offer offer = findOneOfferByIdAndUser(offerId, user);
         Team team = offer.getTeam();
         Position position = Position.fromChar(offer.getPosition());
@@ -117,11 +120,12 @@ public class OfferService {
     /**
      * 팀이 받은 제안 결정 |
      * 403(REQUEST_FORBIDDEN)
-     * 404(OFFER_NOT_FOUND / USER_NOT_FOUND)
+     * 404(USER_NOT_FOUND / OFFER_NOT_FOUND)
      * 409(EXISTING_CURRENT_TEAM / TEAM_POSITION_UNAVAILABLE)
      * 500(SERVER_ERROR)
      */
-    public void decideByTeam(User leader, Long offerId, Boolean isAccepted) {
+    public void decideByTeam(long leaderId, Long offerId, Boolean isAccepted) {
+        User leader = findOneUser(leaderId);
         Team team = leader.getTeamMembers().get(leader.getTeamMembers().size() - 1).getTeam();
         Offer offer = findOneOfferByIdAndTeam(offerId, team);
         User user = findOneUser(offer.getUser().getId());
@@ -150,9 +154,10 @@ public class OfferService {
 
     /**
      * 회원이 보낸 제안 취소 |
-     * 404(OFFER_NOT_FOUND)
+     * 404(USER_NOT_FOUND / OFFER_NOT_FOUND)
      */
-    public void cancelByUser(User user, Long offerId) {
+    public void cancelByUser(long userId, Long offerId) {
+        User user = findOneUser(userId);
         Offer offer = findOneOfferByIdAndUserAndOfferedBy(offerId, user);
 
         offer.cancel();
@@ -160,9 +165,11 @@ public class OfferService {
 
     /**
      * 회원이 보낸 제안 취소 |
-     * 404(OFFER_NOT_FOUND)
+     * 404(USER_NOT_FOUND / OFFER_NOT_FOUND)
      */
-    public void cancelByTeam(User leader, Long offerId) {
+    public void cancelByTeam(long leaderId, Long offerId) {
+        User leader = findOneUser(leaderId);
+
         validateLeader(leader);
 
         Team team = leader.getTeamMembers().get(leader.getTeamMembers().size() - 1).getTeam();
@@ -212,10 +219,12 @@ public class OfferService {
 
     /**
      * 회원으로 제안 페이징 다건 조회 |
+     * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public Page<Offer> findManyOffersByUser(User user, Integer pageFrom, Integer pageSize) {
+    public Page<Offer> findManyOffersByUser(long userId, Integer pageFrom, Integer pageSize) {
         Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
+        User user = findOneUser(userId);
 
         try {
             return offerRepository.findAllByUserAndIsDeletedIsFalse(user, pageable);
@@ -227,10 +236,13 @@ public class OfferService {
     /**
      * 팀으로 제안 페이징 다건 조회 |
      * 403(REQUEST_FORBIDDEN)
+     * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public Page<Offer> findManyOffersByTeam(User user, Integer pageFrom, Integer pageSize) {
+    public Page<Offer> findManyOffersByTeam(long userId, Integer pageFrom, Integer pageSize) {
         Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
+        User user = findOneUser(userId);
+
         validateLeader(user);
 
         Team team = user.getTeamMembers().get(user.getTeamMembers().size() - 1).getTeam();

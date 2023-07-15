@@ -41,7 +41,8 @@ public class ReviewService {
      * 404(USER_NOT_FOUND / TEAM_NOT_FOUND / TEAM_MEMBER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public void create(User reviewer, long teamId, ReviewCreateReqDto request) {
+    public void create(long reviewerId, long teamId, ReviewCreateReqDto request) {
+        User reviewer = findOneUser(reviewerId);
         for(ReviewDefaultReqDto req : request.getReviews())
             validateTeamMember(teamId, req.getUserId());
 
@@ -79,7 +80,8 @@ public class ReviewService {
      * 회원의 리뷰 가능한 팀 전체 조회 |
      * 500(SERVER_ERROR)
      */
-    public List<Team> findAllReviewableTeams(User user) {
+    public List<Team> findAllReviewableTeams(long userId) {
+        User user = findOneUser(userId);
         List<TeamMember> teamMembers = user.getTeamMembers();
         List<Team> reviewableTeams = new ArrayList<>();
 

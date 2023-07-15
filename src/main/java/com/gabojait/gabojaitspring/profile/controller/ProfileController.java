@@ -51,7 +51,7 @@ public class ProfileController {
                     "- 200 = SELF_PROFILE_FOUND\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 404 = TEAM_NOT_FOUND\n" +
+                    "- 404 = USER_NOT_FOUND || TEAM_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -65,7 +65,9 @@ public class ProfileController {
     })
     @GetMapping("/profile")
     public ResponseEntity<DefaultResDto<Object>> findMyself(HttpServletRequest servletRequest) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
+
+        User user = profileService.findOneUser(userId);
 
         ProfileDefaultResDto response = new ProfileDefaultResDto(user);
 
@@ -106,9 +108,9 @@ public class ProfileController {
             @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long userId
     ) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long uId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        ProfileOfferAndFavoriteResDto response = profileService.findOneOtherProfile(userId, user);
+        ProfileOfferAndFavoriteResDto response = profileService.findOneOtherProfile(uId, userId);
 
         return ResponseEntity.status(PROFILE_FOUND.getHttpStatus())
                 .body(DefaultResDto.singleDataBuilder()
@@ -126,6 +128,7 @@ public class ProfileController {
                     "- 400 = FILE_FIELD_REQUIRED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 413 = FILE_SIZE_EXCEED\n" +
                     "- 415 = IMAGE_TYPE_UNSUPPORTED\n" +
                     "- 500 = SERVER_ERROR\n" +
@@ -136,6 +139,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "413", description = "PAYLOAD TOO LARGE"),
             @ApiResponse(responseCode = "415", description = "UNSUPPORTED MEDIA TYPE"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
@@ -145,9 +149,9 @@ public class ProfileController {
     public ResponseEntity<DefaultResDto<Object>> uploadProfileImage(HttpServletRequest servletRequest,
                                                                     @RequestPart(value = "image", required = false)
                                                                     MultipartFile image) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        profileService.uploadProfileImage(user, image);
+        User user = profileService.uploadProfileImage(userId, image);
 
         ProfileDefaultResDto response = new ProfileDefaultResDto(user);
 
@@ -164,6 +168,7 @@ public class ProfileController {
                     "- 200 = PROFILE_IMAGE_DELETED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -171,14 +176,15 @@ public class ProfileController {
                     content = @Content(schema = @Schema(implementation = ProfileDefaultResDto.class))),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping("/image")
     public ResponseEntity<DefaultResDto<Object>> deleteProfileImage(HttpServletRequest servletRequest) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        profileService.deleteProfileImage(user);
+        User user = profileService.deleteProfileImage(userId);
 
         ProfileDefaultResDto response = new ProfileDefaultResDto(user);
 
@@ -196,6 +202,7 @@ public class ProfileController {
                     "- 400 = IS_SEEKING_TEAM_FIELD_REQUIRED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -204,6 +211,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
@@ -211,9 +219,9 @@ public class ProfileController {
     public ResponseEntity<DefaultResDto<Object>> updateIsSeekingTeam(HttpServletRequest servletRequest,
                                                                      @RequestBody @Valid
                                                                      ProfileIsSeekingTeamUpdateReqDto request) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        profileService.updateIsSeekingTeam(user, request.getIsSeekingTeam());
+        profileService.updateIsSeekingTeam(userId, request.getIsSeekingTeam());
 
         return ResponseEntity.status(PROFILE_SEEKING_TEAM_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -228,6 +236,7 @@ public class ProfileController {
                     "- 400 = PROFILE_DESCRIPTION_LENGTH_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -236,6 +245,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
@@ -243,9 +253,9 @@ public class ProfileController {
     public ResponseEntity<DefaultResDto<Object>> updateDescription(HttpServletRequest servletRequest,
                                                                    @RequestBody @Valid
                                                                    ProfileDescriptionUpdateReqDto request) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        profileService.updateProfileDescription(user, request.getProfileDescription());
+        profileService.updateProfileDescription(userId, request.getProfileDescription());
 
         return ResponseEntity.status(PROFILE_DESCRIPTION_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -268,6 +278,7 @@ public class ProfileController {
                     "WORK_DATE_INVALID || WORK_ENDED_AT_FIELD_REQUIRED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -276,6 +287,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
@@ -283,9 +295,9 @@ public class ProfileController {
     public ResponseEntity<DefaultResDto<Object>> updateProfile(HttpServletRequest servletRequest,
                                                                @RequestBody @Valid
                                                                ProfileDefaultReqDto request) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        User updatedUser = profileService.updateProfile(user, request);
+        User updatedUser = profileService.updateProfile(userId, request);
 
         ProfileDefaultResDto response = new ProfileDefaultResDto(updatedUser);
 
@@ -303,6 +315,7 @@ public class ProfileController {
                     "- 400 = FILE_FIELD_REQUIRED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 413 = FILE_SIZE_EXCEED\n" +
                     "- 415 = FILE_TYPE_UNSUPPORTED\n" +
                     "- 500 = SERVER_ERROR\n" +
@@ -313,6 +326,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "413", description = "PAYLOAD TOO LARGE"),
             @ApiResponse(responseCode = "415", description = "UNSUPPORTED MEDIA TYPE"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
@@ -323,9 +337,9 @@ public class ProfileController {
     public ResponseEntity<DefaultResDto<Object>> uploadPortfolioFile(HttpServletRequest servletRequest,
                                                                     @RequestPart(value = "file", required = false)
                                                                     MultipartFile file) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        String portfolioUrl = profileService.uploadPortfolioFile(user, file);
+        String portfolioUrl = profileService.uploadPortfolioFile(userId, file);
 
         PortfolioUrlResDto response = new PortfolioUrlResDto(portfolioUrl);
 
@@ -354,6 +368,7 @@ public class ProfileController {
                     "|| PAGE_SIZE_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -362,6 +377,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
@@ -388,13 +404,13 @@ public class ProfileController {
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        ProfileSeekPageDto response = profileService.findManyUsersByPositionWithProfileOrder(position,
+        ProfileSeekPageDto response = profileService.findManyUsersByPositionWithProfileOrder(userId,
+                position,
                 profileOrder,
                 pageFrom,
-                pageSize,
-                user);
+                pageSize);
 
         return ResponseEntity.status(USERS_SEEKING_TEAM_FOUND.getHttpStatus())
                 .body(DefaultResDto.multiDataBuilder()
@@ -410,7 +426,7 @@ public class ProfileController {
                     "- 200 = USER_LEFT_TEAM\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 404 = CURRENT_TEAM_NOT_FOUND" +
+                    "- 404 = USER_NOT_FOUND || CURRENT_TEAM_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -424,9 +440,9 @@ public class ProfileController {
     })
     @PatchMapping("/team/leave")
     public ResponseEntity<DefaultResDto<Object>> leaveTeam(HttpServletRequest servletRequest) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        teamService.leaveTeam(user);
+        teamService.leaveTeam(userId);
 
         return ResponseEntity.status(USER_LEFT_TEAM.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()

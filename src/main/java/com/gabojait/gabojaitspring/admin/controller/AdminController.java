@@ -26,7 +26,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.GroupSequence;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -106,9 +105,9 @@ public class AdminController {
         HttpHeaders headers;
 
         if (admin.getRoles().contains(Role.MASTER.name()))
-            headers = jwtProvider.generateMasterJwt(admin.getId(), admin.getRoles());
+            headers = jwtProvider.createMasterJwt(admin.getId(), admin.getRoles());
         else
-            headers = jwtProvider.generateAdminJwt(admin.getId(), admin.getRoles());
+            headers = jwtProvider.createJwt(admin.getId(), admin.getRoles());
         AdminAbstractResDto response = new AdminAbstractResDto(admin);
 
         return ResponseEntity.status(ADMIN_LOGIN.getHttpStatus())
@@ -142,7 +141,6 @@ public class AdminController {
     })
     @GetMapping
     public ResponseEntity<DefaultResDto<Object>> findUnregisteredAdmin(
-            HttpServletRequest servletRequest,
             @RequestParam(value = "page-from", required = false)
             @NotNull(message = "페이지 시작점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
@@ -151,8 +149,6 @@ public class AdminController {
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        jwtProvider.authorizeMasterAccessJwt(servletRequest.getHeader(AUTHORIZATION));
-
         Page<User> admins = masterService.findManyUnregisteredAdmin(pageFrom, pageSize);
 
         List<AdminDefaultResDto> responses = new ArrayList<>();
@@ -189,7 +185,6 @@ public class AdminController {
     })
     @PatchMapping("/{admin-id}/decide")
     public ResponseEntity<DefaultResDto<Object>> decideAdminRegistration(
-            HttpServletRequest servletRequest,
             @PathVariable(value = "admin-id", required = false)
             @NotNull(message = "관리자 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @Positive(message = "관리자 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
@@ -197,8 +192,6 @@ public class AdminController {
             @RequestBody @Valid
             AdminRegisterDecideReqDto request
     ) {
-        jwtProvider.authorizeMasterAccessJwt(servletRequest.getHeader(AUTHORIZATION));
-
         masterService.decideAdminRegistration(adminId, request.getIsApproved());
 
         return ResponseEntity.status(ADMIN_REGISTER_DECIDED.getHttpStatus())
@@ -229,14 +222,11 @@ public class AdminController {
     })
     @GetMapping("/user/{user-id}")
     public ResponseEntity<DefaultResDto<Object>> findOneUser(
-            HttpServletRequest servletRequest,
             @PathVariable(value = "user-id", required = false)
             @NotNull(message = "회원 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long userId
     ) {
-        jwtProvider.authorizeAdminAccessJwt(servletRequest.getHeader(AUTHORIZATION));
-
         User otherUser = adminService.findOneUser(userId);
 
         UserDefaultResDto response = new UserDefaultResDto(otherUser);

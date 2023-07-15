@@ -11,7 +11,6 @@ import com.gabojait.gabojaitspring.team.dto.res.TeamAbstractResDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamDefaultResDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamOfferAndFavoriteResDto;
 import com.gabojait.gabojaitspring.team.service.TeamService;
-import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -61,6 +60,7 @@ public class TeamController {
                     "POSITION_TYPE_INVALID || OPEN_CHAT_URL_FORMAT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 409 = EXISTING_CURRENT_TEAM || NON_EXISTING_POSITION\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
@@ -70,6 +70,7 @@ public class TeamController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "409", description = "CONFLICT"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
@@ -78,9 +79,9 @@ public class TeamController {
     @PostMapping("/team")
     public ResponseEntity<DefaultResDto<Object>> createTeam(HttpServletRequest servletRequest,
                                                             @RequestBody @Valid TeamDefaultReqDto request) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        Team team = teamService.create(request, user);
+        Team team = teamService.create(userId, request);
 
         TeamDefaultResDto response = new TeamDefaultResDto(team);
 
@@ -103,7 +104,7 @@ public class TeamController {
                     "POSITION_TYPE_INVALID || OPEN_CHAT_URL_FORMAT_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
-                    "- 404 = CURRENT_TEAM_NOT_FOUND" +
+                    "- 404 = USER_NOT_FOUND || CURRENT_TEAM_NOT_FOUND\n" +
                     "- 409 = DESIGNER_CNT_UPDATE_UNAVAILABLE || BACKEND_CNT_UPDATE_UNAVAILABLE || " +
                     "FRONTEND_CNT_UPDATE_UNAVAILABLE || MANAGER_CNT_UPDATE_AVAILABLE\n" +
                     "- 500 = SERVER_ERROR\n" +
@@ -122,9 +123,9 @@ public class TeamController {
     @PutMapping("/team")
     public ResponseEntity<DefaultResDto<Object>> updateTeam(HttpServletRequest servletRequest,
                                                             @RequestBody @Valid TeamDefaultReqDto request) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        Team team = teamService.update(request, user);
+        Team team = teamService.update(userId, request);
 
         TeamDefaultResDto response = new TeamDefaultResDto(team);
 
@@ -141,7 +142,7 @@ public class TeamController {
                     "- 200 = SELF_TEAM_FOUND\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 404 = CURRENT_TEAM_NOT_FOUND\n" +
+                    "- 404 = USER_NOT_FOUND || CURRENT_TEAM_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -155,9 +156,9 @@ public class TeamController {
     })
     @GetMapping("/user/team")
     public ResponseEntity<DefaultResDto<Object>> findMyTeam(HttpServletRequest servletRequest) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        Team team = teamService.findOneCurrentTeam(user);
+        Team team = teamService.findOneCurrentTeam(userId);
 
         TeamDefaultResDto response = new TeamDefaultResDto(team);
 
@@ -175,7 +176,7 @@ public class TeamController {
                     "- 400 = TEAM_ID_FIELD_REQUIRED || TEAM_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 404 = TEAM_NOT_FOUND\n" +
+                    "- 404 = USER_NOT_FOUND || TEAM_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -196,9 +197,9 @@ public class TeamController {
             @Positive(message = "팀 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long teamId
     ) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        TeamOfferAndFavoriteResDto response = teamService.findOneOtherTeam(teamId, user);
+        TeamOfferAndFavoriteResDto response = teamService.findOneOtherTeam(userId, teamId);
 
         return ResponseEntity.status(TEAM_FOUND.getHttpStatus())
                 .body(DefaultResDto.singleDataBuilder()
@@ -238,7 +239,6 @@ public class TeamController {
     })
     @GetMapping("/team/recruiting")
     public ResponseEntity<DefaultResDto<Object>> findTeamsLookingForUsers(
-            HttpServletRequest servletRequest,
             @RequestParam(value = "position", required = false)
             @NotBlank(message = "포지션은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @Pattern(regexp = "^(designer|backend|frontend|manager|none)",
@@ -259,8 +259,6 @@ public class TeamController {
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
-
         Page<Team> teams = teamService.findManyTeamByPositionOrder(position, teamOrder, pageFrom, pageSize);
 
         List<TeamAbstractResDto> responses = new ArrayList<>();
@@ -282,7 +280,7 @@ public class TeamController {
                     "- 400 = IS_RECRUITING_FIELD_REQUIRED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
-                    "- 404 = CURRENT_TEAM_NOT_FOUND\n" +
+                    "- 404 = USER_NOT_FOUND || CURRENT_TEAM_NOT_FOUND\n" +
                     "- 409 = NON_EXISTING_CURRENT_TEAM\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
@@ -301,9 +299,9 @@ public class TeamController {
     public ResponseEntity<DefaultResDto<Object>> updateIsRecruiting(HttpServletRequest servletRequest,
                                                                     @RequestBody @Valid
                                                                     TeamIsRecruitingUpdateReqDto request) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        teamService.updateIsRecruiting(user, request.getIsRecruiting());
+        teamService.updateIsRecruiting(userId, request.getIsRecruiting());
 
         return ResponseEntity.status(TEAM_IS_RECRUITING_UPDATED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -317,7 +315,7 @@ public class TeamController {
                     "- 200 = PROJECT_INCOMPLETE\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
-                    "- 404 = CURRENT_TEAM_NOT_FOUND\n" +
+                    "- 404 = USER_NOT_FOUND || CURRENT_TEAM_NOT_FOUND\n" +
                     "- 409 = NON_EXISTING_CURRENT_TEAM\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
@@ -333,9 +331,9 @@ public class TeamController {
     })
     @DeleteMapping("/team/incomplete")
     public ResponseEntity<DefaultResDto<Object>> projectIncomplete(HttpServletRequest servletRequest) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        teamService.quit(user, "");
+        teamService.quit(userId, "");
 
         return ResponseEntity.status(PROJECT_INCOMPLETE.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -350,7 +348,7 @@ public class TeamController {
                     "- 400 = PROJECT_URL_FIELD_REQUIRED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
-                    "- 404 = CURRENT_TEAM_NOT_FOUND\n" +
+                    "- 404 = USER_NOT_FOUND || CURRENT_TEAM_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -367,9 +365,9 @@ public class TeamController {
     public ResponseEntity<DefaultResDto<Object>> quitCompleteProject(HttpServletRequest servletRequest,
                                                                      @RequestBody @Valid
                                                                      TeamCompleteReqDto request) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        teamService.quit(user, request.getProjectUrl());
+        teamService.quit(userId, request.getProjectUrl());
 
         return ResponseEntity.status(PROJECT_COMPLETE.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()
@@ -405,9 +403,9 @@ public class TeamController {
             @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long userId
     ) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long uId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        teamService.fire(user, userId);
+        teamService.fire(uId, userId);
 
         return ResponseEntity.status(TEAMMATE_FIRED.getHttpStatus())
                 .body(DefaultResDto.noDataBuilder()

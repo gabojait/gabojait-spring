@@ -69,18 +69,18 @@ public class ProfileService {
      * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public User updateProfile(User user, ProfileDefaultReqDto request) {
+    public User updateProfile(long userId, ProfileDefaultReqDto request) {
+        User user = findOneUser(userId);
+
         validateDate(request.getEducations(), request.getWorks());
 
-        User foundUser = findOneUser(user.getId());
+        updatePosition(user, Position.fromString(request.getPosition()));
+        updateSkills(user, request.getSkills());
+        updateEducations(user, request.getEducations());
+        updateWorks(user, request.getWorks());
+        updatePortfolios(user, request.getPortfolios());
 
-        updatePosition(foundUser, Position.fromString(request.getPosition()));
-        updateSkills(foundUser, request.getSkills());
-        updateEducations(foundUser, request.getEducations());
-        updateWorks(foundUser, request.getWorks());
-        updatePortfolios(foundUser, request.getPortfolios());
-
-        return foundUser;
+        return user;
     }
 
     /**
@@ -89,35 +89,42 @@ public class ProfileService {
      * 415(FILE_TYPE_UNSUPPORTED)
      * 500(SERVER_ERROR)
      */
-    public String uploadPortfolioFile(User user, MultipartFile multipartFile) {
+    public String uploadPortfolioFile(long userId, MultipartFile multipartFile) {
         return fileProvider.upload(portfolioBucketName,
-                user.getId().toString(),
+                String.valueOf(userId),
                 UUID.randomUUID().toString(),
                 multipartFile,
                 false);
     }
 
     /**
-     * 자기소개 업데이트
+     * 자기소개 업데이트 |
+     * 404(USER_NOT_FOUND)
      */
-    public void updateProfileDescription(User user, String profileDescription) {
+    public void updateProfileDescription(long userId, String profileDescription) {
+        User user = findOneUser(userId);
         user.updateProfileDescription(profileDescription);
     }
 
     /**
-     * 팀 찾기 여부 업데이트
+     * 팀 찾기 여부 업데이트 |
+     * 404(USER_NOT_FOUND)
      */
-    public void updateIsSeekingTeam(User user, boolean isSeekingTeam) {
+    public void updateIsSeekingTeam(long userId, boolean isSeekingTeam) {
+        User user = findOneUser(userId);
         user.updateIsSeekingTeam(isSeekingTeam);
     }
 
     /**
      * 프로필 이미지 업로드 |
      * 400(FILE_FIELD_REQUIRED)
+     * 404(USER_NOT_FOUND)
      * 415(IMAGE_TYPE_UNSUPPORTED)
      * 500(SERVER_ERROR)
      */
-    public void uploadProfileImage(User user, MultipartFile multipartFile) {
+    public User uploadProfileImage(long userId, MultipartFile multipartFile) {
+        User user = findOneUser(userId);
+
         String url = fileProvider.upload(profileImgBucketName,
                 user.getId().toString(),
                 UUID.randomUUID().toString(),
@@ -125,13 +132,18 @@ public class ProfileService {
                 true);
 
         user.updateImageUrl(url);
+
+        return user;
     }
 
     /**
-     * 프로필 이미지 삭제
+     * 프로필 이미지 삭제 |
+     * 404(USER_NOT_FOUND)
      */
-    public void deleteProfileImage(User user) {
+    public User deleteProfileImage(long userId) {
+        User user = findOneUser(userId);
         user.updateImageUrl(null);
+        return user;
     }
 
     /**
@@ -139,8 +151,10 @@ public class ProfileService {
      * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public ProfileOfferAndFavoriteResDto findOneOtherProfile(Long otherUserId, User user) {
-        if (user.getId().equals(otherUserId))
+    public ProfileOfferAndFavoriteResDto findOneOtherProfile(long userId, Long otherUserId) {
+        User user = findOneUser(userId);
+
+        if (userId == otherUserId)
             return new ProfileOfferAndFavoriteResDto(user, List.of(), null);
 
         User otherUser = findOneUser(otherUserId);
@@ -236,13 +250,15 @@ public class ProfileService {
 
     /**
      * 포지션과 프로필 정렬 기준으로 회원 페이징 다건 조회 |
+     * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public ProfileSeekPageDto findManyUsersByPositionWithProfileOrder(String position,
+    public ProfileSeekPageDto findManyUsersByPositionWithProfileOrder(long userId,
+                                                                      String position,
                                                                       String profileOrder,
                                                                       Integer pageFrom,
-                                                                      Integer pageSize,
-                                                                      User user) {
+                                                                      Integer pageSize) {
+        User user = findOneUser(userId);
         Position p = Position.fromString(position);
         ProfileOrder po = ProfileOrder.fromString(profileOrder);
         Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
@@ -294,7 +310,7 @@ public class ProfileService {
      * 식별자로 회원 단건 조회 |
      * 404(USER_NOT_FOUND)
      */
-    private User findOneUser(Long userId) {
+    public User findOneUser(long userId) {
         return userRepository.findByIdAndIsDeletedIsFalse(userId)
                 .orElseThrow(() -> {
                     throw new CustomException(USER_NOT_FOUND);

@@ -10,7 +10,6 @@ import com.gabojait.gabojaitspring.favorite.service.FavoriteTeamService;
 import com.gabojait.gabojaitspring.favorite.service.FavoriteUserService;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileAbstractResDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamAbstractResDto;
-import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -57,7 +56,7 @@ public class FavoriteController {
                     "- 400 = TEAM_ID_FIELD_REQUIRED || IS_ADD_FAVORITE_FIELD_REQUIRED || TEAM_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 404 = TEAM_NOT_FOUND\n" +
+                    "- 404 = USER_NOT_FOUND || TEAM_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -82,9 +81,9 @@ public class FavoriteController {
             @Valid
             FavoriteUpdateReqDto request
     ) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        favoriteTeamService.update(user, teamId, request.getIsAddFavorite());
+        favoriteTeamService.update(userId, teamId, request.getIsAddFavorite());
 
         if (request.getIsAddFavorite())
             return ResponseEntity.status(FAVORITE_TEAM_ADDED.getHttpStatus())
@@ -106,6 +105,7 @@ public class FavoriteController {
                     "- 400 = PAGE_FROM_FIELD_REQUIRED || PAGE_FROM_POSITIVE_OR_ZERO_ONLY || PAGE_SIZE_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -114,6 +114,7 @@ public class FavoriteController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
@@ -128,9 +129,9 @@ public class FavoriteController {
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        Page<FavoriteTeam> favoriteTeams = favoriteTeamService.findManyFavoriteTeams(user, pageFrom, pageSize);
+        Page<FavoriteTeam> favoriteTeams = favoriteTeamService.findManyFavoriteTeams(userId, pageFrom, pageSize);
 
         List<TeamAbstractResDto> responses = new ArrayList<>();
         for (FavoriteTeam favoriteTeam : favoriteTeams)
@@ -152,7 +153,7 @@ public class FavoriteController {
                     "- 400 = USER_ID_FIELD_REQUIRED || USER_ID_POSITIVE_ONLY || IS_ADD_FAVORITE_FIELD_REQUIRED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
-                    "- 404 = CURRENT_TEAM_NOT_FOUND || FAVORITE_USER_NOT_FOUND || USER_NOT_FOUND\n" +
+                    "- 404 = USER_NOT_FOUND || CURRENT_TEAM_NOT_FOUND || FAVORITE_USER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -179,9 +180,9 @@ public class FavoriteController {
             @Valid
             FavoriteUpdateReqDto request
     ) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long uId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        favoriteUserService.update(user, userId, request.getIsAddFavorite());
+        favoriteUserService.update(uId, userId, request.getIsAddFavorite());
 
         if (request.getIsAddFavorite())
             return ResponseEntity.status(FAVORITE_USER_ADDED.getHttpStatus())
@@ -203,7 +204,7 @@ public class FavoriteController {
                     "- 400 = PAGE_FROM_FIELD_REQUIRED || PAGE_FROM_POSITIVE_OR_ZERO_ONLY || PAGE_SIZE_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
-                    "- 404 = CURRENT_TEAM_NOT_FOUND\n" +
+                    "- 404 = USER_NOT_FOUND || CURRENT_TEAM_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -227,9 +228,9 @@ public class FavoriteController {
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        User user = jwtProvider.authorizeUserAccessJwt(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        Page<FavoriteUser> favoriteUsers = favoriteUserService.findManyFavoriteUsers(user, pageFrom, pageSize);
+        Page<FavoriteUser> favoriteUsers = favoriteUserService.findManyFavoriteUsers(userId, pageFrom, pageSize);
 
         List<ProfileAbstractResDto> responses = new ArrayList<>();
         for(FavoriteUser favoriteUser : favoriteUsers)

@@ -31,8 +31,8 @@ public class CustomUserDetailsService implements UserDetailsService {
                 user.getAuthorities());
     }
 
-    public User loadUserByUserId(Long userId) {
-        return userRepository.findByIdAndIsDeletedIsFalse(userId)
+    public void loadUserByUserId(Long userId) {
+        userRepository.findByIdAndIsDeletedIsFalse(userId)
                 .orElseThrow(() -> {
                     throw new CustomException(TOKEN_UNAUTHORIZED);
                 });

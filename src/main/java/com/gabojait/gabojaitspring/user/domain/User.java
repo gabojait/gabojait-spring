@@ -234,8 +234,8 @@ public class User extends BaseTimeEntity implements UserDetails {
                 .collect(Collectors.toList());
     }
 
-    public List<String> getRoles() {
-        List<String> roles = new ArrayList<>();
+    public Set<String> getRoles() {
+        Set<String> roles = new HashSet<>();
         for(UserRole userRole : this.userRoles)
             roles.add(userRole.getRole());
 
