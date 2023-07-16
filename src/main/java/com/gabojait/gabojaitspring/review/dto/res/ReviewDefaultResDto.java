@@ -20,8 +20,8 @@ public class ReviewDefaultResDto {
     @ApiModelProperty(position = 2, required = true, value = "리뷰 작성자 식별자")
     private Long reviewerId;
 
-    @ApiModelProperty(position = 3, required = true, value = "리뷰 대상자 식별자")
-    private Long revieweeId;
+    @ApiModelProperty(position = 3, required = true, value = "리뷰 대상자 닉네임")
+    private String revieweeNickname;
 
     @ApiModelProperty(position = 4, required = true, value = "팀 식별자")
     private Long teamId;
@@ -43,11 +43,16 @@ public class ReviewDefaultResDto {
     public ReviewDefaultResDto(Review review) {
         this.reviewId = review.getId();
         this.reviewerId = review.getReviewer().getId();
-        this.revieweeId = review.getReviewee().getId();
         this.teamId = review.getTeam().getId();
         this.rating = review.getRate();
         this.post = review.getPost();
         this.createdAt = review.getCreatedAt();
         this.updatedAt = review.getUpdatedAt();
+
+        String revieweeFullNickname = review.getReviewee().getNickname();
+
+        this.revieweeNickname = revieweeFullNickname.charAt(0) +
+                revieweeNickname.substring(1).replaceAll(".", "*");
+
     }
 }
