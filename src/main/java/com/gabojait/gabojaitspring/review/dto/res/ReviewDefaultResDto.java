@@ -43,16 +43,12 @@ public class ReviewDefaultResDto {
     public ReviewDefaultResDto(Review review) {
         this.reviewId = review.getId();
         this.reviewerId = review.getReviewer().getId();
+        this.revieweeNickname = review.getReviewee().getNickname().charAt(0) +
+                review.getReviewee().getNickname().substring(1).replaceAll(".", "*");
         this.teamId = review.getTeam().getId();
         this.rating = review.getRate();
         this.post = review.getPost();
         this.createdAt = review.getCreatedAt();
         this.updatedAt = review.getUpdatedAt();
-
-        String revieweeFullNickname = review.getReviewee().getNickname();
-
-        this.revieweeNickname = revieweeFullNickname.charAt(0) +
-                revieweeNickname.substring(1).replaceAll(".", "*");
-
     }
 }

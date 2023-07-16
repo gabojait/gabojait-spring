@@ -167,6 +167,8 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Builder(builderMethodName = "testOnlyBuilder", builderClassName = "testOnlyBuilder")
     public User(Long id, Role role) {
         this.id = id;
+        this.username = "tester";
+        this.nickname = "테스터";
         this.gender = Gender.NONE.getType();
         this.position = Position.NONE.getType();
         this.contact = Contact.builder()
