@@ -15,7 +15,7 @@ import com.gabojait.gabojaitspring.profile.domain.type.Level;
 import com.gabojait.gabojaitspring.profile.domain.type.Media;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.profile.domain.type.ProfileOrder;
-import com.gabojait.gabojaitspring.profile.dto.ProfileSeekPageDto;
+import com.gabojait.gabojaitspring.profile.dto.*;
 import com.gabojait.gabojaitspring.profile.dto.req.*;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileOfferAndFavoriteResDto;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileSeekResDto;
@@ -75,10 +75,10 @@ public class ProfileService {
         validateDate(request.getEducations(), request.getWorks());
 
         updatePosition(user, Position.fromString(request.getPosition()));
-        updateSkills(user, request.getSkills());
-        updateEducations(user, request.getEducations());
-        updateWorks(user, request.getWorks());
-        updatePortfolios(user, request.getPortfolios());
+        cudSkills(user, request.getSkills());
+        cudEducations(user, request.getEducations());
+        cudWorks(user, request.getWorks());
+        cudPortfolios(user, request.getPortfolios());
 
         return user;
     }
@@ -484,10 +484,10 @@ public class ProfileService {
     }
 
     /**
-     * 기술들 업데이트 |
+     * 기술들 생성, 수정, 삭제 |
      * 500(SERVER_ERROR)
      */
-    private void updateSkills(User user, List<SkillDefaultReqDto> requests) {
+    private void cudSkills(User user, List<SkillDefaultReqDto> requests) {
         List<Skill> currentSkills = findAllSkill(user);
 
         if (requests.isEmpty()) {
@@ -495,25 +495,28 @@ public class ProfileService {
             return;
         }
 
-        List<SkillDefaultReqDto> newSkills = new ArrayList<>();
-
+        List<SkillDefaultReqDto> createSkills = new ArrayList<>();
+        List<SkillUpdateDto> updateSkills = new ArrayList<>();
         for (SkillDefaultReqDto request : requests) {
-            boolean isNewSkill = true;
+            if (request.getSkillId() == null) {
+                createSkills.add(request);
+                continue;
+            }
 
             for (Skill skill : currentSkills)
-                if (request.getSkillName().trim().equals(skill.getSkillName())
-                        && request.getIsExperienced().equals(skill.getIsExperienced())
-                        && Level.fromString(request.getLevel()).equals(Level.fromChar(skill.getLevel()))) {
+                if (request.getSkillId().equals(skill.getId())) {
+                    if (!request.getSkillName().trim().equals(skill.getSkillName())
+                            || !request.getIsExperienced().equals(skill.getIsExperienced())
+                            || !Level.fromString(request.getLevel()).equals(Level.fromChar(skill.getLevel())))
+                        updateSkills.add(new SkillUpdateDto(skill, request));
+
                     currentSkills.remove(skill);
-                    isNewSkill = false;
                     break;
                 }
-
-            if (isNewSkill)
-                newSkills.add(request);
         }
 
-        createSkills(user, newSkills);
+        createSkills(user, createSkills);
+        updateSkills(updateSkills);
         deleteSkills(currentSkills);
     }
 
@@ -529,6 +532,14 @@ public class ProfileService {
     }
 
     /**
+     * 기술들 수정
+     */
+    private void updateSkills(List<SkillUpdateDto> skills) {
+        for (SkillUpdateDto skill : skills)
+            skill.getPrevSkill().update(skill.getSkillName(), skill.getIsExperienced(), skill.getLevel());
+    }
+
+    /**
      * 기술들 삭제
      */
     private void deleteSkills(List<Skill> skills) {
@@ -538,10 +549,10 @@ public class ProfileService {
     }
 
     /**
-     * 학력들 업데이트 |
+     * 학력들 생성, 수정, 삭제 |
      * 500(SERVER_ERROR)
      */
-    private void updateEducations(User user, List<EducationDefaultReqDto> requests) {
+    private void cudEducations(User user, List<EducationDefaultReqDto> requests) {
         List<Education> currentEducations = findAllEducation(user);
 
         if (requests.isEmpty()) {
@@ -549,26 +560,29 @@ public class ProfileService {
             return;
         }
 
-        List<EducationDefaultReqDto> newEducations = new ArrayList<>();
-
+        List<EducationDefaultReqDto> createEducations = new ArrayList<>();
+        List<EducationUpdateDto> updateEducations = new ArrayList<>();
         for (EducationDefaultReqDto request : requests) {
-            boolean isNewEducation = true;
+            if (request.getEducationId() == null){
+                createEducations.add(request);
+                continue;
+            }
 
             for (Education education : currentEducations)
-                if (request.getInstitutionName().trim().equals(education.getInstitutionName())
-                        && request.getStartedAt().equals(education.getStartedAt())
-                        && request.getEndedAt().equals(education.getEndedAt())
-                        && request.getIsCurrent().equals(education.getIsCurrent())) {
+                if (request.getEducationId().equals(education.getId())) {
+                    if (!request.getInstitutionName().trim().equals(education.getInstitutionName())
+                            || !request.getStartedAt().equals(education.getStartedAt())
+                            || !request.getEndedAt().equals(education.getEndedAt())
+                            || !request.getIsCurrent().equals(education.getIsCurrent()))
+                        updateEducations.add(new EducationUpdateDto(education, request));
+
                     currentEducations.remove(education);
-                    isNewEducation = false;
                     break;
                 }
-
-            if (isNewEducation)
-                newEducations.add(request);
         }
 
-        createEducations(user, newEducations);
+        createEducations(user, createEducations);
+        updateEducations(updateEducations);
         deleteEducations(currentEducations);
     }
 
@@ -584,6 +598,17 @@ public class ProfileService {
     }
 
     /**
+     * 학력들 수정
+     */
+    private void updateEducations(List<EducationUpdateDto> educations) {
+        for (EducationUpdateDto education : educations)
+            education.getPrevEducation().update(education.getInstitutionName(),
+                    education.getStartedAt(),
+                    education.getEndedAt(),
+                    education.getIsCurrent());
+    }
+
+    /**
      * 학력들 삭제
      */
     private void deleteEducations(List<Education> educations) {
@@ -592,10 +617,10 @@ public class ProfileService {
     }
 
     /**
-     * 경력들 업데이트 |
+     * 경력들 생성, 수정, 삭제 |
      * 500(SERVER_ERROR)
      */
-    private void updateWorks(User user, List<WorkDefaultReqDto> requests) {
+    private void cudWorks(User user, List<WorkDefaultReqDto> requests) {
         List<Work> currentWorks = findAllWork(user);
 
         if (requests.isEmpty()) {
@@ -603,27 +628,30 @@ public class ProfileService {
             return;
         }
 
-        List<WorkDefaultReqDto> newWorks = new ArrayList<>();
-
+        List<WorkDefaultReqDto> createWorks = new ArrayList<>();
+        List<WorkUpdateDto> updateWorks = new ArrayList<>();
         for (WorkDefaultReqDto request : requests) {
-            boolean isNewWork = true;
+            if (request.getWorkId() == null) {
+                createWorks.add(request);
+                continue;
+            }
 
             for (Work work : currentWorks)
-                if (request.getCorporationName().trim().equals(work.getCorporationName())
-                        && request.getWorkDescription().trim().equals(work.getWorkDescription())
-                        && request.getStartedAt().equals(work.getStartedAt())
-                        && request.getEndedAt().equals(work.getEndedAt())
-                        && request.getIsCurrent().equals(work.getIsCurrent())) {
+                if (request.getWorkId().equals(work.getId())) {
+                    if (!request.getCorporationName().trim().equals(work.getCorporationName())
+                            || !request.getWorkDescription().trim().equals(work.getWorkDescription())
+                            || !request.getStartedAt().equals(work.getStartedAt())
+                            || !request.getEndedAt().equals(work.getEndedAt())
+                            || !request.getIsCurrent().equals(work.getIsCurrent()))
+                        updateWorks.add(new WorkUpdateDto(work, request));
+
                     currentWorks.remove(work);
-                    isNewWork = false;
                     break;
                 }
-
-            if (isNewWork)
-                newWorks.add(request);
         }
 
-        createWorks(user, newWorks);
+        createWorks(user, createWorks);
+        updateWorks(updateWorks);
         deleteWorks(currentWorks);
     }
 
@@ -639,6 +667,18 @@ public class ProfileService {
     }
 
     /**
+     * 경력들 수정
+     */
+    private void updateWorks(List<WorkUpdateDto> works) {
+        for (WorkUpdateDto work : works)
+            work.getPrevWork().update(work.getCorporationName(),
+                    work.getWorkDescription(),
+                    work.getStartedAt(),
+                    work.getEndedAt(),
+                    work.getIsCurrent());
+    }
+
+    /**
      * 경력들 삭제
      */
     private void deleteWorks(List<Work> works) {
@@ -650,31 +690,36 @@ public class ProfileService {
      * 포트폴리오 업데이트 |
      * 500(SERVER_ERROR)
      */
-    private void updatePortfolios(User user, List<PortfolioDefaultReqDto> requests) {
+    private void cudPortfolios(User user, List<PortfolioDefaultReqDto> requests) {
         List<Portfolio> currentPortfolios = findAllPortfolio(user);
 
-        if (requests.isEmpty())
+        if (requests.isEmpty()) {
             deletePortfolios(currentPortfolios);
-
-        List<PortfolioDefaultReqDto> newPortfolios = new ArrayList<>();
-
-        for (PortfolioDefaultReqDto request : requests) {
-            boolean isNewPortfolio = true;
-
-            for (Portfolio portfolio : currentPortfolios)
-                if (request.getPortfolioName().trim().equals(portfolio.getPortfolioName())
-                        && request.getPortfolioUrl().trim().equals(portfolio.getPortfolioUrl())
-                        && Media.fromString(request.getMedia()).equals(Media.fromChar(portfolio.getMedia()))) {
-                    currentPortfolios.remove(portfolio);
-                    isNewPortfolio = false;
-                    break;
-                }
-
-            if (isNewPortfolio)
-                newPortfolios.add(request);
+            return;
         }
 
-        createPortfolios(user, newPortfolios);
+        List<PortfolioDefaultReqDto> createPortfolios = new ArrayList<>();
+        List<PortfolioUpdateDto> updatePortfolios = new ArrayList<>();
+        for (PortfolioDefaultReqDto request : requests) {
+            if (request.getPortfolioId() == null) {
+                createPortfolios.add(request);
+                continue;
+            }
+
+            for (Portfolio portfolio : currentPortfolios)
+                if (request.getPortfolioId().equals(portfolio.getId())) {
+                    if (!request.getPortfolioName().trim().equals(portfolio.getPortfolioName())
+                            || request.getPortfolioUrl().trim().equals(portfolio.getPortfolioUrl())
+                            || Media.fromString(request.getMedia()).equals(Media.fromChar(portfolio.getMedia())))
+                        updatePortfolios.add(new PortfolioUpdateDto(portfolio, request));
+
+                    currentPortfolios.remove(portfolio);
+                    break;
+                }
+        }
+
+        createPortfolios(user, createPortfolios);
+        updatePortfolios(updatePortfolios);
         deletePortfolios(currentPortfolios);
     }
 
@@ -687,6 +732,16 @@ public class ProfileService {
             Portfolio p = portfolio.toEntity(user);
             savePortfolio(p);
         }
+    }
+
+    /**
+     * 포트폴리오 수정
+     */
+    private void updatePortfolios(List<PortfolioUpdateDto> portfolios) {
+        for (PortfolioUpdateDto portfolio : portfolios)
+            portfolio.getPrevPortfolio().update(portfolio.getPortfolioName(),
+                    portfolio.getPortfolioUrl(),
+                    portfolio.getMedia());
     }
 
     /**

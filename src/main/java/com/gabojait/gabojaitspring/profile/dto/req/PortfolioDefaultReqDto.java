@@ -25,6 +25,9 @@ import javax.validation.constraints.Size;
 @ApiModel(value = "포트폴리오 기본 요청")
 public class PortfolioDefaultReqDto {
 
+    @ApiModelProperty(position = 1, required = true, value = "포트폴리오 식별자")
+    private Long portfolioId;
+
     @ApiModelProperty(position = 1, required = true, value = "포트폴리오명", example = "깃허브")
     @NotBlank(message = "포트폴리오명는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
     @Size(min = 1, max = 10, message = "포트폴리오명은 1~10자만 가능합니다.", groups = ValidationSequence.Size.class)

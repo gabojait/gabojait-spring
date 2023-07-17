@@ -39,9 +39,10 @@ public class Portfolio extends BaseTimeEntity {
         this.isDeleted = false;
     }
 
-    public void update(String portfolioName, String portfolioUrl) {
+    public void update(String portfolioName, String portfolioUrl, Media media) {
         this.portfolioName = portfolioName;
         this.portfolioUrl = portfolioUrl;
+        this.media = media.getType();
     }
 
     public void delete() {
