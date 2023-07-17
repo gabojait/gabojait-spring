@@ -14,6 +14,8 @@ import com.gabojait.gabojaitspring.profile.repository.EducationRepository;
 import com.gabojait.gabojaitspring.profile.repository.PortfolioRepository;
 import com.gabojait.gabojaitspring.profile.repository.SkillRepository;
 import com.gabojait.gabojaitspring.profile.repository.WorkRepository;
+import com.gabojait.gabojaitspring.review.domain.Review;
+import com.gabojait.gabojaitspring.review.repository.ReviewRepository;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.team.repository.TeamMemberRepository;
@@ -36,6 +38,7 @@ import javax.persistence.PersistenceContext;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 
@@ -61,6 +64,7 @@ public class DevelopService {
     private final TeamMemberRepository teamMemberRepository;
     private final GeneralProvider generalProvider;
     private final FcmProvider fcmProvider;
+    private final ReviewRepository reviewRepository;
 
     /**
      * 서버명 반환
@@ -100,11 +104,14 @@ public class DevelopService {
         List<Contact> contacts = injectContacts();
         List<User> users = injectUsers(contacts);
         injectUserRoles(users);
+
         injectProfileDescriptions(users);
         injectEducationsAndWorks(users);
         injectPortfolios(users);
         injectPositionAndSkills(users);
-        injectTeam(users);
+
+        injectCompleteTeamAndReview(users);
+        injectCurrentTeam(users);
     }
 
     /**
@@ -121,7 +128,7 @@ public class DevelopService {
      */
     private List<Contact> injectContacts() {
         List<Contact> contacts = new ArrayList<>();
-        for(int i = 1; i <= 100; i++) {
+        for (int i = 1; i <= 100; i++) {
             Contact contact = Contact.builder()
                     .email("test" + i + "@gabojait.com")
                     .verificationCode("000000")
@@ -142,7 +149,7 @@ public class DevelopService {
      */
     private List<User> injectUsers(List<Contact> contacts) {
         List<User> users = new ArrayList<>();
-        for(int i = 0; i < contacts.size(); i++) {
+        for (int i = 0; i < contacts.size(); i++) {
             int n = i + 1;
 
             User user = User.userBuilder()
@@ -166,7 +173,7 @@ public class DevelopService {
      * 회원 권한 주입
      */
     private void injectUserRoles(List<User> users) {
-        for(User user : users) {
+        for (User user : users) {
             UserRole userRole = UserRole.builder()
                     .user(user)
                     .role(Role.USER)
@@ -188,7 +195,7 @@ public class DevelopService {
      * 학력과 경력 주입
      */
     private void injectEducationsAndWorks(List<User> users) {
-        for(User user : users) {
+        for (User user : users) {
             Education education = Education.builder()
                     .institutionName("가보자잇대")
                     .startedAt(LocalDate.of(2020, 3, 1))
@@ -216,7 +223,7 @@ public class DevelopService {
      * 포트폴리오들 주입
      */
     private void injectPortfolios(List<User> users) {
-        for(User user : users) {
+        for (User user : users) {
             Portfolio portfolio = Portfolio.builder()
                     .portfolioName("깃허브")
                     .portfolioUrl("github.com/gabojait")
@@ -232,7 +239,7 @@ public class DevelopService {
      * 포지션과 기술들 주입
      */
     private void injectPositionAndSkills(List<User> users) {
-        for(int i = 0; i < users.size(); i++) {
+        for (int i = 0; i < users.size(); i++) {
             Position position;
 
             if (i < 50)
@@ -270,10 +277,74 @@ public class DevelopService {
     }
 
     /**
-     * 팀 주입
+     * 완료 팀 및 리뷰 주입
      */
-    private void injectTeam(List<User> users) {
-        for(int i = 0; i < 50; i++) {
+    private void injectCompleteTeamAndReview(List<User> users) {
+        for (int i = 0; i < 25; i += 5) {
+            Team team = Team.builder()
+                    .projectName("가볼까잇팀" + (i + 1))
+                    .projectDescription("가보자잇 프로젝트 설명입니다.")
+                    .designerTotalRecruitCnt((byte) 2)
+                    .backendTotalRecruitCnt((byte) 2)
+                    .frontendTotalRecruitCnt((byte) 2)
+                    .managerTotalRecruitCnt((byte) 2)
+                    .expectation("열정적인 팀원을 구합니다.")
+                    .openChatUrl("https://open.kakao.com/o/test")
+                    .build();
+
+            teamRepository.save(team);
+
+            for (int j = i; j < i + 5; j++) {
+                boolean isLeader = j % 5 == 0;
+
+                TeamMember teamMember = TeamMember.builder()
+                        .user(users.get(j))
+                        .team(team)
+                        .position(Position.fromChar(users.get(i).getPosition()))
+                        .isLeader(isLeader)
+                        .build();
+
+                teamMember.delete();
+
+                teamMemberRepository.save(teamMember);
+
+                users.get(j).incrementCompleteTeamCnt();
+
+                if (j % 5 == 4)
+                    team.complete("github.com/gabojait.com");
+            }
+
+            for (int j = i; j < i + 5; j++) {
+                User reviewee = users.get(j);
+                for (int k = i; k < i + 5; k++) {
+                    if (j == k)
+                        continue;
+
+                    User reviewer = users.get(k);
+                    Random random = new Random();
+                    byte rate = (byte) random.nextInt(6);
+
+                    Review review = Review.builder()
+                            .reviewer(reviewer)
+                            .reviewee(reviewee)
+                            .team(team)
+                            .rate(rate)
+                            .post("열정적인 팀원이였습니다.")
+                            .build();
+
+                    reviewRepository.save(review);
+
+                    reviewee.rate(rate);
+                }
+            }
+        }
+    }
+
+    /**
+     * 현재 팀 주입
+     */
+    private void injectCurrentTeam(List<User> users) {
+        for (int i = 0; i < 50; i++) {
             Team team = Team.builder()
                     .projectName("가보자잇팀" + (i + 1))
                     .projectDescription("가보자잇 프로젝트 설명입니다.")
@@ -295,6 +366,7 @@ public class DevelopService {
                     .build();
 
             users.get(i).updateIsSeekingTeam(false);
+            userRepository.save(users.get(i));
 
             teamMemberRepository.save(teamMember);
         }

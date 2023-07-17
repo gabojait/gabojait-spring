@@ -102,7 +102,7 @@ public class SwaggerConfig {
                 .description("\t<API 테스트를 위한 테스트 계정 Token 발급 방법>\n" +
                         "1. 개발\n" +
                         "2. 테스트 계정 토큰 발급\n" +
-                        "3. tester-id = 1 ~ 100 (1 ~ 50 = 팀 리더 & 51 ~ 100 = 팀 없음)\n\n\n" +
+                        "3. tester-id = 1 ~ 100 (1 ~ 50 = 팀 리더 | 51 ~ 100 = 팀 없음 | 1 ~ 25 완료한 팀과 리뷰 있음)\n\n\n" +
                         "\t<요청시 Access Token 만료로 인한 401 응답을 받을 경우 재요청 방법>\n" +
                         "1. 요청을 보내고 401 응답을 받는다.\n" +
                         "2. 로그인 또는 회원 가입시 발급 받은 Refresh Token을 헤더에 \"Refresh-Token\": \"Bearer XXXXX\"와 같이 " +

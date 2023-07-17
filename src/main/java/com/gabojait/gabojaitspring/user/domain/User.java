@@ -274,7 +274,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         return !this.isDeleted;
     }
 
-    /**
+    /*
      * Profile related
      */
 
@@ -302,7 +302,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.visitedCnt++;
     }
 
-    /**
+    /*
      * Team related
      */
 
@@ -350,16 +350,21 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.completeTeamCnt++;
     }
 
-    /**
+    /*
      * Review related
      */
 
-    public void rate(byte rate) {
-        this.rating = (this.rating / (this.reviewCnt + 1)) + (rate / (this.reviewCnt + 1));
+    public void rate(float rating) {
+        if (this.reviewCnt == 0)
+            this.rating = rating;
+        else
+            this.rating = (this.rating * ((float) this.reviewCnt / ((float) this.reviewCnt + 1)))
+                    + (rating * (1 / ((float) this.reviewCnt + 1)));
+
         this.reviewCnt++;
     }
 
-    /**
+    /*
      * Offer related
      */
 

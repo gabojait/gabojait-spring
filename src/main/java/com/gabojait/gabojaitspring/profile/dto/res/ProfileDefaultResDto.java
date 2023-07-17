@@ -1,5 +1,6 @@
 package com.gabojait.gabojaitspring.profile.dto.res;
 
+import com.gabojait.gabojaitspring.review.domain.Review;
 import com.gabojait.gabojaitspring.review.dto.res.ReviewDefaultResDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamAbstractResDto;
 import com.gabojait.gabojaitspring.user.domain.User;
@@ -57,12 +58,14 @@ public class ProfileDefaultResDto extends ProfileAbstractResDto {
         this.isLeader = user.isLeader();
         this.isSeekingTeam = user.getIsSeekingTeam();
 
-        if (!user.getReceivedReviews().isEmpty())
-            user.getReceivedReviews()
-                    .forEach(review -> {
-                        if (!review.getIsDeleted())
-                            this.reviews.add(new ReviewDefaultResDto(review));
-                    });
+        if (!user.getReceivedReviews().isEmpty()) {
+            List<Review> reviews = user.getReceivedReviews();
+            int reviewSize = reviews.size();
+
+            for (int i = 1; i <= Math.min(reviewSize, 3); i++)
+                if (!reviews.get(reviewSize - i).getIsDeleted())
+                    this.reviews.add(new ReviewDefaultResDto(reviews.get(reviewSize - i)));
+        }
         if (!user.getEducations().isEmpty())
             user.getEducations()
                     .forEach(education -> {
