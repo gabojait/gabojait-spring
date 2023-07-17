@@ -322,7 +322,7 @@ public class DevelopService {
 
                     User reviewer = users.get(k);
                     Random random = new Random();
-                    byte rate = (byte) random.nextInt(6);
+                    byte rate = (byte) (random.nextInt(5) + 1);
 
                     Review review = Review.builder()
                             .reviewer(reviewer)
