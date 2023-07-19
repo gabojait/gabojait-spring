@@ -9,17 +9,17 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/docs")
 public class DocumentController {
 
-    @GetMapping("/privacy")
+    @GetMapping("/privacy.html")
     public ModelAndView privacyPage() {
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("privacy.html");
+        modelAndView.setViewName("privacy");
         return modelAndView;
     }
 
-    @GetMapping("/service")
+    @GetMapping("/service.html")
     public ModelAndView servicePage() {
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("service.html");
+        modelAndView.setViewName("service");
         return modelAndView;
     }
 }

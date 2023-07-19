@@ -110,8 +110,8 @@ public class SwaggerConfig {
                         "3. 재발급 받은 Access Token과 Refresh Token을 저장하고 새로운 Access Token으로 처음 보내려는 요청을 보낸다.\n" +
                         "- Refresh Token으로 토큰 재발급시 Refresh Token 만료로 인한 401 응답을 받을시 로그아웃 처리를 한다.\n\n\n" +
                         "\t<문서>\n" +
-                        "1. 개인정보처리방침 -> /docs/privacy\n" +
-                        "2. 서비스이용약관 -> /docs/service")
+                        "1. 개인정보처리방침 -> /docs/privacy.html\n" +
+                        "2. 서비스이용약관 -> /docs/service.html")
                 .build();
     }
 }
