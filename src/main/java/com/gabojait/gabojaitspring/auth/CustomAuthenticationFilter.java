@@ -30,7 +30,8 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                 "" : request.getHeader("Refresh-Token");
 
 
-        if (uri.matches("\\/api\\/v\\d\\/contact") && method.matches("PATCH"))
+        if ((uri.matches("\\/api\\/v\\d\\/contact") && method.matches("PATCH"))
+                || (uri.matches("\\/api\\/v\\d\\/user") && method.matches("POST")))
             jwtProvider.authGuestAccessJwt(accessToken);
         else if (uri.matches("\\/api\\/v\\d\\/admin\\/[0-9]*$\\/decide") && method.matches("PATCH"))
             jwtProvider.authMasterJwt(accessToken);
