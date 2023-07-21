@@ -70,7 +70,7 @@ public class MasterService implements ApplicationRunner {
             injectMaster();
         }
 
-        masterLogging("[MASTER PASSWORD RESET]", password);
+        masterLogging(password, true);
     }
 
     /**
@@ -173,26 +173,16 @@ public class MasterService implements ApplicationRunner {
         List<UserRole> masterRoles = createMasterRoles(master);
         saveMasterRole(masterRoles);
 
-        masterLogging("[NEW MASTER]", password);
+        masterLogging(password, false);
     }
 
     /**
      * 마스터 로깅
      */
-    private void masterLogging(String title, String password) {
-        int logLength = 50;
-        String logTitle = "=".repeat((logLength - title.length()) / 2)
-                .concat(title)
-                .concat("=".repeat((logLength - title.length()) / 2));
-        String logMessage = "=".repeat((logLength - password.length()) / 2)
-                .concat(password)
-                .concat("=".repeat((logLength - password.length()) / 2));
-        String logSpace = "=".repeat(logLength);
+    private void masterLogging(String password, boolean isScheduled) {
+        String title = isScheduled ? "SCHEDULED" : "RUNNER";
 
-        log.info(logSpace);
-        log.info(logTitle);
-        log.info(logMessage);
-        log.info(logSpace);
+        log.info("========== [{} | SUCCESS] master password = {} ==========", title, password);
     }
 
     @Override

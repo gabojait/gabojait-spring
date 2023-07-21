@@ -1,4 +1,4 @@
-package com.gabojait.gabojaitspring.common.intercept;
+package com.gabojait.gabojaitspring.log;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StopWatch;
@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 @Slf4j
-public class RequestInterceptor implements HandlerInterceptor {
+public class InterceptorLogging implements HandlerInterceptor {
 
     private static final ThreadLocal<String> uuidThreadLocal = new ThreadLocal<>();
     private static final ThreadLocal<StopWatch> stopWatchThreadLocal = new ThreadLocal<>();

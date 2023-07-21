@@ -1,6 +1,5 @@
 package com.gabojait.gabojaitspring.log;
 
-import com.gabojait.gabojaitspring.common.intercept.RequestInterceptor;
 import com.p6spy.engine.logging.Category;
 import com.p6spy.engine.spy.appender.MessageFormattingStrategy;
 import org.hibernate.engine.jdbc.internal.FormatStyle;
@@ -15,12 +14,12 @@ public class P6spyLogging implements MessageFormattingStrategy {
                                 String prepared,
                                 String sql,
                                 String url) {
-        return formatSql(category, sql, elapsed);
+        return formatSql(connectionId, category, sql, elapsed);
     }
 
-    private String formatSql(String category, String sql, long elapsed) {
-        String uuid = RequestInterceptor.getRequestId() == null ? "SYSTEM" : RequestInterceptor.getRequestId();
-        String sqlLog = "[" + uuid  + " | DATABASE] " + elapsed + " ms";
+    private String formatSql(int connectionId, String category, String sql, long elapsed) {
+        String uuid = InterceptorLogging.getRequestId() == null ? "SYSTEM" : InterceptorLogging.getRequestId();
+        String sqlLog = "[" + uuid  + " | DATABASE] time = " + elapsed + " ms | connectionId = " + connectionId;
 
         if (sql == null || sql.trim().equals(""))
             return sqlLog;
