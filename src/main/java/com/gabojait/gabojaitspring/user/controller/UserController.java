@@ -1,7 +1,8 @@
 package com.gabojait.gabojaitspring.user.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
-import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultSingleResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.dto.req.*;
@@ -60,7 +61,7 @@ public class UserController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/username")
-    public ResponseEntity<DefaultResDto<Object>> duplicateUsername(
+    public ResponseEntity<DefaultNoResDto> duplicateUsername(
             @RequestParam(value = "username", required = false)
             @NotBlank(message = "아이디는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @Size(min = 5, max = 15, message = "아이디는 5~15자만 가능합니다.", groups = ValidationSequence.Size.class)
@@ -71,7 +72,7 @@ public class UserController {
         userService.validateUsername(username);
 
         return ResponseEntity.status(USERNAME_AVAILABLE.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(USERNAME_AVAILABLE.name())
                         .responseMessage(USERNAME_AVAILABLE.getMessage())
                         .build());
@@ -95,7 +96,7 @@ public class UserController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/nickname")
-    public ResponseEntity<DefaultResDto<Object>> duplicateNickname(
+    public ResponseEntity<DefaultNoResDto> duplicateNickname(
             @RequestParam(value = "nickname", required = false)
             @NotBlank(message = "닉네임은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @Size(min = 2, max = 8, message = "닉네임은 2~8자만 가능합니다.", groups = ValidationSequence.Size.class)
@@ -106,7 +107,7 @@ public class UserController {
         userService.validateNickname(nickname);
 
         return ResponseEntity.status(NICKNAME_AVAILABLE.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(NICKNAME_AVAILABLE.name())
                         .responseMessage(NICKNAME_AVAILABLE.getMessage())
                         .build());
@@ -139,7 +140,7 @@ public class UserController {
     })
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping
-    public ResponseEntity<DefaultResDto<Object>> register(@RequestBody @Valid UserRegisterReqDto request) {
+    public ResponseEntity<DefaultSingleResDto<Object>> register(@RequestBody @Valid UserRegisterReqDto request) {
         User user = userService.register(request);
 
         HttpHeaders headers = jwtProvider.createJwt(user.getId(), user.getRoles());
@@ -147,7 +148,7 @@ public class UserController {
 
         return ResponseEntity.status(USER_REGISTERED.getHttpStatus())
                 .headers(headers)
-                .body(DefaultResDto.singleDataBuilder()
+                .body(DefaultSingleResDto.singleDataBuilder()
                         .responseCode(USER_REGISTERED.name())
                         .responseMessage(USER_REGISTERED.getMessage())
                         .data(response)
@@ -170,7 +171,7 @@ public class UserController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/login")
-    public ResponseEntity<DefaultResDto<Object>> login(@RequestBody @Valid UserLoginReqDto request) {
+    public ResponseEntity<DefaultSingleResDto<Object>> login(@RequestBody @Valid UserLoginReqDto request) {
         User user = userService.login(request);
 
         HttpHeaders headers = jwtProvider.createJwt(user.getId(), user.getRoles());
@@ -178,7 +179,7 @@ public class UserController {
 
         return ResponseEntity.status(USER_LOGIN.getHttpStatus())
                 .headers(headers)
-                .body(DefaultResDto.singleDataBuilder()
+                .body(DefaultSingleResDto.singleDataBuilder()
                         .responseCode(USER_LOGIN.name())
                         .responseMessage(USER_LOGIN.getMessage())
                         .data(response)
@@ -203,14 +204,14 @@ public class UserController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/logout")
-    public ResponseEntity<DefaultResDto<Object>> logout(HttpServletRequest servletRequest,
+    public ResponseEntity<DefaultNoResDto> logout(HttpServletRequest servletRequest,
                                                         @RequestBody @Valid UserLogoutReqDto request) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
         userService.logout(userId, request.getFcmToken());
 
         return ResponseEntity.status(USER_LOGOUT.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(USER_LOGOUT.name())
                         .responseMessage(USER_LOGOUT.getMessage())
                         .build());
@@ -234,7 +235,7 @@ public class UserController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping
-    public ResponseEntity<DefaultResDto<Object>> findMyself(HttpServletRequest servletRequest) {
+    public ResponseEntity<DefaultSingleResDto<Object>> findMyself(HttpServletRequest servletRequest) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
         User user = userService.findOneUser(userId);
@@ -242,7 +243,7 @@ public class UserController {
         UserDefaultResDto response = new UserDefaultResDto(user);
 
         return ResponseEntity.status(SELF_USER_FOUND.getHttpStatus())
-                .body(DefaultResDto.singleDataBuilder()
+                .body(DefaultSingleResDto.singleDataBuilder()
                         .responseCode(SELF_USER_FOUND.name())
                         .responseMessage(SELF_USER_FOUND.getMessage())
                         .data(response)
@@ -267,7 +268,7 @@ public class UserController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/token")
-    public ResponseEntity<DefaultResDto<Object>> renewToken(HttpServletRequest servletRequest,
+    public ResponseEntity<DefaultNoResDto> renewToken(HttpServletRequest servletRequest,
                                                             @RequestBody @Valid UserRenewTokenReqDto request) {
         long userId = jwtProvider.getId(servletRequest.getHeader("Refresh-Token"));
 
@@ -277,7 +278,7 @@ public class UserController {
 
         return ResponseEntity.status(TOKEN_RENEWED.getHttpStatus())
                 .headers(headers)
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(TOKEN_RENEWED.name())
                         .responseMessage(TOKEN_RENEWED.getMessage())
                         .build());
@@ -299,11 +300,11 @@ public class UserController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/username")
-    public ResponseEntity<DefaultResDto<Object>> forgotUsername(@RequestBody @Valid UserFindUsernameReqDto request) {
+    public ResponseEntity<DefaultNoResDto> forgotUsername(@RequestBody @Valid UserFindUsernameReqDto request) {
         userService.sendUsernameToEmail(request.getEmail());
 
         return ResponseEntity.status(USERNAME_EMAIL_SENT.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(USERNAME_EMAIL_SENT.name())
                         .responseMessage(USERNAME_EMAIL_SENT.getMessage())
                         .build());
@@ -326,11 +327,11 @@ public class UserController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/password")
-    public ResponseEntity<DefaultResDto<Object>> findPassword(@RequestBody @Valid UserFindPasswordReqDto request) {
+    public ResponseEntity<DefaultNoResDto> findPassword(@RequestBody @Valid UserFindPasswordReqDto request) {
         userService.sendPasswordByEmail(request);
 
         return ResponseEntity.status(PASSWORD_EMAIL_SENT.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(PASSWORD_EMAIL_SENT.name())
                         .responseMessage(PASSWORD_EMAIL_SENT.getMessage())
                         .build());
@@ -356,14 +357,14 @@ public class UserController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/password/verify")
-    public ResponseEntity<DefaultResDto<Object>> verifyPassword(HttpServletRequest servletRequest,
+    public ResponseEntity<DefaultNoResDto> verifyPassword(HttpServletRequest servletRequest,
                                                                 @RequestBody @Valid UserVerifyReqDto request) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
         userService.verifyPassword(userId, request.getPassword());
 
         return ResponseEntity.status(PASSWORD_VERIFIED.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(PASSWORD_VERIFIED.name())
                         .responseMessage(PASSWORD_VERIFIED.getMessage())
                         .build());
@@ -391,14 +392,14 @@ public class UserController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/nickname")
-    public ResponseEntity<DefaultResDto<Object>> updateNickname(HttpServletRequest servletRequest,
+    public ResponseEntity<DefaultNoResDto> updateNickname(HttpServletRequest servletRequest,
                                                                 @RequestBody @Valid UserNicknameUpdateReqDto request) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
         userService.updateNickname(userId, request.getNickname());
 
         return ResponseEntity.status(NICKNAME_UPDATED.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(NICKNAME_UPDATED.name())
                         .responseMessage(NICKNAME_UPDATED.getMessage())
                         .build());
@@ -425,14 +426,14 @@ public class UserController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/password")
-    public ResponseEntity<DefaultResDto<Object>> updatePassword(HttpServletRequest servletRequest,
+    public ResponseEntity<DefaultNoResDto> updatePassword(HttpServletRequest servletRequest,
                                                                 @RequestBody @Valid UserUpdatePasswordReqDto request) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
         userService.updatePassword(userId, request.getPassword(), request.getPassword(), false);
 
         return ResponseEntity.status(PASSWORD_UPDATED.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(PASSWORD_UPDATED.name())
                         .responseMessage(PASSWORD_UPDATED.getMessage())
                         .build());
@@ -458,7 +459,7 @@ public class UserController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/notified")
-    public ResponseEntity<DefaultResDto<Object>> updateIsNotified(HttpServletRequest servletRequest,
+    public ResponseEntity<DefaultNoResDto> updateIsNotified(HttpServletRequest servletRequest,
                                                                   @RequestBody @Valid
                                                                   UserIsNotifiedUpdateReqDto request) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
@@ -466,7 +467,7 @@ public class UserController {
         userService.updateIsNotified(userId, request.getIsNotified());
 
         return ResponseEntity.status(IS_NOTIFIED_UPDATED.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(IS_NOTIFIED_UPDATED.name())
                         .responseMessage(IS_NOTIFIED_UPDATED.getMessage())
                         .build());
@@ -490,13 +491,13 @@ public class UserController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping
-    public ResponseEntity<DefaultResDto<Object>> deactivate(HttpServletRequest servletRequest) {
+    public ResponseEntity<DefaultNoResDto> deactivate(HttpServletRequest servletRequest) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
         userService.deleteAccount(userId);
 
         return ResponseEntity.status(USER_DELETED.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(USER_DELETED.name())
                         .responseMessage(USER_DELETED.getMessage())
                         .build());

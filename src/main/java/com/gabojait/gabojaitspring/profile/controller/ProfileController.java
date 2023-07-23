@@ -1,7 +1,9 @@
 package com.gabojait.gabojaitspring.profile.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
-import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultMultiResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultSingleResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.profile.dto.ProfileSeekPageDto;
 import com.gabojait.gabojaitspring.profile.dto.req.*;
@@ -64,7 +66,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/profile")
-    public ResponseEntity<DefaultResDto<Object>> findMyself(HttpServletRequest servletRequest) {
+    public ResponseEntity<DefaultSingleResDto<Object>> findMyself(HttpServletRequest servletRequest) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
         User user = profileService.findOneUser(userId);
@@ -72,7 +74,7 @@ public class ProfileController {
         ProfileDefaultResDto response = new ProfileDefaultResDto(user);
 
         return ResponseEntity.status(SELF_PROFILE_FOUND.getHttpStatus())
-                .body(DefaultResDto.singleDataBuilder()
+                .body(DefaultSingleResDto.singleDataBuilder()
                         .responseCode(SELF_PROFILE_FOUND.name())
                         .responseMessage(SELF_PROFILE_FOUND.getMessage())
                         .data(response)
@@ -101,7 +103,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/{user-id}/profile")
-    public ResponseEntity<DefaultResDto<Object>> findOther(
+    public ResponseEntity<DefaultSingleResDto<Object>> findOther(
             HttpServletRequest servletRequest,
             @PathVariable(value = "user-id", required = false)
             @NotNull(message = "회원 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -113,7 +115,7 @@ public class ProfileController {
         ProfileOfferAndFavoriteResDto response = profileService.findOneOtherProfile(uId, userId);
 
         return ResponseEntity.status(PROFILE_FOUND.getHttpStatus())
-                .body(DefaultResDto.singleDataBuilder()
+                .body(DefaultSingleResDto.singleDataBuilder()
                         .responseCode(PROFILE_FOUND.name())
                         .responseMessage(PROFILE_FOUND.getMessage())
                         .data(response)
@@ -146,7 +148,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<DefaultResDto<Object>> uploadProfileImage(HttpServletRequest servletRequest,
+    public ResponseEntity<DefaultSingleResDto<Object>> uploadProfileImage(HttpServletRequest servletRequest,
                                                                     @RequestPart(value = "image", required = false)
                                                                     MultipartFile image) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
@@ -156,7 +158,7 @@ public class ProfileController {
         ProfileDefaultResDto response = new ProfileDefaultResDto(user);
 
         return ResponseEntity.status(PROFILE_IMAGE_UPLOADED.getHttpStatus())
-                .body(DefaultResDto.singleDataBuilder()
+                .body(DefaultSingleResDto.singleDataBuilder()
                         .responseCode(PROFILE_IMAGE_UPLOADED.name())
                         .responseMessage(PROFILE_IMAGE_UPLOADED.getMessage())
                         .data(response)
@@ -181,7 +183,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping("/image")
-    public ResponseEntity<DefaultResDto<Object>> deleteProfileImage(HttpServletRequest servletRequest) {
+    public ResponseEntity<DefaultSingleResDto<Object>> deleteProfileImage(HttpServletRequest servletRequest) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
         User user = profileService.deleteProfileImage(userId);
@@ -189,7 +191,7 @@ public class ProfileController {
         ProfileDefaultResDto response = new ProfileDefaultResDto(user);
 
         return ResponseEntity.status(PROFILE_IMAGE_DELETED.getHttpStatus())
-                .body(DefaultResDto.singleDataBuilder()
+                .body(DefaultSingleResDto.singleDataBuilder()
                         .responseCode(PROFILE_IMAGE_DELETED.name())
                         .responseMessage(PROFILE_IMAGE_DELETED.getMessage())
                         .data(response)
@@ -216,15 +218,15 @@ public class ProfileController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/seeking-team")
-    public ResponseEntity<DefaultResDto<Object>> updateIsSeekingTeam(HttpServletRequest servletRequest,
-                                                                     @RequestBody @Valid
+    public ResponseEntity<DefaultNoResDto> updateIsSeekingTeam(HttpServletRequest servletRequest,
+                                                               @RequestBody @Valid
                                                                      ProfileIsSeekingTeamUpdateReqDto request) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
         profileService.updateIsSeekingTeam(userId, request.getIsSeekingTeam());
 
         return ResponseEntity.status(PROFILE_SEEKING_TEAM_UPDATED.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(PROFILE_SEEKING_TEAM_UPDATED.name())
                         .responseMessage(PROFILE_SEEKING_TEAM_UPDATED.getMessage())
                         .build());
@@ -250,7 +252,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/description")
-    public ResponseEntity<DefaultResDto<Object>> updateDescription(HttpServletRequest servletRequest,
+    public ResponseEntity<DefaultNoResDto> updateDescription(HttpServletRequest servletRequest,
                                                                    @RequestBody @Valid
                                                                    ProfileDescriptionUpdateReqDto request) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
@@ -258,7 +260,7 @@ public class ProfileController {
         profileService.updateProfileDescription(userId, request.getProfileDescription());
 
         return ResponseEntity.status(PROFILE_DESCRIPTION_UPDATED.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(PROFILE_DESCRIPTION_UPDATED.name())
                         .responseMessage(PROFILE_DESCRIPTION_UPDATED.getMessage())
                         .build());
@@ -292,7 +294,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/profile")
-    public ResponseEntity<DefaultResDto<Object>> updateProfile(HttpServletRequest servletRequest,
+    public ResponseEntity<DefaultSingleResDto<Object>> updateProfile(HttpServletRequest servletRequest,
                                                                @RequestBody @Valid
                                                                ProfileDefaultReqDto request) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
@@ -302,7 +304,7 @@ public class ProfileController {
         ProfileDefaultResDto response = new ProfileDefaultResDto(updatedUser);
 
         return ResponseEntity.status(PROFILE_UPDATED.getHttpStatus())
-                .body(DefaultResDto.singleDataBuilder()
+                .body(DefaultSingleResDto.singleDataBuilder()
                         .responseCode(PROFILE_UPDATED.name())
                         .responseMessage(PROFILE_UPDATED.getMessage())
                         .data(response)
@@ -334,7 +336,7 @@ public class ProfileController {
     })
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping(value = "/portfolio/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<DefaultResDto<Object>> uploadPortfolioFile(HttpServletRequest servletRequest,
+    public ResponseEntity<DefaultSingleResDto<Object>> uploadPortfolioFile(HttpServletRequest servletRequest,
                                                                     @RequestPart(value = "file", required = false)
                                                                     MultipartFile file) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
@@ -344,7 +346,7 @@ public class ProfileController {
         PortfolioUrlResDto response = new PortfolioUrlResDto(portfolioUrl);
 
         return ResponseEntity.status(PORTFOLIO_FILE_UPLOADED.getHttpStatus())
-                .body(DefaultResDto.singleDataBuilder()
+                .body(DefaultSingleResDto.singleDataBuilder()
                         .responseCode(PORTFOLIO_FILE_UPLOADED.name())
                         .responseMessage(PORTFOLIO_FILE_UPLOADED.getMessage())
                         .data(response)
@@ -382,7 +384,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/seeking-team")
-    public ResponseEntity<DefaultResDto<Object>> findUsersLookingForTeam(
+    public ResponseEntity<DefaultMultiResDto<Object>> findUsersLookingForTeam(
             HttpServletRequest servletRequest,
             @RequestParam(value = "position", required = false)
             @NotBlank(message = "포지션은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -413,7 +415,7 @@ public class ProfileController {
                 pageSize);
 
         return ResponseEntity.status(USERS_SEEKING_TEAM_FOUND.getHttpStatus())
-                .body(DefaultResDto.multiDataBuilder()
+                .body(DefaultMultiResDto.multiDataBuilder()
                         .responseCode(USERS_SEEKING_TEAM_FOUND.name())
                         .responseMessage(USERS_SEEKING_TEAM_FOUND.getMessage())
                         .data(response.getProfileSeekResDtos())
@@ -439,13 +441,13 @@ public class ProfileController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/team/leave")
-    public ResponseEntity<DefaultResDto<Object>> leaveTeam(HttpServletRequest servletRequest) {
+    public ResponseEntity<DefaultNoResDto> leaveTeam(HttpServletRequest servletRequest) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
         teamService.leaveTeam(userId);
 
         return ResponseEntity.status(USER_LEFT_TEAM.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(USER_LEFT_TEAM.name())
                         .responseMessage(USER_LEFT_TEAM.getMessage())
                         .build());

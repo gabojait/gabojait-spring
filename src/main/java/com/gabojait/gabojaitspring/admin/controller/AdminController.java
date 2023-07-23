@@ -8,7 +8,9 @@ import com.gabojait.gabojaitspring.admin.dto.res.AdminDefaultResDto;
 import com.gabojait.gabojaitspring.admin.service.AdminService;
 import com.gabojait.gabojaitspring.admin.service.MasterService;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
-import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultMultiResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultSingleResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.domain.type.Role;
@@ -36,7 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "관리자")
 @Validated
@@ -73,11 +74,11 @@ public class AdminController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping
-    public ResponseEntity<DefaultResDto<Object>> register(@RequestBody @Valid AdminRegisterReqDto request) {
+    public ResponseEntity<DefaultNoResDto> register(@RequestBody @Valid AdminRegisterReqDto request) {
         adminService.register(request);
 
         return ResponseEntity.status(ADMIN_REGISTERED.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(ADMIN_REGISTERED.name())
                         .responseMessage(ADMIN_REGISTERED.getMessage())
                         .build());
@@ -99,7 +100,7 @@ public class AdminController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/login")
-    public ResponseEntity<DefaultResDto<Object>> login(@RequestBody @Valid AdminLoginReqDto request) {
+    public ResponseEntity<DefaultSingleResDto<Object>> login(@RequestBody @Valid AdminLoginReqDto request) {
         User admin = adminService.login(request);
 
         HttpHeaders headers;
@@ -112,7 +113,7 @@ public class AdminController {
 
         return ResponseEntity.status(ADMIN_LOGIN.getHttpStatus())
                 .headers(headers)
-                .body(DefaultResDto.singleDataBuilder()
+                .body(DefaultSingleResDto.singleDataBuilder()
                         .responseCode(ADMIN_LOGIN.name())
                         .responseMessage(ADMIN_LOGIN.getMessage())
                         .data(response)
@@ -140,7 +141,7 @@ public class AdminController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping
-    public ResponseEntity<DefaultResDto<Object>> findUnregisteredAdmin(
+    public ResponseEntity<DefaultMultiResDto<Object>> findUnregisteredAdmin(
             @RequestParam(value = "page-from", required = false)
             @NotNull(message = "페이지 시작점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
@@ -156,7 +157,7 @@ public class AdminController {
             responses.add(new AdminDefaultResDto(admin));
 
         return ResponseEntity.status(UNREGISTERED_ADMIN_FOUND.getHttpStatus())
-                .body(DefaultResDto.multiDataBuilder()
+                .body(DefaultMultiResDto.multiDataBuilder()
                         .responseCode(UNREGISTERED_ADMIN_FOUND.name())
                         .responseMessage(UNREGISTERED_ADMIN_FOUND.getMessage())
                         .data(responses)
@@ -184,7 +185,7 @@ public class AdminController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/{admin-id}/decide")
-    public ResponseEntity<DefaultResDto<Object>> decideAdminRegistration(
+    public ResponseEntity<DefaultNoResDto> decideAdminRegistration(
             @PathVariable(value = "admin-id", required = false)
             @NotNull(message = "관리자 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @Positive(message = "관리자 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
@@ -195,7 +196,7 @@ public class AdminController {
         masterService.decideAdminRegistration(adminId, request.getIsApproved());
 
         return ResponseEntity.status(ADMIN_REGISTER_DECIDED.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(ADMIN_REGISTER_DECIDED.name())
                         .responseMessage(ADMIN_REGISTER_DECIDED.getMessage())
                         .build());
@@ -221,7 +222,7 @@ public class AdminController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/user/{user-id}")
-    public ResponseEntity<DefaultResDto<Object>> findOneUser(
+    public ResponseEntity<DefaultSingleResDto<Object>> findOneUser(
             @PathVariable(value = "user-id", required = false)
             @NotNull(message = "회원 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
@@ -232,7 +233,7 @@ public class AdminController {
         UserDefaultResDto response = new UserDefaultResDto(otherUser);
 
         return ResponseEntity.status(USER_FOUND.getHttpStatus())
-                .body(DefaultResDto.singleDataBuilder()
+                .body(DefaultSingleResDto.singleDataBuilder()
                         .responseCode(USER_FOUND.name())
                         .responseMessage(USER_FOUND.getMessage())
                         .data(response)

@@ -1,14 +1,14 @@
 package com.gabojait.gabojaitspring.offer.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
-import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultMultiResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.offer.domain.Offer;
 import com.gabojait.gabojaitspring.offer.dto.req.OfferCreateReqDto;
 import com.gabojait.gabojaitspring.offer.dto.req.OfferUpdateReqDto;
 import com.gabojait.gabojaitspring.offer.dto.res.OfferDefaultResDto;
 import com.gabojait.gabojaitspring.offer.service.OfferService;
-import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -73,7 +73,7 @@ public class OfferController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/user/team/{team-id}/offer")
-    public ResponseEntity<DefaultResDto<Object>> userOffer(
+    public ResponseEntity<DefaultNoResDto> userOffer(
             HttpServletRequest servletRequest,
             @PathVariable(value = "team-id", required = false)
             @NotNull(message = "팀 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -85,7 +85,7 @@ public class OfferController {
         offerService.offerByUser(userId, teamId, request);
 
         return ResponseEntity.status(OFFERED_BY_USER.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(OFFERED_BY_USER.name())
                         .responseMessage(OFFERED_BY_USER.getMessage())
                         .build());
@@ -115,7 +115,7 @@ public class OfferController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/team/user/{user-id}/offer")
-    public ResponseEntity<DefaultResDto<Object>> teamOffer(
+    public ResponseEntity<DefaultNoResDto> teamOffer(
             HttpServletRequest servletRequest,
             @PathVariable(value = "user-id", required = false)
             @NotNull(message = "회원 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -128,7 +128,7 @@ public class OfferController {
         offerService.offerByTeam(uId, userId, request);
 
         return ResponseEntity.status(OFFERED_BY_TEAM.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(OFFERED_BY_TEAM.name())
                         .responseMessage(OFFERED_BY_TEAM.getMessage())
                         .build());
@@ -154,7 +154,7 @@ public class OfferController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/user/offer")
-    public ResponseEntity<DefaultResDto<Object>> userFindOffers(
+    public ResponseEntity<DefaultMultiResDto<Object>> userFindOffers(
             HttpServletRequest servletRequest,
             @RequestParam(value = "page-from", required = false)
             @NotNull(message = "페이지 시작점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -173,7 +173,7 @@ public class OfferController {
             responses.add(new OfferDefaultResDto(offer));
 
         return ResponseEntity.status(OFFER_BY_TEAM_FOUND.getHttpStatus())
-                .body(DefaultResDto.multiDataBuilder()
+                .body(DefaultMultiResDto.multiDataBuilder()
                         .responseCode(OFFER_BY_TEAM_FOUND.name())
                         .responseMessage(OFFER_BY_TEAM_FOUND.getMessage())
                         .data(responses)
@@ -200,7 +200,7 @@ public class OfferController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/team/offer")
-    public ResponseEntity<DefaultResDto<Object>> teamFindOffers(
+    public ResponseEntity<DefaultMultiResDto<Object>> teamFindOffers(
             HttpServletRequest servletRequest,
             @RequestParam(value = "page-from", required = false)
             @NotNull(message = "페이지 시작점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -219,7 +219,7 @@ public class OfferController {
             responses.add(new OfferDefaultResDto(offer));
 
         return ResponseEntity.status(OFFER_BY_USER_FOUND.getHttpStatus())
-                .body(DefaultResDto.multiDataBuilder()
+                .body(DefaultMultiResDto.multiDataBuilder()
                         .responseCode(OFFER_BY_USER_FOUND.name())
                         .responseMessage(OFFER_BY_USER_FOUND.getMessage())
                         .data(responses)
@@ -249,7 +249,7 @@ public class OfferController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/user/offer/{offer-id}")
-    public ResponseEntity<DefaultResDto<Object>> decideOfferByUser(
+    public ResponseEntity<DefaultNoResDto> decideOfferByUser(
             HttpServletRequest servletRequest,
             @PathVariable(value = "offer-id", required = false)
             @NotNull(message = "제안 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -263,7 +263,7 @@ public class OfferController {
         offerService.decideByUser(userId, offerId, request.getIsAccepted());
 
         return ResponseEntity.status(USER_DECIDED_OFFER.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(USER_DECIDED_OFFER.name())
                         .responseMessage(USER_DECIDED_OFFER.getMessage())
                         .build());
@@ -291,7 +291,7 @@ public class OfferController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/team/offer/{offer-id}")
-    public ResponseEntity<DefaultResDto<Object>> decideOfferByTeam(
+    public ResponseEntity<DefaultNoResDto> decideOfferByTeam(
             HttpServletRequest servletRequest,
             @PathVariable(value = "offer-id", required = false)
             @NotNull(message = "제안 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -305,7 +305,7 @@ public class OfferController {
         offerService.decideByTeam(userId, offerId, request.getIsAccepted());
 
         return ResponseEntity.status(TEAM_DECIDED_OFFER.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(TEAM_DECIDED_OFFER.name())
                         .responseMessage(TEAM_DECIDED_OFFER.getMessage())
                         .build());
@@ -331,7 +331,7 @@ public class OfferController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping("/user/offer/{offer-id}")
-    public ResponseEntity<DefaultResDto<Object>> cancelOfferByUser(
+    public ResponseEntity<DefaultNoResDto> cancelOfferByUser(
             HttpServletRequest servletRequest,
             @PathVariable(value = "offer-id", required = false)
             @NotNull(message = "제안 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -343,7 +343,7 @@ public class OfferController {
         offerService.cancelByUser(userId, offerId);
 
         return ResponseEntity.status(OFFER_CANCEL_BY_USER.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(OFFER_CANCEL_BY_USER.name())
                         .responseMessage(OFFER_CANCEL_BY_USER.getMessage())
                         .build());
@@ -369,7 +369,7 @@ public class OfferController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping("/team/offer/{offer-id}")
-    public ResponseEntity<DefaultResDto<Object>> cancelOfferByTeam(
+    public ResponseEntity<DefaultNoResDto> cancelOfferByTeam(
             HttpServletRequest servletRequest,
             @PathVariable(value = "offer-id", required = false)
             @NotNull(message = "제안 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -381,7 +381,7 @@ public class OfferController {
         offerService.cancelByTeam(userId, offerId);
 
         return ResponseEntity.status(OFFER_CANCEL_BY_TEAM.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(OFFER_CANCEL_BY_TEAM.name())
                         .responseMessage(OFFER_CANCEL_BY_TEAM.getMessage())
                         .build());

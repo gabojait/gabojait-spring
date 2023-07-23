@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.user.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
-import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
 import com.gabojait.gabojaitspring.user.dto.req.ContactSaveReqDto;
 import com.gabojait.gabojaitspring.user.dto.req.ContactVerifyReqDto;
 import com.gabojait.gabojaitspring.user.service.ContactService;
@@ -47,14 +47,14 @@ public class ContactController {
     })
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping
-    public ResponseEntity<DefaultResDto<Object>> sendVerificationCode(@RequestBody @Valid ContactSaveReqDto request) {
+    public ResponseEntity<DefaultNoResDto> sendVerificationCode(@RequestBody @Valid ContactSaveReqDto request) {
         contactService.sendRegisterVerificationCode(request);
 
         HttpHeaders headers = jwtProvider.createGuestJwt();
 
         return ResponseEntity.status(VERIFICATION_CODE_SENT.getHttpStatus())
                 .headers(headers)
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(VERIFICATION_CODE_SENT.name())
                         .responseMessage(VERIFICATION_CODE_SENT.getMessage())
                         .build());
@@ -79,11 +79,11 @@ public class ContactController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping
-    public ResponseEntity<DefaultResDto<Object>> verifyCode(@RequestBody @Valid ContactVerifyReqDto request) {
+    public ResponseEntity<DefaultNoResDto> verifyCode(@RequestBody @Valid ContactVerifyReqDto request) {
         contactService.verify(request);
 
         return ResponseEntity.status(EMAIL_VERIFIED.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(EMAIL_VERIFIED.name())
                         .responseMessage(EMAIL_VERIFIED.getMessage())
                         .build());

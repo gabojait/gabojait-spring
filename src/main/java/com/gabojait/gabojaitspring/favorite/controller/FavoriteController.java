@@ -1,7 +1,8 @@
 package com.gabojait.gabojaitspring.favorite.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
-import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultMultiResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.favorite.domain.FavoriteTeam;
 import com.gabojait.gabojaitspring.favorite.domain.FavoriteUser;
@@ -71,14 +72,13 @@ public class FavoriteController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping(value = "/user/favorite/team/{team-id}")
-    public ResponseEntity<DefaultResDto<Object>> addOrDeleteFavoriteTeam(
+    public ResponseEntity<DefaultNoResDto> addOrDeleteFavoriteTeam(
             HttpServletRequest servletRequest,
             @PathVariable(value = "team-id", required = false)
             @NotNull(message = "팀 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @Positive(message = "팀 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long teamId,
-            @RequestBody
-            @Valid
+            @RequestBody @Valid
             FavoriteUpdateReqDto request
     ) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
@@ -87,13 +87,13 @@ public class FavoriteController {
 
         if (request.getIsAddFavorite())
             return ResponseEntity.status(FAVORITE_TEAM_ADDED.getHttpStatus())
-                    .body(DefaultResDto.noDataBuilder()
+                    .body(DefaultNoResDto.noDataBuilder()
                             .responseCode(FAVORITE_TEAM_ADDED.name())
                             .responseMessage(FAVORITE_TEAM_ADDED.getMessage())
                             .build());
         else
             return ResponseEntity.status(FAVORITE_TEAM_DELETED.getHttpStatus())
-                    .body(DefaultResDto.noDataBuilder()
+                    .body(DefaultNoResDto.noDataBuilder()
                             .responseCode(FAVORITE_TEAM_DELETED.name())
                             .responseMessage(FAVORITE_TEAM_DELETED.getMessage())
                             .build());
@@ -119,7 +119,7 @@ public class FavoriteController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/user/favorite/team")
-    public ResponseEntity<DefaultResDto<Object>> findAllFavoriteTeams(
+    public ResponseEntity<DefaultMultiResDto<Object>> findAllFavoriteTeams(
             HttpServletRequest servletRequest,
             @RequestParam(value = "page-from", required = false)
             @NotNull(message = "페이지 시작점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -138,7 +138,7 @@ public class FavoriteController {
             responses.add(new TeamAbstractResDto(favoriteTeam.getTeam()));
 
         return ResponseEntity.status(FAVORITE_TEAMS_FOUND.getHttpStatus())
-                .body(DefaultResDto.multiDataBuilder()
+                .body(DefaultMultiResDto.multiDataBuilder()
                         .responseCode(FAVORITE_TEAMS_FOUND.name())
                         .responseMessage(FAVORITE_TEAMS_FOUND.getMessage())
                         .data(responses)
@@ -170,7 +170,7 @@ public class FavoriteController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/team/favorite/user/{user-id}")
-    public ResponseEntity<DefaultResDto<Object>> addOrDeleteFavoriteUser(
+    public ResponseEntity<DefaultNoResDto> addOrDeleteFavoriteUser(
             HttpServletRequest servletRequest,
             @PathVariable(value = "user-id", required = false)
             @NotNull(message = "회원 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -186,13 +186,13 @@ public class FavoriteController {
 
         if (request.getIsAddFavorite())
             return ResponseEntity.status(FAVORITE_USER_ADDED.getHttpStatus())
-                    .body(DefaultResDto.noDataBuilder()
+                    .body(DefaultNoResDto.noDataBuilder()
                             .responseCode(FAVORITE_USER_ADDED.name())
                             .responseMessage(FAVORITE_USER_ADDED.getMessage())
                             .build());
         else
             return ResponseEntity.status(FAVORITE_USER_DELETED.getHttpStatus())
-                    .body(DefaultResDto.noDataBuilder()
+                    .body(DefaultNoResDto.noDataBuilder()
                             .responseCode(FAVORITE_USER_DELETED.name())
                             .responseMessage(FAVORITE_USER_DELETED.getMessage())
                             .build());
@@ -218,7 +218,7 @@ public class FavoriteController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/team/favorite/user")
-    public ResponseEntity<DefaultResDto<Object>> findAllFavoriteUsers(
+    public ResponseEntity<DefaultMultiResDto<Object>> findAllFavoriteUsers(
             HttpServletRequest servletRequest,
             @RequestParam(value = "page-from", required = false)
             @NotNull(message = "페이지 시작점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -237,7 +237,7 @@ public class FavoriteController {
             responses.add(new ProfileAbstractResDto(favoriteUser.getUser()));
 
         return ResponseEntity.status(FAVORITE_USERS_FOUND.getHttpStatus())
-                .body(DefaultResDto.multiDataBuilder()
+                .body(DefaultMultiResDto.multiDataBuilder()
                         .responseCode(FAVORITE_USERS_FOUND.name())
                         .responseMessage(FAVORITE_USERS_FOUND.getMessage())
                         .data(responses)

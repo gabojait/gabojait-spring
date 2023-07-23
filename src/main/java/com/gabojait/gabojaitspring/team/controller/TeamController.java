@@ -1,7 +1,9 @@
 package com.gabojait.gabojaitspring.team.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
-import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultMultiResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultSingleResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.dto.req.TeamCompleteReqDto;
@@ -77,8 +79,8 @@ public class TeamController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/team")
-    public ResponseEntity<DefaultResDto<Object>> createTeam(HttpServletRequest servletRequest,
-                                                            @RequestBody @Valid TeamDefaultReqDto request) {
+    public ResponseEntity<DefaultSingleResDto<Object>> createTeam(HttpServletRequest servletRequest,
+                                                                  @RequestBody @Valid TeamDefaultReqDto request) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
         Team team = teamService.create(userId, request);
@@ -86,7 +88,7 @@ public class TeamController {
         TeamDefaultResDto response = new TeamDefaultResDto(team);
 
         return ResponseEntity.status(TEAM_CREATED.getHttpStatus())
-                .body(DefaultResDto.singleDataBuilder()
+                .body(DefaultSingleResDto.singleDataBuilder()
                         .responseCode(TEAM_CREATED.name())
                         .responseMessage(TEAM_CREATED.getMessage())
                         .data(response)
@@ -121,7 +123,7 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PutMapping("/team")
-    public ResponseEntity<DefaultResDto<Object>> updateTeam(HttpServletRequest servletRequest,
+    public ResponseEntity<DefaultSingleResDto<Object>> updateTeam(HttpServletRequest servletRequest,
                                                             @RequestBody @Valid TeamDefaultReqDto request) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
@@ -130,7 +132,7 @@ public class TeamController {
         TeamDefaultResDto response = new TeamDefaultResDto(team);
 
         return ResponseEntity.status(TEAM_UPDATED.getHttpStatus())
-                .body(DefaultResDto.singleDataBuilder()
+                .body(DefaultSingleResDto.singleDataBuilder()
                         .responseCode(TEAM_UPDATED.name())
                         .responseMessage(TEAM_UPDATED.getMessage())
                         .data(response)
@@ -155,7 +157,7 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/user/team")
-    public ResponseEntity<DefaultResDto<Object>> findMyTeam(HttpServletRequest servletRequest) {
+    public ResponseEntity<DefaultSingleResDto<Object>> findMyTeam(HttpServletRequest servletRequest) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
         Team team = teamService.findOneCurrentTeam(userId);
@@ -163,7 +165,7 @@ public class TeamController {
         TeamDefaultResDto response = new TeamDefaultResDto(team);
 
         return ResponseEntity.status(SELF_TEAM_FOUND.getHttpStatus())
-                .body(DefaultResDto.singleDataBuilder()
+                .body(DefaultSingleResDto.singleDataBuilder()
                         .responseCode(SELF_TEAM_FOUND.name())
                         .responseMessage(SELF_TEAM_FOUND.getMessage())
                         .data(response)
@@ -190,7 +192,7 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/team/{team-id}")
-    public ResponseEntity<DefaultResDto<Object>> findOneTeam(
+    public ResponseEntity<DefaultSingleResDto<Object>> findOneTeam(
             HttpServletRequest servletRequest,
             @PathVariable(value = "team-id", required = false)
             @NotNull(message = "팀 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -202,7 +204,7 @@ public class TeamController {
         TeamOfferAndFavoriteResDto response = teamService.findOneOtherTeam(userId, teamId);
 
         return ResponseEntity.status(TEAM_FOUND.getHttpStatus())
-                .body(DefaultResDto.singleDataBuilder()
+                .body(DefaultSingleResDto.singleDataBuilder()
                         .responseCode(TEAM_FOUND.name())
                         .responseMessage(TEAM_FOUND.getMessage())
                         .data(response)
@@ -238,7 +240,7 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/team/recruiting")
-    public ResponseEntity<DefaultResDto<Object>> findTeamsLookingForUsers(
+    public ResponseEntity<DefaultMultiResDto<Object>> findTeamsLookingForUsers(
             @RequestParam(value = "position", required = false)
             @NotBlank(message = "포지션은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @Pattern(regexp = "^(designer|backend|frontend|manager|none)",
@@ -266,7 +268,7 @@ public class TeamController {
             responses.add(new TeamAbstractResDto(team));
 
         return ResponseEntity.status(TEAMS_RECRUITING_USERS_FOUND.getHttpStatus())
-                .body(DefaultResDto.multiDataBuilder()
+                .body(DefaultMultiResDto.multiDataBuilder()
                         .responseCode(TEAMS_RECRUITING_USERS_FOUND.name())
                         .responseMessage(TEAMS_RECRUITING_USERS_FOUND.getMessage())
                         .data(responses)
@@ -296,7 +298,7 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/team/recruiting")
-    public ResponseEntity<DefaultResDto<Object>> updateIsRecruiting(HttpServletRequest servletRequest,
+    public ResponseEntity<DefaultNoResDto> updateIsRecruiting(HttpServletRequest servletRequest,
                                                                     @RequestBody @Valid
                                                                     TeamIsRecruitingUpdateReqDto request) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
@@ -304,7 +306,7 @@ public class TeamController {
         teamService.updateIsRecruiting(userId, request.getIsRecruiting());
 
         return ResponseEntity.status(TEAM_IS_RECRUITING_UPDATED.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(TEAM_IS_RECRUITING_UPDATED.name())
                         .responseMessage(TEAM_IS_RECRUITING_UPDATED.getMessage())
                         .build());
@@ -330,13 +332,13 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping("/team/incomplete")
-    public ResponseEntity<DefaultResDto<Object>> projectIncomplete(HttpServletRequest servletRequest) {
+    public ResponseEntity<DefaultNoResDto> projectIncomplete(HttpServletRequest servletRequest) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
         teamService.quit(userId, "");
 
         return ResponseEntity.status(PROJECT_INCOMPLETE.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(PROJECT_INCOMPLETE.name())
                         .responseMessage(PROJECT_INCOMPLETE.getMessage())
                         .build());
@@ -362,7 +364,7 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/team/complete")
-    public ResponseEntity<DefaultResDto<Object>> quitCompleteProject(HttpServletRequest servletRequest,
+    public ResponseEntity<DefaultNoResDto> quitCompleteProject(HttpServletRequest servletRequest,
                                                                      @RequestBody @Valid
                                                                      TeamCompleteReqDto request) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
@@ -370,7 +372,7 @@ public class TeamController {
         teamService.quit(userId, request.getProjectUrl());
 
         return ResponseEntity.status(PROJECT_COMPLETE.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(PROJECT_COMPLETE.name())
                         .responseMessage(PROJECT_COMPLETE.getMessage())
                         .build());
@@ -396,7 +398,7 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/team/user/{user-id}/fire")
-    public ResponseEntity<DefaultResDto<Object>> fireTeammate(
+    public ResponseEntity<DefaultNoResDto> fireTeammate(
             HttpServletRequest servletRequest,
             @PathVariable(value = "user-id", required = false)
             @NotNull(message = "회원 식별자를 입력해 주세요.", groups = ValidationSequence.Blank.class)
@@ -408,7 +410,7 @@ public class TeamController {
         teamService.fire(uId, userId);
 
         return ResponseEntity.status(TEAMMATE_FIRED.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(TEAMMATE_FIRED.name())
                         .responseMessage(TEAMMATE_FIRED.getMessage())
                         .build());

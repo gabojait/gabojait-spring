@@ -1,7 +1,8 @@
 package com.gabojait.gabojaitspring.review.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
-import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultMultiResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.review.domain.Review;
 import com.gabojait.gabojaitspring.review.dto.req.ReviewCreateReqDto;
@@ -72,7 +73,7 @@ public class ReviewController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/user/team/{team-id}/review")
-    public ResponseEntity<DefaultResDto<Object>> createReview(
+    public ResponseEntity<DefaultNoResDto> createReview(
             HttpServletRequest servletRequest,
             @PathVariable(value = "team-id", required = false)
             @NotNull(message = "팀 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -85,7 +86,7 @@ public class ReviewController {
         reviewService.create(userId, teamId, request);
 
         return ResponseEntity.status(USER_REVIEWED.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(USER_REVIEWED.name())
                         .responseMessage(USER_REVIEWED.getMessage())
                         .build());
@@ -111,7 +112,7 @@ public class ReviewController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/user/team/review")
-    public ResponseEntity<DefaultResDto<Object>> findReviewableTeams(HttpServletRequest servletRequest) {
+    public ResponseEntity<DefaultMultiResDto<Object>> findReviewableTeams(HttpServletRequest servletRequest) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
         List<Team> reviewableTeams = reviewService.findAllReviewableTeams(userId);
@@ -121,7 +122,7 @@ public class ReviewController {
             responses.add(new TeamAbstractResDto(reviewableTeam));
 
         return ResponseEntity.status(REVIEWABLE_TEAMS_FOUND.getHttpStatus())
-                .body(DefaultResDto.multiDataBuilder()
+                .body(DefaultMultiResDto.multiDataBuilder()
                         .responseCode(REVIEWABLE_TEAMS_FOUND.name())
                         .responseMessage(REVIEWABLE_TEAMS_FOUND.getMessage())
                         .data(responses)
@@ -153,7 +154,7 @@ public class ReviewController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/user/{user-id}/review")
-    public ResponseEntity<DefaultResDto<Object>> findManyReview(
+    public ResponseEntity<DefaultMultiResDto<Object>> findManyReview(
             @PathVariable(value = "user-id", required = false)
             @NotNull(message = "회원 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
@@ -173,7 +174,7 @@ public class ReviewController {
             responses.add(new ReviewDefaultResDto(review));
 
         return ResponseEntity.status(USER_REVIEWS_FOUND.getHttpStatus())
-                .body(DefaultResDto.multiDataBuilder()
+                .body(DefaultMultiResDto.multiDataBuilder()
                         .responseCode(USER_REVIEWS_FOUND.name())
                         .responseMessage(USER_REVIEWS_FOUND.getMessage())
                         .data(responses)

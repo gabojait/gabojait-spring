@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.develop.controller;
 
 import com.gabojait.gabojaitspring.auth.JwtProvider;
-import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.develop.dto.req.DevelopFcmReqDto;
 import com.gabojait.gabojaitspring.develop.service.DevelopService;
@@ -53,11 +53,11 @@ public class DevelopController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/health")
-    public ResponseEntity<DefaultResDto<Object>> healthCheck() {
+    public ResponseEntity<DefaultNoResDto> healthCheck() {
         String serverName = developService.getServerName();
 
         return ResponseEntity.status(SERVER_OK.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(SERVER_OK.name())
                         .responseMessage(serverName.concat(" ").concat(SERVER_OK.getMessage()))
                         .build());
@@ -75,11 +75,11 @@ public class DevelopController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping("/test")
-    public ResponseEntity<DefaultResDto<Object>> resetAndInjectTest() {
+    public ResponseEntity<DefaultNoResDto> resetAndInjectTest() {
         developService.resetAndInjectData();
 
         return ResponseEntity.status(TEST_DATA_INJECTED.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(TEST_DATA_INJECTED.name())
                         .responseMessage(TEST_DATA_INJECTED.getMessage())
                         .build());
@@ -102,7 +102,7 @@ public class DevelopController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/test/user/{tester-id}")
-    public ResponseEntity<DefaultResDto<Object>> testDataToken(
+    public ResponseEntity<DefaultNoResDto> testDataToken(
             @PathVariable(value = "tester-id", required = false)
             @NotNull(message = "테스터 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @Positive(message = "테스터 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
@@ -114,7 +114,7 @@ public class DevelopController {
 
         return ResponseEntity.status(TESTER_TOKEN_ISSUED.getHttpStatus())
                 .headers(headers)
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(TESTER_TOKEN_ISSUED.name())
                         .responseMessage(TESTER_TOKEN_ISSUED.getMessage())
                         .build());
@@ -140,7 +140,7 @@ public class DevelopController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/test/fcm")
-    public ResponseEntity<DefaultResDto<Object>> sendTestFcm(HttpServletRequest servletRequest,
+    public ResponseEntity<DefaultNoResDto> sendTestFcm(HttpServletRequest servletRequest,
                                                              @RequestBody @Valid
                                                              DevelopFcmReqDto request) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
@@ -148,7 +148,7 @@ public class DevelopController {
         developService.sendTestFcm(userId, request.getFcmTitle(), request.getFcmMessage());
 
         return ResponseEntity.status(TEST_FCM_SENT.getHttpStatus())
-                .body(DefaultResDto.noDataBuilder()
+                .body(DefaultNoResDto.noDataBuilder()
                         .responseCode(TEST_FCM_SENT.name())
                         .responseMessage(TEST_FCM_SENT.getMessage())
                         .build());

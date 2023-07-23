@@ -3,7 +3,9 @@ package com.gabojait.gabojaitspring.config;
 import com.fasterxml.classmate.TypeResolver;
 import com.gabojait.gabojaitspring.admin.dto.res.AdminAbstractResDto;
 import com.gabojait.gabojaitspring.admin.dto.res.AdminDefaultResDto;
-import com.gabojait.gabojaitspring.common.dto.DefaultResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultMultiResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultSingleResDto;
 import com.gabojait.gabojaitspring.common.dto.ExceptionResDto;
 import com.gabojait.gabojaitspring.offer.dto.res.OfferDefaultResDto;
 import com.gabojait.gabojaitspring.profile.dto.res.*;
@@ -63,7 +65,9 @@ public class SwaggerConfig {
         TypeResolver typeResolver = new TypeResolver();
 
         return new Docket(DocumentationType.SWAGGER_2)
-                .additionalModels(typeResolver.resolve(DefaultResDto.class))
+                .additionalModels(typeResolver.resolve(DefaultNoResDto.class))
+                .additionalModels(typeResolver.resolve(DefaultSingleResDto.class))
+                .additionalModels(typeResolver.resolve(DefaultMultiResDto.class))
                 .additionalModels(typeResolver.resolve(ExceptionResDto.class))
                 .additionalModels(typeResolver.resolve(ContactDefaultResDto.class))
                 .additionalModels(typeResolver.resolve(UserDefaultResDto.class))
