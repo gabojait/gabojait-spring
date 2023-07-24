@@ -178,7 +178,7 @@ public class ReviewController {
                         .responseCode(USER_REVIEWS_FOUND.name())
                         .responseMessage(USER_REVIEWS_FOUND.getMessage())
                         .data(responses)
-                        .size(reviews.getTotalPages())
+                        .size(reviews.getTotalElements())
                         .build());
     }
 }

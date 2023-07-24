@@ -303,7 +303,7 @@ public class ProfileService {
                 profileSeekResDtos.add(new ProfileSeekResDto(u, List.of()));
         }
 
-        return new ProfileSeekPageDto(profileSeekResDtos, users.getTotalPages());
+        return new ProfileSeekPageDto(profileSeekResDtos, users.getTotalElements());
     }
 
     /**

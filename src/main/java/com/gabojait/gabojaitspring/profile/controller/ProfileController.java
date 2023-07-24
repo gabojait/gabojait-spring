@@ -419,7 +419,7 @@ public class ProfileController {
                         .responseCode(USERS_SEEKING_TEAM_FOUND.name())
                         .responseMessage(USERS_SEEKING_TEAM_FOUND.getMessage())
                         .data(response.getProfileSeekResDtos())
-                        .size(response.getTotalPages())
+                        .size(response.getPageSize())
                         .build());
     }
 

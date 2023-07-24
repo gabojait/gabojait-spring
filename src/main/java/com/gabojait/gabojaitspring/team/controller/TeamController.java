@@ -272,7 +272,7 @@ public class TeamController {
                         .responseCode(TEAMS_RECRUITING_USERS_FOUND.name())
                         .responseMessage(TEAMS_RECRUITING_USERS_FOUND.getMessage())
                         .data(responses)
-                        .size(teams.getTotalPages())
+                        .size(teams.getTotalElements())
                         .build());
     }
 

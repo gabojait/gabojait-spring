@@ -2,10 +2,8 @@ package com.gabojait.gabojaitspring.common.util;
 
 import com.gabojait.gabojaitspring.user.domain.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -35,7 +33,7 @@ public class GeneralProvider {
     /**
      * 페이징 검증
      */
-    public Pageable validatePaging(Integer pageFrom, Integer pageSize, int defaultPageSize) {
+    public Pageable validatePaging(Integer pageFrom, Integer pageSize, Integer defaultPageSize) {
         if (pageSize == null || pageSize <= 0)
             pageSize = defaultPageSize;
 

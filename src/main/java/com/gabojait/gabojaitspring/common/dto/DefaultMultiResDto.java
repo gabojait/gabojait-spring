@@ -13,7 +13,7 @@ public class DefaultMultiResDto<T> extends DefaultNoResDto {
     private PageDataDto responseData;
 
     @Builder(builderMethodName = "multiDataBuilder", builderClassName = "multiDataBuilder")
-    public DefaultMultiResDto(String responseCode, String responseMessage, final T data, final int size) {
+    public DefaultMultiResDto(String responseCode, String responseMessage, final T data, final long size) {
         super(responseCode, responseMessage);
 
         this.responseData = PageDataDto.builder()

@@ -9,10 +9,10 @@ import lombok.Data;
 public class PageDataDto<T>  {
 
     private T data;
-    private Integer size;
+    private Long size;
 
     @Builder
-    public PageDataDto(final T data, final Integer size) {
+    public PageDataDto(final T data, final long size) {
         this.data = data;
         this.size = size;
     }

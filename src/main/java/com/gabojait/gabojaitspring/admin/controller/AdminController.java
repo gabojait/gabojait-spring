@@ -161,7 +161,7 @@ public class AdminController {
                         .responseCode(UNREGISTERED_ADMIN_FOUND.name())
                         .responseMessage(UNREGISTERED_ADMIN_FOUND.getMessage())
                         .data(responses)
-                        .size(admins.getTotalPages())
+                        .size(admins.getTotalElements())
                         .build());
     }
 

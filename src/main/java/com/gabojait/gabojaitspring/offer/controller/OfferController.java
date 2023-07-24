@@ -177,7 +177,7 @@ public class OfferController {
                         .responseCode(OFFER_BY_TEAM_FOUND.name())
                         .responseMessage(OFFER_BY_TEAM_FOUND.getMessage())
                         .data(responses)
-                        .size(offers.getTotalPages())
+                        .size(offers.getTotalElements())
                         .build());
     }
 
@@ -223,7 +223,7 @@ public class OfferController {
                         .responseCode(OFFER_BY_USER_FOUND.name())
                         .responseMessage(OFFER_BY_USER_FOUND.getMessage())
                         .data(responses)
-                        .size(offers.getTotalPages())
+                        .size(offers.getTotalElements())
                         .build());
     }
 

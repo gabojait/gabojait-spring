@@ -11,10 +11,10 @@ import java.util.List;
 public class ProfileSeekPageDto {
 
     private final List<ProfileSeekResDto> profileSeekResDtos;
-    private final int totalPages;
+    private final long pageSize;
 
-    public ProfileSeekPageDto(List<ProfileSeekResDto> profileSeekResDtos, int totalPages) {
+    public ProfileSeekPageDto(List<ProfileSeekResDto> profileSeekResDtos, long pageSize) {
         this.profileSeekResDtos = profileSeekResDtos;
-        this.totalPages = totalPages;
+        this.pageSize = pageSize;
     }
 }

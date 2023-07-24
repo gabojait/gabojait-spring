@@ -142,7 +142,7 @@ public class FavoriteController {
                         .responseCode(FAVORITE_TEAMS_FOUND.name())
                         .responseMessage(FAVORITE_TEAMS_FOUND.getMessage())
                         .data(responses)
-                        .size(responses.size())
+                        .size(favoriteTeams.getTotalElements())
                         .build());
     }
 
