@@ -36,9 +36,9 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 
@@ -120,7 +120,13 @@ public class DevelopService {
      */
     public void sendTestFcm(long userId, String title, String body) {
         User user = findOneUser(userId);
-        fcmProvider.sendOne(user, title, body);
+
+        Map<String, String> data = new HashMap<>();
+        data.put("title", title);
+        data.put("body", body);
+        data.put("time", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+
+        fcmProvider.sendOne(user, data);
     }
 
     /**

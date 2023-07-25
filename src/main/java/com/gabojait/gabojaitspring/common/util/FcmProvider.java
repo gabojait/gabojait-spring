@@ -7,15 +7,16 @@ import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.MulticastMessage;
-import com.google.firebase.messaging.Notification;
+import com.google.firebase.messaging.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Component
@@ -38,9 +39,10 @@ public class FcmProvider {
                 fcmTokens.add(fcm.getFcmToken());
 
             if (!fcmTokens.isEmpty()) {
-                MulticastMessage multicastMessage = createMulticastMessage(fcmTokens,
-                        team.getProjectName() + "팀 합류",
+                Map<String, String> data = setFcmData(team.getProjectName() + "팀 합류",
                         Position.toKorean(offer.getPosition()) + "로서 역량을 펼쳐보세요!");
+
+                MulticastMessage multicastMessage = createMulticastMessage(fcmTokens, data);
 
                 sendMulticast(multicastMessage);
             }
@@ -50,9 +52,11 @@ public class FcmProvider {
 
         if (fcmTokens.isEmpty())
             return;
-        MulticastMessage multicastMessage = createMulticastMessage(fcmTokens,
-                "새로운 " + Position.toKorean(offer.getPosition()) + " 팀원 합류",
+
+        Map<String, String> data = setFcmData("새로운 " + Position.toKorean(offer.getPosition()) + " 팀원 합류",
                 user.getUsername() + "님이 " + Position.toKorean(offer.getPosition()) + "로 팀에 합류하였어요.");
+
+        MulticastMessage multicastMessage = createMulticastMessage(fcmTokens, data);
 
         sendMulticast(multicastMessage);
     }
@@ -68,9 +72,10 @@ public class FcmProvider {
                 fcmTokens.add(fcm.getFcmToken());
 
             if (!fcmTokens.isEmpty()) {
-                MulticastMessage multicastMessage = createMulticastMessage(fcmTokens,
-                        team.getProjectName() + "팀에서 추방",
+                Map<String, String> data = setFcmData(team.getProjectName() + "팀에서 추방",
                         team.getProjectName() + "팀에서 추방 되었어요. 아쉽지만 새로운 팀을 찾아보세요.");
+
+                MulticastMessage multicastMessage = createMulticastMessage(fcmTokens, data);
 
                 sendMulticast(multicastMessage);
             }
@@ -81,9 +86,10 @@ public class FcmProvider {
         if (fcmTokens.isEmpty())
             return;
 
-        MulticastMessage multicastMessage = createMulticastMessage(fcmTokens,
-                user.getUsername() + "님 팀에서 추방",
+        Map<String, String> data = setFcmData(user.getUsername() + "님 팀에서 추방",
                 user.getUsername() + "님이 팀장에 의해 추방되었어요.");
+
+        MulticastMessage multicastMessage = createMulticastMessage(fcmTokens, data);
 
         sendMulticast(multicastMessage);
     }
@@ -98,9 +104,10 @@ public class FcmProvider {
         if (fcmTokens.isEmpty())
             return;
 
-        MulticastMessage multicastMessage = createMulticastMessage(fcmTokens,
-                user.getUsername() + "님 팀 탈퇴",
+        Map<String, String> data = setFcmData(user.getUsername() + "님 팀 탈퇴",
                 user.getUsername() + "님이 팀에서 탈퇴하였습니다.");
+
+        MulticastMessage multicastMessage = createMulticastMessage(fcmTokens, data);
 
         sendMulticast(multicastMessage);
     }
@@ -115,9 +122,10 @@ public class FcmProvider {
         if (fcmTokens.isEmpty())
             return;
 
-        MulticastMessage multicastMessage = createMulticastMessage(fcmTokens,
-                team.getProjectName() + "팀 해산",
+        Map<String, String> data = setFcmData(team.getProjectName() + "팀 해산",
                 "아쉽지만 팀장에 의해 " + team.getProjectName() + "팀이 해산 되었어요.");
+
+        MulticastMessage multicastMessage = createMulticastMessage(fcmTokens, data);
 
         sendMulticast(multicastMessage);
     }
@@ -132,9 +140,10 @@ public class FcmProvider {
         if (fcmTokens.isEmpty())
             return;
 
-        MulticastMessage multicastMessage = createMulticastMessage(fcmTokens,
-                team.getProjectName() + " 프로젝트로 완료",
+        Map<String, String> data = setFcmData(team.getProjectName() + " 프로젝트로 완료",
                 "수고하셧어요! 프로젝트를 완료했어요. 팀원 리뷰를 작성해보세요!");
+
+        MulticastMessage multicastMessage = createMulticastMessage(fcmTokens, data);
 
         sendMulticast(multicastMessage);
     }
@@ -149,9 +158,12 @@ public class FcmProvider {
         if (fcmTokens.isEmpty())
             return;
 
-        MulticastMessage multicastMessage = createMulticastMessage(fcmTokens,
+        Map<String, String> data = setFcmData(
                 team.getProjectName() + "팀 프로필 수정",
-                team.getProjectName() + "팀 프로필이 팀장에 의해 수정되었습니다.");
+                team.getProjectName() + "팀 프로필이 팀장에 의해 수정되었습니다."
+        );
+
+        MulticastMessage multicastMessage = createMulticastMessage(fcmTokens, data);
 
         sendMulticast(multicastMessage);
     }
@@ -170,9 +182,13 @@ public class FcmProvider {
                 fcmTokens.add(fcm.getFcmToken());
 
             if (!fcmTokens.isEmpty()) {
-                MulticastMessage multicastMessage = createMulticastMessage(fcmTokens,
+                Map<String, String> data = setFcmData(
                         Position.toKorean(offer.getPosition()) + " 스카웃 제의",
-                        team.getProjectName() + "팀에서 " + Position.toKorean(offer.getPosition()) + " 스카웃 제의가 왔어요!");
+                        team.getProjectName() + "팀에서 " + Position.toKorean(offer.getPosition()) +
+                                " 스카웃 제의가 왔어요!"
+                );
+
+                MulticastMessage multicastMessage = createMulticastMessage(fcmTokens, data);
 
                 sendMulticast(multicastMessage);
             }
@@ -201,9 +217,12 @@ public class FcmProvider {
                 fcmTokens.add(fcm.getFcmToken());
 
             if (!fcmTokens.isEmpty()) {
-                MulticastMessage multicastMessage = createMulticastMessage(fcmTokens,
+                Map<String, String> data = setFcmData(
                         Position.toKorean(offer.getPosition()) + " 지원",
-                        Position.toKorean(offer.getPosition()) + offer.getUser().getUsername() + "님이 지원을 했습니다!");
+                        Position.toKorean(offer.getPosition()) + offer.getUser().getUsername() + "님이 지원을 했습니다!"
+                );
+
+                MulticastMessage multicastMessage = createMulticastMessage(fcmTokens, data);
 
                 sendMulticast(multicastMessage);
             }
@@ -213,13 +232,13 @@ public class FcmProvider {
     /**
      * 알림 단건 전송
      */
-    public void sendOne(User user, String title, String message) {
+    public void sendOne(User user, Map<String, String> data) {
         Set<String> fcmTokens = new HashSet<>();
         for(Fcm fcm : user.getFcms())
             fcmTokens.add(fcm.getFcmToken());
 
         if (!fcmTokens.isEmpty() && user.getIsNotified()) {
-            MulticastMessage multicastMessage = createMulticastMessage(fcmTokens, title, message);
+            MulticastMessage multicastMessage = createMulticastMessage(fcmTokens, data);
 
             sendMulticast(multicastMessage);
         }
@@ -228,14 +247,24 @@ public class FcmProvider {
     /**
      * 멀티캐스트 메세지 생성
      */
-    private MulticastMessage createMulticastMessage(Set<String> fcmTokens, String title, String body) {
+    private MulticastMessage createMulticastMessage(Set<String> fcmTokens, Map<String, String> data) {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("apns-push-type", "background");
+        headers.put("apns-priority", "5");
+        headers.put("topic", "com.gabojait");
+
         return MulticastMessage.builder()
                 .addAllTokens(fcmTokens)
-                .setNotification(Notification.builder()
-                        .setTitle(title)
-                        .setBody(body)
+                .putAllData(data)
+                .setAndroidConfig(AndroidConfig.builder()
+                        .setPriority(AndroidConfig.Priority.HIGH)
                         .build())
-                .putData("time", LocalDateTime.now().toString())
+                .setApnsConfig(ApnsConfig.builder()
+                        .setAps(Aps.builder()
+                                .setContentAvailable(true)
+                                .build())
+                        .putAllHeaders(headers)
+                        .build())
                 .build();
     }
 
@@ -281,5 +310,18 @@ public class FcmProvider {
         }
 
         return fcmTokens;
+    }
+
+    /**
+     * FCM 데이터 생성
+     */
+    private Map<String, String> setFcmData(String title, String body) {
+        Map<String, String> data = new HashMap<>();
+
+        data.put("title", title);
+        data.put("body", body);
+        data.put("time", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+
+        return data;
     }
 }
