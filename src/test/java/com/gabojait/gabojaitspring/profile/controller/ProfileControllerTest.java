@@ -1089,17 +1089,20 @@ class ProfileControllerTest extends WebMvc {
         String positionReqDto = Position.BACKEND.name().toLowerCase();
 
         SkillDefaultReqDto skillDefaultReqDto = new SkillDefaultReqDto();
+        skillDefaultReqDto.setSkillId(null);
         skillDefaultReqDto.setSkillName("스프링");
         skillDefaultReqDto.setIsExperienced(true);
         skillDefaultReqDto.setLevel(Level.MID.name().toLowerCase());
 
         EducationDefaultReqDto educationDefaultReqDto = new EducationDefaultReqDto();
+        educationDefaultReqDto.setEducationId(null);
         educationDefaultReqDto.setInstitutionName("하버드대학교");
         educationDefaultReqDto.setStartedAt(LocalDate.of(2019, 3, 1));
         educationDefaultReqDto.setEndedAt(LocalDate.of(2023, 8, 1));
         educationDefaultReqDto.setIsCurrent(true);
 
         WorkDefaultReqDto workDefaultReqDto = new WorkDefaultReqDto();
+        workDefaultReqDto.setWorkId(null);
         workDefaultReqDto.setCorporationName("가보자잇사");
         workDefaultReqDto.setWorkDescription("가보자잇에서 백엔드 개발");
         workDefaultReqDto.setStartedAt(LocalDate.of(2023, 9, 1));
@@ -1107,6 +1110,7 @@ class ProfileControllerTest extends WebMvc {
         workDefaultReqDto.setIsCurrent(true);
 
         PortfolioDefaultReqDto portfolioDefaultReqDto = new PortfolioDefaultReqDto();
+        portfolioDefaultReqDto.setPortfolioId(null);
         portfolioDefaultReqDto.setPortfolioName("깃허브");
         portfolioDefaultReqDto.setPortfolioUrl("github.com/gabojait");
         portfolioDefaultReqDto.setMedia(Media.LINK.name().toLowerCase());
