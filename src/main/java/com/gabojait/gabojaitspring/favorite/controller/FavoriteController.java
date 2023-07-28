@@ -153,7 +153,7 @@ public class FavoriteController {
                     "- 400 = USER_ID_FIELD_REQUIRED || USER_ID_POSITIVE_ONLY || IS_ADD_FAVORITE_FIELD_REQUIRED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
-                    "- 404 = USER_NOT_FOUND || CURRENT_TEAM_NOT_FOUND || FAVORITE_USER_NOT_FOUND\n" +
+                    "- 404 = USER_NOT_FOUND || CURRENT_TEAM_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {

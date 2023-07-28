@@ -14,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 
 @Service
@@ -28,7 +30,7 @@ public class FavoriteTeamService {
 
     /**
      * 찜한 팀 업데이트 |
-     * 404(TEAM_NOT_FOUND / FAVORITE_TEAM_NOT_FOUND)
+     * 404(USER_NOT_FOUND / TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
     public void update(long userId, Long teamId, boolean isAdd) {
@@ -42,26 +44,28 @@ public class FavoriteTeamService {
     }
 
     /**
-     * 찜한 팀 생성 |
-     * 500(SERVER_ERROR)
+     * 찜한 팀 생성
      */
     private void create(User user, Team team) {
-        FavoriteTeam favoriteTeam = FavoriteTeam.builder()
-                .user(user)
-                .team(team)
-                .build();
+        Optional<FavoriteTeam> foundFavoriteTeam = findOneFavoriteTeam(user, team);
 
-        saveFavoriteTeam(favoriteTeam);
+        if (foundFavoriteTeam.isEmpty()) {
+            FavoriteTeam favoriteTeam = FavoriteTeam.builder()
+                    .user(user)
+                    .team(team)
+                    .build();
+
+            saveFavoriteTeam(favoriteTeam);
+        }
     }
 
     /**
-     * 찜한 팀 삭제 |
-     * 404(FAVORITE_TEAM_NOT_FOUND)
+     * 찜한 팀 삭제
      */
     private void delete(User user, Team team) {
-        FavoriteTeam favoriteTeam = findOneFavoriteTeam(user, team);
+        Optional<FavoriteTeam> favoriteTeam = findOneFavoriteTeam(user, team);
 
-        favoriteTeam.delete();
+        favoriteTeam.ifPresent(FavoriteTeam::delete);
     }
 
     /**
@@ -77,14 +81,10 @@ public class FavoriteTeamService {
     }
 
     /**
-     * 회원과 팀으로 찜한 팀 단건 조회 |
-     * 500(SERVER_ERROR)
+     * 회원과 팀으로 찜한 팀 단건 조회
      */
-    private FavoriteTeam findOneFavoriteTeam(User user, Team team) {
-        return favoriteTeamRepository.findByUserAndTeamAndIsDeletedIsFalse(user, team)
-                .orElseThrow(() -> {
-                    throw new CustomException(FAVORITE_TEAM_NOT_FOUND);
-                });
+    private Optional<FavoriteTeam> findOneFavoriteTeam(User user, Team team) {
+        return favoriteTeamRepository.findByUserAndTeamAndIsDeletedIsFalse(user, team);
     }
 
     /**

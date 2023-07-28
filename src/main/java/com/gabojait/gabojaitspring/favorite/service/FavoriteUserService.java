@@ -15,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 
 @Service
@@ -30,7 +32,8 @@ public class FavoriteUserService {
     /**
      * 찜한 회원 업데이트 |
      * 403(REQUEST_FORBIDDEN)
-     * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND / FAVORITE_USER_NOT_FOUND)
+     * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND)
+     * 500(SERVER_ERROR)
      */
     public void update(long userId, Long otherUserId, boolean isAdd) {
         User leader = findOneUser(userId);
@@ -41,9 +44,9 @@ public class FavoriteUserService {
         User otherUser = findOneUser(otherUserId);
 
         if (isAdd)
-            createFavoriteUser(team, otherUser);
+            create(team, otherUser);
         else
-            softDeleteFavoriteUser(team, otherUser);
+            delete(team, otherUser);
     }
 
     /**
@@ -66,26 +69,28 @@ public class FavoriteUserService {
         }
     }
     /**
-     * 찜한 팀 생성 |
-     * 500(SERVER_ERROR)
+     * 찜한 팀 생성
      */
-    private void createFavoriteUser(Team team, User user) {
-        FavoriteUser favoriteUser = FavoriteUser.builder()
-                .user(user)
-                .team(team)
-                .build();
+    private void create(Team team, User user) {
+        Optional<FavoriteUser> foundFavoriteUser = findOneFavoriteUser(team, user);
 
-        saveFavoriteUser(favoriteUser);
+        if (foundFavoriteUser.isEmpty()) {
+            FavoriteUser favoriteUser = FavoriteUser.builder()
+                    .user(user)
+                    .team(team)
+                    .build();
+
+            saveFavoriteUser(favoriteUser);
+        }
     }
 
     /**
-     * 찜한 회원 삭제 |
-     * 404(FAVORITE_USER_NOT_FOUND)
+     * 찜한 회원 삭제
      */
-    private void softDeleteFavoriteUser(Team team, User user) {
-        FavoriteUser favoriteUser = findOneFavoriteUser(team, user);
+    private void delete(Team team, User user) {
+        Optional<FavoriteUser> favoriteUser = findOneFavoriteUser(team, user);
 
-        favoriteUser.delete();
+        favoriteUser.ifPresent(FavoriteUser::delete);
     }
 
     /**
@@ -101,14 +106,10 @@ public class FavoriteUserService {
     }
 
     /**
-     * 회원과 팀으로 찜한 회원 단건 조회 |
-     * 404(FAVORITE_USER_NOT_FOUND)
+     * 회원과 팀으로 찜한 회원 단건 조회
      */
-    private FavoriteUser findOneFavoriteUser(Team team, User user) {
-        return favoriteUserRepository.findByTeamAndUserAndIsDeletedIsFalse(team, user)
-                .orElseThrow(() -> {
-                    throw new CustomException(FAVORITE_USER_NOT_FOUND);
-                });
+    private Optional<FavoriteUser> findOneFavoriteUser(Team team, User user) {
+        return favoriteUserRepository.findByTeamAndUserAndIsDeletedIsFalse(team, user);
     }
 
     /**
