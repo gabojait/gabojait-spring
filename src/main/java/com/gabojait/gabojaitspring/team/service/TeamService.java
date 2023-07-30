@@ -143,8 +143,11 @@ public class TeamService {
      * 팀원 추방 |
      * 403(REQUEST_FORBIDDEN)
      * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND)
+     * 409(SELF_FIRE_UNAVAILABLE)
      */
     public void fire(long leaderUserId, Long userId) {
+        validateSelfFire(leaderUserId, userId);
+
         User leader = findOneUser(leaderUserId);
         TeamMember leaderTeamMember = findOneCurrentTeamMember(leader);
 
@@ -609,6 +612,15 @@ public class TeamService {
 
         if (isFull)
             throw new CustomException(TEAM_POSITION_UNAVAILABLE);
+    }
+
+    /**
+     * 본인 추방 검증 |
+     * 409(SELF_FIRE_UNAVAILABLE)
+     */
+    private void validateSelfFire(long userId, long otherUserId) {
+        if (userId == otherUserId)
+            throw new CustomException(SELF_FIRE_UNAVAILABLE);
     }
 
     /**
