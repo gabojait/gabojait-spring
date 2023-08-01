@@ -4,6 +4,7 @@ import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.WebMvc;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.team.domain.Team;
+import com.gabojait.gabojaitspring.team.domain.type.TeamOrder;
 import com.gabojait.gabojaitspring.team.dto.req.TeamCompleteReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamDefaultReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamIsRecruitingUpdateReqDto;
@@ -1133,7 +1134,7 @@ class TeamControllerTest extends WebMvc {
     }
 
     private String getValidTeamOrder() {
-        return "created";
+        return TeamOrder.CREATED.name();
     }
 
     private Integer getValidPageFrom() {
