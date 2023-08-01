@@ -427,10 +427,10 @@ public class UserController {
     })
     @PatchMapping("/password")
     public ResponseEntity<DefaultNoResDto> updatePassword(HttpServletRequest servletRequest,
-                                                                @RequestBody @Valid UserUpdatePasswordReqDto request) {
+                                                          @RequestBody @Valid UserUpdatePasswordReqDto request) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        userService.updatePassword(userId, request.getPassword(), request.getPassword(), false);
+        userService.updatePassword(userId, request.getPassword(), request.getPasswordReEntered(), false);
 
         return ResponseEntity.status(PASSWORD_UPDATED.getHttpStatus())
                 .body(DefaultNoResDto.noDataBuilder()
