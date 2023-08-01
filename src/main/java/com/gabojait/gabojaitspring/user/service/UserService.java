@@ -324,7 +324,7 @@ public class UserService {
      */
     private Optional<UserRole> findOneUserRole(User user) {
         try {
-            return userRoleRepository.findByUserAndRole(user, Role.USER.name());
+            return userRoleRepository.findByUserAndRole(user, Role.USER);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
