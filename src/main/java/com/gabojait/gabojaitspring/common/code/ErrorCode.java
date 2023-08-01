@@ -90,7 +90,7 @@ public enum ErrorCode {
     ADMIN_NAME_FORMAT_INVALID(BAD_REQUEST, "아이디는 소문자 영어와 숫자의 조합 그리고 '_admin'으로 끝나게 입력해 주세요."),
 
     // @Patter - type
-    GENDER_TYPE_INVALID(BAD_REQUEST, "성별은 'male', 'female', 또는 'none' 중 하나여야 됩니다."),
+    GENDER_TYPE_INVALID(BAD_REQUEST, "성별은 'M', 'F', 또는 'N' 중 하나여야 됩니다."),
     POSITION_TYPE_INVALID(BAD_REQUEST, "포지션은 'designer', 'backend', 'frontend', 'manager', 또는 'none' 중 하나여야 됩니다."),
     LEVEL_TYPE_INVALID(BAD_REQUEST, "레벨은 'low', 'mid', 또는 'high' 중 하나여야 됩니다."),
     MEDIA_TYPE_INVALID(BAD_REQUEST, "미디어는 'link' 또는 'file' 중 하나여야 됩니다."),
