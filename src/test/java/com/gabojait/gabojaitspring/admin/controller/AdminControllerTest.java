@@ -8,6 +8,7 @@ import com.gabojait.gabojaitspring.admin.service.MasterService;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.WebMvc;
 import com.gabojait.gabojaitspring.user.domain.User;
+import com.gabojait.gabojaitspring.user.domain.type.Gender;
 import com.gabojait.gabojaitspring.user.domain.type.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -655,7 +656,7 @@ class AdminControllerTest extends WebMvc {
         reqDto.setPassword("password1!");
         reqDto.setPasswordReEntered("password1!");
         reqDto.setLegalName("김가보자잇");
-        reqDto.setGender("male");
+        reqDto.setGender(Gender.M.name());
         reqDto.setBirthdate(LocalDate.of(1997, 2, 11));
         return reqDto;
     }
