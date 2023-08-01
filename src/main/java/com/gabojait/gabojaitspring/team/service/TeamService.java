@@ -275,21 +275,20 @@ public class TeamService {
      * 500(SERVER_ERROR)
      */
     public Page<Team> findManyTeamByPositionOrder(String position,
-                                                  String teamOrder,
+                                                  TeamOrder teamOrder,
                                                   Integer pageFrom,
                                                   Integer pageSize) {
         Position p = Position.fromString(position);
-        TeamOrder to = TeamOrder.fromString(teamOrder);
         Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
 
         Page<Team> teams;
 
         if (p.equals(Position.NONE)) {
-            switch (to.name().toLowerCase()) {
-                case "active":
+            switch (teamOrder.name()) {
+                case "ACTIVE":
                     teams = findManyTeamOrderByActive(pageable);
                     break;
-                case "popularity":
+                case "POPULARITY":
                     teams = findManyTeamOrderByPopularity(pageable);
                     break;
                 default:
@@ -297,11 +296,11 @@ public class TeamService {
                     break;
             }
         } else {
-            switch (to.name()) {
-                case "active":
+            switch (teamOrder.name()) {
+                case "ACTIVE":
                     teams = findManyTeamByPositionOrderByActive(p, pageable);
                     break;
-                case "popularity":
+                case "POPULARITY":
                     teams = findManyTeamByPositionOrderByPopularity(p, pageable);
                     break;
                 default:

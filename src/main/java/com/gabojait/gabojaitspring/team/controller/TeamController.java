@@ -6,6 +6,7 @@ import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
 import com.gabojait.gabojaitspring.common.dto.DefaultSingleResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.team.domain.Team;
+import com.gabojait.gabojaitspring.team.domain.type.TeamOrder;
 import com.gabojait.gabojaitspring.team.dto.req.TeamCompleteReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamDefaultReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamIsRecruitingUpdateReqDto;
@@ -215,10 +216,10 @@ public class TeamController {
             notes = "<옵션>\n" +
                     "- position[default: none] = designer(디자이너만) || backend(백엔드만) || frontend(프론트엔드만) || " +
                     "manager(매니저만) || none(전체)\n" +
-                    "- team-order[default: created] = created(생성순) || active(활동순) || popularity(인기순)\n\n" +
+                    "- team-order[default: CREATED] = CREATED(생성순) || ACTIVE(활동순) || POPULARITY(인기순)\n\n" +
                     "<검증>\n" +
                     "- position = NotBlank && Pattern(regex = ^(designer|backend|frontend|manager|none))\n" +
-                    "- team-order = NotBlank && Pattern(regex = ^(created|active|popularity))\n" +
+                    "- team-order = NotBlank && Pattern(regex = ^(CREATED|ACTIVE|POPULARITY))\n" +
                     "- page-from = NotNull && PositiveOrZero\n" +
                     "- page-size = Positive\n\n" +
                     "<응답 코드>\n" +
@@ -249,8 +250,8 @@ public class TeamController {
             String position,
             @RequestParam(value = "team-order", required = false)
             @NotBlank(message = "팀 정렬 기준은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-            @Pattern(regexp = "^(created|active|popularity)",
-                    message = "팀 정렬 기준은 'created', 'active', 또는 'popularity', 중 하나여야 됩니다.",
+            @Pattern(regexp = "^(CREATED|ACTIVE|POPULARITY)",
+                    message = "팀 정렬 기준은 'CREATED', 'ACTIVE', 또는 'POPULARITY', 중 하나여야 됩니다.",
                     groups = ValidationSequence.Format.class)
             String teamOrder,
             @RequestParam(value = "page-from", required = false)
@@ -261,7 +262,10 @@ public class TeamController {
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        Page<Team> teams = teamService.findManyTeamByPositionOrder(position, teamOrder, pageFrom, pageSize);
+        Page<Team> teams = teamService.findManyTeamByPositionOrder(position,
+                TeamOrder.valueOf(teamOrder),
+                pageFrom,
+                pageSize);
 
         List<TeamAbstractResDto> responses = new ArrayList<>();
         for (Team team : teams)
