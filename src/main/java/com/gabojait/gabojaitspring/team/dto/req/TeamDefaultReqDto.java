@@ -3,7 +3,6 @@ package com.gabojait.gabojaitspring.team.dto.req;
 import com.gabojait.gabojaitspring.common.util.validator.ValidIfPresent;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.exception.CustomException;
-import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
@@ -61,6 +60,10 @@ public class TeamDefaultReqDto {
         byte backendTotalRecruitCnt = 0;
         byte frontendTotalRecruitCnt = 0;
         byte managerTotalRecruitCnt = 0;
+        boolean isDesignerFull = true;
+        boolean isBackendFull = true;
+        boolean isFrontendFull = true;
+        boolean isManagerFull = true;
 
         switch (user.getPosition().name()) {
             case "DESIGNER":
@@ -79,22 +82,25 @@ public class TeamDefaultReqDto {
                 throw new CustomException(NON_EXISTING_POSITION);
         }
 
-        for(TeamMemberRecruitCntReqDto recruit : teamMemberRecruitCnts) {
+        for(TeamMemberRecruitCntReqDto recruit : teamMemberRecruitCnts)
             switch (recruit.getPosition()) {
                 case "DESIGNER":
                     designerTotalRecruitCnt += recruit.getTotalRecruitCnt();
+                    isDesignerFull = false;
                     break;
                 case "BACKEND":
                     backendTotalRecruitCnt += recruit.getTotalRecruitCnt();
+                    isBackendFull = false;
                     break;
                 case "FRONTEND":
                     frontendTotalRecruitCnt += recruit.getTotalRecruitCnt();
+                    isFrontendFull = false;
                     break;
                 case "MANAGER":
                     managerTotalRecruitCnt += recruit.getTotalRecruitCnt();
+                    isManagerFull = false;
                     break;
             }
-        }
 
         return Team.builder()
                 .projectName(this.projectName)
@@ -103,6 +109,10 @@ public class TeamDefaultReqDto {
                 .backendTotalRecruitCnt(backendTotalRecruitCnt)
                 .frontendTotalRecruitCnt(frontendTotalRecruitCnt)
                 .managerTotalRecruitCnt(managerTotalRecruitCnt)
+                .isDesignerFull(isDesignerFull)
+                .isBackendFull(isBackendFull)
+                .isFrontendFull(isFrontendFull)
+                .isManagerFull(isManagerFull)
                 .expectation(this.expectation)
                 .openChatUrl(this.openChatUrl)
                 .build();

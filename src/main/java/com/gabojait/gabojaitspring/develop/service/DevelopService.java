@@ -294,6 +294,10 @@ public class DevelopService {
                     .backendTotalRecruitCnt((byte) 2)
                     .frontendTotalRecruitCnt((byte) 2)
                     .managerTotalRecruitCnt((byte) 2)
+                    .isDesignerFull(false)
+                    .isBackendFull(false)
+                    .isFrontendFull(false)
+                    .isManagerFull(false)
                     .expectation("열정적인 팀원을 구합니다.")
                     .openChatUrl("https://open.kakao.com/o/test")
                     .build();
@@ -358,6 +362,10 @@ public class DevelopService {
                     .backendTotalRecruitCnt((byte) 2)
                     .frontendTotalRecruitCnt((byte) 2)
                     .managerTotalRecruitCnt((byte) 2)
+                    .isDesignerFull(false)
+                    .isBackendFull(false)
+                    .isFrontendFull(false)
+                    .isManagerFull(false)
                     .expectation("열정적인 팀원을 구합니다.")
                     .openChatUrl("https://open.kakao.com/o/test")
                     .build();

@@ -90,6 +90,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Gender gender;
     @Column(length = 20)
+    @Enumerated(EnumType.STRING)
     private Position position;
     private Boolean isSeekingTeam;
     private String imageUrl;
@@ -234,14 +235,14 @@ public class User extends BaseTimeEntity implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.userRoles.stream()
                 .map(userRole ->
-                        new SimpleGrantedAuthority(userRole.getRole()))
+                        new SimpleGrantedAuthority(userRole.getRole().name()))
                 .collect(Collectors.toList());
     }
 
     public Set<String> getRoles() {
         Set<String> roles = new HashSet<>();
         for(UserRole userRole : this.userRoles)
-            roles.add(userRole.getRole());
+            roles.add(userRole.getRole().name());
 
         return roles;
     }

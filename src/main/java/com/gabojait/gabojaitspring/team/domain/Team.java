@@ -79,6 +79,10 @@ public class Team extends BaseTimeEntity {
                 Byte backendTotalRecruitCnt,
                 Byte frontendTotalRecruitCnt,
                 Byte managerTotalRecruitCnt,
+                Boolean isDesignerFull,
+                Boolean isBackendFull,
+                Boolean isFrontendFull,
+                Boolean isManagerFull,
                 String expectation,
                 String openChatUrl) {
         this.projectName = projectName;
@@ -92,10 +96,10 @@ public class Team extends BaseTimeEntity {
 
         this.projectUrl = null;
         this.isRecruiting = true;
-        this.isDesignerFull = false;
-        this.isBackendFull = false;
-        this.isFrontendFull = false;
-        this.isManagerFull = false;
+        this.isDesignerFull = isDesignerFull;
+        this.isBackendFull = isBackendFull;
+        this.isFrontendFull = isFrontendFull;
+        this.isManagerFull = isManagerFull;
         this.completedAt = null;
         this.visitedCnt = 0L;
         this.userOfferCnt = 0;

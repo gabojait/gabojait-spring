@@ -22,11 +22,12 @@ public class UserRole {
     private User user;
 
     @Column(nullable = false, length = 6)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @Builder
     public UserRole(User user, Role role) {
         this.user = user;
-        this.role = role.name();
+        this.role = role;
     }
 }
