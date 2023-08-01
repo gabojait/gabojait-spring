@@ -86,8 +86,9 @@ public class User extends BaseTimeEntity implements UserDetails {
     private LocalDate birthdate;
     @Column(nullable = false)
     private LocalDateTime lastRequestAt;
-    @Column(nullable = false)
-    private Character gender;
+    @Column(nullable = false, length = 1)
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
     private Character position;
     private Boolean isSeekingTeam;
     private String imageUrl;
@@ -115,7 +116,7 @@ public class User extends BaseTimeEntity implements UserDetails {
                 Contact contact) {
         this.username = username;
         this.password = password;
-        this.gender = gender.getType();
+        this.gender = gender;
         this.birthdate = birthdate;
         this.nickname = nickname;
         this.contact = contact;
@@ -146,7 +147,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     public User(String username, String password, Gender gender, LocalDate birthdate, String legalName) {
         this.username = username;
         this.password = password;
-        this.gender = gender.getType();
+        this.gender = gender;
         this.birthdate = birthdate;
         this.nickname = legalName;
 
@@ -158,7 +159,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     public User(String username, String password) {
         this.username = username;
         this.password = password;
-        this.gender = Gender.NONE.getType();
+        this.gender = Gender.N;
 
         this.lastRequestAt = LocalDateTime.now();
         this.isDeleted = null;
@@ -169,7 +170,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.id = id;
         this.username = "tester";
         this.nickname = "테스터";
-        this.gender = Gender.NONE.getType();
+        this.gender = Gender.N;
         this.position = Position.NONE.getType();
         this.contact = Contact.builder()
                 .email("tester@gabojait.com")

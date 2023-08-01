@@ -18,8 +18,8 @@ public class AdminDefaultResDto extends AdminAbstractResDto {
     @ApiModelProperty(position = 5, required = true, value = "실명")
     private String legalName;
 
-    @ApiModelProperty(position = 6, required = true, value = "성별")
-    private String gender;
+    @ApiModelProperty(position = 6, required = true, value = "성별", allowableValues = "M, F")
+    private Gender gender;
 
     @ApiModelProperty(position = 7, required = true, value = "생년월일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
@@ -29,7 +29,7 @@ public class AdminDefaultResDto extends AdminAbstractResDto {
         super(admin);
 
         this.legalName = admin.getNickname();
-        this.gender = Gender.fromChar(admin.getGender()).name().toLowerCase();
+        this.gender = admin.getGender();
         this.birthdate = admin.getBirthdate();
     }
 }

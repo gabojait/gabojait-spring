@@ -161,7 +161,7 @@ public class DevelopService {
             User user = User.userBuilder()
                     .username("test" + n)
                     .password(generalProvider.encodePassword("password1!"))
-                    .gender(Gender.NONE)
+                    .gender(Gender.N)
                     .birthdate(LocalDate.of(2000, 1, (i % 30) + 1))
                     .nickname("테스트" + n)
                     .contact(contacts.get(i))

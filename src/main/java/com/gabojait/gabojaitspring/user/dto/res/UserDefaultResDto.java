@@ -25,8 +25,8 @@ public class UserDefaultResDto {
     @ApiModelProperty(position = 3, required = true, value = "닉네임")
     private String nickname;
 
-    @ApiModelProperty(position = 4, required = true, value = "성별", allowableValues = "male, female, none")
-    private String gender;
+    @ApiModelProperty(position = 4, required = true, value = "성별", allowableValues = "M, F, N")
+    private Gender gender;
 
     @ApiModelProperty(position = 5, required = true, value = "생년월일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
@@ -47,7 +47,7 @@ public class UserDefaultResDto {
         this.userId = user.getId();
         this.username = user.getUsername();
         this.nickname = user.getNickname();
-        this.gender = Gender.fromChar(user.getGender()).name().toLowerCase();
+        this.gender = user.getGender();
         this.birthdate = user.getBirthdate();
         this.contact = new ContactDefaultResDto(user.getContact());
         this.createdAt = user.getCreatedAt();

@@ -52,9 +52,9 @@ public class AdminRegisterReqDto {
     @Pattern(regexp = "^[가-힣]+$", message = "실명은 한글 조합으로 입력해 주세요.", groups = ValidationSequence.Format.class)
     private String legalName;
 
-    @ApiModelProperty(position = 5, required = true, value = "성별", example = "male", allowableValues = "male, female")
+    @ApiModelProperty(position = 5, required = true, value = "성별", example = "M", allowableValues = "M, F")
     @NotBlank(message = "성별은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-    @Pattern(regexp = "^(male|female)", message = "성별은 'male', 'female' 중 하나여야 됩니다.",
+    @Pattern(regexp = "^(M|F)", message = "성별은 'M', 'F' 중 하나여야 됩니다.",
             groups = ValidationSequence.Format.class)
     private String gender;
 
@@ -68,7 +68,7 @@ public class AdminRegisterReqDto {
                 .username(this.adminName)
                 .password(password)
                 .legalName(this.legalName)
-                .gender(Gender.fromString(this.gender))
+                .gender(Gender.valueOf(this.gender))
                 .birthdate(this.birthdate)
                 .build();
     }

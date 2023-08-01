@@ -3,6 +3,7 @@ package com.gabojait.gabojaitspring.user.controller;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.WebMvc;
 import com.gabojait.gabojaitspring.user.domain.User;
+import com.gabojait.gabojaitspring.user.domain.type.Gender;
 import com.gabojait.gabojaitspring.user.domain.type.Role;
 import com.gabojait.gabojaitspring.user.dto.req.*;
 import com.gabojait.gabojaitspring.user.service.UserService;
@@ -1103,7 +1104,7 @@ class UserControllerTest extends WebMvc {
         reqDto.setPassword("password123!");
         reqDto.setPasswordReEntered("password123!");
         reqDto.setNickname("테스터");
-        reqDto.setGender("none");
+        reqDto.setGender(Gender.N.name());
         reqDto.setBirthdate(LocalDate.of(1997, 2, 11));
         reqDto.setEmail("test@gabojait.com");
         return reqDto;
