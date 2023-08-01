@@ -748,7 +748,7 @@ class OfferControllerTest extends WebMvc {
 
     private OfferCreateReqDto getValidOfferCreateReqDto() {
         OfferCreateReqDto reqDto = new OfferCreateReqDto();
-        reqDto.setPosition(Position.DESIGNER.name().toLowerCase());
+        reqDto.setPosition(Position.DESIGNER.name());
         return reqDto;
     }
 

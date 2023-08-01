@@ -89,7 +89,8 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(nullable = false, length = 1)
     @Enumerated(EnumType.STRING)
     private Gender gender;
-    private Character position;
+    @Column(length = 20)
+    private Position position;
     private Boolean isSeekingTeam;
     private String imageUrl;
 
@@ -121,7 +122,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.nickname = nickname;
         this.contact = contact;
 
-        this.position = Position.NONE.getType();
+        this.position = Position.NONE;
         this.imageUrl = null;
         this.profileDescription = null;
         this.isSeekingTeam = true;
@@ -171,7 +172,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.username = "tester";
         this.nickname = "테스터";
         this.gender = Gender.N;
-        this.position = Position.NONE.getType();
+        this.position = Position.NONE;
         this.contact = Contact.builder()
                 .email("tester@gabojait.com")
                 .verificationCode("000000")
@@ -280,11 +281,11 @@ public class User extends BaseTimeEntity implements UserDetails {
      */
 
     public void updatePosition(Position position) {
-        this.position = position.getType();
+        this.position = position;
     }
 
     public boolean hasPosition() {
-        return !this.position.equals(Position.NONE.getType());
+        return !this.position.equals(Position.NONE);
     }
 
     public void updateProfileDescription(String profileDescription) {

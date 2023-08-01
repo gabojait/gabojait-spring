@@ -22,8 +22,8 @@ public class ProfileAbstractResDto {
     private String nickname;
 
     @ApiModelProperty(position = 3, required = true, value = "포지션",
-            allowableValues = "designer, backend, frontend, manager, none")
-    private String position;
+            allowableValues = "DESIGNER, BACKEND, FRONTEND, MANAGER, NONE")
+    private Position position;
 
     @ApiModelProperty(position = 4, required = true, value = "리뷰 수")
     private Integer reviewCnt;
@@ -42,7 +42,7 @@ public class ProfileAbstractResDto {
     public ProfileAbstractResDto(User user) {
         this.userId = user.getId();
         this.nickname = user.getNickname();
-        this.position = Position.fromChar(user.getPosition()).name().toLowerCase();
+        this.position = user.getPosition();
         this.reviewCnt = user.getReviewCnt();
         this.rating = user.getRating();
         this.createdAt = user.getCreatedAt();

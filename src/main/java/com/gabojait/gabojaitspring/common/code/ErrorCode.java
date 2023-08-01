@@ -91,11 +91,11 @@ public enum ErrorCode {
 
     // @Patter - type
     GENDER_TYPE_INVALID(BAD_REQUEST, "성별은 'M', 'F', 또는 'N' 중 하나여야 됩니다."),
-    POSITION_TYPE_INVALID(BAD_REQUEST, "포지션은 'designer', 'backend', 'frontend', 'manager', 또는 'none' 중 하나여야 됩니다."),
-    LEVEL_TYPE_INVALID(BAD_REQUEST, "레벨은 'low', 'mid', 또는 'high' 중 하나여야 됩니다."),
-    MEDIA_TYPE_INVALID(BAD_REQUEST, "미디어는 'link' 또는 'file' 중 하나여야 됩니다."),
-    PROFILE_ORDER_TYPE_INVALID(BAD_REQUEST, "순서는 'active', 'popularity', 또는 'rating' 중 하나여야 됩니다."),
-    TEAM_ORDER_TYPE_INVALID(BAD_REQUEST, "순서는 'created', 'active', 또는 'popularity' 중 하나여야 됩니다."),
+    POSITION_TYPE_INVALID(BAD_REQUEST, "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다."),
+    LEVEL_TYPE_INVALID(BAD_REQUEST, "레벨은 'LOW', 'MID', 또는 'HIGH' 중 하나여야 됩니다."),
+    MEDIA_TYPE_INVALID(BAD_REQUEST, "미디어는 'LINK' 또는 'FILE' 중 하나여야 됩니다."),
+    PROFILE_ORDER_TYPE_INVALID(BAD_REQUEST, "순서는 'ACTIVE', 'POPULARITY', 또는 'RATING' 중 하나여야 됩니다."),
+    TEAM_ORDER_TYPE_INVALID(BAD_REQUEST, "순서는 'CREATED', 'ACTIVE', 또는 'POPULARITY' 중 하나여야 됩니다."),
 
     // @Range
     RATE_RANGE_INVALID(BAD_REQUEST, "평점은 1부터 5까지의 수만 가능합니다."),

@@ -21,11 +21,11 @@ public class SkillDefaultResDto {
     @ApiModelProperty(position = 2, required = true, value = "기술명")
     private String skillName;
 
-    @ApiModelProperty(position = 3, required = true, value = "경험여부")
+    @ApiModelProperty(position = 3, required = true, value = "경험여부", allowableValues = "true, false")
     private Boolean isExperienced;
 
-    @ApiModelProperty(position = 4, required = true, value = "레벨")
-    private String level;
+    @ApiModelProperty(position = 4, required = true, value = "레벨", allowableValues = "LOW, MID, HIGH")
+    private Level level;
 
     @ApiModelProperty(position = 5, required = true, value = "생성일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
@@ -39,7 +39,7 @@ public class SkillDefaultResDto {
         this.skillId = skill.getId();
         this.skillName = skill.getSkillName();
         this.isExperienced = skill.getIsExperienced();
-        this.level = Level.fromChar(skill.getLevel()).name().toLowerCase();
+        this.level = skill.getLevel();
         this.createdAt = skill.getCreatedAt();
         this.updatedAt = skill.getUpdatedAt();
     }

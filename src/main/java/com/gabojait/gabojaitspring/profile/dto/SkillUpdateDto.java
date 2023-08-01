@@ -19,6 +19,6 @@ public class SkillUpdateDto {
         this.prevSkill = prevSkill;
         this.skillName = newSkill.getSkillName().trim();
         this.isExperienced = newSkill.getIsExperienced();
-        this.level = Level.fromString(newSkill.getLevel());
+        this.level = Level.valueOf(newSkill.getLevel());
     }
 }

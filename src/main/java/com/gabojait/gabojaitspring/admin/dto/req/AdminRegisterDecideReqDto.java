@@ -17,7 +17,7 @@ import javax.validation.constraints.NotNull;
 @ApiModel(value = "관리자 가입 승인 요청")
 public class AdminRegisterDecideReqDto {
 
-    @ApiModelProperty(position = 1, required = true, value = "승인 여부", example = "true")
+    @ApiModelProperty(position = 1, required = true, value = "승인 여부", example = "true", allowableValues = "true, false")
     @NotNull(message = "승인 여부는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
     private Boolean isApproved;
 }

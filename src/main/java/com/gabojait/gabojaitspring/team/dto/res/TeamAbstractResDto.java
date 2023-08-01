@@ -52,17 +52,17 @@ public class TeamAbstractResDto {
 
             this.teamMembers.add(new TeamMemberPositionResDto(teamMember));
 
-            switch (teamMember.getPosition()) {
-                case 'D':
+            switch (teamMember.getPosition().name()) {
+                case "DESIGNER":
                     designerCnt++;
                     break;
-                case 'B':
+                case "BACKEND":
                     backendCnt++;
                     break;
-                case 'F':
+                case "FRONTEND":
                     frontendCnt++;
                     break;
-                case 'M':
+                case "MANAGER":
                     managerCnt++;
                     break;
             }
@@ -71,7 +71,7 @@ public class TeamAbstractResDto {
         if (team.getDesignerTotalRecruitCnt() != 0)
             this.teamMemberCnts.add(
                     new TeamMemberCntResDto(
-                            Position.DESIGNER.name().toLowerCase(),
+                            Position.DESIGNER,
                             team.getDesignerTotalRecruitCnt(),
                             designerCnt
                     )
@@ -80,7 +80,7 @@ public class TeamAbstractResDto {
         if (team.getBackendTotalRecruitCnt() != 0)
             this.teamMemberCnts.add(
                     new TeamMemberCntResDto(
-                            Position.BACKEND.name().toLowerCase(),
+                            Position.BACKEND,
                             team.getBackendTotalRecruitCnt(),
                             backendCnt
                     )
@@ -89,7 +89,7 @@ public class TeamAbstractResDto {
         if (team.getFrontendTotalRecruitCnt() != 0)
             this.teamMemberCnts.add(
                     new TeamMemberCntResDto(
-                            Position.FRONTEND.name().toLowerCase(),
+                            Position.FRONTEND,
                             team.getFrontendTotalRecruitCnt(),
                             frontendCnt
                     )
@@ -98,7 +98,7 @@ public class TeamAbstractResDto {
         if (team.getManagerTotalRecruitCnt() != 0)
             this.teamMemberCnts.add(
                     new TeamMemberCntResDto(
-                            Position.MANAGER.name().toLowerCase(),
+                            Position.MANAGER,
                             team.getManagerTotalRecruitCnt(),
                             managerCnt
                     )

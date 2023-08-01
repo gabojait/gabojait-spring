@@ -110,26 +110,26 @@ public class Team extends BaseTimeEntity {
                        String projectDescription,
                        String expectation,
                        String openChatUrl,
-                       Map<Character, Byte> teamMemberRecruits) {
+                       Map<Position, Byte> teamMemberRecruits) {
         this.projectName = projectName;
         this.projectDescription = projectDescription;
         this.expectation = expectation;
         this.openChatUrl = openChatUrl;
 
-        if (teamMemberRecruits.containsKey(Position.DESIGNER.getType()))
-            this.designerTotalRecruitCnt = teamMemberRecruits.get(Position.DESIGNER.getType());
+        if (teamMemberRecruits.containsKey(Position.DESIGNER))
+            this.designerTotalRecruitCnt = teamMemberRecruits.get(Position.DESIGNER);
         else
             this.designerTotalRecruitCnt = 0;
-        if (teamMemberRecruits.containsKey(Position.BACKEND.getType()))
-            this.backendTotalRecruitCnt = teamMemberRecruits.get(Position.BACKEND.getType());
+        if (teamMemberRecruits.containsKey(Position.BACKEND))
+            this.backendTotalRecruitCnt = teamMemberRecruits.get(Position.BACKEND);
         else
             this.backendTotalRecruitCnt = 0;
-        if (teamMemberRecruits.containsKey(Position.FRONTEND.getType()))
-            this.frontendTotalRecruitCnt = teamMemberRecruits.get(Position.FRONTEND.getType());
+        if (teamMemberRecruits.containsKey(Position.FRONTEND))
+            this.frontendTotalRecruitCnt = teamMemberRecruits.get(Position.FRONTEND);
         else
             this.frontendTotalRecruitCnt = 0;
-        if (teamMemberRecruits.containsKey(Position.MANAGER.getType()))
-            this.managerTotalRecruitCnt = teamMemberRecruits.get(Position.MANAGER.getType());
+        if (teamMemberRecruits.containsKey(Position.MANAGER))
+            this.managerTotalRecruitCnt = teamMemberRecruits.get(Position.MANAGER);
         else
             this.managerTotalRecruitCnt = 0;
     }
@@ -138,20 +138,20 @@ public class Team extends BaseTimeEntity {
         byte cnt = 0;
 
         for(TeamMember teamMember : this.teamMembers)
-            if (position.getType().equals(teamMember.getPosition()))
+            if (position.equals(teamMember.getPosition()))
                 cnt++;
 
-        switch (position.getType()) {
-            case 'D':
+        switch (position.name()) {
+            case "DESIGNER":
                 this.isDesignerFull = cnt >= this.designerTotalRecruitCnt;
                 break;
-            case 'B':
+            case "BACKEND":
                 this.isBackendFull = cnt >= this.backendTotalRecruitCnt;
                 break;
-            case 'F':
+            case "FRONTEND":
                 this.isFrontendFull = cnt >= this.frontendTotalRecruitCnt;
                 break;
-            case 'M':
+            case "MANAGER":
                 this.isManagerFull = cnt >= this.managerTotalRecruitCnt;
                 break;
         }
@@ -162,14 +162,14 @@ public class Team extends BaseTimeEntity {
     }
 
     public boolean isPositionFull(Position position) {
-        switch (position.getType()) {
-            case 'D':
+        switch (position.name()) {
+            case "DESIGNER":
                 return this.isDesignerFull;
-            case 'B':
+            case "BACKEND":
                 return this.isBackendFull;
-            case 'F':
+            case "FRONTEND":
                 return this.isFrontendFull;
-            case 'M':
+            case "MANAGER":
                 return this.isManagerFull;
             default:
                 return true;

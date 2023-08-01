@@ -5,6 +5,7 @@ import com.gabojait.gabojaitspring.common.dto.DefaultMultiResDto;
 import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
 import com.gabojait.gabojaitspring.common.dto.DefaultSingleResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
+import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.domain.type.TeamOrder;
 import com.gabojait.gabojaitspring.team.dto.req.TeamCompleteReqDto;
@@ -214,11 +215,11 @@ public class TeamController {
 
     @ApiOperation(value = "팀원을 찾는 팀 다건 조회",
             notes = "<옵션>\n" +
-                    "- position[default: none] = designer(디자이너만) || backend(백엔드만) || frontend(프론트엔드만) || " +
-                    "manager(매니저만) || none(전체)\n" +
+                    "- position[default: NONE] = DESIGNER(디자이너만) || BACKEND(백엔드만) || FRONTEND(프론트엔드만) || " +
+                    "MANAGER(매니저만) || NONE(전체)\n" +
                     "- team-order[default: CREATED] = CREATED(생성순) || ACTIVE(활동순) || POPULARITY(인기순)\n\n" +
                     "<검증>\n" +
-                    "- position = NotBlank && Pattern(regex = ^(designer|backend|frontend|manager|none))\n" +
+                    "- position = NotBlank && Pattern(regex = ^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE))\n" +
                     "- team-order = NotBlank && Pattern(regex = ^(CREATED|ACTIVE|POPULARITY))\n" +
                     "- page-from = NotNull && PositiveOrZero\n" +
                     "- page-size = Positive\n\n" +
@@ -244,8 +245,8 @@ public class TeamController {
     public ResponseEntity<DefaultMultiResDto<Object>> findTeamsLookingForUsers(
             @RequestParam(value = "position", required = false)
             @NotBlank(message = "포지션은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-            @Pattern(regexp = "^(designer|backend|frontend|manager|none)",
-                    message = "포지션은 'designer', 'backend', 'frontend', 'manager', 또는 'none' 중 하나여야 됩니다.",
+            @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE)",
+                    message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다.",
                     groups = ValidationSequence.Format.class)
             String position,
             @RequestParam(value = "team-order", required = false)
@@ -262,7 +263,7 @@ public class TeamController {
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        Page<Team> teams = teamService.findManyTeamByPositionOrder(position,
+        Page<Team> teams = teamService.findManyTeamByPositionOrder(Position.valueOf(position),
                 TeamOrder.valueOf(teamOrder),
                 pageFrom,
                 pageSize);

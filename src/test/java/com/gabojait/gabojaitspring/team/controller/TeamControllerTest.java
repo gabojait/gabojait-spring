@@ -1099,19 +1099,19 @@ class TeamControllerTest extends WebMvc {
     private TeamDefaultReqDto getValidTeamDefaultReqDto() {
         TeamMemberRecruitCntReqDto designerTeamMemberRecruitCntReqDto = new TeamMemberRecruitCntReqDto();
         designerTeamMemberRecruitCntReqDto.setTotalRecruitCnt((byte) 2);
-        designerTeamMemberRecruitCntReqDto.setPosition(Position.DESIGNER.name().toLowerCase());
+        designerTeamMemberRecruitCntReqDto.setPosition(Position.DESIGNER.name());
 
         TeamMemberRecruitCntReqDto backendTeamMemberRecruitCntReqDto = new TeamMemberRecruitCntReqDto();
         backendTeamMemberRecruitCntReqDto.setTotalRecruitCnt((byte) 2);
-        backendTeamMemberRecruitCntReqDto.setPosition(Position.BACKEND.name().toLowerCase());
+        backendTeamMemberRecruitCntReqDto.setPosition(Position.BACKEND.name());
 
         TeamMemberRecruitCntReqDto frontendTeamMemberRecruitCntReqDto = new TeamMemberRecruitCntReqDto();
         frontendTeamMemberRecruitCntReqDto.setTotalRecruitCnt((byte) 2);
-        frontendTeamMemberRecruitCntReqDto.setPosition(Position.FRONTEND.name().toLowerCase());
+        frontendTeamMemberRecruitCntReqDto.setPosition(Position.FRONTEND.name());
 
         TeamMemberRecruitCntReqDto managerTeamMemberRecruitCntReqDto = new TeamMemberRecruitCntReqDto();
         managerTeamMemberRecruitCntReqDto.setTotalRecruitCnt((byte) 2);
-        managerTeamMemberRecruitCntReqDto.setPosition(Position.MANAGER.name().toLowerCase());
+        managerTeamMemberRecruitCntReqDto.setPosition(Position.MANAGER.name());
 
         List<TeamMemberRecruitCntReqDto> teamMemberRecruitCntReqDto = new ArrayList<>();
         teamMemberRecruitCntReqDto.add(designerTeamMemberRecruitCntReqDto);
@@ -1130,7 +1130,7 @@ class TeamControllerTest extends WebMvc {
     }
 
     private String getValidPosition() {
-        return Position.NONE.name().toLowerCase();
+        return Position.NONE.name();
     }
 
     private String getValidTeamOrder() {

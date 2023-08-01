@@ -5,6 +5,8 @@ import com.gabojait.gabojaitspring.common.dto.DefaultMultiResDto;
 import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
 import com.gabojait.gabojaitspring.common.dto.DefaultSingleResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
+import com.gabojait.gabojaitspring.profile.domain.type.Position;
+import com.gabojait.gabojaitspring.profile.domain.type.ProfileOrder;
 import com.gabojait.gabojaitspring.profile.dto.ProfileSeekPageDto;
 import com.gabojait.gabojaitspring.profile.dto.req.*;
 import com.gabojait.gabojaitspring.profile.dto.res.*;
@@ -147,7 +149,9 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/image",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DefaultSingleResDto<Object>> uploadProfileImage(HttpServletRequest servletRequest,
                                                                     @RequestPart(value = "image", required = false)
                                                                     MultipartFile image) {
@@ -220,7 +224,7 @@ public class ProfileController {
     @PatchMapping("/seeking-team")
     public ResponseEntity<DefaultNoResDto> updateIsSeekingTeam(HttpServletRequest servletRequest,
                                                                @RequestBody @Valid
-                                                                     ProfileIsSeekingTeamUpdateReqDto request) {
+                                                               ProfileIsSeekingTeamUpdateReqDto request) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
         profileService.updateIsSeekingTeam(userId, request.getIsSeekingTeam());
@@ -295,8 +299,8 @@ public class ProfileController {
     })
     @PostMapping("/profile")
     public ResponseEntity<DefaultSingleResDto<Object>> updateProfile(HttpServletRequest servletRequest,
-                                                               @RequestBody @Valid
-                                                               ProfileDefaultReqDto request) {
+                                                                     @RequestBody @Valid
+                                                                     ProfileDefaultReqDto request) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
         User updatedUser = profileService.updateProfile(userId, request);
@@ -335,7 +339,9 @@ public class ProfileController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @ResponseStatus(value = HttpStatus.CREATED)
-    @PostMapping(value = "/portfolio/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/portfolio/file",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DefaultSingleResDto<Object>> uploadPortfolioFile(HttpServletRequest servletRequest,
                                                                     @RequestPart(value = "file", required = false)
                                                                     MultipartFile file) {
@@ -355,12 +361,12 @@ public class ProfileController {
 
     @ApiOperation(value = "팀을 찾는 회원 다건 조회",
             notes = "<옵션>\n" +
-                    "- position[default: none] = designer(디자이너만) || backend(백엔드) || frontend(프론트엔드만) || " +
-                    "manager(매니저만) || none(전체)\n" +
-                    "- profile-order[default: active] = active(활동순) || popularity(인기순) || rating(평점순)\n\n" +
+                    "- position[default: NONE] = DESIGNER(디자이너만) || BACKEND(백엔드) || FRONTEND(프론트엔드만) || " +
+                    "MANAGER(매니저만) || NONE(전체)\n" +
+                    "- profile-order[default: ACTIVE] = ACTIVE(활동순) || POPULARITY(인기순) || RATING(평점순)\n\n" +
                     "<검증>\n" +
-                    "- position = NotBlank && Pattern(regex = ^(designer|backend|frontend|manager|none))\n" +
-                    "- profile-order = NotBlank && Pattern(regex = ^(active|popularity|rating))\n" +
+                    "- position = NotBlank && Pattern(regex = ^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE))\n" +
+                    "- profile-order = NotBlank && Pattern(regex = ^(ACTIVE|POPULARITY|RATING))\n" +
                     "- page-from = NotNull && PositiveOrZero\n" +
                     "- page-size = Positive\n\n" +
                     "<응답 코드>\n" +
@@ -388,14 +394,14 @@ public class ProfileController {
             HttpServletRequest servletRequest,
             @RequestParam(value = "position", required = false)
             @NotBlank(message = "포지션은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-            @Pattern(regexp = "^(designer|backend|frontend|manager|none)",
-                    message = "포지션은 'designer', 'backend', 'frontend', 'manager', 또는 'none' 중 하나여야 됩니다.",
+            @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE)",
+                    message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다.",
                     groups = ValidationSequence.Format.class)
             String position,
             @RequestParam(value = "profile-order", required = false)
             @NotBlank(message = "프로필 정렬 기준은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-            @Pattern(regexp = "^(active|popularity|rating)",
-                    message = "정렬 기준은 'active', 'popularity', 'rating' 중 하나여야 됩니다.",
+            @Pattern(regexp = "^(ACTIVE|POPULARITY|RATING)",
+                    message = "정렬 기준은 'ACTIVE', 'POPULARITY', 'RATING' 중 하나여야 됩니다.",
                     groups = ValidationSequence.Format.class)
             String profileOrder,
             @RequestParam(value = "page-from", required = false)
@@ -409,8 +415,8 @@ public class ProfileController {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
         ProfileSeekPageDto response = profileService.findManyUsersByPositionWithProfileOrder(userId,
-                position,
-                profileOrder,
+                Position.valueOf(position),
+                ProfileOrder.valueOf(profileOrder),
                 pageFrom,
                 pageSize);
 

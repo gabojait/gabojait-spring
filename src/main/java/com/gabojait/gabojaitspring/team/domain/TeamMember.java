@@ -28,8 +28,9 @@ public class TeamMember extends BaseTimeEntity {
     @ToString.Exclude
     private Team team;
 
-    @Column(nullable = false)
-    private Character position;
+    @Column(nullable = false, length = 20)
+    @Enumerated(EnumType.STRING)
+    private Position position;
     @Column(nullable = false)
     private Boolean isLeader;
 
@@ -37,7 +38,7 @@ public class TeamMember extends BaseTimeEntity {
     public TeamMember(User user, Team team, Position position, Boolean isLeader) {
         this.user = user;
         this.team = team;
-        this.position = position.getType();
+        this.position = position;
         this.isLeader = isLeader;
         this.isDeleted = false;
     }

@@ -20,8 +20,8 @@ public class TeamMemberPositionResDto {
     private String nickname;
 
     @ApiModelProperty(position = 3, required = true, value = "포지션",
-            allowableValues = "designer, frontend, backend, manager")
-    private String position;
+            allowableValues = "DESIGNER, FRONTEND, BACKEND, MANAGER")
+    private Position position;
 
     @ApiModelProperty(position = 4, required = true, value = "리더 여부")
     private Boolean isLeader;
@@ -31,7 +31,7 @@ public class TeamMemberPositionResDto {
 
         this.userId = user.getId();
         this.nickname = user.getNickname();
-        this.position = Position.fromChar(teamMember.getPosition()).name().toLowerCase();
+        this.position = teamMember.getPosition();
         this.isLeader = teamMember.getIsLeader();
     }
 

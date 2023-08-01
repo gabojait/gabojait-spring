@@ -29,7 +29,7 @@ public class EducationDefaultResDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate endedAt;
 
-    @ApiModelProperty(position = 5, required = true, value = "현재 여부")
+    @ApiModelProperty(position = 5, required = true, value = "현재 여부", allowableValues = "true, false")
     private Boolean isCurrent;
 
     @ApiModelProperty(position = 6, required = true, value = "생성일")

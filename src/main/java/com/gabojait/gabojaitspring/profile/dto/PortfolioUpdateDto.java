@@ -19,6 +19,6 @@ public class PortfolioUpdateDto {
         this.prevPortfolio = prevPortfolio;
         this.portfolioName = newPortfolio.getPortfolioName();
         this.portfolioUrl = newPortfolio.getPortfolioUrl();
-        this.media = Media.fromString(newPortfolio.getMedia());
+        this.media = Media.valueOf(newPortfolio.getMedia());
     }
 }

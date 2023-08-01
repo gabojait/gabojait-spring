@@ -31,18 +31,20 @@ public class Offer extends BaseTimeEntity {
     private Team team;
 
     private Boolean isAccepted;
-    @Column(nullable = false)
-    private Character offeredBy;
-    @Column(nullable = false)
-    private Character position;
+    @Column(nullable = false, length = 4)
+    @Enumerated(EnumType.STRING)
+    private OfferedBy offeredBy;
+    @Column(nullable = false, length = 20)
+    @Enumerated(EnumType.STRING)
+    private Position position;
 
     @Builder
     public Offer(User user, Team team, OfferedBy offeredBy, Position position) {
         this.user = user;
         this.team = team;
         this.isAccepted = null;
-        this.offeredBy = offeredBy.getType();
-        this.position = position.getType();
+        this.offeredBy = offeredBy;
+        this.position = position;
         this.isDeleted = false;
     }
 

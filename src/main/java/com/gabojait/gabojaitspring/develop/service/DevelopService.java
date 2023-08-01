@@ -306,7 +306,7 @@ public class DevelopService {
                 TeamMember teamMember = TeamMember.builder()
                         .user(users.get(j))
                         .team(team)
-                        .position(Position.fromChar(users.get(i).getPosition()))
+                        .position(users.get(i).getPosition())
                         .isLeader(isLeader)
                         .build();
 
@@ -367,7 +367,7 @@ public class DevelopService {
             TeamMember teamMember = TeamMember.builder()
                     .user(users.get(i))
                     .team(team)
-                    .position(Position.fromChar(users.get(i).getPosition()))
+                    .position(users.get(i).getPosition())
                     .isLeader(true)
                     .build();
 

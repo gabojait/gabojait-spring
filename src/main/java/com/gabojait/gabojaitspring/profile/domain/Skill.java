@@ -27,14 +27,15 @@ public class Skill extends BaseTimeEntity {
     private String skillName;
     @Column(nullable = false)
     private Boolean isExperienced;
-    @Column(nullable = false)
-    private Character level;
+    @Column(nullable = false, length = 4)
+    @Enumerated(EnumType.STRING)
+    private Level level;
 
     @Builder
     public Skill(String skillName, boolean isExperienced, Level level, User user) {
         this.skillName = skillName;
         this.isExperienced = isExperienced;
-        this.level = level.getType();
+        this.level = level;
         this.user = user;
         this.isDeleted = false;
     }
@@ -42,7 +43,7 @@ public class Skill extends BaseTimeEntity {
     public void update(String skillName, boolean isExperienced, Level level) {
         this.skillName = skillName;
         this.isExperienced = isExperienced;
-        this.level = level.getType();
+        this.level = level;
     }
 
     public void delete() {

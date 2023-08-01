@@ -55,7 +55,7 @@ public class TeamService {
 
         Team team = request.toEntity(user);
         saveTeam(team);
-        joinTeam(user, team, true, Position.fromChar(user.getPosition()));
+        joinTeam(user, team, true, user.getPosition());
 
         return team;
     }
@@ -73,24 +73,11 @@ public class TeamService {
         TeamMember teamMember = findOneCurrentTeamMember(user);
         validateIsLeader(teamMember);
 
-        Map<Character, Byte> teamMemberRecruits = new HashMap<>();
+        Map<Position, Byte> teamMemberRecruits = new HashMap<>();
         for(TeamMemberRecruitCntReqDto teamMemberRecruitCnt : request.getTeamMemberRecruitCnts()) {
-            Position position = Position.fromString(teamMemberRecruitCnt.getPosition());
-
-            switch (position.getType()) {
-                case 'D':
-                    teamMemberRecruits.put(Position.DESIGNER.getType(), teamMemberRecruitCnt.getTotalRecruitCnt());
-                    break;
-                case 'B':
-                    teamMemberRecruits.put(Position.BACKEND.getType(), teamMemberRecruitCnt.getTotalRecruitCnt());
-                    break;
-                case 'F':
-                    teamMemberRecruits.put(Position.FRONTEND.getType(), teamMemberRecruitCnt.getTotalRecruitCnt());
-                    break;
-                case 'M':
-                    teamMemberRecruits.put(Position.MANAGER.getType(), teamMemberRecruitCnt.getTotalRecruitCnt());
-                    break;
-            }
+            Position position = Position.valueOf(teamMemberRecruitCnt.getPosition());
+            
+            teamMemberRecruits.put(position, teamMemberRecruitCnt.getTotalRecruitCnt());
         }
 
         validateAllPositionCnt(teamMember.getTeam(), teamMemberRecruits);
@@ -274,16 +261,15 @@ public class TeamService {
      * 포지션과 팀 정렬 기준으로 팀 페이징 다건 조회 | main |
      * 500(SERVER_ERROR)
      */
-    public Page<Team> findManyTeamByPositionOrder(String position,
+    public Page<Team> findManyTeamByPositionOrder(Position position,
                                                   TeamOrder teamOrder,
                                                   Integer pageFrom,
                                                   Integer pageSize) {
-        Position p = Position.fromString(position);
         Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
 
         Page<Team> teams;
 
-        if (p.equals(Position.NONE)) {
+        if (position.equals(Position.NONE)) {
             switch (teamOrder.name()) {
                 case "ACTIVE":
                     teams = findManyTeamOrderByActive(pageable);
@@ -298,13 +284,13 @@ public class TeamService {
         } else {
             switch (teamOrder.name()) {
                 case "ACTIVE":
-                    teams = findManyTeamByPositionOrderByActive(p, pageable);
+                    teams = findManyTeamByPositionOrderByActive(position, pageable);
                     break;
                 case "POPULARITY":
-                    teams = findManyTeamByPositionOrderByPopularity(p, pageable);
+                    teams = findManyTeamByPositionOrderByPopularity(position, pageable);
                     break;
                 default:
-                    teams = findManyTeamByPositionOrderByCreated(p, pageable);
+                    teams = findManyTeamByPositionOrderByCreated(position, pageable);
                     break;
             }
         }
@@ -377,26 +363,26 @@ public class TeamService {
     private Page<Team> findManyTeamByPositionOrderByActive(Position position, Pageable pageable) {
         try {
             Page<Team> teams;
-            switch (position.getType()) {
-                case 'D':
+            switch (position.name()) {
+                case "DESIGNER":
                     teams = teamRepository
                             .findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(
                                     pageable
                             );
                     break;
-                case 'B':
+                case "BACKEND":
                     teams = teamRepository
                             .findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(
                                     pageable
                             );
                     break;
-                case 'F':
+                case "FRONTEND":
                     teams = teamRepository
                             .findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(
                                     pageable
                             );
                     break;
-                case 'M':
+                case "MANAGER":
                     teams = teamRepository
                             .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(
                                     pageable
@@ -419,26 +405,26 @@ public class TeamService {
     private Page<Team> findManyTeamByPositionOrderByPopularity(Position position, Pageable pageable) {
         try {
             Page<Team> teams;
-            switch (position.getType()) {
-                case 'D':
+            switch (position.name()) {
+                case "DESIGNER":
                     teams = teamRepository
                             .findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
                                     pageable
                             );
                     break;
-                case 'B':
+                case "BACKEND":
                     teams = teamRepository
                             .findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
                                     pageable
                             );
                     break;
-                case 'F':
+                case "FRONTEND":
                     teams = teamRepository
                             .findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
                                     pageable
                             );
                     break;
-                case 'M':
+                case "MANAGER":
                     teams = teamRepository
                             .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
                                     pageable
@@ -461,26 +447,26 @@ public class TeamService {
     private Page<Team> findManyTeamByPositionOrderByCreated(Position position, Pageable pageable) {
         try {
             Page<Team> teams;
-            switch (position.getType()) {
-                case 'D':
+            switch (position.name()) {
+                case "DESIGNER":
                     teams = teamRepository
                             .findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedAtDesc(
                                     pageable
                             );
                     break;
-                case 'B':
+                case "BACKEND":
                     teams = teamRepository
                             .findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedAtDesc(
                                     pageable
                             );
                     break;
-                case 'F':
+                case "FRONTEND":
                     teams = teamRepository
                             .findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedAtDesc(
                                     pageable
                             );
                     break;
-                case 'M':
+                case "MANAGER":
                     teams = teamRepository
                             .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedAtDesc(
                                     pageable
@@ -555,24 +541,24 @@ public class TeamService {
      * MANAGER_CNT_UPDATE_UNAVAILABLE)
      */
     private void validateAllPositionCnt(Team team,
-                                        Map<Character, Byte> teamMemberRecruits) {
+                                        Map<Position, Byte> teamMemberRecruits) {
         byte designerCurrentCnt = 0;
         byte backendCurrentCnt = 0;
         byte frontendCurrentCnt = 0;
         byte managerCurrentCnt = 0;
 
         for (TeamMember teamMember : team.getTeamMembers())
-            switch (teamMember.getPosition()) {
-                case 'D':
+            switch (teamMember.getPosition().name()) {
+                case "DESIGNER":
                     designerCurrentCnt++;
                     break;
-                case 'B':
+                case "BACKEND":
                     backendCurrentCnt++;
                     break;
-                case 'F':
+                case "FRONTEND":
                     frontendCurrentCnt++;
                     break;
-                case 'M':
+                case "MANAGER":
                     managerCurrentCnt++;
                     break;
             }
@@ -582,14 +568,14 @@ public class TeamService {
         byte frontendTotalCnt = 0;
         byte managerTotalCnt = 0;
 
-        if (teamMemberRecruits.containsKey(Position.DESIGNER.getType()))
-            designerTotalCnt += teamMemberRecruits.get(Position.DESIGNER.getType());
-        if (teamMemberRecruits.containsKey(Position.BACKEND.getType()))
-            backendTotalCnt += teamMemberRecruits.get(Position.BACKEND.getType());
-        if (teamMemberRecruits.containsKey(Position.FRONTEND.getType()))
-            frontendTotalCnt += teamMemberRecruits.get(Position.FRONTEND.getType());
-        if (teamMemberRecruits.containsKey(Position.MANAGER.getType()))
-            managerTotalCnt += teamMemberRecruits.get(Position.MANAGER.getType());
+        if (teamMemberRecruits.containsKey(Position.DESIGNER))
+            designerTotalCnt += teamMemberRecruits.get(Position.DESIGNER);
+        if (teamMemberRecruits.containsKey(Position.BACKEND))
+            backendTotalCnt += teamMemberRecruits.get(Position.BACKEND);
+        if (teamMemberRecruits.containsKey(Position.FRONTEND))
+            frontendTotalCnt += teamMemberRecruits.get(Position.FRONTEND);
+        if (teamMemberRecruits.containsKey(Position.MANAGER))
+            managerTotalCnt += teamMemberRecruits.get(Position.MANAGER);
 
 
         if (designerTotalCnt < designerCurrentCnt)

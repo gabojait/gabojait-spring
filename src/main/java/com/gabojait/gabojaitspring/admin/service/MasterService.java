@@ -186,7 +186,7 @@ public class MasterService implements ApplicationRunner {
     }
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
         Optional<User> master = findOneMaster();
 
         if (master.isEmpty())

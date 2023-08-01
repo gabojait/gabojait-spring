@@ -9,6 +9,7 @@ import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
 import com.gabojait.gabojaitspring.profile.domain.type.Level;
 import com.gabojait.gabojaitspring.profile.domain.type.Media;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
+import com.gabojait.gabojaitspring.profile.domain.type.ProfileOrder;
 import com.gabojait.gabojaitspring.profile.dto.ProfileSeekPageDto;
 import com.gabojait.gabojaitspring.profile.dto.req.*;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileSeekResDto;
@@ -1086,13 +1087,13 @@ class ProfileControllerTest extends WebMvc {
     }
 
     private ProfileDefaultReqDto getValidProfileDefaultReqDto() {
-        String positionReqDto = Position.BACKEND.name().toLowerCase();
+        String positionReqDto = Position.BACKEND.name();
 
         SkillDefaultReqDto skillDefaultReqDto = new SkillDefaultReqDto();
         skillDefaultReqDto.setSkillId(null);
         skillDefaultReqDto.setSkillName("스프링");
         skillDefaultReqDto.setIsExperienced(true);
-        skillDefaultReqDto.setLevel(Level.MID.name().toLowerCase());
+        skillDefaultReqDto.setLevel(Level.MID.name());
 
         EducationDefaultReqDto educationDefaultReqDto = new EducationDefaultReqDto();
         educationDefaultReqDto.setEducationId(null);
@@ -1113,7 +1114,7 @@ class ProfileControllerTest extends WebMvc {
         portfolioDefaultReqDto.setPortfolioId(null);
         portfolioDefaultReqDto.setPortfolioName("깃허브");
         portfolioDefaultReqDto.setPortfolioUrl("github.com/gabojait");
-        portfolioDefaultReqDto.setMedia(Media.LINK.name().toLowerCase());
+        portfolioDefaultReqDto.setMedia(Media.LINK.name());
 
         ProfileDefaultReqDto reqDto = new ProfileDefaultReqDto();
         reqDto.setPosition(positionReqDto);
@@ -1135,11 +1136,11 @@ class ProfileControllerTest extends WebMvc {
     }
 
     private String getValidPosition() {
-        return Position.NONE.name().toLowerCase();
+        return Position.NONE.name();
     }
 
     private String getValidProfileOrder() {
-        return "active";
+        return ProfileOrder.ACTIVE.name();
     }
 
     private Integer getValidPageFrom() {

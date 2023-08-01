@@ -27,14 +27,15 @@ public class Portfolio extends BaseTimeEntity {
     private String portfolioName;
     @Column(nullable = false, length = 1000)
     private String portfolioUrl;
-    @Column(nullable = false)
-    private Character media;
+    @Column(nullable = false, length = 4)
+    @Enumerated(EnumType.STRING)
+    private Media media;
 
     @Builder
     public Portfolio(String portfolioName, String portfolioUrl, Media media, User user) {
         this.portfolioName = portfolioName;
         this.portfolioUrl = portfolioUrl;
-        this.media = media.getType();
+        this.media = media;
         this.user = user;
         this.isDeleted = false;
     }
@@ -42,7 +43,7 @@ public class Portfolio extends BaseTimeEntity {
     public void update(String portfolioName, String portfolioUrl, Media media) {
         this.portfolioName = portfolioName;
         this.portfolioUrl = portfolioUrl;
-        this.media = media.getType();
+        this.media = media;
     }
 
     public void delete() {

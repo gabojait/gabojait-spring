@@ -26,10 +26,10 @@ public class TeamMemberRecruitCntReqDto {
     private Byte totalRecruitCnt;
 
     @ApiModelProperty(position = 2, required = true, value = "포지션",
-            allowableValues = "designer, backend, frontend, manager")
+            allowableValues = "DESIGNER, BACKEND, FRONTEND, MANAGER")
     @NotBlank(message = "포지션은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-    @Pattern(regexp = "^(designer|backend|frontend|manager)",
-            message = "포지션은 'designer', 'backend', 'frontend', 또는 'manager' 중 하나여야 됩니다.",
+    @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER)",
+            message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 또는 'MANAGER' 중 하나여야 됩니다.",
             groups = ValidationSequence.Format.class)
     private String position;
 }

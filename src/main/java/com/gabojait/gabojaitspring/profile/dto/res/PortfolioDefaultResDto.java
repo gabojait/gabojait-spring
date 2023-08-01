@@ -24,8 +24,8 @@ public class PortfolioDefaultResDto {
     @ApiModelProperty(position = 3, required = true, value = "포트폴리오 링크")
     private String portfolioUrl;
 
-    @ApiModelProperty(position = 4, required = true, value = "미디어")
-    private String media;
+    @ApiModelProperty(position = 4, required = true, value = "미디어", allowableValues = "LINK, FILE")
+    private Media media;
 
     @ApiModelProperty(position = 5, required = true, value = "생성일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
@@ -39,7 +39,7 @@ public class PortfolioDefaultResDto {
         this.portfolioId = portfolio.getId();
         this.portfolioName = portfolio.getPortfolioName();
         this.portfolioUrl = portfolio.getPortfolioUrl();
-        this.media = Media.fromChar(portfolio.getMedia()).name().toLowerCase();
+        this.media = portfolio.getMedia();
         this.createdAt = portfolio.getCreatedAt();
         this.updatedAt = portfolio.getUpdatedAt();
     }

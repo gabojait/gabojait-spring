@@ -1,5 +1,6 @@
 package com.gabojait.gabojaitspring.user.repository;
 
+import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,13 +22,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Page<User> findAllByIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByLastRequestAtDesc(Pageable pageable);
 
-    Page<User> findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByRatingDesc(Character position,
+    Page<User> findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByRatingDesc(Position position,
                                                                                            Pageable pageable);
 
-    Page<User> findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(Character position,
+    Page<User> findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(Position position,
                                                                                                Pageable pageable);
 
-    Page<User> findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByLastRequestAtDesc(Character position,
+    Page<User> findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByLastRequestAtDesc(Position position,
                                                                                                   Pageable pageable);
 
     Page<User> findAllByUsernameEndsWithAndIsDeletedIsTrue(String username, Pageable pageable);

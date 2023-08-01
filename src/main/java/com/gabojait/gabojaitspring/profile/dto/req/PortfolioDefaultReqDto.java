@@ -38,9 +38,9 @@ public class PortfolioDefaultReqDto {
     @Size(min = 1, max = 1000, message = "URL은 1~1000자만 가능합니다.", groups = ValidationSequence.Size.class)
     private String portfolioUrl;
 
-    @ApiModelProperty(position = 3, required = true, value = "미디어", example = "link")
+    @ApiModelProperty(position = 3, required = true, value = "미디어", example = "LINK")
     @NotBlank(message = "미디어는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-    @Pattern(regexp = "^(link|file)", message = "미디어는 'link' 또는 'file'  중 하나여야 됩니다.",
+    @Pattern(regexp = "^(LINK|FILE)", message = "미디어는 'LINK' 또는 'FILE'  중 하나여야 됩니다.",
             groups = ValidationSequence.Format.class)
     private String media;
 
@@ -49,7 +49,7 @@ public class PortfolioDefaultReqDto {
                 .user(user)
                 .portfolioName(this.portfolioName.trim())
                 .portfolioUrl(this.portfolioUrl.trim())
-                .media(Media.fromString(this.media))
+                .media(Media.valueOf(this.media))
                 .build();
     }
 }

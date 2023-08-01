@@ -39,9 +39,9 @@ public class SkillDefaultReqDto {
     @NotNull(message = "경험 여부는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
     private Boolean isExperienced;
 
-    @ApiModelProperty(position = 4, required = true, value = "레벨", example = "low", allowableValues = "low, mid, high")
+    @ApiModelProperty(position = 4, required = true, value = "레벨", example = "LOW", allowableValues = "LOW, MID, HIGH")
     @NotBlank(message = "레벨은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-    @Pattern(regexp = "^(low|mid|high)", message = "레벨은 'low', 'mid', 또는 'high' 중 하나여야 됩니다.",
+    @Pattern(regexp = "^(LOW|MID|HIGH)", message = "레벨은 'LOW', 'MID', 또는 'HIGH' 중 하나여야 됩니다.",
             groups = ValidationSequence.Format.class)
     private String level;
 
@@ -50,7 +50,7 @@ public class SkillDefaultReqDto {
                 .user(user)
                 .skillName(this.skillName.trim())
                 .isExperienced(this.isExperienced)
-                .level(Level.fromString(this.level))
+                .level(Level.valueOf(this.level))
                 .build();
     }
 }

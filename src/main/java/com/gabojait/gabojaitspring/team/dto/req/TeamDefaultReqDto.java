@@ -62,17 +62,17 @@ public class TeamDefaultReqDto {
         byte frontendTotalRecruitCnt = 0;
         byte managerTotalRecruitCnt = 0;
 
-        switch (user.getPosition()) {
-            case 'D':
+        switch (user.getPosition().name()) {
+            case "DESIGNER":
                 designerTotalRecruitCnt++;
                 break;
-            case 'B':
+            case "BACKEND":
                 backendTotalRecruitCnt++;
                 break;
-            case 'F':
+            case "FRONTEND":
                 frontendTotalRecruitCnt++;
                 break;
-            case 'M':
+            case "MANAGER":
                 managerTotalRecruitCnt++;
                 break;
             default:
@@ -80,19 +80,17 @@ public class TeamDefaultReqDto {
         }
 
         for(TeamMemberRecruitCntReqDto recruit : teamMemberRecruitCnts) {
-            Position position = Position.fromString(recruit.getPosition());
-
-            switch (position.getType()) {
-                case 'D':
+            switch (recruit.getPosition()) {
+                case "DESIGNER":
                     designerTotalRecruitCnt += recruit.getTotalRecruitCnt();
                     break;
-                case 'B':
+                case "BACKEND":
                     backendTotalRecruitCnt += recruit.getTotalRecruitCnt();
                     break;
-                case 'F':
+                case "FRONTEND":
                     frontendTotalRecruitCnt += recruit.getTotalRecruitCnt();
                     break;
-                case 'M':
+                case "MANAGER":
                     managerTotalRecruitCnt += recruit.getTotalRecruitCnt();
                     break;
             }

@@ -1,5 +1,6 @@
 package com.gabojait.gabojaitspring.team.dto.res;
 
+import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -11,8 +12,8 @@ import lombok.ToString;
 public class TeamMemberCntResDto {
 
     @ApiModelProperty(position = 1, required = true, value = "포지션",
-            allowableValues = "designer, backend, frontend, manager")
-    private String position;
+            allowableValues = "DESIGNER, BACKEND, FRONTEND, MANAGER")
+    private Position position;
 
     @ApiModelProperty(position = 2, required = true, value = "모집 팀원 수")
     private Byte recruitCnt;
@@ -20,7 +21,7 @@ public class TeamMemberCntResDto {
     @ApiModelProperty(position = 3, required = true, value = "현재 팀원 수")
     private Byte currentCnt;
 
-    public TeamMemberCntResDto(String position, Byte recruitCnt, Byte currentCnt) {
+    public TeamMemberCntResDto(Position position, Byte recruitCnt, Byte currentCnt) {
         this.position = position;
         this.recruitCnt = recruitCnt;
         this.currentCnt = currentCnt;

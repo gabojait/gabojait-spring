@@ -23,11 +23,11 @@ import javax.validation.constraints.Pattern;
 @ApiModel(value = "제안 기본 요청")
 public class OfferCreateReqDto {
 
-    @ApiModelProperty(position = 1, required = true, value = "포지션", example = "frontend",
-            allowableValues = "designer, backend, frontend, manager")
+    @ApiModelProperty(position = 1, required = true, value = "포지션", example = "FRONTEND",
+            allowableValues = "DESIGNER, BACKEND, FRONTEND, MANAGER")
     @NotBlank(message = "포지션은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-    @Pattern(regexp = "^(designer|backend|frontend|manager)",
-            message = "포지션은 'designer', 'backend', 'frontend', 'manager', 또는 'none' 중 하나여야 됩니다.",
+    @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER)",
+            message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 또는 'MANAGER' 중 하나여야 됩니다.",
             groups = ValidationSequence.Format.class)
     private String position;
 
@@ -36,7 +36,7 @@ public class OfferCreateReqDto {
                 .user(user)
                 .team(team)
                 .offeredBy(offeredBy)
-                .position(Position.fromString(this.position))
+                .position(Position.valueOf(this.position))
                 .build();
     }
 }

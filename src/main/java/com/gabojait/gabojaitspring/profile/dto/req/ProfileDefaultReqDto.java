@@ -26,11 +26,11 @@ import java.util.List;
 @ApiModel(value = "프로필 기본 요청")
 public class ProfileDefaultReqDto {
 
-    @ApiModelProperty(position = 1, required = true, value = "포지션", example = "none",
-            allowableValues = "designer, backend, frontend, manager, none")
+    @ApiModelProperty(position = 1, required = true, value = "포지션", example = "NONE",
+            allowableValues = "DESIGNER, BACKEND, FRONTEND, MANAGER, NONE")
     @NotBlank(message = "포지션은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-    @Pattern(regexp = "^(designer|backend|frontend|manager|none)",
-            message = "포지션은 'designer', 'backend', 'frontend', 'manager', 또는 'none' 중 하나여야 됩니다.",
+    @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE)",
+            message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다.",
             groups = ValidationSequence.Format.class)
     private String position;
 

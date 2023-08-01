@@ -74,7 +74,7 @@ public class ProfileService {
 
         validateDate(request.getEducations(), request.getWorks());
 
-        updatePosition(user, Position.fromString(request.getPosition()));
+        updatePosition(user, Position.valueOf(request.getPosition()));
         cudSkills(user, request.getSkills());
         cudEducations(user, request.getEducations());
         cudWorks(user, request.getWorks());
@@ -254,23 +254,21 @@ public class ProfileService {
      * 500(SERVER_ERROR)
      */
     public ProfileSeekPageDto findManyUsersByPositionWithProfileOrder(long userId,
-                                                                      String position,
-                                                                      String profileOrder,
+                                                                      Position position,
+                                                                      ProfileOrder profileOrder,
                                                                       Integer pageFrom,
                                                                       Integer pageSize) {
         User user = findOneUser(userId);
-        Position p = Position.fromString(position);
-        ProfileOrder po = ProfileOrder.fromString(profileOrder);
         Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
 
         Page<User> users;
 
-        if (p.equals(Position.NONE)) {
-            switch (po.name().toLowerCase()) {
-                case "rating":
+        if (position.equals(Position.NONE)) {
+            switch (profileOrder.name()) {
+                case "RATING":
                     users = findManyUsersByRating(pageable);
                     break;
-                case "popularity":
+                case "POPULARITY":
                     users = findManyUsersByPopularity(pageable);
                     break;
                 default:
@@ -278,15 +276,15 @@ public class ProfileService {
                     break;
             }
         } else {
-            switch (po.name().toLowerCase()) {
-                case "rating":
-                    users = findManyUsersPositionByRating(p, pageable);
+            switch (profileOrder.name()) {
+                case "RATING":
+                    users = findManyUsersPositionByRating(position, pageable);
                     break;
-                case "popularity":
-                    users = findManyUsersPositionByPopularity(p, pageable);
+                case "POPULARITY":
+                    users = findManyUsersPositionByPopularity(position, pageable);
                     break;
                 default:
-                    users = findManyUsersPositionByActive(p, pageable);
+                    users = findManyUsersPositionByActive(position, pageable);
                     break;
             }
         }
@@ -360,7 +358,7 @@ public class ProfileService {
     private Page<User> findManyUsersPositionByRating(Position position, Pageable pageable) {
         try {
             return userRepository.findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByRatingDesc(
-                    position.getType(),
+                    position,
                     pageable
             );
         } catch (RuntimeException e) {
@@ -375,7 +373,7 @@ public class ProfileService {
     private Page<User> findManyUsersPositionByPopularity(Position position, Pageable pageable) {
         try {
             return userRepository.findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
-                    position.getType(),
+                    position,
                     pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
@@ -389,7 +387,7 @@ public class ProfileService {
     private Page<User> findManyUsersPositionByActive(Position position, Pageable pageable) {
         try {
             return userRepository.findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByLastRequestAtDesc(
-                    position.getType(),
+                    position,
                     pageable
             );
         } catch (RuntimeException e) {
@@ -507,7 +505,7 @@ public class ProfileService {
                 if (request.getSkillId().equals(skill.getId())) {
                     if (!request.getSkillName().trim().equals(skill.getSkillName())
                             || !request.getIsExperienced().equals(skill.getIsExperienced())
-                            || !Level.fromString(request.getLevel()).equals(Level.fromChar(skill.getLevel())))
+                            || !Level.valueOf(request.getLevel()).equals(skill.getLevel()))
                         updateSkills.add(new SkillUpdateDto(skill, request));
 
                     currentSkills.remove(skill);
@@ -710,7 +708,7 @@ public class ProfileService {
                 if (request.getPortfolioId().equals(portfolio.getId())) {
                     if (!request.getPortfolioName().trim().equals(portfolio.getPortfolioName())
                             || request.getPortfolioUrl().trim().equals(portfolio.getPortfolioUrl())
-                            || Media.fromString(request.getMedia()).equals(Media.fromChar(portfolio.getMedia())))
+                            || Media.valueOf(request.getMedia()).equals(portfolio.getMedia()))
                         updatePortfolios.add(new PortfolioUpdateDto(portfolio, request));
 
                     currentPortfolios.remove(portfolio);

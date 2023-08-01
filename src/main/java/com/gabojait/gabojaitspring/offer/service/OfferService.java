@@ -47,7 +47,7 @@ public class OfferService {
         Team team = findOneTeam(teamId);
 
         validateHasNoCurrentTeam(user);
-        validatePositionAvailability(team, Position.fromString(request.getPosition()));
+        validatePositionAvailability(team, Position.valueOf(request.getPosition()));
 
         Offer offer = request.toEntity(user, team, OfferedBy.USER);
         saveOffer(offer);
@@ -74,7 +74,7 @@ public class OfferService {
 
         Team team = leader.getTeamMembers().get(leader.getTeamMembers().size() - 1).getTeam();
 
-        validatePositionAvailability(team, Position.fromString(request.getPosition()));
+        validatePositionAvailability(team, Position.valueOf(request.getPosition()));
 
         Offer offer = request.toEntity(user, team, OfferedBy.TEAM);
         saveOffer(offer);
@@ -95,14 +95,13 @@ public class OfferService {
         User user = findOneUser(userId);
         Offer offer = findOneOfferByIdAndUser(offerId, user);
         Team team = offer.getTeam();
-        Position position = Position.fromChar(offer.getPosition());
 
         validateHasNoCurrentTeam(user);
-        validatePositionAvailability(team, position);
+        validatePositionAvailability(team, offer.getPosition());
 
         if (isAccepted) {
             offer.accept();
-            createTeamMember(user, team, Position.fromChar(offer.getPosition()));
+            createTeamMember(user, team, offer.getPosition());
 
             List<Offer> offers = findAllOfferByUserAndTeam(user, team);
             for (Offer o : offers)
@@ -129,15 +128,14 @@ public class OfferService {
         Team team = leader.getTeamMembers().get(leader.getTeamMembers().size() - 1).getTeam();
         Offer offer = findOneOfferByIdAndTeam(offerId, team);
         User user = findOneUser(offer.getUser().getId());
-        Position position = Position.fromChar(offer.getPosition());
 
         validateLeader(leader);
         validateHasNoCurrentTeam(user);
-        validatePositionAvailability(team, position);
+        validatePositionAvailability(team, offer.getPosition());
 
         if (isAccepted) {
             offer.accept();
-            createTeamMember(user, team, Position.fromChar(offer.getPosition()));
+            createTeamMember(user, team, offer.getPosition());
 
             List<Offer> offers = findAllOfferByUserAndTeam(user, team);
             for (Offer o : offers)
@@ -281,7 +279,7 @@ public class OfferService {
      * 404(OFFER_NOT_FOUND)
      */
     private Offer findOneOfferByIdAndUserAndOfferedBy(long offerId, User user) {
-        return offerRepository.findByIdAndUserAndOfferedByAndIsDeletedIsFalse(offerId, user, OfferedBy.USER.getType())
+        return offerRepository.findByIdAndUserAndOfferedByAndIsDeletedIsFalse(offerId, user, OfferedBy.USER)
                 .orElseThrow(() -> {
                     throw new CustomException(OFFER_NOT_FOUND);
                 });
@@ -292,7 +290,7 @@ public class OfferService {
      * 404(OFFER_NOT_FOUND)
      */
     private Offer findOneOfferByIdAndTeamAndOfferedBy(long offerId, Team team) {
-        return offerRepository.findByIdAndTeamAndOfferedByAndIsDeletedIsFalse(offerId, team, OfferedBy.TEAM.getType())
+        return offerRepository.findByIdAndTeamAndOfferedByAndIsDeletedIsFalse(offerId, team, OfferedBy.TEAM)
                 .orElseThrow(() -> {
                     throw new CustomException(OFFER_NOT_FOUND);
                 });
