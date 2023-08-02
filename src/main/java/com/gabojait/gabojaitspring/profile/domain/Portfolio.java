@@ -38,6 +38,8 @@ public class Portfolio extends BaseTimeEntity {
         this.media = media;
         this.user = user;
         this.isDeleted = false;
+
+        user.getPortfolios().add(this);
     }
 
     public void update(String portfolioName, String portfolioUrl, Media media) {

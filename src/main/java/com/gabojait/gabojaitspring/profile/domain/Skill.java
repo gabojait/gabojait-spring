@@ -38,6 +38,8 @@ public class Skill extends BaseTimeEntity {
         this.level = level;
         this.user = user;
         this.isDeleted = false;
+
+        user.getSkills().add(this);
     }
 
     public void update(String skillName, boolean isExperienced, Level level) {

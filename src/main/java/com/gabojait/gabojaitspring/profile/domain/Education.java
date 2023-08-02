@@ -39,6 +39,8 @@ public class Education extends BaseTimeEntity {
         this.isCurrent = isCurrent;
         this.user = user;
         this.isDeleted = false;
+
+        user.getEducations().add(this);
     }
 
     public void update(String institutionName, LocalDate startedAt, LocalDate endedAt, boolean isCurrent) {

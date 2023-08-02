@@ -47,6 +47,8 @@ public class Work extends BaseTimeEntity {
         this.isCurrent = isCurrent;
         this.user = user;
         this.isDeleted = false;
+
+        user.getWorks().add(this);
     }
 
     public void update(String corporationName,
