@@ -41,6 +41,9 @@ public class TeamMember extends BaseTimeEntity {
         this.position = position;
         this.isLeader = isLeader;
         this.isDeleted = false;
+
+        user.getTeamMembers().add(this);
+        team.getTeamMembers().add(this);
     }
 
     public void delete() {
