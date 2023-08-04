@@ -167,7 +167,7 @@ public class EmailProvider {
                 "                <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width: 600px;\">\n" +
                 "                    <tr>\n" +
                 "                        <td bgcolor=\"#ffffff\" align=\"center\" valign=\"top\" style=\"padding: 40px 20px 20px 20px; border-radius: 4px 4px 0px 0px; color: #111111; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 48px; font-weight: 400; letter-spacing: 4px; line-height: 48px;\">\n" +
-                "                            <img src=\" https://gabojait-bucket.s3.ap-northeast-2.amazonaws.com/admin/gabojait-logo.png\" width=\"222\" height=\"70\" style=\"display: block; border: 0px;\" />\n" +
+                "                            <img src=\" https://gabojait-bucket.s3.ap-northeast-2.amazonaws.com/gabojait-logo.png\" width=\"222\" height=\"70\" style=\"display: block; border: 0px;\" />\n" +
                 "                        </td>\n" +
                 "                    </tr>\n" +
                 "                </table>\n" +
