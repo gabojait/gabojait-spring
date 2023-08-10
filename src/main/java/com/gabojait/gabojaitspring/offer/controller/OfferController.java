@@ -9,6 +9,7 @@ import com.gabojait.gabojaitspring.offer.dto.req.OfferCreateReqDto;
 import com.gabojait.gabojaitspring.offer.dto.req.OfferUpdateReqDto;
 import com.gabojait.gabojaitspring.offer.dto.res.OfferDefaultResDto;
 import com.gabojait.gabojaitspring.offer.service.OfferService;
+import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,9 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.GroupSequence;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -182,9 +181,13 @@ public class OfferController {
     }
 
     @ApiOperation(value = "팀이 받은 제안 다건 조회",
-            notes = "<응답 코드>\n" +
+            notes = "<옵션>\n" +
+                    "- position[default: NONE] = DESIGNER(디자이너) || BACKEND(백엔드) || FRONTEND(프론트엔드) || " +
+                    "MANAGER(매니저) || NONE(전체)\n" +
+                    "<응답 코드>\n" +
                     "- 200 = OFFER_BY_USER_FOUND\n" +
-                    "- 400 = PAGE_FROM_FIELD_REQUIRED || PAGE_FROM_POSITIVE_OR_ZERO_ONLY || PAGE_SIZE_POSITIVE_ONLY\n" +
+                    "- 400 = PAGE_FROM_FIELD_REQUIRED || POSITION_FIELD_REQUIRED || PAGE_FROM_POSITIVE_OR_ZERO_ONLY " +
+                    "|| PAGE_SIZE_POSITIVE_ONLY || POSITION_TYPE_INVALID\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
                     "- 404 = USER_NOT_FOUND\n" +
@@ -208,11 +211,17 @@ public class OfferController {
             Integer pageFrom,
             @RequestParam(value = "page-size", required = false)
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-            Integer pageSize
+            Integer pageSize,
+            @RequestParam(value = "position", required = false)
+            @NotBlank(message = "포지션은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE)",
+                    message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다.",
+                    groups = ValidationSequence.Format.class)
+            String position
     ) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        Page<Offer> offers = offerService.findManyOffersByTeam(userId, pageFrom, pageSize);
+        Page<Offer> offers = offerService.findManyOffersByTeam(userId, pageFrom, pageSize, Position.valueOf(position));
 
         List<OfferDefaultResDto> responses = new ArrayList<>();
         for (Offer offer : offers)

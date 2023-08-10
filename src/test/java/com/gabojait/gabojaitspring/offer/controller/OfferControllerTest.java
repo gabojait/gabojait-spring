@@ -79,7 +79,7 @@ class OfferControllerTest extends WebMvc {
 
         doReturn(offers)
                 .when(this.offerService)
-                .findManyOffersByTeam(anyLong(), any(), any());
+                .findManyOffersByTeam(anyLong(), any(), any(), any());
     }
 
     @Test
@@ -396,7 +396,8 @@ class OfferControllerTest extends WebMvc {
         // when
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/offer")
                         .param("page-from", pageFrom.toString())
-                        .param("page-size", pageSize.toString()))
+                        .param("page-size", pageSize.toString())
+                        .param("position", Position.BACKEND.name()))
                 .andReturn();
 
         // then
@@ -436,7 +437,8 @@ class OfferControllerTest extends WebMvc {
         // when
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/offer")
                         .param("page-from", pageFrom.toString())
-                        .param("page-size", pageSize.toString()))
+                        .param("page-size", pageSize.toString())
+                        .param("position", Position.BACKEND.name()))
                 .andReturn();
 
         // then
@@ -457,7 +459,8 @@ class OfferControllerTest extends WebMvc {
         // when
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/offer")
                         .param("page-from", pageFrom.toString())
-                        .param("page-size", pageSize.toString()))
+                        .param("page-size", pageSize.toString())
+                        .param("position", Position.BACKEND.name()))
                 .andReturn();
 
         // then

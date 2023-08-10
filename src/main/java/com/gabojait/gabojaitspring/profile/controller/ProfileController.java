@@ -352,8 +352,8 @@ public class ProfileController {
 
     @ApiOperation(value = "팀을 찾는 회원 다건 조회",
             notes = "<옵션>\n" +
-                    "- position[default: NONE] = DESIGNER(디자이너만) || BACKEND(백엔드) || FRONTEND(프론트엔드만) || " +
-                    "MANAGER(매니저만) || NONE(전체)\n" +
+                    "- position[default: NONE] = DESIGNER(디자이너) || BACKEND(백엔드) || FRONTEND(프론트엔드) || " +
+                    "MANAGER(매니저) || NONE(전체)\n" +
                     "- profile-order[default: ACTIVE] = ACTIVE(활동순) || POPULARITY(인기순) || RATING(평점순)\n\n" +
                     "<검증>\n" +
                     "- position = NotBlank && Pattern(regex = ^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE))\n" +

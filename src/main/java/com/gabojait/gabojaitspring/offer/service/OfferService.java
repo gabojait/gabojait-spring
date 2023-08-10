@@ -6,6 +6,7 @@ import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.offer.domain.Offer;
 import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
 import com.gabojait.gabojaitspring.offer.dto.req.OfferCreateReqDto;
+import com.gabojait.gabojaitspring.offer.dto.res.OfferDefaultResDto;
 import com.gabojait.gabojaitspring.offer.repository.OfferRepository;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.team.domain.Team;
@@ -16,10 +17,12 @@ import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,6 +81,7 @@ public class OfferService {
         Team team = teamMember.getTeam();
 
         validatePositionAvailability(team, Position.valueOf(request.getPosition()));
+
 
         Offer offer = request.toEntity(user, team, OfferedBy.TEAM);
         saveOffer(offer);
@@ -242,7 +246,7 @@ public class OfferService {
      * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public Page<Offer> findManyOffersByTeam(long userId, Integer pageFrom, Integer pageSize) {
+    public Page<Offer> findManyOffersByTeam(long userId, Integer pageFrom, Integer pageSize, Position position) {
         Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
         User leader = findOneUser(userId);
         TeamMember leaderTeamMember = findOneCurrentTeamMember(leader);
@@ -251,7 +255,7 @@ public class OfferService {
         Team team = leaderTeamMember.getTeam();
 
         try {
-            return offerRepository.findAllByTeamAndIsDeletedIsFalse(team, pageable);
+            return offerRepository.findAllByTeamAndPositionAndIsDeletedIsFalse(team, position, pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }

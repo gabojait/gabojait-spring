@@ -2,6 +2,7 @@ package com.gabojait.gabojaitspring.offer.repository;
 
 import com.gabojait.gabojaitspring.offer.domain.Offer;
 import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
+import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.User;
 import org.springframework.data.domain.Page;
@@ -23,7 +24,7 @@ public interface OfferRepository extends JpaRepository<Offer, Long> {
 
     Page<Offer> findAllByUserAndIsDeletedIsFalse(User user, Pageable pageable);
 
-    Page<Offer> findAllByTeamAndIsDeletedIsFalse(Team team, Pageable pageable);
+    Page<Offer> findAllByTeamAndPositionAndIsDeletedIsFalse(Team team, Position position, Pageable pageable);
 
     List<Offer> findAllByUserAndTeamAndIsAcceptedIsNullAndIsDeletedIsFalse(User user, Team team);
 }
