@@ -183,7 +183,7 @@ public class OfferController {
     @ApiOperation(value = "팀이 받은 제안 다건 조회",
             notes = "<옵션>\n" +
                     "- position[default: NONE] = DESIGNER(디자이너) || BACKEND(백엔드) || FRONTEND(프론트엔드) || " +
-                    "MANAGER(매니저) || NONE(전체)\n" +
+                    "MANAGER(매니저)\n" +
                     "<응답 코드>\n" +
                     "- 200 = OFFER_BY_USER_FOUND\n" +
                     "- 400 = PAGE_FROM_FIELD_REQUIRED || POSITION_FIELD_REQUIRED || PAGE_FROM_POSITIVE_OR_ZERO_ONLY " +
