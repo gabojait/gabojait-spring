@@ -93,7 +93,7 @@ public class ProfileDefaultResDto extends ProfileAbstractResDto {
 
         if (!teamMembers.isEmpty()) {
             teamMembers.forEach(teamMember -> {
-                if (teamMember.getTeam().getCompletedAt() != null) {
+                if (teamMember.getTeam().getIsDeleted()) {
                     this.completedTeams.add(new TeamAbstractResDto(teamMember.getTeam()));
                 } else {
                     this.isLeader = teamMember.getIsLeader();
