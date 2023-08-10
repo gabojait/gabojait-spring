@@ -2,6 +2,7 @@ package com.gabojait.gabojaitspring.exception;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.gabojait.gabojaitspring.common.dto.ExceptionResDto;
+import io.sentry.Sentry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import javax.validation.ConstraintViolationException;
 import java.util.Objects;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.PAYLOAD_TOO_LARGE;
 
 @Slf4j
@@ -29,8 +31,8 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = { CustomException.class })
     protected ResponseEntity<ExceptionResDto> handleCustomException(CustomException exception) {
-//        if (exception.getExceptionCode().getHttpStatus().equals(INTERNAL_SERVER_ERROR))
-//            Sentry.captureException(exception);
+        if (exception.getExceptionCode().getHttpStatus().equals(INTERNAL_SERVER_ERROR))
+            Sentry.captureException(exception);
 
         return ExceptionResDto.exceptionResponse(exception.getExceptionCode());
     }

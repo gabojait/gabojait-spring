@@ -86,3 +86,7 @@ firebase:
     x509:
       cert:
         url: ${FIREBASE_CLIENT_CERT_URL}
+
+sentry:
+  dns: ${SENTRY_DNS}
+  traces-sample-rate: 1.0

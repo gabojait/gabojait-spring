@@ -64,6 +64,7 @@ jobs:
           S3_PROFILE_IMG_BUCKET: ${{ secrets.S3_PROFILE_IMG_BUCKET }}
           S3_REGION: ${{ secrets.S3_REGION }}
           S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SWAGGER_BASE_URL: ${{ secrets.SWAGGER_BASE_URL }}
           SWAGGER_ENABLED: ${{ secrets.SWAGGER_ENABLED }}
 
