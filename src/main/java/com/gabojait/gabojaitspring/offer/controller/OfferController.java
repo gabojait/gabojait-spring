@@ -214,8 +214,8 @@ public class OfferController {
             Integer pageSize,
             @RequestParam(value = "position", required = false)
             @NotBlank(message = "포지션은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-            @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE)",
-                    message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다.",
+            @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER)",
+                    message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 또는 'MANAGER' 중 하나여야 됩니다.",
                     groups = ValidationSequence.Format.class)
             String position
     ) {
