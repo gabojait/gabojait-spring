@@ -416,7 +416,8 @@ class OfferControllerTest extends WebMvc {
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/offer")
-                        .param("page-size", pageSize.toString()))
+                        .param("page-size", pageSize.toString())
+                        .param("position", Position.BACKEND.name()))
                 .andReturn();
 
         // then
@@ -425,6 +426,27 @@ class OfferControllerTest extends WebMvc {
 
         assertThat(status).isEqualTo(PAGE_FROM_FIELD_REQUIRED.getHttpStatus().value());
         assertThat(response).contains(PAGE_FROM_FIELD_REQUIRED.name());
+    }
+
+    @Test
+    @DisplayName("팀이 받은 제안 다건 조회 | 포지션 미입력시 | 400반환")
+    void teamFindOffers_givenPositionFieldRequired_return400() throws Exception {
+        // given
+        Integer pageFrom = getValidPageFrom();
+        Integer pageSize = 0;
+
+        // when
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/offer")
+                        .param("page-from", pageFrom.toString())
+                        .param("page-size", pageSize.toString()))
+                .andReturn();
+
+        // then
+        int status = mvcResult.getResponse().getStatus();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(status).isEqualTo(POSITION_FIELD_REQUIRED.getHttpStatus().value());
+        assertThat(response).contains(POSITION_FIELD_REQUIRED.name());
     }
 
     @Test
@@ -469,6 +491,28 @@ class OfferControllerTest extends WebMvc {
 
         assertThat(status).isEqualTo(PAGE_SIZE_POSITIVE_ONLY.getHttpStatus().value());
         assertThat(response).contains(PAGE_SIZE_POSITIVE_ONLY.name());
+    }
+
+    @Test
+    @DisplayName("팀이 받은 제안 다건 조회 | 잘못된 포지션 타입 | 400반환")
+    void teamFindOffers_givenInvalidPositionType_return400() throws Exception {
+        // given
+        Integer pageFrom = getValidPageFrom();
+        Integer pageSize = getValidPageSize();
+
+        // when
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/offer")
+                        .param("page-from", pageFrom.toString())
+                        .param("page-size", pageSize.toString())
+                        .param("position", "TESTER"))
+                .andReturn();
+
+        // then
+        int status = mvcResult.getResponse().getStatus();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(status).isEqualTo(POSITION_TYPE_INVALID.getHttpStatus().value());
+        assertThat(response).contains(POSITION_TYPE_INVALID.name());
     }
 
     @Test

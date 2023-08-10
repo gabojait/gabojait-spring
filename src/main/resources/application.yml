@@ -88,5 +88,8 @@ firebase:
         url: ${FIREBASE_CLIENT_CERT_URL}
 
 sentry:
-  dns: ${SENTRY_DNS}
+  dsn: ${SENTRY_DSN}
   traces-sample-rate: 1.0
+  logging:
+    minimum-event-level: info
+    minimum-breadcrumb-level: info

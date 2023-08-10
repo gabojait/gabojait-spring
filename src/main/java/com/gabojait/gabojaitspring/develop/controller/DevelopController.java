@@ -5,6 +5,7 @@ import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.develop.dto.req.DevelopFcmReqDto;
 import com.gabojait.gabojaitspring.develop.service.DevelopService;
+import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -24,6 +25,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
+import static com.gabojait.gabojaitspring.common.code.ErrorCode.SERVER_ERROR;
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -43,13 +45,11 @@ public class DevelopController {
 
     @ApiOperation(value = "헬스 체크",
             notes = "<응답 코드>\n" +
-                    "* 200 = SERVER_OK\n" +
-                    "* 500 = SERVER_ERROR\n" +
-                    "* 503 = ONGOING_INSPECTION")
+                    "- 200 = SERVER_OK\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/health")
@@ -63,11 +63,24 @@ public class DevelopController {
                         .build());
     }
 
+    @ApiOperation(value = "모니터링 체크",
+            notes = "<응답 코드>\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
+    })
+    @GetMapping("/monitor")
+    public ResponseEntity<DefaultNoResDto> monitorCheck() {
+        throw new CustomException(SERVER_ERROR);
+    }
+
     @ApiOperation(value = "데이터베이스 초기화 후 테스트 데이터 주입",
             notes = "<응답 코드>\n" +
-                    "* 200 = TEST_DATA_INJECTED\n" +
-                    "* 500 = SERVER_ERROR\n" +
-                    "* 503 = ONGOING_INSPECTION")
+                    "- 200 = TEST_DATA_INJECTED\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = Object.class))),
