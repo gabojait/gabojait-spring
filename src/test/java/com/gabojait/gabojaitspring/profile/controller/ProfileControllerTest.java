@@ -12,6 +12,7 @@ import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.profile.domain.type.ProfileOrder;
 import com.gabojait.gabojaitspring.profile.dto.ProfileSeekPageDto;
 import com.gabojait.gabojaitspring.profile.dto.req.*;
+import com.gabojait.gabojaitspring.profile.dto.res.ProfileDefaultResDto;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileSeekResDto;
 import com.gabojait.gabojaitspring.profile.service.ProfileService;
 import com.gabojait.gabojaitspring.team.domain.Team;
@@ -92,23 +93,25 @@ class ProfileControllerTest extends WebMvc {
 
         ProfileSeekPageDto profileSeekPageDto = new ProfileSeekPageDto(List.of(profileSeekResDto), 15);
 
+        ProfileDefaultResDto profileResDto = new ProfileDefaultResDto(tester, List.of());
+
         doReturn(profileSeekPageDto)
                 .when(this.profileService)
                 .findManyUsersByPositionWithProfileOrder(anyLong(), any(), any(), any(), any());
 
-        doReturn(tester)
+        doReturn(profileResDto)
                 .when(this.profileService)
                 .updateProfile(anyLong(), any());
 
-        doReturn(tester)
+        doReturn(profileResDto)
                 .when(this.profileService)
                 .uploadProfileImage(anyLong(), any());
 
-        doReturn(tester)
+        doReturn(profileResDto)
                 .when(this.profileService)
-                .findOneUser(anyLong());
+                .findOneProfile(anyLong());
 
-        doReturn(tester)
+        doReturn(profileResDto)
                 .when(this.profileService)
                 .deleteProfileImage(anyLong());
 

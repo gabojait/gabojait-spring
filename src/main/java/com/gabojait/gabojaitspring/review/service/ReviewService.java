@@ -43,6 +43,7 @@ public class ReviewService {
      */
     public void create(long reviewerId, long teamId, ReviewCreateReqDto request) {
         User reviewer = findOneUser(reviewerId);
+
         for(ReviewDefaultReqDto req : request.getReviews())
             validateTeamMember(teamId, req.getUserId());
 
@@ -82,7 +83,7 @@ public class ReviewService {
      */
     public List<Team> findAllReviewableTeams(long userId) {
         User user = findOneUser(userId);
-        List<TeamMember> teamMembers = user.getTeamMembers();
+        List<TeamMember> teamMembers = findManyCompleteTeamMember(user);
         List<Team> reviewableTeams = new ArrayList<>();
 
         for(TeamMember teamMember : teamMembers) {
@@ -139,6 +140,13 @@ public class ReviewService {
                 .orElseThrow(() -> {
                     throw new CustomException(TEAM_NOT_FOUND);
                 });
+    }
+
+    /**
+     * 회원 식별자로 팀원 다건 조회
+     */
+    private List<TeamMember> findManyCompleteTeamMember(User user) {
+        return teamMemberRepository.findByUserAndIsDeletedIsTrue(user);
     }
 
     /**

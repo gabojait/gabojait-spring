@@ -12,7 +12,6 @@ import com.gabojait.gabojaitspring.profile.dto.req.*;
 import com.gabojait.gabojaitspring.profile.dto.res.*;
 import com.gabojait.gabojaitspring.profile.service.ProfileService;
 import com.gabojait.gabojaitspring.team.service.TeamService;
-import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -71,9 +70,7 @@ public class ProfileController {
     public ResponseEntity<DefaultSingleResDto<Object>> findMyself(HttpServletRequest servletRequest) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        User user = profileService.findOneUser(userId);
-
-        ProfileDefaultResDto response = new ProfileDefaultResDto(user);
+        ProfileDefaultResDto response = profileService.findOneProfile(userId);
 
         return ResponseEntity.status(SELF_PROFILE_FOUND.getHttpStatus())
                 .body(DefaultSingleResDto.singleDataBuilder()
@@ -157,9 +154,7 @@ public class ProfileController {
                                                                     MultipartFile image) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        User user = profileService.uploadProfileImage(userId, image);
-
-        ProfileDefaultResDto response = new ProfileDefaultResDto(user);
+        ProfileDefaultResDto response = profileService.uploadProfileImage(userId, image);
 
         return ResponseEntity.status(PROFILE_IMAGE_UPLOADED.getHttpStatus())
                 .body(DefaultSingleResDto.singleDataBuilder()
@@ -190,9 +185,7 @@ public class ProfileController {
     public ResponseEntity<DefaultSingleResDto<Object>> deleteProfileImage(HttpServletRequest servletRequest) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        User user = profileService.deleteProfileImage(userId);
-
-        ProfileDefaultResDto response = new ProfileDefaultResDto(user);
+        ProfileDefaultResDto response = profileService.deleteProfileImage(userId);
 
         return ResponseEntity.status(PROFILE_IMAGE_DELETED.getHttpStatus())
                 .body(DefaultSingleResDto.singleDataBuilder()
@@ -303,9 +296,7 @@ public class ProfileController {
                                                                      ProfileDefaultReqDto request) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        User updatedUser = profileService.updateProfile(userId, request);
-
-        ProfileDefaultResDto response = new ProfileDefaultResDto(updatedUser);
+        ProfileDefaultResDto response = profileService.updateProfile(userId, request);
 
         return ResponseEntity.status(PROFILE_UPDATED.getHttpStatus())
                 .body(DefaultSingleResDto.singleDataBuilder()

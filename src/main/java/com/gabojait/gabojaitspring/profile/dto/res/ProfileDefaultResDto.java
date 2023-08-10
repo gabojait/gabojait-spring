@@ -2,6 +2,7 @@ package com.gabojait.gabojaitspring.profile.dto.res;
 
 import com.gabojait.gabojaitspring.review.domain.Review;
 import com.gabojait.gabojaitspring.review.dto.res.ReviewDefaultResDto;
+import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.team.dto.res.TeamAbstractResDto;
 import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
@@ -50,12 +51,11 @@ public class ProfileDefaultResDto extends ProfileAbstractResDto {
     @ApiModelProperty(position = 18, required = true, value = "현재 팀")
     private TeamAbstractResDto currentTeam;
 
-    public ProfileDefaultResDto(User user) {
+    public ProfileDefaultResDto(User user, List<TeamMember> teamMembers) {
         super(user);
 
         this.profileDescription = user.getProfileDescription();
         this.imageUrl = user.getImageUrl();
-        this.isLeader = user.isLeader();
         this.isSeekingTeam = user.getIsSeekingTeam();
 
         if (!user.getReceivedReviews().isEmpty()) {
@@ -90,8 +90,9 @@ public class ProfileDefaultResDto extends ProfileAbstractResDto {
                         if (!work.getIsDeleted())
                             this.works.add(new WorkDefaultResDto(work));
                     });
-        if (!user.getTeamMembers().isEmpty())
-            user.getTeamMembers().forEach(teamMember -> {
+
+        if (!teamMembers.isEmpty()) {
+            teamMembers.forEach(teamMember -> {
                 if (teamMember.getTeam().getCompletedAt() != null) {
                     this.completedTeams.add(new TeamAbstractResDto(teamMember.getTeam()));
                 } else {
@@ -99,5 +100,6 @@ public class ProfileDefaultResDto extends ProfileAbstractResDto {
                     this.currentTeam = new TeamAbstractResDto(teamMember.getTeam());
                 }
             });
+        }
     }
 }

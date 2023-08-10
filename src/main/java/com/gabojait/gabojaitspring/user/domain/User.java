@@ -71,10 +71,6 @@ public class User extends BaseTimeEntity implements UserDetails {
     @ToString.Exclude
     private List<Work> works = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
-    @ToString.Exclude
-    private List<TeamMember> teamMembers = new ArrayList<>();
-
     @Column(nullable = false, length = 15)
     private String username;
     @Column(nullable = false)
@@ -309,36 +305,12 @@ public class User extends BaseTimeEntity implements UserDetails {
      * Team related
      */
 
-    public boolean isLeader() {
-        if (this.teamMembers.isEmpty())
-            return false;
-
-        TeamMember teamMember = this.teamMembers.get(this.teamMembers.size() - 1);
-
-        if (teamMember.getTeam().getIsDeleted())
-            return false;
-
-        return teamMember.getIsLeader();
-    }
-
-    public boolean isTeamMember(Team team) {
-        for(TeamMember teamMember : this.teamMembers)
-            if (teamMember.getTeam().getId().equals(team.getId()))
-                return true;
-
-        return false;
-    }
-
     public void incrementCreateTeamCnt() {
         this.createTeamCnt++;
     }
 
     public void incrementJoinTeamCnt() {
         this.joinTeamCnt++;
-    }
-
-    public void incrementFiredTeamCnt() {
-        this.firedTeamCnt++;
     }
 
     public void incrementQuitTeamByLeaderCnt() {

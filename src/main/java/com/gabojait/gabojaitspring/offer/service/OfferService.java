@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 
@@ -69,10 +70,12 @@ public class OfferService {
         User leader = findOneUser(leaderId);
         User user = findOneUser(userId);
 
-        validateLeader(leader);
         validateHasNoCurrentTeam(user);
 
-        Team team = leader.getTeamMembers().get(leader.getTeamMembers().size() - 1).getTeam();
+        TeamMember teamMember = findOneCurrentTeamMember(leader);
+
+        validateLeader(teamMember);
+        Team team = teamMember.getTeam();
 
         validatePositionAvailability(team, Position.valueOf(request.getPosition()));
 
@@ -125,13 +128,15 @@ public class OfferService {
      */
     public void decideByTeam(long leaderId, Long offerId, Boolean isAccepted) {
         User leader = findOneUser(leaderId);
-        Team team = leader.getTeamMembers().get(leader.getTeamMembers().size() - 1).getTeam();
-        Offer offer = findOneOfferByIdAndTeam(offerId, team);
-        User user = findOneUser(offer.getUser().getId());
 
-        validateLeader(leader);
-        validateHasNoCurrentTeam(user);
+        TeamMember leaderTeamMember = findOneCurrentTeamMember(leader);
+        validateLeader(leaderTeamMember);
+        Team team = leaderTeamMember.getTeam();
+        Offer offer = findOneOfferByIdAndTeam(offerId, team);
         validatePositionAvailability(team, offer.getPosition());
+
+        User user = findOneUser(offer.getUser().getId());
+        validateHasNoCurrentTeam(user);
 
         if (isAccepted) {
             offer.accept();
@@ -167,10 +172,10 @@ public class OfferService {
      */
     public void cancelByTeam(long leaderId, Long offerId) {
         User leader = findOneUser(leaderId);
+        TeamMember leaderTeamMember = findOneCurrentTeamMember(leader);
+        validateLeader(leaderTeamMember);
+        Team team = leaderTeamMember.getTeam();
 
-        validateLeader(leader);
-
-        Team team = leader.getTeamMembers().get(leader.getTeamMembers().size() - 1).getTeam();
         Offer offer = findOneOfferByIdAndTeamAndOfferedBy(offerId, team);
 
         offer.cancel();
@@ -239,11 +244,11 @@ public class OfferService {
      */
     public Page<Offer> findManyOffersByTeam(long userId, Integer pageFrom, Integer pageSize) {
         Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
-        User user = findOneUser(userId);
+        User leader = findOneUser(userId);
+        TeamMember leaderTeamMember = findOneCurrentTeamMember(leader);
+        validateLeader(leaderTeamMember);
 
-        validateLeader(user);
-
-        Team team = user.getTeamMembers().get(user.getTeamMembers().size() - 1).getTeam();
+        Team team = leaderTeamMember.getTeam();
 
         try {
             return offerRepository.findAllByTeamAndIsDeletedIsFalse(team, pageable);
@@ -331,15 +336,26 @@ public class OfferService {
     }
 
     /**
+     * 식별자로 현재 팀원 단건 조회 |
+     * 404(CURRENT_TEAM_NOT_FOUND)
+     */
+    private TeamMember findOneCurrentTeamMember(User user) {
+        return teamMemberRepository.findByUserAndIsDeletedIsFalse(user)
+                .orElseThrow(() -> {
+                    throw new CustomException(CURRENT_TEAM_NOT_FOUND);
+                });
+    }
+
+    /**
      * 회원으로 현재 팀 미존재 검증 |
      * 409(EXISTING_CURRENT_TEAM)
      */
     private void validateHasNoCurrentTeam(User user) {
-        if (user.getTeamMembers().isEmpty())
-            return;
+        Optional<TeamMember> foundTeamMember =  teamMemberRepository.findByUserAndIsDeletedIsFalse(user);
 
-        if (!user.getTeamMembers().get(user.getTeamMembers().size() - 1).getIsDeleted())
+        if (foundTeamMember.isPresent())
             throw new CustomException(EXISTING_CURRENT_TEAM);
+
     }
 
     /**
@@ -357,8 +373,8 @@ public class OfferService {
      * 리더 검증 |
      * 403(REQUEST_FORBIDDEN)
      */
-    private void validateLeader(User user) {
-        if (!user.isLeader())
+    private void validateLeader(TeamMember teamMember) {
+        if (!teamMember.getIsLeader())
             throw new CustomException(REQUEST_FORBIDDEN);
     }
 }

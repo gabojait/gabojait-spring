@@ -2,6 +2,7 @@ package com.gabojait.gabojaitspring.profile.dto.res;
 
 import com.gabojait.gabojaitspring.offer.domain.Offer;
 import com.gabojait.gabojaitspring.offer.dto.res.OfferAbstractResDto;
+import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -22,8 +23,11 @@ public class ProfileOfferAndFavoriteResDto extends ProfileDefaultResDto {
     @ApiModelProperty(position = 20, required = true, value = "찜 여부", allowableValues = "true, false, null")
     private Boolean isFavorite;
 
-    public ProfileOfferAndFavoriteResDto(User user, List<Offer> offers, Boolean isFavorite) {
-        super(user);
+    public ProfileOfferAndFavoriteResDto(User user,
+                                         List<TeamMember> teamMembers,
+                                         List<Offer> offers,
+                                         Boolean isFavorite) {
+        super(user, teamMembers);
 
         for (Offer offer : offers)
             this.offers.add(new OfferAbstractResDto(offer));

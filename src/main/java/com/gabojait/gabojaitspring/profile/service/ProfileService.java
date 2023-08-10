@@ -17,6 +17,7 @@ import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.profile.domain.type.ProfileOrder;
 import com.gabojait.gabojaitspring.profile.dto.*;
 import com.gabojait.gabojaitspring.profile.dto.req.*;
+import com.gabojait.gabojaitspring.profile.dto.res.ProfileDefaultResDto;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileOfferAndFavoriteResDto;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileSeekResDto;
 import com.gabojait.gabojaitspring.profile.repository.EducationRepository;
@@ -24,6 +25,8 @@ import com.gabojait.gabojaitspring.profile.repository.PortfolioRepository;
 import com.gabojait.gabojaitspring.profile.repository.SkillRepository;
 import com.gabojait.gabojaitspring.profile.repository.WorkRepository;
 import com.gabojait.gabojaitspring.team.domain.Team;
+import com.gabojait.gabojaitspring.team.domain.TeamMember;
+import com.gabojait.gabojaitspring.team.repository.TeamMemberRepository;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +62,7 @@ public class ProfileService {
     private final UserRepository userRepository;
     private final OfferRepository offerRepository;
     private final FavoriteUserRepository favoriteUserRepository;
+    private final TeamMemberRepository teamMemberRepository;
     private final FileProvider fileProvider;
     private final GeneralProvider generalProvider;
 
@@ -69,7 +73,7 @@ public class ProfileService {
      * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public User updateProfile(long userId, ProfileDefaultReqDto request) {
+    public ProfileDefaultResDto updateProfile(long userId, ProfileDefaultReqDto request) {
         User user = findOneUser(userId);
 
         validateDate(request.getEducations(), request.getWorks());
@@ -80,7 +84,9 @@ public class ProfileService {
         cudWorks(user, request.getWorks());
         cudPortfolios(user, request.getPortfolios());
 
-        return user;
+        List<TeamMember> teamMembers = findAllTeamMembers(user);
+
+        return new ProfileDefaultResDto(user, teamMembers);
     }
 
     /**
@@ -122,7 +128,7 @@ public class ProfileService {
      * 415(IMAGE_TYPE_UNSUPPORTED)
      * 500(SERVER_ERROR)
      */
-    public User uploadProfileImage(long userId, MultipartFile multipartFile) {
+    public ProfileDefaultResDto uploadProfileImage(long userId, MultipartFile multipartFile) {
         User user = findOneUser(userId);
 
         String url = fileProvider.upload(profileImgBucketName,
@@ -133,17 +139,22 @@ public class ProfileService {
 
         user.updateImageUrl(url);
 
-        return user;
+        List<TeamMember> teamMembers = findAllTeamMembers(user);
+
+        return new ProfileDefaultResDto(user, teamMembers);
     }
 
     /**
      * 프로필 이미지 삭제 |
      * 404(USER_NOT_FOUND)
      */
-    public User deleteProfileImage(long userId) {
+    public ProfileDefaultResDto deleteProfileImage(long userId) {
         User user = findOneUser(userId);
         user.updateImageUrl(null);
-        return user;
+
+        List<TeamMember> teamMembers = findAllTeamMembers(user);
+
+        return new ProfileDefaultResDto(user, teamMembers);
     }
 
     /**
@@ -153,9 +164,10 @@ public class ProfileService {
      */
     public ProfileOfferAndFavoriteResDto findOneOtherProfile(long userId, Long otherUserId) {
         User user = findOneUser(userId);
+        List<TeamMember> teamMembers = findAllTeamMembers(user);
 
         if (userId == otherUserId)
-            return new ProfileOfferAndFavoriteResDto(user, List.of(), null);
+            return new ProfileOfferAndFavoriteResDto(user, teamMembers, List.of(), null);
 
         User otherUser = findOneUser(otherUserId);
 
@@ -164,12 +176,15 @@ public class ProfileService {
         List<Offer> offers = new ArrayList<>();
         Boolean isFavorite = null;
 
-        if (user.isLeader()) {
+        Optional<TeamMember> foundTeamMember = findOneCurrentTeamMember(user);
+        TeamMember teamMember = validateHasCurrentTeam(foundTeamMember);
+
+        if (teamMember.getIsLeader()) {
             offers = findAllOffersToUser(user, otherUser);
             isFavorite = isFavoriteUser(otherUser, user);
         }
 
-        return new ProfileOfferAndFavoriteResDto(otherUser, offers, isFavorite);
+        return new ProfileOfferAndFavoriteResDto(otherUser, teamMembers, offers, isFavorite);
     }
 
     /**
@@ -290,8 +305,10 @@ public class ProfileService {
         }
 
         List<ProfileSeekResDto> profileSeekResDtos = new ArrayList<>();
+        Optional<TeamMember> foundTeamMember = findOneCurrentTeamMember(user);
+        TeamMember teamMember = validateHasCurrentTeam(foundTeamMember);
 
-        if (user.isLeader()) {
+        if (teamMember.getIsLeader()) {
             for (User u : users) {
                 List<Offer> offers = findAllOffersToUser(user, u);
                 profileSeekResDtos.add(new ProfileSeekResDto(u, offers));
@@ -308,11 +325,23 @@ public class ProfileService {
      * 식별자로 회원 단건 조회 |
      * 404(USER_NOT_FOUND)
      */
-    public User findOneUser(long userId) {
+    private User findOneUser(long userId) {
         return userRepository.findByIdAndIsDeletedIsFalse(userId)
                 .orElseThrow(() -> {
                     throw new CustomException(USER_NOT_FOUND);
                 });
+    }
+
+    /**
+     * 식별자로 회원 프로필 단건 조회 |
+     * 404(USER_NOT_FOUND)
+     */
+    public ProfileDefaultResDto findOneProfile(long userId) {
+        User user = findOneUser(userId);
+
+        List<TeamMember> teamMembers = findAllTeamMembers(user);
+
+        return new ProfileDefaultResDto(user, teamMembers);
     }
 
     /**
@@ -397,10 +426,14 @@ public class ProfileService {
 
     /**
      * 리더와 회원으로 리더가 특정 회원에게 보낸 전체 제안 조회 |
+     * 404(TEAM_MEMBER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
     private List<Offer> findAllOffersToUser(User leader, User user) {
-        Team team = leader.getTeamMembers().get(leader.getTeamMembers().size() - 1).getTeam();
+        Optional<TeamMember> foundLeaderTeamMember = findOneCurrentTeamMember(leader);
+        TeamMember leaderTeamMember = validateHasCurrentTeam(foundLeaderTeamMember);
+        validateLeader(leaderTeamMember);
+        Team team = leaderTeamMember.getTeam();
 
         try {
             return offerRepository.findAllByUserAndTeamAndIsAcceptedIsNullAndIsDeletedIsFalse(user, team);
@@ -458,11 +491,29 @@ public class ProfileService {
     }
 
     /**
+     * 회원으로 팀원 단건 조회
+     */
+    private Optional<TeamMember> findOneCurrentTeamMember(User user) {
+        return teamMemberRepository.findByUserAndIsDeletedIsFalse(user);
+    }
+
+    /**
+     * 회원으로 전체 팀원 조회
+     */
+    private List<TeamMember> findAllTeamMembers(User user) {
+        return teamMemberRepository.findAllByUser(user);
+    }
+
+    /**
      * 찜한 회원 여부 확인 |
+     * 404(TEAM_MEMBER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
     private boolean isFavoriteUser(User user, User leader) {
-        Team team = leader.getTeamMembers().get(leader.getTeamMembers().size() - 1).getTeam();
+        Optional<TeamMember> foundLeaderTeamMember = findOneCurrentTeamMember(leader);
+        TeamMember leaderTeamMember = validateHasCurrentTeam(foundLeaderTeamMember);
+        validateLeader(leaderTeamMember);
+        Team team = leaderTeamMember.getTeam();
 
         try {
             Optional<FavoriteUser> favoriteUser =
@@ -773,5 +824,25 @@ public class ProfileService {
                 if (work.getEndedAt() == null)
                     throw new CustomException(WORK_ENDED_AT_FIELD_REQUIRED);
         }
+    }
+
+    /**
+     * 현재 팀 존재 여부 검증 |
+     * 404(TEAM_MEMBER_NOT_FOUND)
+     */
+    private TeamMember validateHasCurrentTeam(Optional<TeamMember> teamMember) {
+        if (teamMember.isEmpty())
+            throw new CustomException(TEAM_MEMBER_NOT_FOUND);
+
+        return teamMember.get();
+    }
+
+    /**
+     * 리더 여부 검증 |
+     * 403(REQUEST_FORBIDDEN)
+     */
+    private void validateLeader(TeamMember teamMember) {
+        if (!teamMember.getIsLeader())
+            throw new CustomException(REQUEST_FORBIDDEN);
     }
 }

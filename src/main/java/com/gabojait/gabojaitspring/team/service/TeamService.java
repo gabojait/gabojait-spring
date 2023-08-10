@@ -49,8 +49,9 @@ public class TeamService {
      */
     public Team create(long userId, TeamDefaultReqDto request) {
         User user = findOneUser(userId);
+        Optional<TeamMember> teamMember = findOneCurrentTeamMember(user);
 
-        validateHasNoCurrentTeam(user);
+        validateHasNoCurrentTeam(teamMember);
         validateCurrentPosition(user);
 
         Team team = request.toEntity(user);
@@ -70,7 +71,9 @@ public class TeamService {
      */
     public Team update(long userId, TeamDefaultReqDto request) {
         User user = findOneUser(userId);
-        TeamMember teamMember = findOneCurrentTeamMember(user);
+
+        Optional<TeamMember> foundTeamMember = findOneCurrentTeamMember(user);
+        TeamMember teamMember = validateHasCurrentTeam(foundTeamMember);
         validateIsLeader(teamMember);
 
         Map<Position, Byte> teamMemberRecruits = new HashMap<>();
@@ -101,8 +104,9 @@ public class TeamService {
      */
     public void updateIsRecruiting(long userId, boolean isRecruiting) {
         User user = findOneUser(userId);
-        TeamMember teamMember = findOneCurrentTeamMember(user);
 
+        Optional<TeamMember> foundTeamMember = findOneCurrentTeamMember(user);
+        TeamMember teamMember = validateHasCurrentTeam(foundTeamMember);
         validateIsLeader(teamMember);
 
         teamMember.getTeam().updateIsRecruiting(isRecruiting);
@@ -116,8 +120,9 @@ public class TeamService {
      */
     public void quit(long userId, String projectUrl) {
         User user = findOneUser(userId);
-        TeamMember teamMember = findOneCurrentTeamMember(user);
 
+        Optional<TeamMember> foundTeamMember = findOneCurrentTeamMember(user);
+        TeamMember teamMember = validateHasCurrentTeam(foundTeamMember);
         validateIsLeader(teamMember);
 
         if (projectUrl.isBlank())
@@ -134,25 +139,18 @@ public class TeamService {
      */
     public void fire(long leaderUserId, Long userId) {
         validateSelfFire(leaderUserId, userId);
-
         User leader = findOneUser(leaderUserId);
-        TeamMember leaderTeamMember = findOneCurrentTeamMember(leader);
 
+        Optional<TeamMember> foundLeaderTeamMember = findOneCurrentTeamMember(leader);
+        TeamMember leaderTeamMember = validateHasCurrentTeam(foundLeaderTeamMember);
         validateIsLeader(leaderTeamMember);
 
-        Team team = leaderTeamMember.getTeam();
-        for(TeamMember teamMember : team.getTeamMembers())
-            if (teamMember.getUser().getId().equals(userId)) {
-                teamMember.delete();
+        User user = findOneUser(userId);
+        TeamMember teamMember = findOneTeamMember(user, leaderTeamMember.getTeam());
 
-                teamMember.getUser().updateIsSeekingTeam(true);
-
-                team.incrementUserFiredCnt();
-                teamMember.getUser().incrementFiredTeamCnt();
-
-                fcmProvider.sendTeamMemberFired(teamMember.getUser(), team);
-                return;
-            }
+        teamMember.delete();
+        teamMember.getUser().updateIsSeekingTeam(true);
+        fcmProvider.sendTeamMemberFired(user, teamMember.getTeam());
     }
 
     /**
@@ -188,12 +186,12 @@ public class TeamService {
      */
     public void leaveTeam(long userId) {
         User user = findOneUser(userId);
-        TeamMember teamMember = findOneCurrentTeamMember(user);
 
+        Optional<TeamMember> foundTeamMember = findOneCurrentTeamMember(user);
+        TeamMember teamMember = validateHasCurrentTeam(foundTeamMember);
         Team team = teamMember.getTeam();
 
         user.updateIsSeekingTeam(true);
-
         team.incrementUserLeftCnt();
         user.incrementQuitTeamByUserCnt();
 
@@ -232,7 +230,8 @@ public class TeamService {
      */
     public Team findOneCurrentTeam(long userId) {
         User user = findOneUser(userId);
-        TeamMember teamMember = findOneCurrentTeamMember(user);
+        Optional<TeamMember> foundTeamMember = findOneCurrentTeamMember(user);
+        TeamMember teamMember = validateHasCurrentTeam(foundTeamMember);
 
         return teamMember.getTeam();
     }
@@ -246,9 +245,8 @@ public class TeamService {
         User user = findOneUser(userId);
         Team team = findOneTeam(teamId);
 
-        boolean isTeamMember = user.isTeamMember(team);
-
-        if (!isTeamMember)
+        Optional<TeamMember> foundTeamMember = teamMemberRepository.findByUserAndTeamAndIsDeletedIsFalse(user, team);
+        if (foundTeamMember.isEmpty())
             team.incrementVisitedCnt();
 
         List<Offer> offers = findAllOffersToTeam(user, team);
@@ -318,6 +316,17 @@ public class TeamService {
                 .orElseThrow(() -> {
                     throw new CustomException(USER_NOT_FOUND);
                 });
+    }
+
+    /**
+     * 회원 식별자와 팀 식별자로 팀멤버 단건 조회 |
+     * 404(TEAM_MEMBER_NOT_FOUND)
+     */
+    private TeamMember findOneTeamMember(User user, Team team) {
+       return teamMemberRepository.findByUserAndTeamAndIsDeletedIsFalse(user, team)
+               .orElseThrow(() -> {
+                   throw new CustomException(TEAM_MEMBER_NOT_FOUND);
+               });
     }
 
     /**
@@ -483,14 +492,10 @@ public class TeamService {
     }
 
     /**
-     * 현재 팀 멤버 단건 조회 |
-     * 404(CURRENT_TEAM_NOT_FOUND)
+     * 현재 팀 멤버 단건 조회
      */
-    public TeamMember findOneCurrentTeamMember(User user) {
-        return teamMemberRepository.findByUserAndIsDeletedIsFalse(user)
-                .orElseThrow(() -> {
-                    throw new CustomException(CURRENT_TEAM_NOT_FOUND);
-                });
+    public Optional<TeamMember> findOneCurrentTeamMember(User user) {
+        return teamMemberRepository.findByUserAndIsDeletedIsFalse(user);
     }
 
     /**
@@ -515,14 +520,22 @@ public class TeamService {
     }
 
     /**
+     * 회원으로 현재 팀 존재 검증 |
+     * 404(CURRENT_TEAM_NOT_FOUND)
+     */
+    private TeamMember validateHasCurrentTeam(Optional<TeamMember> teamMember) {
+        if (teamMember.isEmpty())
+            throw new CustomException(CURRENT_TEAM_NOT_FOUND);
+
+        return teamMember.get();
+    }
+
+    /**
      * 회원으로 현재 팀 미존재 검증 |
      * 409(EXISTING_CURRENT_TEAM)
      */
-    private void validateHasNoCurrentTeam(User user) {
-        if (user.getTeamMembers().isEmpty())
-            return;
-
-        if (!user.getTeamMembers().get(user.getTeamMembers().size() - 1).getIsDeleted())
+    private void validateHasNoCurrentTeam(Optional<TeamMember> teamMember) {
+        if (teamMember.isPresent())
             throw new CustomException(EXISTING_CURRENT_TEAM);
     }
 
