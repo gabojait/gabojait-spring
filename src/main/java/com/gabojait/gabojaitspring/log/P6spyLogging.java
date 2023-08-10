@@ -19,7 +19,7 @@ public class P6spyLogging implements MessageFormattingStrategy {
 
     private String formatSql(int connectionId, String category, String sql, long elapsed) {
         String uuid = InterceptorLogging.getRequestId() == null ? "SYSTEM" : InterceptorLogging.getRequestId();
-        String sqlLog = "[" + uuid  + " | DATABASE] connectionId = " + connectionId + " time = " + elapsed + " ms";
+        String sqlLog = "[" + uuid  + " | DATABASE] connectionId = " + connectionId + " | time = " + elapsed + " ms";
 
         if (sql == null || sql.trim().equals(""))
             return sqlLog;
