@@ -68,21 +68,23 @@ public class TeamDefaultReqDto {
         switch (user.getPosition().name()) {
             case "DESIGNER":
                 designerTotalRecruitCnt++;
+                isDesignerFull = false;
                 break;
             case "BACKEND":
                 backendTotalRecruitCnt++;
+                isBackendFull = false;
                 break;
             case "FRONTEND":
                 frontendTotalRecruitCnt++;
+                isFrontendFull = false;
                 break;
             case "MANAGER":
                 managerTotalRecruitCnt++;
+                isManagerFull = false;
                 break;
-            default:
-                throw new CustomException(NON_EXISTING_POSITION);
         }
 
-        for(TeamMemberRecruitCntReqDto recruit : teamMemberRecruitCnts)
+        for(TeamMemberRecruitCntReqDto recruit : this.teamMemberRecruitCnts)
             switch (recruit.getPosition()) {
                 case "DESIGNER":
                     designerTotalRecruitCnt += recruit.getTotalRecruitCnt();
