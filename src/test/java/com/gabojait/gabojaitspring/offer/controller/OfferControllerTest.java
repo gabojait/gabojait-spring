@@ -75,11 +75,16 @@ class OfferControllerTest extends WebMvc {
 
         doReturn(offers)
                 .when(this.offerService)
-                .findManyOffersByUser(anyLong(), any(), any());
+                .findManyReceivedOffersByUser(anyLong(), any(), any());
 
         doReturn(offers)
                 .when(this.offerService)
-                .findManyOffersByTeam(anyLong(), any(), any(), any());
+                .findManyReceivedOffersByTeam(anyLong(), any(), any(), any());
+
+        doReturn(offers)
+                .when(this.offerService)
+                .findManySentOffersByUser(anyLong(), any(), any());
+
     }
 
     @Test
@@ -306,13 +311,13 @@ class OfferControllerTest extends WebMvc {
 
     @Test
     @DisplayName("회원이 받은 제안 다건 조희 | 올바른 요청시 | 200반환")
-    void userFindOffers_givenValidReq_return200() throws Exception {
+    void findManyReceivedOffersFromTeams_givenValidReq_return200() throws Exception {
         // given
         Integer pageFrom = getValidPageFrom();
         Integer pageSize = getValidPageSize();
 
         // when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/offer")
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/offer/received")
                         .param("page-from", pageFrom.toString())
                         .param("page-size", pageSize.toString()))
                 .andReturn();
@@ -321,18 +326,18 @@ class OfferControllerTest extends WebMvc {
         int status = mvcResult.getResponse().getStatus();
         String response = mvcResult.getResponse().getContentAsString();
 
-        assertThat(status).isEqualTo(OFFER_BY_TEAM_FOUND.getHttpStatus().value());
-        assertThat(response).contains(OFFER_BY_TEAM_FOUND.name());
+        assertThat(status).isEqualTo(USER_RECEIVED_OFFER_FOUND.getHttpStatus().value());
+        assertThat(response).contains(USER_RECEIVED_OFFER_FOUND.name());
     }
 
     @Test
     @DisplayName("회원이 받은 제안 다건 조희 | 페이지 시작점 미입력시 | 400반환")
-    void userFindOffers_givenPageFromFieldRequired_return400() throws Exception {
+    void findManyReceivedOffersFromTeams_givenPageFromFieldRequired_return400() throws Exception {
         // given
         Integer pageSize = getValidPageSize();
 
         // when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/offer")
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/offer/received")
                         .param("page-size", pageSize.toString()))
                 .andReturn();
 
@@ -346,13 +351,13 @@ class OfferControllerTest extends WebMvc {
 
     @Test
     @DisplayName("회원이 받은 제안 다건 조희 | 페이지 시작점이 양수 또는 0 아닐시 | 400반환")
-    void userFindOffers_givenPageFromPositiveOrZerOnly_return400() throws Exception {
+    void findManyReceivedOffersFromTeams_givenPageFromPositiveOrZerOnly_return400() throws Exception {
         // given
         Integer pageFrom = -1;
         Integer pageSize = getValidPageSize();
 
         // when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/offer")
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/offer/received")
                         .param("page-from", pageFrom.toString())
                         .param("page-size", pageSize.toString()))
                 .andReturn();
@@ -367,13 +372,13 @@ class OfferControllerTest extends WebMvc {
 
     @Test
     @DisplayName("회원이 받은 제안 다건 조희 | 페이지 사이즈가 양수 아닐시 | 400반환")
-    void userFindOffers_givenPageSizePositiveOnly_return400() throws Exception {
+    void findManyReceivedOffersFromTeams_givenPageSizePositiveOnly_return400() throws Exception {
         // given
         Integer pageFrom = getValidPageFrom();
         Integer pageSize = 0;
 
         // when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/offer")
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/offer/received")
                         .param("page-from", pageFrom.toString())
                         .param("page-size", pageSize.toString()))
                 .andReturn();
@@ -388,13 +393,13 @@ class OfferControllerTest extends WebMvc {
 
     @Test
     @DisplayName("팀이 받은 제안 다건 조회 | 올바른 요청시 | 200반환")
-    void teamFindOffers_givenValidReq_return200() throws Exception {
+    void findManyReceivedOffersFromUsers_givenValidReq_return200() throws Exception {
         // given
         Integer pageFrom = getValidPageFrom();
         Integer pageSize = getValidPageSize();
 
         // when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/offer")
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/offer/received")
                         .param("page-from", pageFrom.toString())
                         .param("page-size", pageSize.toString())
                         .param("position", Position.BACKEND.name()))
@@ -404,18 +409,18 @@ class OfferControllerTest extends WebMvc {
         int status = mvcResult.getResponse().getStatus();
         String response = mvcResult.getResponse().getContentAsString();
 
-        assertThat(status).isEqualTo(OFFER_BY_USER_FOUND.getHttpStatus().value());
-        assertThat(response).contains(OFFER_BY_USER_FOUND.name());
+        assertThat(status).isEqualTo(TEAM_RECEIVED_OFFER_FOUND.getHttpStatus().value());
+        assertThat(response).contains(TEAM_RECEIVED_OFFER_FOUND.name());
     }
 
     @Test
-    @DisplayName("팀이 받은 제안 다건 조회 | 올바른 페이지 시작점 미입력시 | 400반환")
-    void teamFindOffers_givenPageFromFieldRequired_return400() throws Exception {
+    @DisplayName("팀이 받은 제안 다건 조회 | 페이지 시작점 미입력시 | 400반환")
+    void findManyReceivedOffersFromUsers_givenPageFromFieldRequired_return400() throws Exception {
         // given
         Integer pageSize = getValidPageSize();
 
         // when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/offer")
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/offer/received")
                         .param("page-size", pageSize.toString())
                         .param("position", Position.BACKEND.name()))
                 .andReturn();
@@ -430,13 +435,13 @@ class OfferControllerTest extends WebMvc {
 
     @Test
     @DisplayName("팀이 받은 제안 다건 조회 | 포지션 미입력시 | 400반환")
-    void teamFindOffers_givenPositionFieldRequired_return400() throws Exception {
+    void findManyReceivedOffersFromUsers_givenPositionFieldRequired_return400() throws Exception {
         // given
         Integer pageFrom = getValidPageFrom();
         Integer pageSize = 0;
 
         // when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/offer")
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/offer/received")
                         .param("page-from", pageFrom.toString())
                         .param("page-size", pageSize.toString()))
                 .andReturn();
@@ -450,14 +455,14 @@ class OfferControllerTest extends WebMvc {
     }
 
     @Test
-    @DisplayName("팀이 받은 제안 다건 조회 | 올바른 페이지 시작점이 양수 또는 0 아닐시 | 400반환")
-    void teamFindOffers_givenPageFromPositiveOrZeroOnly_return400() throws Exception {
+    @DisplayName("팀이 받은 제안 다건 조회 | 페이지 시작점이 양수 또는 0 아닐시 | 400반환")
+    void findManyReceivedOffersFromUsers_givenPageFromPositiveOrZeroOnly_return400() throws Exception {
         // given
         Integer pageFrom = -1;
         Integer pageSize = getValidPageSize();
 
         // when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/offer")
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/offer/received")
                         .param("page-from", pageFrom.toString())
                         .param("page-size", pageSize.toString())
                         .param("position", Position.BACKEND.name()))
@@ -472,14 +477,14 @@ class OfferControllerTest extends WebMvc {
     }
 
     @Test
-    @DisplayName("팀이 받은 제안 다건 조회 | 올바른 페이지 사이즈가 양수 아닐시 | 400반환")
-    void teamFindOffers_givenPageSizePositiveOnly_return400() throws Exception {
+    @DisplayName("팀이 받은 제안 다건 조회 | 페이지 사이즈가 양수 아닐시 | 400반환")
+    void findManyReceivedOffersFromUsers_givenPageSizePositiveOnly_return400() throws Exception {
         // given
         Integer pageFrom = getValidPageFrom();
         Integer pageSize = 0;
 
         // when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/offer")
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/offer/received")
                         .param("page-from", pageFrom.toString())
                         .param("page-size", pageSize.toString())
                         .param("position", Position.BACKEND.name()))
@@ -495,13 +500,13 @@ class OfferControllerTest extends WebMvc {
 
     @Test
     @DisplayName("팀이 받은 제안 다건 조회 | 잘못된 포지션 타입 | 400반환")
-    void teamFindOffers_givenInvalidPositionType_return400() throws Exception {
+    void findManyReceivedOffersFromUsers_givenInvalidPositionType_return400() throws Exception {
         // given
         Integer pageFrom = getValidPageFrom();
         Integer pageSize = getValidPageSize();
 
         // when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/offer")
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/offer/received")
                         .param("page-from", pageFrom.toString())
                         .param("page-size", pageSize.toString())
                         .param("position", "TESTER"))
@@ -513,6 +518,88 @@ class OfferControllerTest extends WebMvc {
 
         assertThat(status).isEqualTo(POSITION_TYPE_INVALID.getHttpStatus().value());
         assertThat(response).contains(POSITION_TYPE_INVALID.name());
+    }
+
+    @Test
+    @DisplayName("회원이 보낸 제안 다건 조희 | 올바른 요청시 | 200반환")
+    void findManySentOffersFromUsers_givenValidReq_return200() throws Exception {
+        // given
+        Integer pageFrom = getValidPageFrom();
+        Integer pageSize = getValidPageSize();
+
+        // when
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/offer/sent")
+                        .param("page-from", pageFrom.toString())
+                        .param("page-size", pageSize.toString()))
+                .andReturn();
+
+        // then
+        int status = mvcResult.getResponse().getStatus();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(status).isEqualTo(USER_SENT_OFFER_FOUND.getHttpStatus().value());
+        assertThat(response).contains(USER_SENT_OFFER_FOUND.name());
+    }
+
+    @Test
+    @DisplayName("회원이 보낸 제안 다건 조희 | 페이지 시작점 미입력시 | 400반환")
+    void findManySentOffersFromUsers_givenPageFromFieldRequired_return400() throws Exception {
+        // given
+        Integer pageSize = getValidPageSize();
+
+        // when
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/offer/sent")
+                        .param("page-size", pageSize.toString()))
+                .andReturn();
+
+        // then
+        int status = mvcResult.getResponse().getStatus();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(status).isEqualTo(PAGE_FROM_FIELD_REQUIRED.getHttpStatus().value());
+        assertThat(response).contains(PAGE_FROM_FIELD_REQUIRED.name());
+    }
+
+    @Test
+    @DisplayName("회원이 보낸 제안 다건 조희 | 페이지 시작점이 양수 또는 0 아닐시 | 400반환")
+    void findManySentOffersFromUsers_givenPageFromPositiveOrZeroOnly_return400() throws Exception {
+        // given
+        Integer pageFrom = -1;
+        Integer pageSize = getValidPageSize();
+
+        // when
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/offer/sent")
+                        .param("page-from", pageFrom.toString())
+                        .param("page-size", pageSize.toString()))
+                .andReturn();
+
+        // then
+        int status = mvcResult.getResponse().getStatus();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(status).isEqualTo(PAGE_FROM_POSITIVE_OR_ZERO_ONLY.getHttpStatus().value());
+        assertThat(response).contains(PAGE_FROM_POSITIVE_OR_ZERO_ONLY.name());
+    }
+
+    @Test
+    @DisplayName("회원이 보낸 제안 다건 조희 | 페이지 사이즈가 양수 아닐시 | 400반환")
+    void findManySentOffersFromUsers_givenPageSizePositiveOnly_return400() throws Exception {
+        // given
+        Integer pageFrom = getValidPageFrom();
+        Integer pageSize = 0;
+
+        // when
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/offer/sent")
+                        .param("page-from", pageFrom.toString())
+                        .param("page-size", pageSize.toString()))
+                .andReturn();
+
+        // then
+        int status = mvcResult.getResponse().getStatus();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(status).isEqualTo(PAGE_SIZE_POSITIVE_ONLY.getHttpStatus().value());
+        assertThat(response).contains(PAGE_SIZE_POSITIVE_ONLY.name());
     }
 
     @Test

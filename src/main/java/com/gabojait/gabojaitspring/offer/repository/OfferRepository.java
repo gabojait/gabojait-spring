@@ -22,9 +22,12 @@ public interface OfferRepository extends JpaRepository<Offer, Long> {
 
     Optional<Offer> findByIdAndTeamAndOfferedByAndIsDeletedIsFalse(Long offerId, Team team, OfferedBy offeredBy);
 
-    Page<Offer> findAllByUserAndIsDeletedIsFalse(User user, Pageable pageable);
+    Page<Offer> findAllByUserAndOfferedByAndIsDeletedIsFalse(User user, OfferedBy offeredBy, Pageable pageable);
 
-    Page<Offer> findAllByTeamAndPositionAndIsDeletedIsFalse(Team team, Position position, Pageable pageable);
+    Page<Offer> findAllByTeamAndPositionAndOfferedByAndIsDeletedIsFalse(Team team,
+                                                                        Position position,
+                                                                        OfferedBy offeredBy,
+                                                                        Pageable pageable);
 
     List<Offer> findAllByUserAndTeamAndIsAcceptedIsNullAndIsDeletedIsFalse(User user, Team team);
 }
