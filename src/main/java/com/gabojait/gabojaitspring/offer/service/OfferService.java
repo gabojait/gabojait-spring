@@ -225,28 +225,32 @@ public class OfferService {
     }
 
     /**
-     * 회원으로 받은 제안 페이징 다건 조회 |
+     * 회원으로 제안 페이징 다건 조회 |
      * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public Page<Offer> findManyReceivedOffersByUser(long userId, Integer pageFrom, Integer pageSize) {
+    public Page<Offer> findManyOffersByUser(long userId, OfferedBy offeredBy, Integer pageFrom, Integer pageSize) {
         Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
         User user = findOneUser(userId);
 
         try {
-            return offerRepository.findAllByUserAndOfferedByAndIsDeletedIsFalse(user, OfferedBy.TEAM, pageable);
+            return offerRepository.findAllByUserAndOfferedByAndIsDeletedIsFalse(user, offeredBy, pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
     }
 
     /**
-     * 팀으로 받은 제안 페이징 다건 조회 |
+     * 팀으로 제안 페이징 다건 조회 |
      * 403(REQUEST_FORBIDDEN)
      * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public Page<Offer> findManyReceivedOffersByTeam(long userId, Integer pageFrom, Integer pageSize, Position position) {
+    public Page<Offer> findManyOffersByTeam(long userId,
+                                                    OfferedBy offeredBy,
+                                                    Integer pageFrom,
+                                                    Integer pageSize,
+                                                    Position position) {
         Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
         User leader = findOneUser(userId);
         TeamMember leaderTeamMember = findOneCurrentTeamMember(leader);
@@ -255,23 +259,10 @@ public class OfferService {
         Team team = leaderTeamMember.getTeam();
 
         try {
-            return offerRepository.findAllByTeamAndPositionAndOfferedByAndIsDeletedIsFalse(team, position, OfferedBy.USER, pageable);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 회원으로 보낸 제안 페이징 다건 조회 |
-     * 404(USER_NOT_FOUND)
-     * 500(SERVER_ERROR)
-     */
-    public Page<Offer> findManySentOffersByUser(long userId, Integer pageFrom, Integer pageSize) {
-        Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
-        User user = findOneUser(userId);
-
-        try {
-            return offerRepository.findAllByUserAndOfferedByAndIsDeletedIsFalse(user, OfferedBy.USER, pageable);
+            return offerRepository.findAllByTeamAndPositionAndOfferedByAndIsDeletedIsFalse(team,
+                    position,
+                    offeredBy,
+                    pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }

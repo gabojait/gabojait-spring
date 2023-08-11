@@ -5,6 +5,7 @@ import com.gabojait.gabojaitspring.common.dto.DefaultMultiResDto;
 import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.offer.domain.Offer;
+import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
 import com.gabojait.gabojaitspring.offer.dto.req.OfferCreateReqDto;
 import com.gabojait.gabojaitspring.offer.dto.req.OfferUpdateReqDto;
 import com.gabojait.gabojaitspring.offer.dto.res.OfferDefaultResDto;
@@ -153,7 +154,7 @@ public class OfferController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/user/offer/received")
-    public ResponseEntity<DefaultMultiResDto<Object>> findManyReceivedOffersFromTeams(
+    public ResponseEntity<DefaultMultiResDto<Object>> findManyReceivedTeamOffers(
             HttpServletRequest servletRequest,
             @RequestParam(value = "page-from", required = false)
             @NotNull(message = "페이지 시작점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -165,7 +166,7 @@ public class OfferController {
     ) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        Page<Offer> offers = offerService.findManyReceivedOffersByUser(userId, pageFrom, pageSize);
+        Page<Offer> offers = offerService.findManyOffersByUser(userId, OfferedBy.TEAM, pageFrom, pageSize);
 
         List<OfferDefaultResDto> responses = new ArrayList<>();
         for(Offer offer : offers)
@@ -182,8 +183,7 @@ public class OfferController {
 
     @ApiOperation(value = "팀이 받은 제안 다건 조회",
             notes = "<옵션>\n" +
-                    "- position[default: NONE] = DESIGNER(디자이너) || BACKEND(백엔드) || FRONTEND(프론트엔드) || " +
-                    "MANAGER(매니저)\n" +
+                    "- position = DESIGNER(디자이너) || BACKEND(백엔드) || FRONTEND(프론트엔드) || MANAGER(매니저)\n" +
                     "<응답 코드>\n" +
                     "- 200 = TEAM_RECEIVED_OFFER_FOUND\n" +
                     "- 400 = PAGE_FROM_FIELD_REQUIRED || POSITION_FIELD_REQUIRED || PAGE_FROM_POSITIVE_OR_ZERO_ONLY " +
@@ -199,11 +199,12 @@ public class OfferController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/team/offer/received")
-    public ResponseEntity<DefaultMultiResDto<Object>> findManyReceivedOffersFromUsers(
+    public ResponseEntity<DefaultMultiResDto<Object>> findManyReceivedUserOffers(
             HttpServletRequest servletRequest,
             @RequestParam(value = "page-from", required = false)
             @NotNull(message = "페이지 시작점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -221,7 +222,8 @@ public class OfferController {
     ) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        Page<Offer> offers = offerService.findManyReceivedOffersByTeam(userId,
+        Page<Offer> offers = offerService.findManyOffersByTeam(userId,
+                OfferedBy.USER,
                 pageFrom,
                 pageSize,
                 Position.valueOf(position));
@@ -259,7 +261,7 @@ public class OfferController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/user/offer/sent")
-    public ResponseEntity<DefaultMultiResDto<Object>> findManySentOffersFromUsers(
+    public ResponseEntity<DefaultMultiResDto<Object>> findManySentUserOffers(
             HttpServletRequest servletRequest,
             @RequestParam(value = "page-from", required = false)
             @NotNull(message = "페이지 시작점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
@@ -271,7 +273,7 @@ public class OfferController {
     ) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        Page<Offer> offers = offerService.findManySentOffersByUser(userId, pageFrom, pageSize);
+        Page<Offer> offers = offerService.findManyOffersByUser(userId, OfferedBy.USER, pageFrom, pageSize);
 
         List<OfferDefaultResDto> responses = new ArrayList<>();
         for(Offer offer : offers)
@@ -281,6 +283,65 @@ public class OfferController {
                 .body(DefaultMultiResDto.multiDataBuilder()
                         .responseCode(USER_SENT_OFFER_FOUND.name())
                         .responseMessage(USER_SENT_OFFER_FOUND.getMessage())
+                        .data(responses)
+                        .size(offers.getTotalElements())
+                        .build());
+    }
+
+    @ApiOperation(value = "팀이 보낸 제안 다건 조회",
+            notes = "<옵션>\n" +
+                    "- position = DESIGNER(디자이너) || BACKEND(백엔드) || FRONTEND(프론트엔드) || MANAGER(매니저)\n" +
+                    "<응답 코드>\n" +
+                    "- 200 = TEAM_SENT_OFFER_FOUND\n" +
+                    "- 400 = PAGE_FROM_FIELD_REQUIRED || POSITION_FIELD_REQUIRED || PAGE_FROM_POSITIVE_OR_ZERO_ONLY " +
+                    "|| PAGE_SIZE_POSITIVE_ONLY || POSITION_TYPE_INVALID\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
+                    "- 404 = USER_NOT_FOUND\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(schema = @Schema(implementation = OfferDefaultResDto.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
+    })
+    @GetMapping("/team/offer/sent")
+    public ResponseEntity<DefaultMultiResDto<Object>> findManySentTeamOffers(
+            HttpServletRequest servletRequest,
+            @RequestParam(value = "page-from", required = false)
+            @NotNull(message = "페이지 시작점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            Integer pageFrom,
+            @RequestParam(value = "page-size", required = false)
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            Integer pageSize,
+            @RequestParam(value = "position", required = false)
+            @NotBlank(message = "포지션은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER)",
+                    message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 또는 'MANAGER' 중 하나여야 됩니다.",
+                    groups = ValidationSequence.Format.class)
+            String position
+    ) {
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
+
+        Page<Offer> offers = offerService.findManyOffersByTeam(userId,
+                OfferedBy.TEAM,
+                pageFrom,
+                pageSize,
+                Position.valueOf(position));
+
+        List<OfferDefaultResDto> responses = new ArrayList<>();
+        for (Offer offer : offers)
+            responses.add(new OfferDefaultResDto(offer));
+
+        return ResponseEntity.status(TEAM_SENT_OFFER_FOUND.getHttpStatus())
+                .body(DefaultMultiResDto.multiDataBuilder()
+                        .responseCode(TEAM_SENT_OFFER_FOUND.name())
+                        .responseMessage(TEAM_SENT_OFFER_FOUND.getMessage())
                         .data(responses)
                         .size(offers.getTotalElements())
                         .build());
