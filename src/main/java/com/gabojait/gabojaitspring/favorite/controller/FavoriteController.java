@@ -198,7 +198,7 @@ public class FavoriteController {
                             .build());
     }
 
-    @ApiOperation(value = "찜한 회원 전체 조회",
+    @ApiOperation(value = "팀이 찜한 회원 다건 조회",
             notes = "<응답 코드>\n" +
                     "- 200 = FAVORITE_USERS_FOUND\n" +
                     "- 400 = PAGE_FROM_FIELD_REQUIRED || PAGE_FROM_POSITIVE_OR_ZERO_ONLY || PAGE_SIZE_POSITIVE_ONLY\n" +
