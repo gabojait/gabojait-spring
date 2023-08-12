@@ -1,6 +1,6 @@
 package com.gabojait.gabojaitspring.review.service;
 
-import com.gabojait.gabojaitspring.common.util.GeneralProvider;
+import com.gabojait.gabojaitspring.common.util.PageProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.review.domain.Review;
 import com.gabojait.gabojaitspring.review.dto.req.ReviewCreateReqDto;
@@ -34,7 +34,7 @@ public class ReviewService {
     private final TeamMemberRepository teamMemberRepository;
     private final UserRepository userRepository;
     private final TeamRepository teamRepository;
-    private final GeneralProvider generalProvider;
+    private final PageProvider pageProvider;
 
     /**
      * 리뷰 생성 |
@@ -109,12 +109,14 @@ public class ReviewService {
      * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public Page<Review> findManyReviews(Long userId, Integer pageFrom, Integer pageSize) {
-        Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
+    public Page<Review> findManyReviews(long userId, long pageFrom, Integer pageSize) {
         User reviewee = findOneUser(userId);
 
+        pageFrom = pageProvider.validatePageFrom(pageFrom);
+        Pageable pageable = pageProvider.validatePageable(pageSize, 20);
+
         try {
-            return reviewRepository.findAllByRevieweeAndIsDeletedIsFalseOrderByCreatedAtDesc(reviewee, pageable);
+            return reviewRepository.searchOrderByCreatedAt(pageFrom, reviewee, pageable); // TODO pageCount Check
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }

@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.user.service;
 
 import com.gabojait.gabojaitspring.common.util.EmailProvider;
-import com.gabojait.gabojaitspring.common.util.GeneralProvider;
+import com.gabojait.gabojaitspring.common.util.PasswordProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.user.domain.Contact;
 import com.gabojait.gabojaitspring.user.dto.req.ContactSaveReqDto;
@@ -10,8 +10,6 @@ import com.gabojait.gabojaitspring.user.repository.ContactRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 
@@ -22,7 +20,7 @@ public class ContactService {
 
     private final ContactRepository contactRepository;
     private final EmailProvider emailProvider;
-    private final GeneralProvider generalProvider;
+    private final PasswordProvider passwordProvider;
 
     /**
      * 인증 코드 전송 |
@@ -32,7 +30,7 @@ public class ContactService {
     public void sendRegisterVerificationCode(ContactSaveReqDto request) {
         validateExistingContact(request.getEmail());
 
-        String verificationCode = generalProvider.generateRandomCode(6);
+        String verificationCode = passwordProvider.generateRandomCode(6);
         Contact contact = request.toEntity(verificationCode);
         saveContact(contact);
 

@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.user.service;
 
 import com.gabojait.gabojaitspring.common.util.EmailProvider;
-import com.gabojait.gabojaitspring.common.util.GeneralProvider;
+import com.gabojait.gabojaitspring.common.util.PasswordProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.fcm.domain.Fcm;
 import com.gabojait.gabojaitspring.fcm.repository.FcmRepository;
@@ -34,7 +34,7 @@ public class UserService {
     private final UserRoleRepository userRoleRepository;
     private final ContactRepository contactRepository;
     private final FcmRepository fcmRepository;
-    private final GeneralProvider generalProvider;
+    private final PasswordProvider passwordProvider;
     private final EmailProvider emailProvider;
 
     /**
@@ -71,7 +71,7 @@ public class UserService {
         validateNickname(request.getNickname());
         validateMatchingPassword(request.getPassword(), request.getPasswordReEntered());
         Contact contact = findOneVerifiedUnregisteredContact(request.getEmail());
-        String password = generalProvider.encodePassword(request.getPassword());
+        String password = passwordProvider.encodePassword(request.getPassword());
 
         User user = request.toEntity(password, contact);
         saveUser(user);
@@ -93,7 +93,7 @@ public class UserService {
     public User login(UserLoginReqDto request) {
         User user = findOneUser(request.getUsername());
 
-        boolean isVerified = generalProvider.verifyPassword(user, request.getPassword());
+        boolean isVerified = passwordProvider.verifyPassword(user, request.getPassword());
         if (!isVerified)
             throw new CustomException(LOGIN_UNAUTHENTICATED);
 
@@ -147,7 +147,7 @@ public class UserService {
         if (!user.getUsername().equals(request.getUsername()))
             throw new CustomException(USERNAME_EMAIL_MATCH_INVALID);
 
-        String tempPassword = generalProvider.generateRandomCode(8);
+        String tempPassword = passwordProvider.generateRandomCode(8);
         updatePassword(user.getId(), tempPassword, tempPassword, true);
 
         emailProvider.sendEmail(
@@ -166,7 +166,7 @@ public class UserService {
     public void verifyPassword(long userId, String password) {
         User user = findOneUser(userId);
 
-        boolean isVerified = generalProvider.verifyPassword(user, password);
+        boolean isVerified = passwordProvider.verifyPassword(user, password);
 
         if (!isVerified)
             throw new CustomException(PASSWORD_UNAUTHENTICATED);
@@ -196,7 +196,7 @@ public class UserService {
         if (!isTemporaryPassword)
             validateMatchingPassword(password, passwordReEntered);
 
-        String encodedPassword = generalProvider.encodePassword(password);
+        String encodedPassword = passwordProvider.encodePassword(password);
         user.updatePassword(encodedPassword, isTemporaryPassword);
     }
 

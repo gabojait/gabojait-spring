@@ -75,11 +75,11 @@ class OfferControllerTest extends WebMvc {
 
         doReturn(offers)
                 .when(this.offerService)
-                .findManyOffersByUser(anyLong(), any(), any(), any());
+                .findManyOffersByUser(anyLong(), any(), anyLong(), any());
 
         doReturn(offers)
                 .when(this.offerService)
-                .findManyOffersByTeam(anyLong(), any(), any(), any(), any());
+                .findManyOffersByTeam(anyLong(), any(), anyLong(), any(), any());
     }
 
     @Test

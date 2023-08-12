@@ -2,7 +2,7 @@ package com.gabojait.gabojaitspring.admin.service;
 
 import com.gabojait.gabojaitspring.admin.dto.req.AdminLoginReqDto;
 import com.gabojait.gabojaitspring.admin.dto.req.AdminRegisterReqDto;
-import com.gabojait.gabojaitspring.common.util.GeneralProvider;
+import com.gabojait.gabojaitspring.common.util.PasswordProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.domain.UserRole;
@@ -26,7 +26,7 @@ public class AdminService {
 
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
-    private final GeneralProvider generalProvider;
+    private final PasswordProvider passwordProvider;
 
     /**
      * 관리자 로그인 |
@@ -36,7 +36,7 @@ public class AdminService {
     public User login(AdminLoginReqDto request) {
         User admin = findOneAdmin(request.getUsername());
 
-        boolean isVerified = generalProvider.verifyPassword(admin, request.getPassword());
+        boolean isVerified = passwordProvider.verifyPassword(admin, request.getPassword());
         if (!isVerified)
             throw new CustomException(LOGIN_UNAUTHENTICATED);
 
@@ -55,7 +55,7 @@ public class AdminService {
         validateDuplicateUsername(request.getAdminName());
         validateMatchingPassword(request.getPassword(), request.getPasswordReEntered());
 
-        String password = generalProvider.encodePassword(request.getPassword());
+        String password = passwordProvider.encodePassword(request.getPassword());
 
         User admin = saveAdmin(request.toEntity(password));
         List<UserRole> adminRoles = createAdminRoles(admin);

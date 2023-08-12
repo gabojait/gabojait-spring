@@ -79,7 +79,7 @@ class ReviewControllerTest extends WebMvc {
 
         doReturn(reviews)
                 .when(this.reviewService)
-                .findManyReviews(any(), any(), any());
+                .findManyReviews(anyLong(), anyLong(), any());
     }
 
     @Test

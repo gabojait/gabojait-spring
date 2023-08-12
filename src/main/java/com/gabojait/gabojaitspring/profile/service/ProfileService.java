@@ -1,7 +1,8 @@
 package com.gabojait.gabojaitspring.profile.service;
 
 import com.gabojait.gabojaitspring.common.util.FileProvider;
-import com.gabojait.gabojaitspring.common.util.GeneralProvider;
+import com.gabojait.gabojaitspring.common.util.PageProvider;
+import com.gabojait.gabojaitspring.common.util.PasswordProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.favorite.domain.FavoriteUser;
 import com.gabojait.gabojaitspring.favorite.repository.FavoriteUserRepository;
@@ -14,7 +15,6 @@ import com.gabojait.gabojaitspring.profile.domain.Work;
 import com.gabojait.gabojaitspring.profile.domain.type.Level;
 import com.gabojait.gabojaitspring.profile.domain.type.Media;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
-import com.gabojait.gabojaitspring.profile.domain.type.ProfileOrder;
 import com.gabojait.gabojaitspring.profile.dto.*;
 import com.gabojait.gabojaitspring.profile.dto.req.*;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileDefaultResDto;
@@ -31,8 +31,7 @@ import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -64,7 +63,7 @@ public class ProfileService {
     private final FavoriteUserRepository favoriteUserRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final FileProvider fileProvider;
-    private final GeneralProvider generalProvider;
+    private final PageProvider pageProvider;
 
     /**
      * 프로필 업데이트 |
@@ -268,41 +267,21 @@ public class ProfileService {
      * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public ProfileSeekPageDto findManyUsersByPositionWithProfileOrder(long userId,
-                                                                      Position position,
-                                                                      ProfileOrder profileOrder,
-                                                                      Integer pageFrom,
-                                                                      Integer pageSize) {
+    public ProfileSeekPageDto findManyUsersByPosition(long userId,
+                                                      Position position,
+                                                      long pageFrom,
+                                                      Integer pageSize) {
         User user = findOneUser(userId);
-        Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
+
+        pageFrom = pageProvider.validatePageFrom(pageFrom);
+        Pageable pageable = pageProvider.validatePageable(pageSize, 20);
 
         Page<User> users;
 
-        if (position.equals(Position.NONE)) {
-            switch (profileOrder.name()) {
-                case "RATING":
-                    users = findManyUsersByRating(pageable);
-                    break;
-                case "POPULARITY":
-                    users = findManyUsersByPopularity(pageable);
-                    break;
-                default:
-                    users = findManyUsersByActive(pageable);
-                    break;
-            }
-        } else {
-            switch (profileOrder.name()) {
-                case "RATING":
-                    users = findManyUsersPositionByRating(position, pageable);
-                    break;
-                case "POPULARITY":
-                    users = findManyUsersPositionByPopularity(position, pageable);
-                    break;
-                default:
-                    users = findManyUsersPositionByActive(position, pageable);
-                    break;
-            }
-        }
+        if (!position.equals(Position.NONE))
+            users = findManyUsersByPositionOrderByCreatedAt(pageFrom, position, pageable);
+        else
+            users = findManyUsersOrderByCreatedAt(pageFrom, pageable);
 
         List<ProfileSeekResDto> profileSeekResDtos = new ArrayList<>();
         Optional<TeamMember> foundTeamMember = findOneCurrentTeamMember(user);
@@ -345,80 +324,24 @@ public class ProfileService {
     }
 
     /**
-     * 전체 포지션을 평점순으로 회원 페이징 다건 조회 |
+     * 전체 포지션을 생성순으로 회원 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
-    private Page<User> findManyUsersByRating(Pageable pageable) {
+    private Page<User> findManyUsersOrderByCreatedAt(long userId, Pageable pageable) {
         try {
-            return userRepository.findAllByIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByRatingDesc(pageable);
+            return userRepository.searchOrderByCreatedAt(userId, pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
     }
 
     /**
-     * 전체 포지션을 인기순으로 회원 페이징 다건 조회 |
+     * 특정 포지션을 생성순으로 회원 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
-    private Page<User> findManyUsersByPopularity(Pageable pageable) {
+    private Page<User> findManyUsersByPositionOrderByCreatedAt(long userId, Position position, Pageable pageable) {
         try {
-            return userRepository.findAllByIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(pageable);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 전체 포지션을 활동순으로 회원 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private Page<User> findManyUsersByActive(Pageable pageable) {
-        try {
-            return userRepository.findAllByIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByLastRequestAtDesc(pageable);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 특정 포지션을 평점순으로 회원 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private Page<User> findManyUsersPositionByRating(Position position, Pageable pageable) {
-        try {
-            return userRepository.findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByRatingDesc(
-                    position,
-                    pageable
-            );
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 특정 포지션을 인기순으로 회원 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private Page<User> findManyUsersPositionByPopularity(Position position, Pageable pageable) {
-        try {
-            return userRepository.findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
-                    position,
-                    pageable);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 특정 포지션을 활동순으로 회원 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private Page<User> findManyUsersPositionByActive(Position position, Pageable pageable) {
-        try {
-            return userRepository.findAllByPositionAndIsSeekingTeamIsTrueAndIsDeletedIsFalseOrderByLastRequestAtDesc(
-                    position,
-                    pageable
-            );
+            return userRepository.searchByPositionOrderByCreatedAt(userId, position, pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }

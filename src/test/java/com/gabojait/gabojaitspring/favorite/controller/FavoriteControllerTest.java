@@ -82,11 +82,11 @@ class FavoriteControllerTest extends WebMvc {
 
         doReturn(favoriteTeams)
                 .when(this.favoriteTeamService)
-                .findManyFavoriteTeams(anyLong(), any(), any());
+                .findManyFavoriteTeams(anyLong(), anyLong(), any());
 
         doReturn(favoriteUsers)
                 .when(this.favoriteUserService)
-                .findManyFavoriteUsers(anyLong(), any(), any());
+                .findManyFavoriteUsers(anyLong(), anyLong(), any());
     }
 
     @Test

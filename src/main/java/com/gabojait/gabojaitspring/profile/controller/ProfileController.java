@@ -6,7 +6,6 @@ import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
 import com.gabojait.gabojaitspring.common.dto.DefaultSingleResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
-import com.gabojait.gabojaitspring.profile.domain.type.ProfileOrder;
 import com.gabojait.gabojaitspring.profile.dto.ProfileSeekPageDto;
 import com.gabojait.gabojaitspring.profile.dto.req.*;
 import com.gabojait.gabojaitspring.profile.dto.res.*;
@@ -354,16 +353,14 @@ public class ProfileController {
             notes = "<옵션>\n" +
                     "- position[default: NONE] = DESIGNER(디자이너) || BACKEND(백엔드) || FRONTEND(프론트엔드) || " +
                     "MANAGER(매니저) || NONE(전체)\n" +
-                    "- profile-order[default: ACTIVE] = ACTIVE(활동순) || POPULARITY(인기순) || RATING(평점순)\n\n" +
                     "<검증>\n" +
                     "- position = NotBlank && Pattern(regex = ^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE))\n" +
-                    "- profile-order = NotBlank && Pattern(regex = ^(ACTIVE|POPULARITY|RATING))\n" +
                     "- page-from = NotNull && PositiveOrZero\n" +
                     "- page-size = Positive\n\n" +
                     "<응답 코드>\n" +
                     "- 200 = USERS_SEEKING_TEAM_FOUND\n" +
-                    "- 400 = POSITION_FIELD_REQUIRED || PROFILE_ORDER_FIELD_REQUIRED || PAGE_FROM_FIELD_REQUIRED || " +
-                    "POSITION_TYPE_INVALID || PROFILE_ORDER_TYPE_INVALID || PAGE_FROM_POSITIVE_OR_ZERO_ONLY || " +
+                    "- 400 = POSITION_FIELD_REQUIRED || PAGE_FROM_FIELD_REQUIRED || POSITION_TYPE_INVALID || " +
+                    "PAGE_FROM_POSITIVE_OR_ZERO_ONLY || " +
                     "|| PAGE_SIZE_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
@@ -389,12 +386,6 @@ public class ProfileController {
                     message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다.",
                     groups = ValidationSequence.Format.class)
             String position,
-            @RequestParam(value = "profile-order", required = false)
-            @NotBlank(message = "프로필 정렬 기준은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-            @Pattern(regexp = "^(ACTIVE|POPULARITY|RATING)",
-                    message = "정렬 기준은 'ACTIVE', 'POPULARITY', 'RATING' 중 하나여야 됩니다.",
-                    groups = ValidationSequence.Format.class)
-            String profileOrder,
             @RequestParam(value = "page-from", required = false)
             @NotNull(message = "페이지 시작점은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
             @PositiveOrZero(message = "페이지 시작점은 0 또는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
@@ -405,9 +396,8 @@ public class ProfileController {
     ) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
-        ProfileSeekPageDto response = profileService.findManyUsersByPositionWithProfileOrder(userId,
+        ProfileSeekPageDto response = profileService.findManyUsersByPosition(userId,
                 Position.valueOf(position),
-                ProfileOrder.valueOf(profileOrder),
                 pageFrom,
                 pageSize);
 

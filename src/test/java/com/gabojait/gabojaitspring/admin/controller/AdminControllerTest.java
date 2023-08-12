@@ -28,6 +28,7 @@ import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
@@ -68,11 +69,11 @@ class AdminControllerTest extends WebMvc {
 
         doReturn(admins)
                 .when(this.masterService)
-                .findManyUnregisteredAdmin(any(), any());
+                .findManyUnregisteredAdmin(anyLong(), any());
 
         doReturn(userTester)
                 .when(this.adminService)
-                .findOneUser(any());
+                .findOneUser(anyLong());
     }
 
     @Test

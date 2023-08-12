@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.develop.service;
 
 import com.gabojait.gabojaitspring.common.util.FcmProvider;
-import com.gabojait.gabojaitspring.common.util.GeneralProvider;
+import com.gabojait.gabojaitspring.common.util.PasswordProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.profile.domain.Education;
 import com.gabojait.gabojaitspring.profile.domain.Portfolio;
@@ -62,7 +62,7 @@ public class DevelopService {
     private final WorkRepository workRepository;
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
-    private final GeneralProvider generalProvider;
+    private final PasswordProvider passwordProvider;
     private final FcmProvider fcmProvider;
     private final ReviewRepository reviewRepository;
 
@@ -160,7 +160,7 @@ public class DevelopService {
 
             User user = User.userBuilder()
                     .username("test" + n)
-                    .password(generalProvider.encodePassword("password1!"))
+                    .password(passwordProvider.encodePassword("password1!"))
                     .gender(Gender.N)
                     .birthdate(LocalDate.of(2000, 1, (i % 30) + 1))
                     .nickname("테스트" + n)

@@ -1,6 +1,7 @@
 package com.gabojait.gabojaitspring.favorite.service;
 
-import com.gabojait.gabojaitspring.common.util.GeneralProvider;
+import com.gabojait.gabojaitspring.common.util.PageProvider;
+import com.gabojait.gabojaitspring.common.util.PasswordProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.favorite.domain.FavoriteUser;
 import com.gabojait.gabojaitspring.favorite.repository.FavoriteUserRepository;
@@ -27,7 +28,7 @@ public class FavoriteUserService {
     private final FavoriteUserRepository favoriteUserRepository;
     private final UserRepository userRepository;
     private final TeamMemberRepository teamMemberRepository;
-    private final GeneralProvider generalProvider;
+    private final PageProvider pageProvider;
 
     /**
      * 찜한 회원 업데이트 |
@@ -55,15 +56,18 @@ public class FavoriteUserService {
      * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public Page<FavoriteUser> findManyFavoriteUsers(long leaderId, Integer pageFrom, Integer pageSize) {
-        Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
+    public Page<FavoriteUser> findManyFavoriteUsers(long leaderId, long pageFrom, Integer pageSize) {
         User leader = findOneUser(leaderId);
+
+        pageFrom = pageProvider.validatePageFrom(pageFrom);
+        Pageable pageable = pageProvider.validatePageable(pageSize, 20);
 
         TeamMember teamMember = findOneCurrentTeamMember(leader);
         validateIsLeader(teamMember);
+        Team team = teamMember.getTeam();
 
         try {
-            return favoriteUserRepository.findAllByTeamAndIsDeletedIsFalse(teamMember.getTeam(), pageable);
+            return favoriteUserRepository.searchByTeamOrderByCreatedAt(pageFrom, team, pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }

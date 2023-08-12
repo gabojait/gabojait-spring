@@ -39,7 +39,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     @ToString.Exclude
     private Contact contact;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user")
     @ToString.Exclude
     private Set<UserRole> userRoles = new HashSet<>();
 

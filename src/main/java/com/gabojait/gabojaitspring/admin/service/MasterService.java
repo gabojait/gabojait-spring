@@ -1,6 +1,7 @@
 package com.gabojait.gabojaitspring.admin.service;
 
-import com.gabojait.gabojaitspring.common.util.GeneralProvider;
+import com.gabojait.gabojaitspring.common.util.PageProvider;
+import com.gabojait.gabojaitspring.common.util.PasswordProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.domain.UserRole;
@@ -35,7 +36,8 @@ public class MasterService implements ApplicationRunner {
 
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
-    private final GeneralProvider generalProvider;
+    private final PasswordProvider passwordProvider;
+    private final PageProvider pageProvider;
 
     /**
      * 관리자 가입 결정 |
@@ -60,8 +62,8 @@ public class MasterService implements ApplicationRunner {
      */
     @Scheduled(cron = "0 0 0 * * *")
     public void resetMasterPasswordScheduler() {
-        String password = generalProvider.generateRandomCode(10);
-        String encodedPassword = generalProvider.encodePassword(password);
+        String password = passwordProvider.generateRandomCode(10);
+        String encodedPassword = passwordProvider.encodePassword(password);
 
         Optional<User> master = findOneMaster();
         if (master.isPresent()) {
@@ -101,11 +103,12 @@ public class MasterService implements ApplicationRunner {
      * 가입 승인을 기다리는 관리자 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
-    public Page<User> findManyUnregisteredAdmin(Integer pageFrom, Integer pageSize) {
-        Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 5);
+    public Page<User> findManyUnregisteredAdmin(long pageFrom, Integer pageSize) {
+        pageFrom = pageProvider.validatePageFrom(pageFrom);
+        Pageable pageable = pageProvider.validatePageable(pageSize, 5);
 
         try {
-            return userRepository.findAllByUsernameEndsWithAndIsDeletedIsTrue("_admin", pageable);
+            return userRepository.searchAdmin(pageFrom, "_admin", pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -161,8 +164,8 @@ public class MasterService implements ApplicationRunner {
      * 500(SERVER_ERROR)
      */
     private void injectMaster() {
-        String password = generalProvider.generateRandomCode(10);
-        String encodedPassword = generalProvider.encodePassword(password);
+        String password = passwordProvider.generateRandomCode(10);
+        String encodedPassword = passwordProvider.encodePassword(password);
 
         User master = User.masterBuilder()
                 .username(masterName)

@@ -4,7 +4,6 @@ import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.WebMvc;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.team.domain.Team;
-import com.gabojait.gabojaitspring.team.domain.type.TeamOrder;
 import com.gabojait.gabojaitspring.team.dto.req.TeamCompleteReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamDefaultReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamIsRecruitingUpdateReqDto;
@@ -75,7 +74,7 @@ class TeamControllerTest extends WebMvc {
 
         doReturn(teams)
                 .when(this.teamService)
-                .findManyTeamByPositionOrder(any(), any(), any(), any());
+                .findManyTeamByPositionOrder(any(), anyLong(), any());
     }
 
     @Test
@@ -757,14 +756,12 @@ class TeamControllerTest extends WebMvc {
     void findTeamsLookingForUsers_givenValidReq_return200() throws Exception {
         // given
         String position = getValidPosition();
-        String teamOrder = getValidTeamOrder();
         Integer pageFrom = getValidPageFrom();
         Integer pageSize = getValidPageSize();
 
         //when
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/recruiting")
                         .param("position", position)
-                        .param("team-order", teamOrder)
                         .param("page-from", pageFrom.toString())
                         .param("page-size", pageSize.toString()))
                 .andReturn();
@@ -782,14 +779,12 @@ class TeamControllerTest extends WebMvc {
     void findTeamsLookingForUsers_givenPositionFieldRequired_return400() throws Exception {
         // given
         String position = "";
-        String teamOrder = getValidTeamOrder();
         Integer pageFrom = getValidPageFrom();
         Integer pageSize = getValidPageSize();
 
         //when
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/recruiting")
                         .param("position", position)
-                        .param("team-order", teamOrder)
                         .param("page-from", pageFrom.toString())
                         .param("page-size", pageSize.toString()))
                 .andReturn();
@@ -807,14 +802,12 @@ class TeamControllerTest extends WebMvc {
     void findTeamsLookingForUsers_givenPositionTypeInvalid_return400() throws Exception {
         // given
         String position = "marketer";
-        String teamOrder = getValidTeamOrder();
         Integer pageFrom = getValidPageFrom();
         Integer pageSize = getValidPageSize();
 
         //when
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/recruiting")
                         .param("position", position)
-                        .param("team-order", teamOrder)
                         .param("page-from", pageFrom.toString())
                         .param("page-size", pageSize.toString()))
                 .andReturn();
@@ -828,67 +821,15 @@ class TeamControllerTest extends WebMvc {
     }
 
     @Test
-    @DisplayName("팀원을 찾는 팀 다건 조회 | 팀 정렬 기준 미입력시 | 400반환")
-    void findTeamsLookingForUsers_givenTeamOrderFieldRequired_return400() throws Exception {
-        // given
-        String position = getValidPosition();
-        String teamOrder = "";
-        Integer pageFrom = getValidPageFrom();
-        Integer pageSize = getValidPageSize();
-
-        //when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/recruiting")
-                        .param("position", position)
-                        .param("team-order", teamOrder)
-                        .param("page-from", pageFrom.toString())
-                        .param("page-size", pageSize.toString()))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(status).isEqualTo(TEAM_ORDER_FIELD_REQUIRED.getHttpStatus().value());
-        assertThat(response).contains(TEAM_ORDER_FIELD_REQUIRED.name());
-    }
-
-    @Test
-    @DisplayName("팀원을 찾는 팀 다건 조회 | 잘못된 팀 정렬 기준 타입시 | 400반환")
-    void findTeamsLookingForUsers_givenTeamOrderTypeInvalid_return400() throws Exception {
-        // given
-        String position = getValidPosition();
-        String teamOrder = "update";
-        Integer pageFrom = getValidPageFrom();
-        Integer pageSize = getValidPageSize();
-
-        //when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/recruiting")
-                        .param("position", position)
-                        .param("team-order", teamOrder)
-                        .param("page-from", pageFrom.toString())
-                        .param("page-size", pageSize.toString()))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(status).isEqualTo(TEAM_ORDER_TYPE_INVALID.getHttpStatus().value());
-        assertThat(response).contains(TEAM_ORDER_TYPE_INVALID.name());
-    }
-
-    @Test
     @DisplayName("팀원을 찾는 팀 다건 조회 | 페이지 시작점 미입력시 | 400반환")
     void findTeamsLookingForUsers_givenPageFromFieldRequired_return400() throws Exception {
         // given
         String position = getValidPosition();
-        String teamOrder = getValidTeamOrder();
         Integer pageSize = getValidPageSize();
 
         //when
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/recruiting")
                         .param("position", position)
-                        .param("team-order", teamOrder)
                         .param("page-size", pageSize.toString()))
                 .andReturn();
 
@@ -905,14 +846,12 @@ class TeamControllerTest extends WebMvc {
     void findTeamsLookingForUsers_givenPageFromPositiveOrZeroOnly_return400() throws Exception {
         // given
         String position = getValidPosition();
-        String teamOrder = getValidTeamOrder();
         Integer pageFrom = -1;
         Integer pageSize = getValidPageSize();
 
         //when
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/recruiting")
                         .param("position", position)
-                        .param("team-order", teamOrder)
                         .param("page-from", pageFrom.toString())
                         .param("page-size", pageSize.toString()))
                 .andReturn();
@@ -930,14 +869,12 @@ class TeamControllerTest extends WebMvc {
     void findTeamsLookingForUsers_givenPageSizePositiveOnly_return400() throws Exception {
         // given
         String position = getValidPosition();
-        String teamOrder = getValidTeamOrder();
         Integer pageFrom = getValidPageFrom();
         Integer pageSize = 0;
 
         //when
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/recruiting")
                         .param("position", position)
-                        .param("team-order", teamOrder)
                         .param("page-from", pageFrom.toString())
                         .param("page-size", pageSize.toString()))
                 .andReturn();
@@ -1131,10 +1068,6 @@ class TeamControllerTest extends WebMvc {
 
     private String getValidPosition() {
         return Position.NONE.name();
-    }
-
-    private String getValidTeamOrder() {
-        return TeamOrder.CREATED.name();
     }
 
     private Integer getValidPageFrom() {

@@ -35,14 +35,12 @@ public enum ErrorCode {
     PORTFOLIO_URL_FIELD_REQUIRED(BAD_REQUEST, "포트폴리오 URL은 필수 입력입니다."),
     MEDIA_FIELD_REQUIRED(BAD_REQUEST, "미디어는 필수 입력입니다."),
     PAGE_FROM_FIELD_REQUIRED(BAD_REQUEST, "페이지 시작점은 필수 입력입니다."),
-    PROFILE_ORDER_FIELD_REQUIRED(BAD_REQUEST, "프로필 정렬 기준은 필수 입력입니다."),
     TEAM_ID_FIELD_REQUIRED(BAD_REQUEST, "팀 식별자는 필수 입력입니다."),
     PROJECT_NAME_FIELD_REQUIRED(BAD_REQUEST, "프로젝트명는 필수 입력입니다."),
     PROJECT_DESCRIPTION_FIELD_REQUIRED(BAD_REQUEST, "프로젝트 설명은 필수 입력입니다."),
     TOTAL_RECRUIT_CNT_FIELD_REQUIRED(BAD_REQUEST, "팀원 수는 필수 입력입니다."),
     EXPECTATION_FIELD_REQUIRED(BAD_REQUEST, "바라는 점은 필수 입력입니다."),
     OPEN_CHAT_URL_FIELD_REQUIRED(BAD_REQUEST, "오픈 채팅 URL은 필수 입력입니다."),
-    TEAM_ORDER_FIELD_REQUIRED(BAD_REQUEST, "팀 정렬 기준은 필수 입력입니다."),
     IS_RECRUITING_FIELD_REQUIRED(BAD_REQUEST, "팀원 모집 여부는 필수 입력입니다."),
     PROJECT_URL_FIELD_REQUIRED(BAD_REQUEST, "완료된 프로젝트 URL은 필수 입력입니다."),
     IS_ADD_FAVORITE_FIELD_REQUIRED(BAD_REQUEST, "찜 추가 여부는 필수 입력입니다."),
@@ -94,8 +92,6 @@ public enum ErrorCode {
     POSITION_TYPE_INVALID(BAD_REQUEST, "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다."),
     LEVEL_TYPE_INVALID(BAD_REQUEST, "레벨은 'LOW', 'MID', 또는 'HIGH' 중 하나여야 됩니다."),
     MEDIA_TYPE_INVALID(BAD_REQUEST, "미디어는 'LINK' 또는 'FILE' 중 하나여야 됩니다."),
-    PROFILE_ORDER_TYPE_INVALID(BAD_REQUEST, "순서는 'ACTIVE', 'POPULARITY', 또는 'RATING' 중 하나여야 됩니다."),
-    TEAM_ORDER_TYPE_INVALID(BAD_REQUEST, "순서는 'CREATED', 'ACTIVE', 또는 'POPULARITY' 중 하나여야 됩니다."),
 
     // @Range
     RATE_RANGE_INVALID(BAD_REQUEST, "평점은 1부터 5까지의 수만 가능합니다."),

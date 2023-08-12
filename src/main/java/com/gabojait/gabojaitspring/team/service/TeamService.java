@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.team.service;
 
 import com.gabojait.gabojaitspring.common.util.FcmProvider;
-import com.gabojait.gabojaitspring.common.util.GeneralProvider;
+import com.gabojait.gabojaitspring.common.util.PageProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.favorite.domain.FavoriteTeam;
 import com.gabojait.gabojaitspring.favorite.repository.FavoriteTeamRepository;
@@ -10,7 +10,6 @@ import com.gabojait.gabojaitspring.offer.repository.OfferRepository;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.domain.TeamMember;
-import com.gabojait.gabojaitspring.team.domain.type.TeamOrder;
 import com.gabojait.gabojaitspring.team.dto.req.TeamDefaultReqDto;
 import com.gabojait.gabojaitspring.team.dto.req.TeamMemberRecruitCntReqDto;
 import com.gabojait.gabojaitspring.team.dto.res.TeamOfferAndFavoriteResDto;
@@ -38,7 +37,7 @@ public class TeamService {
     private final FavoriteTeamRepository favoriteTeamRepository;
     private final OfferRepository offerRepository;
     private final UserRepository userRepository;
-    private final GeneralProvider generalProvider;
+    private final PageProvider pageProvider;
     private final FcmProvider fcmProvider;
 
     /**
@@ -260,40 +259,12 @@ public class TeamService {
      * 500(SERVER_ERROR)
      */
     public Page<Team> findManyTeamByPositionOrder(Position position,
-                                                  TeamOrder teamOrder,
-                                                  Integer pageFrom,
+                                                  long pageFrom,
                                                   Integer pageSize) {
-        Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
+        pageFrom = pageProvider.validatePageFrom(pageFrom);
+        Pageable pageable = pageProvider.validatePageable(pageSize, 20);
 
-        Page<Team> teams;
-
-        if (position.equals(Position.NONE)) {
-            switch (teamOrder.name()) {
-                case "ACTIVE":
-                    teams = findManyTeamOrderByActive(pageable);
-                    break;
-                case "POPULARITY":
-                    teams = findManyTeamOrderByPopularity(pageable);
-                    break;
-                default:
-                    teams = findManyTeamOrderByCreated(pageable);
-                    break;
-            }
-        } else {
-            switch (teamOrder.name()) {
-                case "ACTIVE":
-                    teams = findManyTeamByPositionOrderByActive(position, pageable);
-                    break;
-                case "POPULARITY":
-                    teams = findManyTeamByPositionOrderByPopularity(position, pageable);
-                    break;
-                default:
-                    teams = findManyTeamByPositionOrderByCreated(position, pageable);
-                    break;
-            }
-        }
-
-        return teams;
+        return findManyTeamsByPositionOrderByCreated(pageFrom, position, pageable);
     }
 
     /**
@@ -330,162 +301,12 @@ public class TeamService {
     }
 
     /**
-     * 전체 포지션을 활동순으로 팀 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private Page<Team> findManyTeamOrderByActive(Pageable pageable) {
-        try {
-            return teamRepository.findAllByIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(pageable);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 전체 포지션을 인기순으로 팀 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private Page<Team> findManyTeamOrderByPopularity(Pageable pageable) {
-        try {
-            return teamRepository.findAllByIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(pageable);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 전체 포지션을 생성순으로 팀 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private Page<Team> findManyTeamOrderByCreated(Pageable pageable) {
-        try {
-            return teamRepository.findAllByIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedAtDesc(pageable);
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 특정 포지션을 활동순으로 팀 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private Page<Team> findManyTeamByPositionOrderByActive(Position position, Pageable pageable) {
-        try {
-            Page<Team> teams;
-            switch (position.name()) {
-                case "DESIGNER":
-                    teams = teamRepository
-                            .findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(
-                                    pageable
-                            );
-                    break;
-                case "BACKEND":
-                    teams = teamRepository
-                            .findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(
-                                    pageable
-                            );
-                    break;
-                case "FRONTEND":
-                    teams = teamRepository
-                            .findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(
-                                    pageable
-                            );
-                    break;
-                case "MANAGER":
-                    teams = teamRepository
-                            .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByTeamOfferCntDesc(
-                                    pageable
-                            );
-                    break;
-                default:
-                    throw new CustomException(SERVER_ERROR);
-            }
-
-            return teams;
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 특정 포지션을 인기순으로 팀 페이징 다건 조회 |
-     * 500(SERVER_ERROR)
-     */
-    private Page<Team> findManyTeamByPositionOrderByPopularity(Position position, Pageable pageable) {
-        try {
-            Page<Team> teams;
-            switch (position.name()) {
-                case "DESIGNER":
-                    teams = teamRepository
-                            .findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
-                                    pageable
-                            );
-                    break;
-                case "BACKEND":
-                    teams = teamRepository
-                            .findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
-                                    pageable
-                            );
-                    break;
-                case "FRONTEND":
-                    teams = teamRepository
-                            .findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
-                                    pageable
-                            );
-                    break;
-                case "MANAGER":
-                    teams = teamRepository
-                            .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByVisitedCntDesc(
-                                    pageable
-                            );
-                    break;
-                default:
-                    throw new CustomException(SERVER_ERROR);
-            }
-
-            return teams;
-        } catch (RuntimeException e) {
-            throw new CustomException(e, SERVER_ERROR);
-        }
-    }
-
-    /**
      * 특정 포지션을 생성순으로 팀 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
-    private Page<Team> findManyTeamByPositionOrderByCreated(Position position, Pageable pageable) {
+    private Page<Team> findManyTeamsByPositionOrderByCreated(long teamId, Position position, Pageable pageable) {
         try {
-            Page<Team> teams;
-            switch (position.name()) {
-                case "DESIGNER":
-                    teams = teamRepository
-                            .findAllByIsDesignerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedAtDesc(
-                                    pageable
-                            );
-                    break;
-                case "BACKEND":
-                    teams = teamRepository
-                            .findAllByIsBackendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedAtDesc(
-                                    pageable
-                            );
-                    break;
-                case "FRONTEND":
-                    teams = teamRepository
-                            .findAllByIsFrontendFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedAtDesc(
-                                    pageable
-                            );
-                    break;
-                case "MANAGER":
-                    teams = teamRepository
-                            .findAllByIsManagerFullIsFalseAndIsRecruitingIsTrueAndIsDeletedIsFalseOrderByCreatedAtDesc(
-                                    pageable
-                            );
-                    break;
-                default:
-                    throw new CustomException(SERVER_ERROR);
-            }
-
-            return teams;
+            return teamRepository.searchByIsPositionFullOrderByCreatedAt(teamId, position, pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }

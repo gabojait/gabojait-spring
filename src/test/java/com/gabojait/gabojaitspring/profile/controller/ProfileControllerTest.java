@@ -9,7 +9,6 @@ import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
 import com.gabojait.gabojaitspring.profile.domain.type.Level;
 import com.gabojait.gabojaitspring.profile.domain.type.Media;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
-import com.gabojait.gabojaitspring.profile.domain.type.ProfileOrder;
 import com.gabojait.gabojaitspring.profile.dto.ProfileSeekPageDto;
 import com.gabojait.gabojaitspring.profile.dto.req.*;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileDefaultResDto;
@@ -97,7 +96,7 @@ class ProfileControllerTest extends WebMvc {
 
         doReturn(profileSeekPageDto)
                 .when(this.profileService)
-                .findManyUsersByPositionWithProfileOrder(anyLong(), any(), any(), any(), any());
+                .findManyUsersByPosition(anyLong(), any(), anyLong(), any());
 
         doReturn(profileResDto)
                 .when(this.profileService)
@@ -869,14 +868,12 @@ class ProfileControllerTest extends WebMvc {
     void findUsersLookingForTeam_givenValidReq_return200() throws Exception {
         // given
         String position = getValidPosition();
-        String profileOrder = getValidProfileOrder();
         Integer pageFrom = getValidPageFrom();
         Integer pageSize = getValidPageSize();
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/seeking-team")
                         .param("position", position)
-                        .param("profile-order", profileOrder)
                         .param("page-from", pageFrom.toString())
                         .param("page-size", pageSize.toString()))
                 .andReturn();
@@ -894,14 +891,12 @@ class ProfileControllerTest extends WebMvc {
     void findUsersLookingForTeam_givenPositionFieldRequired_return400() throws Exception {
         // given
         String position = "";
-        String profileOrder = getValidProfileOrder();
         Integer pageFrom = getValidPageFrom();
         Integer pageSize = getValidPageSize();
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/seeking-team")
                         .param("position", position)
-                        .param("profile-order", profileOrder)
                         .param("page-from", pageFrom.toString())
                         .param("page-size", pageSize.toString()))
                 .andReturn();
@@ -919,14 +914,12 @@ class ProfileControllerTest extends WebMvc {
     void findUsersLookingForTeam_givenPositionTypeInvalid_return400() throws Exception {
         // given
         String position = "marketer";
-        String profileOrder = getValidProfileOrder();
         Integer pageFrom = getValidPageFrom();
         Integer pageSize = getValidPageSize();
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/seeking-team")
                         .param("position", position)
-                        .param("profile-order", profileOrder)
                         .param("page-from", pageFrom.toString())
                         .param("page-size", pageSize.toString()))
                 .andReturn();
@@ -940,67 +933,15 @@ class ProfileControllerTest extends WebMvc {
     }
 
     @Test
-    @DisplayName("팀을 찾는 회원 다건 조회 | 프로필 정렬 기준 미입력시 | 400반환")
-    void findUsersLookingForTeam_givenProfileOrderFieldRequired_return400() throws Exception {
-        // given
-        String position = getValidPosition();
-        String profileOrder = "";
-        Integer pageFrom = getValidPageFrom();
-        Integer pageSize = getValidPageSize();
-
-        // when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/seeking-team")
-                        .param("position", position)
-                        .param("profile-order", profileOrder)
-                        .param("page-from", pageFrom.toString())
-                        .param("page-size", pageSize.toString()))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(status).isEqualTo(PROFILE_ORDER_FIELD_REQUIRED.getHttpStatus().value());
-        assertThat(response).contains(PROFILE_ORDER_FIELD_REQUIRED.name());
-    }
-
-    @Test
-    @DisplayName("팀을 찾는 회원 다건 조회 | 잘못된 프로필 정렬 기준 타입시 | 400반환")
-    void findUsersLookingForTeam_givenProfileOrderTypeInvalid_return400() throws Exception {
-        // given
-        String position = getValidPosition();
-        String profileOrder = "update";
-        Integer pageFrom = getValidPageFrom();
-        Integer pageSize = getValidPageSize();
-
-        // when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/seeking-team")
-                        .param("position", position)
-                        .param("profile-order", profileOrder)
-                        .param("page-from", pageFrom.toString())
-                        .param("page-size", pageSize.toString()))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(status).isEqualTo(PROFILE_ORDER_TYPE_INVALID.getHttpStatus().value());
-        assertThat(response).contains(PROFILE_ORDER_TYPE_INVALID.name());
-    }
-
-    @Test
     @DisplayName("팀을 찾는 회원 다건 조회 | 페이지 시작점 미입력시 | 400반환")
     void findUsersLookingForTeam_givenPageFromFieldRequired_return400() throws Exception {
         // given
         String position = getValidPosition();
-        String profileOrder = getValidProfileOrder();
         Integer pageSize = getValidPageSize();
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/seeking-team")
                         .param("position", position)
-                        .param("profile-order", profileOrder)
                         .param("page-size", pageSize.toString()))
                 .andReturn();
 
@@ -1017,14 +958,12 @@ class ProfileControllerTest extends WebMvc {
     void findUsersLookingForTeam_givenPageFromPositiveOrZeroOnly_return400() throws Exception {
         // given
         String position = getValidPosition();
-        String profileOrder = getValidProfileOrder();
         Integer pageFrom = -1;
         Integer pageSize = getValidPageSize();
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/seeking-team")
                         .param("position", position)
-                        .param("profile-order", profileOrder)
                         .param("page-from", pageFrom.toString())
                         .param("page-size", pageSize.toString()))
                 .andReturn();
@@ -1042,14 +981,12 @@ class ProfileControllerTest extends WebMvc {
     void findUsersLookingForTeam_givenPageSizePositiveOnly_return400() throws Exception {
         // given
         String position = getValidPosition();
-        String profileOrder = getValidProfileOrder();
         Integer pageFrom = getValidPageFrom();
         Integer pageSize = 0;
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/seeking-team")
                         .param("position", position)
-                        .param("profile-order", profileOrder)
                         .param("page-from", pageFrom.toString())
                         .param("page-size", pageSize.toString()))
                 .andReturn();
@@ -1140,10 +1077,6 @@ class ProfileControllerTest extends WebMvc {
 
     private String getValidPosition() {
         return Position.NONE.name();
-    }
-
-    private String getValidProfileOrder() {
-        return ProfileOrder.ACTIVE.name();
     }
 
     private Integer getValidPageFrom() {

@@ -1,12 +1,11 @@
 package com.gabojait.gabojaitspring.offer.service;
 
 import com.gabojait.gabojaitspring.common.util.FcmProvider;
-import com.gabojait.gabojaitspring.common.util.GeneralProvider;
+import com.gabojait.gabojaitspring.common.util.PageProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.offer.domain.Offer;
 import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
 import com.gabojait.gabojaitspring.offer.dto.req.OfferCreateReqDto;
-import com.gabojait.gabojaitspring.offer.dto.res.OfferDefaultResDto;
 import com.gabojait.gabojaitspring.offer.repository.OfferRepository;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.team.domain.Team;
@@ -17,12 +16,10 @@ import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +34,7 @@ public class OfferService {
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
     private final TeamMemberRepository teamMemberRepository;
-    private final GeneralProvider generalProvider;
+    private final PageProvider pageProvider;
     private final FcmProvider fcmProvider;
 
     /**
@@ -229,12 +226,14 @@ public class OfferService {
      * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public Page<Offer> findManyOffersByUser(long userId, OfferedBy offeredBy, Integer pageFrom, Integer pageSize) {
-        Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
+    public Page<Offer> findManyOffersByUser(long userId, OfferedBy offeredBy, long pageFrom, Integer pageSize) {
         User user = findOneUser(userId);
 
+        pageFrom = pageProvider.validatePageFrom(pageFrom);
+        Pageable pageable = pageProvider.validatePageable(pageSize, 20);
+
         try {
-            return offerRepository.findAllByUserAndOfferedByAndIsDeletedIsFalse(user, offeredBy, pageable);
+            return offerRepository.searchByUserOrderByCreatedAt(pageFrom, user, offeredBy, pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -247,22 +246,21 @@ public class OfferService {
      * 500(SERVER_ERROR)
      */
     public Page<Offer> findManyOffersByTeam(long userId,
-                                                    OfferedBy offeredBy,
-                                                    Integer pageFrom,
-                                                    Integer pageSize,
-                                                    Position position) {
-        Pageable pageable = generalProvider.validatePaging(pageFrom, pageSize, 20);
+                                            OfferedBy offeredBy,
+                                            long pageFrom,
+                                            Integer pageSize,
+                                            Position position) {
         User leader = findOneUser(userId);
         TeamMember leaderTeamMember = findOneCurrentTeamMember(leader);
         validateLeader(leaderTeamMember);
 
+        pageFrom = pageProvider.validatePageFrom(pageFrom);
+        Pageable pageable = pageProvider.validatePageable(pageSize, 20);
+
         Team team = leaderTeamMember.getTeam();
 
         try {
-            return offerRepository.findAllByTeamAndPositionAndOfferedByAndIsDeletedIsFalse(team,
-                    position,
-                    offeredBy,
-                    pageable);
+            return offerRepository.searchByTeamOrderByCreatedAt(pageFrom, team, position, offeredBy, pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
