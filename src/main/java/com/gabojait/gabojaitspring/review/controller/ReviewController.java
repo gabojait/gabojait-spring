@@ -3,6 +3,7 @@ package com.gabojait.gabojaitspring.review.controller;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultMultiResDto;
 import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
+import com.gabojait.gabojaitspring.common.dto.DefaultSingleResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.review.domain.Review;
 import com.gabojait.gabojaitspring.review.dto.req.ReviewCreateReqDto;
@@ -112,7 +113,7 @@ public class ReviewController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/user/team/review")
-    public ResponseEntity<DefaultMultiResDto<Object>> findReviewableTeams(HttpServletRequest servletRequest) {
+    public ResponseEntity<DefaultMultiResDto<Object>> findAllReviewableTeams(HttpServletRequest servletRequest) {
         long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
 
         List<Team> reviewableTeams = reviewService.findAllReviewableTeams(userId);
@@ -127,6 +128,49 @@ public class ReviewController {
                         .responseMessage(REVIEWABLE_TEAMS_FOUND.getMessage())
                         .data(responses)
                         .size(responses.size())
+                        .build());
+    }
+
+    @ApiOperation(value = "본인이 리뷰 작성 가능한 팀 단건 조회",
+            notes = "<설명>\n" +
+                    "- 리뷰 작성 기간 = 4주이내\n\n" +
+                    "<응답 코드>\n" +
+                    "- 200 = REVIEWABLE_TEAM_FOUND\n" +
+                    "- 400 = TEAM_ID_FIELD_REQUIRED || TEAM_ID_POSITIVE_ONLY\n" +
+                    "- 401 = TOKEN_UNAUTHENTICATED\n" +
+                    "- 403 = TOKEN_UNAUTHORIZED\n" +
+                    "- 404 = USER_NOT_FOUND || TEAM_NOT_FOUND\n" +
+                    "- 500 = SERVER_ERROR\n" +
+                    "- 503 = ONGOING_INSPECTION")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(schema = @Schema(implementation = TeamAbstractResDto.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
+            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
+            @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
+    })
+    @GetMapping("/user/team/{team-id}/review")
+    public ResponseEntity<DefaultSingleResDto<Object>> findOneReviewableTeam(
+            HttpServletRequest servletRequest,
+            @PathVariable(value = "team-id", required = false)
+            @NotNull(message = "팀 식별자는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @Positive(message = "팀 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            Long teamId
+    ) {
+        long userId = jwtProvider.getId(servletRequest.getHeader(AUTHORIZATION));
+
+        Team team = reviewService.findOneReviewableTeam(userId, teamId);
+
+        TeamAbstractResDto response = new TeamAbstractResDto(team);
+
+        return ResponseEntity.status(REVIEWABLE_TEAM_FOUND.getHttpStatus())
+                .body(DefaultSingleResDto.singleDataBuilder()
+                        .responseCode(REVIEWABLE_TEAM_FOUND.name())
+                        .responseMessage(REVIEWABLE_TEAM_FOUND.getMessage())
+                        .data(response)
                         .build());
     }
 
