@@ -26,7 +26,8 @@ Play Store:
 
 ## Link
 - ### [Test API Swagger](https://gabojait-dev.nogamsung.com/api/v1/docs/swagger-ui/index.html)
-- ### [React Native](https://github.com/gabojait/gabojait-react-native)
+- ### [Load Test Result](https://github.com/gabojait/gabojait-spring/blob/develop/docs/LoadTestResult.md)
+- ### [Client Repository](https://github.com/gabojait/gabojait-react-native)
 
 ---
 
