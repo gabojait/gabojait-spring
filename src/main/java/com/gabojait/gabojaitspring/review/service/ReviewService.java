@@ -78,6 +78,22 @@ public class ReviewService {
     }
 
     /**
+     * 회원의 리뷰 가능한 팀 단건 조회 |
+     * 404(USER_NOT_FOUND / TEAM_NOT_FOUND)
+     * 500(SERVER_ERROR)
+     */
+    public Team findOneReviewableTeam(long userId, long teamId) {
+        User user = findOneUser(userId);
+        List<TeamMember> teamMembers = findManyCompleteTeamMember(user);
+
+        for (TeamMember teamMember : teamMembers)
+            if (teamMember.getTeam().getId().equals(teamId))
+                return teamMember.getTeam();
+
+        throw new CustomException(TEAM_NOT_FOUND);
+    }
+
+    /**
      * 회원의 리뷰 가능한 팀 전체 조회 |
      * 500(SERVER_ERROR)
      */

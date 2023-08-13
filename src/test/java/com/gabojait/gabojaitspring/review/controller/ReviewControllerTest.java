@@ -80,6 +80,10 @@ class ReviewControllerTest extends WebMvc {
         doReturn(reviews)
                 .when(this.reviewService)
                 .findManyReviews(anyLong(), anyLong(), any());
+
+        doReturn(team)
+                .when(this.reviewService)
+                .findOneReviewableTeam(anyLong(), anyLong());
     }
 
     @Test
@@ -102,28 +106,6 @@ class ReviewControllerTest extends WebMvc {
 
         assertThat(status).isEqualTo(USER_REVIEWED.getHttpStatus().value());
         assertThat(response).contains(USER_REVIEWED.name());
-    }
-
-    @Test
-    @DisplayName("리뷰 작성 | 팀 식별자 미입력시 | 400반환")
-    void createReview_givenTeamIdFieldRequired_return400() throws Exception {
-        // given TODO 식별자 미입력
-        ReviewCreateReqDto reqDto = getValidReviewCreateReqDto();
-        String request = mapToJson(reqDto);
-        Long teamId = null;
-
-        // when
-        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/user/team/{team-id}/review", "")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-//        assertThat(status).isEqualTo(TEAM_ID_FIELD_REQUIRED.getHttpStatus().value());
-//        assertThat(response).contains(TEAM_ID_FIELD_REQUIRED.name());
     }
 
     @Test
@@ -287,7 +269,7 @@ class ReviewControllerTest extends WebMvc {
     }
 
     @Test
-    @DisplayName("본인 리뷰 작성 가능한 팀 전체 조회 | 올바른 요청시 | 200반환")
+    @DisplayName("본인이 리뷰 작성 가능한 팀 전체 조회 | 올바른 요청시 | 200반환")
     void findReviewableTeams_givenValidReq_return200() throws Exception {
         // given & when
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/team/review"))
@@ -299,6 +281,42 @@ class ReviewControllerTest extends WebMvc {
 
         assertThat(status).isEqualTo(REVIEWABLE_TEAMS_FOUND.getHttpStatus().value());
         assertThat(response).contains(REVIEWABLE_TEAMS_FOUND.name());
+    }
+
+    @Test
+    @DisplayName("본인이 리뷰 작성 가능한 팀 단건 조회 | 올바른 요청시 | 200반환")
+    void findReviewableTeam_givenValidReq_return200() throws Exception {
+        // given
+        Long teamId = getValidId();
+
+        // when
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/team/{team-id}/review", teamId))
+                .andReturn();
+
+        // then
+        int status = mvcResult.getResponse().getStatus();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(status).isEqualTo(REVIEWABLE_TEAM_FOUND.getHttpStatus().value());
+        assertThat(response).contains(REVIEWABLE_TEAM_FOUND.name());
+    }
+
+    @Test
+    @DisplayName("본인이 리뷰 작성 가능한 팀 단건 조회 | 팀 식별자 양수 아닐시 | 400반환")
+    void findReviewableTeam_givenTeamIdPositiveOnly_return400() throws Exception {
+        // given
+        Long teamId = 0L;
+
+        // when
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/team/{team-id}/review", teamId))
+                .andReturn();
+
+        // then
+        int status = mvcResult.getResponse().getStatus();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(status).isEqualTo(TEAM_ID_POSITIVE_ONLY.getHttpStatus().value());
+        assertThat(response).contains(TEAM_ID_POSITIVE_ONLY.name());
     }
 
     @Test
@@ -321,28 +339,6 @@ class ReviewControllerTest extends WebMvc {
 
         assertThat(status).isEqualTo(USER_REVIEWS_FOUND.getHttpStatus().value());
         assertThat(response).contains(USER_REVIEWS_FOUND.name());
-    }
-
-    @Test
-    @DisplayName("회원 리뷰 다건 조회 | 회원 식별자 미입력시 | 400반환")
-    void findManyReview_givenUserIdFieldRequired_return400() throws Exception {
-        // given TODO 식별자 미입력
-        Long userId = null;
-        Integer pageFrom = getValidPageFrom();
-        Integer pageSize = getValidPageSize();
-
-        // when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/{user-id}/review", userId)
-                        .param("page-from", pageFrom.toString())
-                        .param("page-size", pageSize.toString()))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-//        assertThat(status).isEqualTo(USER_ID_FIELD_REQUIRED.getHttpStatus().value());
-//        assertThat(response).contains(USER_ID_FIELD_REQUIRED.name());
     }
 
     @Test
