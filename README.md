@@ -1,10 +1,10 @@
-# Gabojait (가보자잇)
+# 가보자IT
 
 <div align="center">
 
-<img src="docs/gabojait-logo.png" alt="gabojait-logo.png" width=300 height=300>
+<img src="docs/img/gabojait-logo.png" alt="gabojait-logo.png" width=300 height=300>
 
-### 가보자it으로 사이드 프로젝트를 함께할 팀원을 찾다.
+### 가보자IT으로 사이드 프로젝트를 함께할 팀원을 찾다.
 
 App Store:
 
@@ -12,7 +12,6 @@ Play Store:
 
 ![Java](https://img.shields.io/badge/Java-11.0.11-6db33f?logo=Java&style=flat)
 ![SpringBoot](https://img.shields.io/badge/SpringBoot-2.6.6-6db33f?logo=Spring-Boot&style=flat)
-![JPA](https://img.shields.io/badge/JPA--6db33f?logo=Hibernate&style=flat)
 [![Swagger](https://img.shields.io/badge/Swagger-gabojait-6db33f?logo=Swagger&style=flat)](https://gabojait-dev.nogamsung.com/api/v1/docs/swagger-ui/index.html)
 
 ![MySQL](https://img.shields.io/badge/MySQL-8.0.28-003545?logo=mysql&style=flat)
@@ -33,19 +32,19 @@ Play Store:
 
 ## Database 
 
-![Database Diagram](docs/database-diagram.png)
+![Database Diagram](docs/img/database-diagram.png)
 
 ---
 
 ## Architecture
 
-![Architecture Diagram](docs/architecture-diagram.png)
+![Architecture Diagram](docs/img/architecture-diagram.png)
 
 ---
 
 ## CI/CD Pipeline
 
-![CI/CD Pipeline Diagram](docs/cicd-pipeline-diagram.png)
+![CI/CD Pipeline Diagram](docs/img/cicd-pipeline-diagram.png)
 
 ---
 
