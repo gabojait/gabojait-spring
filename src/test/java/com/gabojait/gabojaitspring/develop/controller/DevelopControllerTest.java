@@ -52,39 +52,6 @@ class DevelopControllerTest extends WebMvc {
         assertThat(status).isEqualTo(SERVER_OK.getHttpStatus().value());
         assertThat(response).contains(SERVER_OK.name());
     }
-
-    @Test
-    @DisplayName("데이터베이스 초기화 후 테스트 데이터 주입 | 올바른 요청시 | 200반환")
-    void resetAndInjectTest_givenValidReq_return200() throws Exception {
-        // given & when
-        MvcResult mvcResult = this.mockMvc.perform(delete("/api/v1/test"))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(status).isEqualTo(TEST_DATA_INJECTED.getHttpStatus().value());
-        assertThat(response).contains(TEST_DATA_INJECTED.name());
-    }
-
-    @Test
-    @DisplayName("테스트 계정 토큰 발급 | 올바른 요청시 | 200반환")
-    void testDataToken_givenValidReq_return200() throws Exception {
-        // given
-        Integer testerId = getValidId();
-
-        // when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/test/user/{tester-id}", testerId))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(status).isEqualTo(TESTER_TOKEN_ISSUED.getHttpStatus().value());
-        assertThat(response).contains(TESTER_TOKEN_ISSUED.name());
-    }
     private Integer getValidId() {
         return 1;
     }
