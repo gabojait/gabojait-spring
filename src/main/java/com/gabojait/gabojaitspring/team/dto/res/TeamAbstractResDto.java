@@ -52,17 +52,17 @@ public class TeamAbstractResDto {
 
             this.teamMembers.add(new TeamMemberPositionResDto(teamMember));
 
-            switch (teamMember.getPosition().name()) {
-                case "DESIGNER":
+            switch (teamMember.getPosition()) {
+                case DESIGNER:
                     designerCnt++;
                     break;
-                case "BACKEND":
+                case BACKEND:
                     backendCnt++;
                     break;
-                case "FRONTEND":
+                case FRONTEND:
                     frontendCnt++;
                     break;
-                case "MANAGER":
+                case MANAGER:
                     managerCnt++;
                     break;
             }

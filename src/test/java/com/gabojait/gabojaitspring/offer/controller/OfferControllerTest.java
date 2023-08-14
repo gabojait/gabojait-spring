@@ -105,27 +105,6 @@ class OfferControllerTest extends WebMvc {
     }
 
     @Test
-    @DisplayName("회원이 팀에 지원 | 팀 식별자 미입력시 | 400반환")
-    void userOffer_givenTeamIdFieldRequired_return400() throws Exception {
-        // given TODO 식별자 미입력
-        OfferCreateReqDto reqDto = getValidOfferCreateReqDto();
-        String request = mapToJson(reqDto);
-
-        // when
-        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/user/team/{team-id}/offer", "")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-//        assertThat(status).isEqualTo(TEAM_ID_FIELD_REQUIRED.getHttpStatus().value());
-//        assertThat(response).contains(TEAM_ID_FIELD_REQUIRED.name());
-    }
-
-    @Test
     @DisplayName("회원이 팀에 지원 | 팀 식별자가 양수 아닐시 | 400반환")
     void userOffer_givenTeamIdPositiveOnly_return400() throws Exception {
         // given
@@ -213,27 +192,6 @@ class OfferControllerTest extends WebMvc {
 
         assertThat(status).isEqualTo(OFFERED_BY_TEAM.getHttpStatus().value());
         assertThat(response).contains(OFFERED_BY_TEAM.name());
-    }
-
-    @Test
-    @DisplayName("팀이 회원에게 스카웃 | 회원 식별자 입력시 | 400반환")
-    void teamOffer_givenUserIdFieldRequired_return400() throws Exception {
-        // given TODO 식별자 미입력
-        OfferCreateReqDto reqDto = getValidOfferCreateReqDto();
-        String request = mapToJson(reqDto);
-
-        // when
-        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/team/user/{user-id}/offer", "")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-//        assertThat(status).isEqualTo(USER_ID_FIELD_REQUIRED.getHttpStatus().value());
-//        assertThat(response).contains(USER_ID_FIELD_REQUIRED.name());
     }
 
     @Test
@@ -749,27 +707,6 @@ class OfferControllerTest extends WebMvc {
     }
 
     @Test
-    @DisplayName("회원이 받은 제안 결정 | 제안 식별자 미입력시 | 400반환")
-    void decideOfferByUser_givenOfferIdFieldRequired_return400() throws Exception {
-        // given TODO 식별자 미입력
-        OfferUpdateReqDto reqDto = getValidOfferUpdateReqDto();
-        String request = mapToJson(reqDto);
-
-        // when
-        MvcResult mvcResult = this.mockMvc.perform(patch("/api/v1/user/offer/{offer-id}", "")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-//        assertThat(status).isEqualTo(OFFER_ID_FIELD_REQUIRED.getHttpStatus().value());
-//        assertThat(response).contains(OFFER_ID_FIELD_REQUIRED.name());
-    }
-
-    @Test
     @DisplayName("회원이 받은 제안 결정 | 제안 식별자가 양수 아닐시 | 400반환")
     void decideOfferByUser_givenOfferIdPositiveOnly_return400() throws Exception {
         // given
@@ -837,27 +774,6 @@ class OfferControllerTest extends WebMvc {
     }
 
     @Test
-    @DisplayName("팀이 받은 제안 결정 | 제안 식별자 미입력시 | 400반환")
-    void decideOfferByTeam_givenOfferIdFieldRequired_return400() throws Exception {
-        // given TODO 식별자 미입력
-        OfferUpdateReqDto reqDto = getValidOfferUpdateReqDto();
-        String request = mapToJson(reqDto);
-
-        // when
-        MvcResult mvcResult = this.mockMvc.perform(patch("/api/v1/team/offer/{offer-id}", "")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-//        assertThat(status).isEqualTo(OFFER_ID_FIELD_REQUIRED.getHttpStatus().value());
-//        assertThat(response).contains(OFFER_ID_FIELD_REQUIRED.name());
-    }
-
-    @Test
     @DisplayName("팀이 받은 제안 결정 | 제안 식별자가 양수 아닐시 | 400반환")
     void decideOfferByTeam_givenOfferIdPositiveOnly_return400() throws Exception {
         // given
@@ -918,21 +834,6 @@ class OfferControllerTest extends WebMvc {
 
         assertThat(status).isEqualTo(OFFER_CANCEL_BY_USER.getHttpStatus().value());
         assertThat(response).contains(OFFER_CANCEL_BY_USER.name());
-    }
-
-    @Test
-    @DisplayName("회원이 보낸 제안 취소 | 제안 식별자 미입력시 | 400반환")
-    void cancelOfferByUser_givenOfferIdFieldRequired_return400() throws Exception {
-        // given & when TODO 식별자 미입력
-        MvcResult mvcResult = this.mockMvc.perform(delete("/api/v1/user/offer/{offer-id}", ""))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-//        assertThat(status).isEqualTo(OFFER_ID_FIELD_REQUIRED.getHttpStatus().value());
-//        assertThat(response).contains(OFFER_ID_FIELD_REQUIRED.name());
     }
 
     @Test

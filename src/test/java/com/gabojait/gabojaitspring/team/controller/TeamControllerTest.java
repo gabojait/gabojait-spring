@@ -722,21 +722,6 @@ class TeamControllerTest extends WebMvc {
     }
 
     @Test
-    @DisplayName("팀 단건 조회 | 팀 식별자 미입력시 | 400반환")
-    void findOneTeam_givenTeamIdFieldRequired_return400() throws Exception {
-        // given & when TODO 식별자 미입력
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/team/{team-id}", ""))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-//        assertThat(status).isEqualTo(TEAM_ID_FIELD_REQUIRED.getHttpStatus().value());
-//        assertThat(response).contains(TEAM_ID_FIELD_REQUIRED.name());
-    }
-
-    @Test
     @DisplayName("팀 단건 조회 | 팀 식별자가 양수 아닐시 | 400반환")
     void findOneTeam_givenTeamIdPositiveOnly_return400() throws Exception {
         // given & when
@@ -1001,21 +986,6 @@ class TeamControllerTest extends WebMvc {
 
         assertThat(status).isEqualTo(TEAMMATE_FIRED.getHttpStatus().value());
         assertThat(response).contains(TEAMMATE_FIRED.name());
-    }
-
-    @Test
-    @DisplayName("팀원 추방 | 회원 식별자 미입력시 | 400반환")
-    void fireTeammate_givenUserIdFieldRequired_return400() throws Exception {
-        // given & when TODO 식별자 미입력
-        MvcResult mvcResult = this.mockMvc.perform(patch("/api/v1/team/user/{user-id}/fire", ""))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-//        assertThat(status).isEqualTo(USER_ID_FIELD_REQUIRED.getHttpStatus().value());
-//        assertThat(response).contains(USER_ID_FIELD_REQUIRED.name());
     }
 
     @Test

@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 
@@ -111,8 +110,6 @@ public class ReviewService {
 
                     if (isReviewable)
                         reviewableTeams.add(team);
-                } else {
-                    break;
                 }
             }
         }
@@ -132,7 +129,7 @@ public class ReviewService {
         Pageable pageable = pageProvider.validatePageable(pageSize, 20);
 
         try {
-            return reviewRepository.searchOrderByCreatedAt(pageFrom, reviewee, pageable); // TODO pageCount Check
+            return reviewRepository.searchOrderByCreatedAt(pageFrom, reviewee, pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -173,9 +170,9 @@ public class ReviewService {
      */
     private boolean isReviewableTeam(User reviewer, Team team) {
         try {
-            Optional<Review> review = reviewRepository.findByReviewerAndTeamAndIsDeletedIsFalse(reviewer, team);
+            List<Review> reviews = reviewRepository.findAllByReviewerAndTeamAndIsDeletedIsFalse(reviewer, team);
 
-            return review.isEmpty();
+            return reviews.isEmpty();
         } catch (RuntimeException e) {
             throw new CustomException(SERVER_ERROR);
         }
