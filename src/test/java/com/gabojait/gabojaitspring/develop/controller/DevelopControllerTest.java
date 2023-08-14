@@ -53,8 +53,6 @@ class DevelopControllerTest extends WebMvc {
         assertThat(response).contains(SERVER_OK.name());
     }
 
-<<<<<<< HEAD
-=======
     @Test
     @DisplayName("데이터베이스 초기화 후 테스트 데이터 주입 | 올바른 요청시 | 200반환")
     void resetAndInjectTest_givenValidReq_return200() throws Exception {
@@ -87,91 +85,6 @@ class DevelopControllerTest extends WebMvc {
         assertThat(status).isEqualTo(TESTER_TOKEN_ISSUED.getHttpStatus().value());
         assertThat(response).contains(TESTER_TOKEN_ISSUED.name());
     }
-
-    @Test
-    @DisplayName("테스트 계정 토큰 발급 | 테스터 식별자가 양수가 아닐시 | 400반환")
-    void testDataToken_givenTesterIdPositiveOnly_return400() throws Exception {
-        // given
-        Integer testerId = 0;
-
-        // when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/test/user/{tester-id}", testerId))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(status).isEqualTo(TESTER_ID_POSITIVE_ONLY.getHttpStatus().value());
-        assertThat(response).contains(TESTER_ID_POSITIVE_ONLY.name());
-    }
-
-    @Test
-    @DisplayName("테스트 FCM 전송 | 올바른 요청시 | 200반환")
-    void sendTestFcm_givenValidReq_return200() throws Exception {
-        // given
-        DevelopFcmReqDto reqDto = getValidDevelopFcmReqDto();
-        String request = mapToJson(reqDto);
-
-        // then
-        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/test/fcm")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andReturn();
-
-        // when
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(status).isEqualTo(TEST_FCM_SENT.getHttpStatus().value());
-        assertThat(response).contains(TEST_FCM_SENT.name());
-    }
-
-    @Test
-    @DisplayName("테스트 FCM 전송 | FCM 제목 미입력시 | 400반환")
-    void sendTestFcm_givenFcmTitleFieldRequired_return400() throws Exception {
-        // given
-        DevelopFcmReqDto reqDto = getValidDevelopFcmReqDto();
-        reqDto.setFcmTitle("");
-        String request = mapToJson(reqDto);
-
-        // then
-        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/test/fcm")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andReturn();
-
-        // when
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(status).isEqualTo(FCM_TITLE_FIELD_REQUIRED.getHttpStatus().value());
-        assertThat(response).contains(FCM_TITLE_FIELD_REQUIRED.name());
-    }
-
-    @Test
-    @DisplayName("테스트 FCM 전송 | FCM 메세지 미입력시 | 400반환")
-    void sendTestFcm_givenFcmMessageFieldRequired_return400() throws Exception {
-        // given
-        DevelopFcmReqDto reqDto = getValidDevelopFcmReqDto();
-        reqDto.setFcmMessage("");
-        String request = mapToJson(reqDto);
-
-        // then
-        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/test/fcm")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andReturn();
-
-        // when
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(status).isEqualTo(FCM_MESSAGE_FIELD_REQUIRED.getHttpStatus().value());
-        assertThat(response).contains(FCM_MESSAGE_FIELD_REQUIRED.name());
-    }
-
->>>>>>> develop
     private Integer getValidId() {
         return 1;
     }
