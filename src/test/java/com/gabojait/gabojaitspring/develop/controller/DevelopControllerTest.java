@@ -101,24 +101,6 @@ class DevelopControllerTest extends WebMvc {
     }
 
     @Test
-    @DisplayName("테스트 계정 토큰 발급 | 테스터 식별자 미입력시 | 400반환")
-    void testDataToken_givenTesterIdFieldRequired_return400() throws Exception {
-        // given TODO 식별자 미입력
-        Integer testerId = getValidId();
-
-        // when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/test/user/{tester-id}", testerId))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-//        assertThat(status).isEqualTo(TESTER_ID_FIELD_REQUIRED.getHttpStatus().value());
-//        assertThat(response).contains(TESTER_ID_FIELD_REQUIRED.name());
-    }
-
-    @Test
     @DisplayName("테스트 계정 토큰 발급 | 테스터 식별자가 양수가 아닐시 | 400반환")
     void testDataToken_givenTesterIdPositiveOnly_return400() throws Exception {
         // given

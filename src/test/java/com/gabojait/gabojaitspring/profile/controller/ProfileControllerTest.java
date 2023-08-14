@@ -150,21 +150,6 @@ class ProfileControllerTest extends WebMvc {
     }
 
     @Test
-    @DisplayName("프로필 단건 조회 | 회원 식별자 미입력시 | 400반환")
-    void findOther_givenUserIdFieldRequired_return400() throws Exception {
-        // given & when TODO 식별자 미입력
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/user/{user-id}/profile", ""))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-//        assertThat(status).isEqualTo(USER_ID_FIELD_REQUIRED.getHttpStatus().value());
-//        assertThat(response).contains(USER_ID_FIELD_REQUIRED.name());
-    }
-
-    @Test
     @DisplayName("프로필 단건 조회 | 회원 식별가 양수 아닐시 | 400반환")
     void findOther_givenUserIdPositiveOnly_return400() throws Exception {
         // given & when

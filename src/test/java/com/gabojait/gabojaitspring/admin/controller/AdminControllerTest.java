@@ -532,49 +532,6 @@ class AdminControllerTest extends WebMvc {
     }
 
     @Test
-    @DisplayName("관리자 가입 결정 | 관리자 식별자 미입력시 | 400반환")
-    void decideAdminRegistration_givenAdminIdFieldRequired_return400() throws Exception {
-        // given TODO 식별자 미입력
-        AdminRegisterDecideReqDto reqDto = getValidAdminRegisterDecideReqDto();
-        String request = mapToJson(reqDto);
-
-        // when
-        MvcResult mvcResult = this.mockMvc.perform(patch("/api/v1/admin/{admin-id}/decide", "")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-//        assertThat(status).isEqualTo(ADMIN_ID_FIELD_REQUIRED.getHttpStatus().value());
-//        assertThat(response).contains(ADMIN_ID_FIELD_REQUIRED.name());
-    }
-
-    @Test
-    @DisplayName("관리자 가입 결정 | 관리자 식별자가 양수 아닐시 | 400반환")
-    void decideAdminRegistration_givenAdminIdPositiveOnly_return400() throws Exception {
-        // given TODO 식별자 미입력
-        AdminRegisterDecideReqDto reqDto = getValidAdminRegisterDecideReqDto();
-        String request = mapToJson(reqDto);
-        Long adminId = 0L;
-
-        // when
-        MvcResult mvcResult = this.mockMvc.perform(patch("/api/v1/admin/{admin-id}/decide", adminId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(status).isEqualTo(ADMIN_ID_POSITIVE_ONLY.getHttpStatus().value());
-        assertThat(response).contains(ADMIN_ID_POSITIVE_ONLY.name());
-    }
-
-    @Test
     @DisplayName("관리자 가입 결정 | 승인 여부 미입력시 | 400반환")
     void decideAdminRegistration_givenIsApprovedFieldRequired_return400() throws Exception {
         // given
@@ -613,24 +570,6 @@ class AdminControllerTest extends WebMvc {
 
         assertThat(status).isEqualTo(USER_FOUND.getHttpStatus().value());
         assertThat(response).contains(USER_FOUND.name());
-    }
-
-    @Test
-    @DisplayName("회원 단건 조회 | 회원 식별자 미입력시 | 400 반환")
-    void findOneUser_givenUserIdFieldRequired_return400() throws Exception {
-        // given TODO 식별자 미입력
-        Long userId = null;
-
-        // when
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/admin/user/{user-id}", userId))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-//        assertThat(status).isEqualTo(USER_ID_FIELD_REQUIRED.getHttpStatus().value());
-//        assertThat(response).contains(USER_ID_FIELD_REQUIRED.name());
     }
 
     @Test

@@ -135,27 +135,6 @@ class FavoriteControllerTest extends WebMvc {
     }
 
     @Test
-    @DisplayName("회원이 팀 찜하기 및 찜 취소하기 | 팀 식별자 미입력시 | 400반환")
-    void addOrDeleteFavoriteTeam_givenTeamIdFieldRequired_return400() throws Exception {
-        // given TODO 식별자 미입력
-        FavoriteUpdateReqDto reqDto = getValidFavoriteUpdateReqDto();
-        String request = mapToJson(reqDto);
-
-        // when
-        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/user/favorite/team/{team-id}", "")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-//        assertThat(status).isEqualTo(TEAM_ID_FIELD_REQUIRED.getHttpStatus().value());
-//        assertThat(response).contains(TEAM_ID_FIELD_REQUIRED.name());
-    }
-
-    @Test
     @DisplayName("회원이 팀 찜하기 및 찜 취소하기 | 팀 식별자가 양수 아닐시 | 400반환")
     void addOrDeleteFavoriteTeam_givenTeamIdPositiveOnly_return400() throws Exception {
         // given
@@ -324,28 +303,6 @@ class FavoriteControllerTest extends WebMvc {
 
         assertThat(status).isEqualTo(FAVORITE_USER_DELETED.getHttpStatus().value());
         assertThat(response).contains(FAVORITE_USER_DELETED.name());
-    }
-
-    @Test
-    @DisplayName("팀이 회원 찜하기 및 찜 취소하기 | 회원 식별자 미입력시 | 400반환")
-    void addOrDeleteFavoriteUser_givenUserIdFieldRequired_return400() throws Exception {
-        // given TODO 식별자 미입력
-        FavoriteUpdateReqDto reqDto = getValidFavoriteUpdateReqDto();
-        reqDto.setIsAddFavorite(true);
-        String request = mapToJson(reqDto);
-
-        //when
-        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/team/favorite/user/{user-id}", "")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-//        assertThat(status).isEqualTo(USER_ID_FIELD_REQUIRED.getHttpStatus().value());
-//        assertThat(response).contains(USER_ID_FIELD_REQUIRED.name());
     }
 
     @Test
