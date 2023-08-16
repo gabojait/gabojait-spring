@@ -21,13 +21,20 @@
 ## 1️⃣ 회원<a id="user"></a>
 ### 본인 조회
 
+#### vUser 99
+![](/docs/img/v1.0.0/api_v1_user_GET-99.png)
+
+#### vUser 296
+![](/docs/img/v1.0.0/api_v1_user_GET-296.png)
+
+#### vUser 500
+![](/docs/img/v1.0.0/api_v1_user_GET-500.png)
+
 ### 로그인
 
 ### 로그아웃
 
 ### 닉네임 중복여부 확인
-
-### 닉네임 업데이트
 
 ### 알림 업데이트
 
