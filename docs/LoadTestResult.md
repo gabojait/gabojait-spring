@@ -20,15 +20,14 @@
 
 ## 1️⃣ 회원<a id="user"></a>
 ### 본인 조회
-
 #### vUser 99
-![](/img/v1.0.0/api_v1_user_GET-99.png)
+![](img/v1.0.0/user/api_v1_user_GET-99.png)
 
 #### vUser 296
-![](/img/v1.0.0/api_v1_user_GET-296.png)
+![](img/v1.0.0/user/api_v1_user_GET-296.png)
 
 #### vUser 500
-![](/img/v1.0.0/api_v1_user_GET-500.png)
+![](img/v1.0.0/user/api_v1_user_GET-500.png)
 
 ### 로그인
 
