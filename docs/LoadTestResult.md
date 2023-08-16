@@ -30,20 +30,84 @@
 ![](img/v1.0.0/user/api_v1_user_GET-500.png)
 
 ### 로그인
+#### vUser 99
+![](img/v1.0.0/user/api_v1_user_login_POST-99.png)
+
+#### vUser 296
+![](img/v1.0.0/user/api_v1_user_login_POST-296.png)
+
+#### vUser 500
+![](img/v1.0.0/user/api_v1_user_login_POST-500.png)
 
 ### 로그아웃
+#### vUser 99
+![](img/v1.0.0/user/api_v1_user_logout_POST-99.png)
+
+#### vUser 296
+![](img/v1.0.0/user/api_v1_user_logout_POST-296.png)
+
+#### vUser 500
+![](img/v1.0.0/user/api_v1_user_logout_POST-500.png)
 
 ### 닉네임 중복여부 확인
+#### vUser 99
+![](img/v1.0.0/user/api_v1_user_nickname_GET-99.png)
+
+#### vUser 296
+![](img/v1.0.0/user/api_v1_user_nickname_GET-296.png)
+
+#### vUser 500
+![](img/v1.0.0/user/api_v1_user_nickname_GET-500.png)
 
 ### 알림 업데이트
+#### vUser 99
+![](img/v1.0.0/user/api_v1_user_notified_PATCH-99.png)
+
+#### vUser 296
+![](img/v1.0.0/user/api_v1_user_notified_PATCH-296.png)
+
+#### vUser 500
+![](img/v1.0.0/user/api_v1_user_notified_PATCH-500.png)
 
 ### 비밀번호 업데이트
+#### vUser 99
+![](img/v1.0.0/user/api_v1_user_password_PATCH-99.png)
+
+#### vUser 296
+![](img/v1.0.0/user/api_v1_user_password_PATCH-296.png)
+
+#### vUser 500
+![](img/v1.0.0/user/api_v1_user_password_PATCH-500.png)
 
 ### 비밀번호 검증
+#### vUser 99
+![](img/v1.0.0/user/api_v1_user_password_verify_POST-99.png)
+
+#### vUser 296
+![](img/v1.0.0/user/api_v1_user_password_verify_POST-296.png)
+
+#### vUser 500
+![](img/v1.0.0/user/api_v1_user_password_verify_POST-500.png)
 
 ### 토큰 재발급
+#### vUser 99
+![](img/v1.0.0/user/api_v1_user_token_POST-99.png)
+
+#### vUser 296
+![](img/v1.0.0/user/api_v1_user_token_POST-296.png)
+
+#### vUser 500
+![](img/v1.0.0/user/api_v1_user_token_POST-500.png)
 
 ### 아이디 중복여부 확인
+#### vUser 99
+![](img/v1.0.0/user/api_v1_user_username_GET-99.png)
+
+#### vUser 296
+![](img/v1.0.0/user/api_v1_user_username_GET-296.png)
+
+#### vUser 500
+![](img/v1.0.0/user/api_v1_user_username_GET-500.png)
 
 ---
 
