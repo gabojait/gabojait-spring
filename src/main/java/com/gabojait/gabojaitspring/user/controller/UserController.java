@@ -440,7 +440,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "알림 업데이트",
-            notes = "<응답 코드>" +
+            notes = "<응답 코드>\n" +
                     "- 200 = IS_NOTIFIED_UPDATED\n" +
                     "- 400 = IS_NOTIFIED_FIELD_REQUIRED\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
