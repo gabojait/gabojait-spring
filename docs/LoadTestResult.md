@@ -113,18 +113,74 @@
 
 ## 2️⃣ 프로필 <a id="profile"></a>
 ### 프로필 단건 조회
+#### vUser 99
+![](img/v1.0.0/profile/api_v1_user_user-id_profile_GET-99.png)
+
+#### vUser 296
+![](img/v1.0.0/profile/api_v1_user_user-id_profile_GET-296.png)
+
+#### vUser 500
+![](img/v1.0.0/profile/api_v1_user_user-id_profile_GET-500.png)
 
 ### 자기소개 업데이트
+#### vUser 99
+![](img/v1.0.0/profile/api_v1_user_description_PATCH-99.png)
+
+#### vUser 296
+![](img/v1.0.0/profile/api_v1_user_description_PATCH-296.png)
+
+#### vUser 500
+![](img/v1.0.0/profile/api_v1_user_description_PATCH-500.png)
 
 ### 프로필 사진 삭제
+#### vUser 99
+![](img/v1.0.0/profile/api_v1_user_image_DELETE-99.png)
+
+#### vUser 296
+![](img/v1.0.0/profile/api_v1_user_image_DELETE-296.png)
+
+#### vUser 500
+![](img/v1.0.0/profile/api_v1_user_image_DELETE-500.png)
 
 ### 본인 프로필 조회
+#### vUser 99
+![](img/v1.0.0/profile/api_v1_user_description_PATCH-99.png)
+
+#### vUser 296
+![](img/v1.0.0/profile/api_v1_user_description_PATCH-296.png)
+
+#### vUser 500
+![](img/v1.0.0/profile/api_v1_user_description_PATCH-500.png)
 
 ### 프로필 업데이트
+#### vUser 99
+![](img/v1.0.0/profile/api_v1_user_profile_POST-99.png)
+
+#### vUser 296
+![](img/v1.0.0/profile/api_v1_user_profile_POST-296.png)
+
+#### vUser 500
+![](img/v1.0.0/profile/api_v1_user_profile_POST-500.png)
 
 ### 팀을 찾는 회원 다건 조회
+#### vUser 99
+![](img/v1.0.0/profile/api_v1_user_seeking-team_GET-99.png)
+
+#### vUser 296
+![](img/v1.0.0/profile/api_v1_user_seeking-team_GET-296.png)
+
+#### vUser 500
+![](img/v1.0.0/profile/api_v1_user_seeking-team_GET-500.png)
 
 ### 팀 찾기 여부 수정
+#### vUser 99
+![](img/v1.0.0/profile/api_v1_user_seeking-team_PATCH-99.png)
+
+#### vUser 296
+![](img/v1.0.0/profile/api_v1_user_seeking-team_PATCH-296.png)
+
+#### vUser 500
+![](img/v1.0.0/profile/api_v1_user_seeking-team_PATCH-500.png)
 
 ---
 
