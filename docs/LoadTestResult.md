@@ -186,14 +186,54 @@
 
 ## 3️⃣ 팀<a id="team"></a>
 ### 팀 정보 수정
+#### vUser 99
+![](img/v1.0.0/team/api_v1_team_PUT-99.png)
+
+#### vUser 296
+![](img/v1.0.0/team/api_v1_team_PUT-296.png)
+
+#### vUser 500
+![](img/v1.0.0/team/api_v1_team_PUT-500.png)
 
 ### 팀 단건 조회
+#### vUser 99
+![](img/v1.0.0/team/api_v1_team_tem-id_GET-99.png)
+
+#### vUser 296
+![](img/v1.0.0/team/api_v1_team_tem-id_GET-296.png)
+
+#### vUser 500
+![](img/v1.0.0/team/api_v1_team_tem-id_GET-500.png)
 
 ### 팀원 찾는 팀 다건 조회
+#### vUser 99
+![](img/v1.0.0/team/api_v1_team_recruiting_GET-99.png)
+
+#### vUser 296
+![](img/v1.0.0/team/api_v1_team_recruiting_GET-296.png)
+
+#### vUser 500
+![](img/v1.0.0/team/api_v1_team_recruiting_GET-500.png)
 
 ### 팀원 모집 여부 업데이트
+#### vUser 99
+![](img/v1.0.0/team/api_v1_team_recruiting_PATCH-99.png)
+
+#### vUser 296
+![](img/v1.0.0/team/api_v1_team_recruiting_PATCH-296.png)
+
+#### vUser 500
+![](img/v1.0.0/team/api_v1_team_recruiting_PATCH-500.png)
 
 ### 본인 현재 팀 조회
+#### vUser 99
+![](img/v1.0.0/team/api_v1_user_team_GET-99.png)
+
+#### vUser 296
+![](img/v1.0.0/team/api_v1_user_team_GET-296.png)
+
+#### vUser 500
+![](img/v1.0.0/team/api_v1_user_team_GET-500.png)
 
 ---
 
