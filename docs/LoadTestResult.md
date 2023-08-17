@@ -1,11 +1,18 @@
 # 부하 테스트 결과
 
 ## 환경 🖥️
+![EC2](https://img.shields.io/badge/EC2-t2.micro-FF9900?logo=amazonec2&style=flat)
+![EC2](https://img.shields.io/badge/RDS-db.t3.micro-527FFF?logo=amazonrds&style=flat)
 
-- Ubuntu Server 22.04 LTS 64비트(x86)
+### 웹 서버 & 웹 애플리케이션 서버
 - 1 vCPU
-- 1GB Memory + 1GB Virtual Memory
-- 30 GB Storage
+- 1 GiB Memory + 1 GiB Virtual Memory
+- 30 GiB Storage
+
+### 데이터베이스 서버
+- 2 vCPU
+- 1 GiB Memory
+- 20 GiB Storage
 
 ## 목차 📋
 1. [회원](#user)
@@ -282,26 +289,98 @@
 
 ## 5️⃣ 제안<a id="offer"></a>
 ### 팀이 받은 제안 다건 조회
+#### vUser 99
+![](img/v1.0.0/offer/api_v1_team_offer_received_GET-99.png)
+
+#### vUser 296
+![](img/v1.0.0/offer/api_v1_team_offer_received_GET-296.png)
+
+#### vUser 500
+![](img/v1.0.0/offer/api_v1_team_offer_received_GET-500.png)
 
 ### 팀이 보낸 제안 다건 조회
+#### vUser 99
+![](img/v1.0.0/offer/api_v1_team_offer_sent_GET-99.png)
+
+#### vUser 296
+![](img/v1.0.0/offer/api_v1_team_offer_sent_GET-296.png)
+
+#### vUser 500
+![](img/v1.0.0/offer/api_v1_team_offer_sent_GET-500.png)
 
 ### 팀이 회원에게 스카웃
+#### vUser 99
+![](img/v1.0.0/offer/api_v1_team_user_user-id_offer_POST-99.png)
+
+#### vUser 296
+![](img/v1.0.0/offer/api_v1_team_user_user-id_offer_POST-296.png)
+
+#### vUser 500
+![](img/v1.0.0/offer/api_v1_team_user_user-id_offer_POST-500.png)
 
 ### 회원이 받은 제안 다건 조회
+#### vUser 99
+![](img/v1.0.0/offer/api_v1_user_offer_received_GET-99.png)
+
+#### vUser 296
+![](img/v1.0.0/offer/api_v1_user_offer_received_GET-296.png)
+
+#### vUser 500
+![](img/v1.0.0/offer/api_v1_user_offer_received_GET-500.png)
 
 ### 회원이 보낸 제안 다건 조회
+#### vUser 99
+![](img/v1.0.0/offer/api_v1_user_offer_sent_GET-99.png)
+
+#### vUser 296
+![](img/v1.0.0/offer/api_v1_user_offer_sent_GET-296.png)
+
+#### vUser 500
+![](img/v1.0.0/offer/api_v1_user_offer_sent_GET-500.png)
 
 ### 회원이 팀에 지원
+#### vUser 99
+![](img/v1.0.0/offer/api_v1_user_team_team-id_offer_POST-99.png)
+
+#### vUser 296
+![](img/v1.0.0/offer/api_v1_user_team_team-id_offer_POST-296.png)
+
+#### vUser 500
+![](img/v1.0.0/offer/api_v1_user_team_team-id_offer_POST-500.png)
 
 ---
 
 ## 6️⃣ 리뷰<a id="review"></a>
 ### 회원 리뷰 다건 조회
+#### vUser 99
+![](img/v1.0.0/review/api_v1_user_user-id_review_GET-99.png)
+
+#### vUser 296
+![](img/v1.0.0/review/api_v1_user_user-id_review_GET-296.png)
+
+#### vUser 500
+![](img/v1.0.0/review/api_v1_user_user-id_review_GET-500.png)
 
 ### 본인 리뷰 작성 가능한 팀 전체 조회
+#### vUser 99
+![](img/v1.0.0/review/api_v1_user_team_review_GET-99.png)
+
+#### vUser 296
+![](img/v1.0.0/review/api_v1_user_team_review_GET-296.png)
+
+#### vUser 500
+![](img/v1.0.0/review/api_v1_user_team_review_GET-500.png)
 
 ---
 
 ## 7️⃣ 개발<a id="develop"></a>
 ### 헬스 체크
+#### vUser 99
+![](img/v1.0.0/develop/api_v1_health_GET-99.png)
+
+#### vUser 296
+![](img/v1.0.0/develop/api_v1_health_GET-296.png)
+
+#### vUser 500
+![](img/v1.0.0/develop/api_v1_health_GET-500.png)
 
