@@ -10,16 +10,20 @@ App Store:
 
 Play Store:
 
-![Java](https://img.shields.io/badge/Java-11.0.11-6db33f?logo=Java&style=flat)
-![SpringBoot](https://img.shields.io/badge/SpringBoot-2.6.6-6db33f?logo=Spring-Boot&style=flat)
-[![Swagger](https://img.shields.io/badge/Swagger-gabojait-6db33f?logo=Swagger&style=flat)](https://gabojait-dev.nogamsung.com/api/v1/docs/swagger-ui/index.html)
-
-![MySQL](https://img.shields.io/badge/MySQL-8.0.28-003545?logo=mysql&style=flat)
-![S3](https://img.shields.io/badge/S3--003545?logo=Amazon-S3&style=flat)
-
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 ![Alpha-CI](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fgabojait%2Fgabojait-spring%2Fbadge%3Fref%3Ddevelop%26token%3D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&style=flat&label=Alpha-CI&logo=GitHub-Actions)
 ![Release-CI](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fgabojait%2Fgabojait-spring%2Fbadge%3Fref%3Dmaster%26token%3D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&style=flat&label=Release-CI&logo=GitHub-Actions)
+
+![Java](https://img.shields.io/badge/Java-11.0.11-6db33f?style=flat)
+![SpringBoot](https://img.shields.io/badge/SpringBoot-2.6.6-6DB33F?logo=Spring-Boot&style=flat)
+[![Swagger](https://img.shields.io/badge/Swagger-gabojait-85EA2D?logo=Swagger&style=flat)](https://gabojait-dev.nogamsung.com/api/v1/docs/swagger-ui/index.html)
+
+![EC2](https://img.shields.io/badge/EC2-t2.micro-FF9900?logo=amazonec2&style=flat)
+![RDS](https://img.shields.io/badge/RDS-db.t3.micro-527FFF?logo=amazonrds&style=flat)
+![MySQL](https://img.shields.io/badge/MySQL-8.0.33-4479A1?logo=mysql&style=flat)
+![S3](https://img.shields.io/badge/S3--569A31?logo=Amazon-S3&style=flat)
+
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
+
 </div>
 
 ---
@@ -50,5 +54,5 @@ Play Store:
 ---
 
 ## Rule
-- [Commit Convention](https://doublesprogramming.tistory.com/256)
-- [Semantic Versioning](https://semver.org/lang/ko/)
+- ### [Commit Convention](https://doublesprogramming.tistory.com/256)
+- ### [Semantic Versioning](https://semver.org/lang/ko/)

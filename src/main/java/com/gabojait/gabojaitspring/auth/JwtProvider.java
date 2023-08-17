@@ -34,8 +34,12 @@ public class JwtProvider {
 
     private final CustomUserDetailsService customuserDetailsService;
     private final String tokenPrefix = "Bearer ";
-    private final long accessTokenTime = 30L * 60 * 1000;
-    private final long refreshTokenTime = 28L * 24 * 60 * 60 * 1000;
+    @Value("${api.jwt.time.access}")
+    private long accessTokenTime;
+
+    @Value("${api.jwt.time.refresh}")
+    private long refreshTokenTime;
+//    private final long refreshTokenTime = 28L * 24 * 60 * 60 * 1000;
 
     /**
      * Guest JWT 생성
