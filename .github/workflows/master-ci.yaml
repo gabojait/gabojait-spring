@@ -49,6 +49,8 @@ jobs:
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           JWT_DOMAIN: ${{ secrets.JWT_DOMAIN }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_TIME_ACCESS: ${{ secrets.JWT_TIME_ACCESS }}
+          JWT_TIME_REFRESH: ${{ secrets.JWT_TIME_REFRESH }}
           LOG_FILE_PATH: ${{ secrets.LOG_FILE_PATH }}
           MAIL_HOST: ${{ secrets.MAIL_HOST }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
