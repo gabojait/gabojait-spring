@@ -239,12 +239,44 @@
 
 ## 4️⃣ 찜<a id="favorite"></a>
 ### 팀이 찜한 회원 다건 조회
+#### vUser 99
+![](img/v1.0.0/favorite/api_v1_team_favorite_user_GET-99.png)
+
+#### vUser 296
+![](img/v1.0.0/favorite/api_v1_team_favorite_user_GET-296.png)
+
+#### vUser 500
+![](img/v1.0.0/favorite/api_v1_team_favorite_user_GET-500.png)
 
 ### 팀이 회원 찜하기 및 찜 취소하기
+#### vUser 99
+![](img/v1.0.0/favorite/api_v1_team_favorite_user_user-id_POST-99.png)
+
+#### vUser 296
+![](img/v1.0.0/favorite/api_v1_team_favorite_user_user-id_POST-296.png)
+
+#### vUser 500
+![](img/v1.0.0/favorite/api_v1_team_favorite_user_user-id_POST-500.png)
 
 ### 회원이 찜한 팀 다건 조회
+#### vUser 99
+![](img/v1.0.0/favorite/api_v1_user_favorite_team_GET-99.png)
+
+#### vUser 296
+![](img/v1.0.0/favorite/api_v1_user_favorite_team_GET-296.png)
+
+#### vUser 500
+![](img/v1.0.0/favorite/api_v1_user_favorite_team_GET-500.png)
 
 ### 회원이 팀 찜하기 및 찜 취소하기
+#### vUser 99
+![](img/v1.0.0/favorite/api_v1_user_favorite_team_team-id_POST-99.png)
+
+#### vUser 296
+![](img/v1.0.0/favorite/api_v1_user_favorite_team_team-id_POST-296.png)
+
+#### vUser 500
+![](img/v1.0.0/favorite/api_v1_user_favorite_team_team-id_POST-500.png)
 
 ---
 
