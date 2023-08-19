@@ -2,6 +2,7 @@ package com.gabojait.gabojaitspring.common.util;
 
 import com.gabojait.gabojaitspring.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -16,6 +17,9 @@ import static com.gabojait.gabojaitspring.common.code.ErrorCode.EMAIL_SEND_ERROR
 @RequiredArgsConstructor
 public class EmailProvider {
 
+    @Value("${api.mail.address}")
+    private String fromAddress;
+
     private final JavaMailSender javaMailSender;
 
     /**
@@ -29,10 +33,10 @@ public class EmailProvider {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, "utf-8");
 
+            mimeMessageHelper.setFrom(fromAddress);
             mimeMessageHelper.setTo(receiver);
             mimeMessageHelper.setSubject(title);
             mimeMessageHelper.setText(emailContent(intro, key), true);
-            mimeMessageHelper.setFrom("gabojait.help@gmail.com");
 
             javaMailSender.send(mimeMessage);
         } catch (MessagingException e) {
@@ -198,7 +202,7 @@ public class EmailProvider {
                 "                    </tr> <!-- COPY -->\n" +
                 "                    <tr>\n" +
                 "                        <td bgcolor=\"#ffffff\" align=\"left\" style=\"padding: 0px 30px 40px 30px; border-radius: 0px 0px 4px 4px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;\">\n" +
-                "                            <p style=\"margin: 0;\">팀 가보자it 드림</p>\n" +
+                "                            <p style=\"margin: 0;\">팀 가보자IT 드림</p>\n" +
                 "                        </td>\n" +
                 "                    </tr>\n" +
                 "                </table>\n" +
