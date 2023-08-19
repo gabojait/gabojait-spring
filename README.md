@@ -26,7 +26,7 @@ Play Store:
 ![S3](https://img.shields.io/badge/S3-569A31?logo=Amazon-S3&style=flat)
 
 [![Uptime-kuma](https://img.shields.io/badge/Uptime%20Kuma-5CDD8B?logo=uptimekuma&style=flat)](https://uptime-kuma.nogamsung.com/status/gabojait)
-![](https://img.shields.io/badge/Sentry-362D59?logo=sentry&style=flat)
+![Sentry](https://img.shields.io/badge/Sentry-362D59?logo=sentry&style=flat)
 
 </div>
 
@@ -62,7 +62,7 @@ Play Store:
 - ### [Uptime Kuma](https://uptime-kuma.nogamsung.com/status/gabojait)
 - ### Sentry
 
---
+---
 
 ## Rule
 - ### [Commit Convention](https://doublesprogramming.tistory.com/256)

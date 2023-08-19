@@ -52,6 +52,7 @@ jobs:
           JWT_TIME_ACCESS: ${{ secrets.JWT_TIME_ACCESS }}
           JWT_TIME_REFRESH: ${{ secrets.JWT_TIME_REFRESH }}
           LOG_FILE_PATH: ${{ secrets.LOG_FILE_PATH }}
+          MAIL_ADDRESS: ${{ secrets.MAIL_ADDRESS }}
           MAIL_HOST: ${{ secrets.MAIL_HOST }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
           MAIL_PORT: ${{ secrets.MAIL_PORT }}
