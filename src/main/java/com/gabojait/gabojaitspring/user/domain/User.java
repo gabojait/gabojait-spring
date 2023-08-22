@@ -8,8 +8,6 @@ import com.gabojait.gabojaitspring.profile.domain.Skill;
 import com.gabojait.gabojaitspring.profile.domain.Work;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.review.domain.Review;
-import com.gabojait.gabojaitspring.team.domain.Team;
-import com.gabojait.gabojaitspring.team.domain.TeamMember;
 import com.gabojait.gabojaitspring.user.domain.type.Gender;
 import com.gabojait.gabojaitspring.user.domain.type.Role;
 import lombok.*;
@@ -92,15 +90,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     private String imageUrl;
 
     private Float rating;
-    private Long userOfferCnt;
-    private Long teamOfferCnt;
     private Long visitedCnt;
-    private Short createTeamCnt;
-    private Short joinTeamCnt;
-    private Short firedTeamCnt;
-    private Short quitTeamByLeaderCnt;
-    private Short quitTeamByUserCnt;
-    private Short completeTeamCnt;
     private Integer reviewCnt;
     private Boolean isTemporaryPassword;
     private Boolean isNotified;
@@ -125,15 +115,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.isSeekingTeam = true;
 
         this.rating = 0F;
-        this.userOfferCnt = 0L;
-        this.teamOfferCnt = 0L;
         this.visitedCnt = 0L;
-        this.createTeamCnt = 0;
-        this.joinTeamCnt = 0;
-        this.firedTeamCnt = 0;
-        this.quitTeamByLeaderCnt = 0;
-        this.quitTeamByUserCnt = 0;
-        this.completeTeamCnt = 0;
         this.reviewCnt = 0;
         this.isTemporaryPassword = false;
         this.isNotified = true;
@@ -302,30 +284,6 @@ public class User extends BaseTimeEntity implements UserDetails {
     }
 
     /*
-     * Team related
-     */
-
-    public void incrementCreateTeamCnt() {
-        this.createTeamCnt++;
-    }
-
-    public void incrementJoinTeamCnt() {
-        this.joinTeamCnt++;
-    }
-
-    public void incrementQuitTeamByLeaderCnt() {
-        this.quitTeamByLeaderCnt++;
-    }
-
-    public void incrementQuitTeamByUserCnt() {
-        this.quitTeamByUserCnt++;
-    }
-
-    public void incrementCompleteTeamCnt() {
-        this.completeTeamCnt++;
-    }
-
-    /*
      * Review related
      */
 
@@ -337,17 +295,5 @@ public class User extends BaseTimeEntity implements UserDetails {
                     + (rating * (1 / ((float) this.reviewCnt + 1)));
 
         this.reviewCnt++;
-    }
-
-    /*
-     * Offer related
-     */
-
-    public void incrementUserOfferCnt() {
-        this.userOfferCnt++;
-    }
-
-    public void incrementTeamOfferCnt() {
-        this.teamOfferCnt++;
     }
 }

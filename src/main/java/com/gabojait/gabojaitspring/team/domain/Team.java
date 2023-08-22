@@ -61,16 +61,6 @@ public class Team extends BaseTimeEntity {
     private LocalDateTime completedAt;
     @Column(nullable = false)
     private Long visitedCnt;
-    @Column(nullable = false)
-    private Integer userOfferCnt;
-    @Column(nullable = false)
-    private Integer teamOfferCnt;
-    @Column(nullable = false)
-    private Integer userJoinCnt;
-    @Column(nullable = false)
-    private Integer userFiredCnt;
-    @Column(nullable = false)
-    private Integer userLeftCnt;
 
     @Builder
     public Team(String projectName,
@@ -102,11 +92,6 @@ public class Team extends BaseTimeEntity {
         this.isManagerFull = isManagerFull;
         this.completedAt = null;
         this.visitedCnt = 0L;
-        this.userOfferCnt = 0;
-        this.teamOfferCnt = 0;
-        this.userJoinCnt = 0;
-        this.userFiredCnt = 0;
-        this.userLeftCnt = 0;
         this.isDeleted = false;
     }
 
@@ -182,26 +167,6 @@ public class Team extends BaseTimeEntity {
 
     public void incrementVisitedCnt() {
         this.visitedCnt++;
-    }
-
-    public void incrementUserOfferCnt() {
-        this.userOfferCnt++;
-    }
-
-    public void incrementTeamOfferCnt() {
-        this.teamOfferCnt++;
-    }
-
-    public void incrementUserJoinCnt() {
-        this.userJoinCnt++;
-    }
-
-    public void incrementUserFiredCnt() {
-        this.userFiredCnt++;
-    }
-
-    public void incrementUserLeftCnt() {
-        this.userLeftCnt++;
     }
 
     public void incomplete() {

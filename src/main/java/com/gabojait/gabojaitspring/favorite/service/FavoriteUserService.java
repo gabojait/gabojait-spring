@@ -1,7 +1,6 @@
 package com.gabojait.gabojaitspring.favorite.service;
 
 import com.gabojait.gabojaitspring.common.util.PageProvider;
-import com.gabojait.gabojaitspring.common.util.PasswordProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.favorite.domain.FavoriteUser;
 import com.gabojait.gabojaitspring.favorite.repository.FavoriteUserRepository;

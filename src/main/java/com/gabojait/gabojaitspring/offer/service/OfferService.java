@@ -53,9 +53,6 @@ public class OfferService {
         Offer offer = request.toEntity(user, team, OfferedBy.USER);
         saveOffer(offer);
 
-        team.incrementUserOfferCnt();
-        user.incrementUserOfferCnt();
-
         fcmProvider.sendOfferByUser(offer);
     }
 
@@ -83,9 +80,6 @@ public class OfferService {
         Offer offer = request.toEntity(user, team, OfferedBy.TEAM);
         saveOffer(offer);
 
-        team.incrementTeamOfferCnt();
-        user.incrementTeamOfferCnt();
-
         fcmProvider.sendOfferByTeam(offer);
     }
 
@@ -110,9 +104,6 @@ public class OfferService {
             List<Offer> offers = findAllOfferByUserAndTeam(user, team);
             for (Offer o : offers)
                 o.cancel();
-
-            user.incrementJoinTeamCnt();
-            team.incrementUserJoinCnt();
 
             fcmProvider.sendTeamMemberJoin(offer);
         } else {
@@ -146,9 +137,6 @@ public class OfferService {
             List<Offer> offers = findAllOfferByUserAndTeam(user, team);
             for (Offer o : offers)
                 o.cancel();
-
-            user.incrementJoinTeamCnt();
-            team.incrementUserJoinCnt();
 
             fcmProvider.sendTeamMemberJoin(offer);
         } else {
