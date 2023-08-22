@@ -318,8 +318,6 @@ public class DevelopService {
 
                 teamMemberRepository.save(teamMember);
 
-                users.get(j).incrementCompleteTeamCnt();
-
                 if (j % 5 == 4)
                     team.complete("github.com/gabojait.com");
             }

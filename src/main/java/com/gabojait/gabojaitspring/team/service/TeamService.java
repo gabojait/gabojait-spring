@@ -171,11 +171,6 @@ public class TeamService {
         user.updateIsSeekingTeam(false);
 
         team.updateIsPositionFull(position);
-
-        if (isLeader)
-            user.incrementCreateTeamCnt();
-        else
-            user.incrementJoinTeamCnt();
     }
 
     /**
@@ -191,8 +186,6 @@ public class TeamService {
         Team team = teamMember.getTeam();
 
         user.updateIsSeekingTeam(true);
-        team.incrementUserLeftCnt();
-        user.incrementQuitTeamByUserCnt();
 
         teamMember.delete();
 
@@ -450,8 +443,6 @@ public class TeamService {
         for(TeamMember teamMember : team.getTeamMembers()) {
             teamMember.delete();
             teamMember.getUser().updateIsSeekingTeam(true);
-
-            teamMember.getUser().incrementQuitTeamByLeaderCnt();
         }
 
         team.incomplete();
@@ -466,8 +457,6 @@ public class TeamService {
         for(TeamMember teamMember : team.getTeamMembers()) {
             teamMember.delete();
             teamMember.getUser().updateIsSeekingTeam(true);
-
-            teamMember.getUser().incrementCompleteTeamCnt();
         }
 
         team.complete(projectUrl);
