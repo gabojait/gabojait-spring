@@ -17,15 +17,15 @@ Play Store:
 
 ![Java](https://img.shields.io/badge/Java-11.0.11-6db33f?style=flat)
 ![SpringBoot](https://img.shields.io/badge/SpringBoot-2.6.6-6DB33F?logo=Spring-Boot&style=flat)
-[![Swagger](https://img.shields.io/badge/Swagger-gabojait-85EA2D?logo=Swagger&style=flat)](https://gabojait-dev.nogamsung.com/api/v1/docs/swagger-ui/index.html)
+[![Swagger](https://img.shields.io/badge/Swagger-4E4E4E?logo=Swagger&style=flat)](https://gabojait-dev.nogamsung.com/api/v1/docs/swagger-ui/index.html)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 
 ![EC2](https://img.shields.io/badge/EC2-t2.micro-FF9900?logo=amazonec2&style=flat)
 ![RDS](https://img.shields.io/badge/RDS-db.t3.micro-527FFF?logo=amazonrds&style=flat)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0.33-4479A1?logo=mysql&style=flat)
-![S3](https://img.shields.io/badge/S3-569A31?logo=Amazon-S3&style=flat)
+![S3](https://img.shields.io/badge/S3-4E4E4E?logo=Amazon-S3&style=flat)
 
-[![Uptime-kuma](https://img.shields.io/badge/Uptime%20Kuma-5CDD8B?logo=uptimekuma&style=flat)](https://uptime-kuma.nogamsung.com/status/gabojait)
+[![Uptime-kuma](https://img.shields.io/badge/Uptime%20Kuma-4E4E4E?logo=uptimekuma&style=flat)](https://uptime-kuma.nogamsung.com/status/gabojait)
 ![Sentry](https://img.shields.io/badge/Sentry-362D59?logo=sentry&style=flat)
 
 </div>

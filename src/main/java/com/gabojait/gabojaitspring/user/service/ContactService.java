@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 
 @Service
@@ -80,9 +82,9 @@ public class ContactService {
      * 연락처 하드 삭제 |
      * 500(SERVER_ERROR)
      */
-    public void hardDeleteContact(Contact contact) {
+    public void hardDeleteContacts(List<Contact> contacts) {
         try {
-            contactRepository.delete(contact);
+            contactRepository.deleteAll(contacts);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -105,12 +107,13 @@ public class ContactService {
      * 500(SERVER_ERROR)
      */
     private void validateExistingContact(String email) {
-        contactRepository.findByEmailAndIsDeletedIsFalse(email)
-                .ifPresent(c -> {
-                    if (c.getUser() != null)
-                        throw new CustomException(EXISTING_CONTACT);
-                    else
-                        hardDeleteContact(c);
-                });
+        List<Contact> contacts = contactRepository.findAllByEmailAndIsDeletedIsFalse(email);
+
+        if (!contacts.isEmpty()) {
+            for (Contact contact : contacts)
+                if (contact.getUser() != null)
+                    throw new CustomException(EXISTING_CONTACT);
+            hardDeleteContacts(contacts);
+        }
     }
 }
