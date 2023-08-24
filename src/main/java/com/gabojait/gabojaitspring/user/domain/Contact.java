@@ -42,10 +42,6 @@ public class Contact extends BaseTimeEntity {
     }
 
     public void delete() {
-        this.isDeleted = true;
-    }
-
-    public void deleteAccount() {
         this.email = null;
         this.isDeleted = true;
     }

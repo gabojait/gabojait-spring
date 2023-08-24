@@ -236,7 +236,7 @@ public class UserService {
         for(Fcm fcm : fcms)
             hardDeleteFcm(fcm);
 
-        user.getContact().deleteAccount();
+        user.getContact().delete();
         user.deleteAccount();
     }
 
