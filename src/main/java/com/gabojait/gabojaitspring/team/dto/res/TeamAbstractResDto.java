@@ -68,38 +68,38 @@ public class TeamAbstractResDto {
             }
         }
 
-        if (team.getDesignerTotalRecruitCnt() != 0)
+        if (team.getDesignerCnt() != 0)
             this.teamMemberCnts.add(
                     new TeamMemberCntResDto(
                             Position.DESIGNER,
-                            team.getDesignerTotalRecruitCnt(),
+                            team.getDesignerCnt(),
                             designerCnt
                     )
             );
 
-        if (team.getBackendTotalRecruitCnt() != 0)
+        if (team.getBackendCnt() != 0)
             this.teamMemberCnts.add(
                     new TeamMemberCntResDto(
                             Position.BACKEND,
-                            team.getBackendTotalRecruitCnt(),
+                            team.getBackendCnt(),
                             backendCnt
                     )
             );
 
-        if (team.getFrontendTotalRecruitCnt() != 0)
+        if (team.getFrontendCnt() != 0)
             this.teamMemberCnts.add(
                     new TeamMemberCntResDto(
                             Position.FRONTEND,
-                            team.getFrontendTotalRecruitCnt(),
+                            team.getFrontendCnt(),
                             frontendCnt
                     )
             );
 
-        if (team.getManagerTotalRecruitCnt() != 0)
+        if (team.getManagerCnt() != 0)
             this.teamMemberCnts.add(
                     new TeamMemberCntResDto(
                             Position.MANAGER,
-                            team.getManagerTotalRecruitCnt(),
+                            team.getManagerCnt(),
                             managerCnt
                     )
             );

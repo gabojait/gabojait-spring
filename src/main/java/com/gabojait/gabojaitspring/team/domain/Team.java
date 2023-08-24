@@ -35,13 +35,13 @@ public class Team extends BaseTimeEntity {
     @Column(nullable = false, length = 500)
     private String projectDescription;
     @Column(nullable = false)
-    private Byte designerTotalRecruitCnt;
+    private Byte designerCnt;
     @Column(nullable = false)
-    private Byte backendTotalRecruitCnt;
+    private Byte backendCnt;
     @Column(nullable = false)
-    private Byte frontendTotalRecruitCnt;
+    private Byte frontendCnt;
     @Column(nullable = false)
-    private Byte managerTotalRecruitCnt;
+    private Byte managerCnt;
     @Column(nullable = false, length = 200)
     private String expectation;
     @Column(nullable = false, length = 100)
@@ -65,10 +65,10 @@ public class Team extends BaseTimeEntity {
     @Builder
     public Team(String projectName,
                 String projectDescription,
-                Byte designerTotalRecruitCnt,
-                Byte backendTotalRecruitCnt,
-                Byte frontendTotalRecruitCnt,
-                Byte managerTotalRecruitCnt,
+                Byte designerCnt,
+                Byte backendCnt,
+                Byte frontendCnt,
+                Byte managerCnt,
                 Boolean isDesignerFull,
                 Boolean isBackendFull,
                 Boolean isFrontendFull,
@@ -77,10 +77,10 @@ public class Team extends BaseTimeEntity {
                 String openChatUrl) {
         this.projectName = projectName;
         this.projectDescription = projectDescription;
-        this.designerTotalRecruitCnt = designerTotalRecruitCnt;
-        this.backendTotalRecruitCnt = backendTotalRecruitCnt;
-        this.frontendTotalRecruitCnt = frontendTotalRecruitCnt;
-        this.managerTotalRecruitCnt = managerTotalRecruitCnt;
+        this.designerCnt = designerCnt;
+        this.backendCnt = backendCnt;
+        this.frontendCnt = frontendCnt;
+        this.managerCnt = managerCnt;
         this.expectation = expectation;
         this.openChatUrl = openChatUrl;
 
@@ -106,21 +106,21 @@ public class Team extends BaseTimeEntity {
         this.openChatUrl = openChatUrl;
 
         if (teamMemberRecruits.containsKey(Position.DESIGNER))
-            this.designerTotalRecruitCnt = teamMemberRecruits.get(Position.DESIGNER);
+            this.designerCnt = teamMemberRecruits.get(Position.DESIGNER);
         else
-            this.designerTotalRecruitCnt = 0;
+            this.designerCnt = 0;
         if (teamMemberRecruits.containsKey(Position.BACKEND))
-            this.backendTotalRecruitCnt = teamMemberRecruits.get(Position.BACKEND);
+            this.backendCnt = teamMemberRecruits.get(Position.BACKEND);
         else
-            this.backendTotalRecruitCnt = 0;
+            this.backendCnt = 0;
         if (teamMemberRecruits.containsKey(Position.FRONTEND))
-            this.frontendTotalRecruitCnt = teamMemberRecruits.get(Position.FRONTEND);
+            this.frontendCnt = teamMemberRecruits.get(Position.FRONTEND);
         else
-            this.frontendTotalRecruitCnt = 0;
+            this.frontendCnt = 0;
         if (teamMemberRecruits.containsKey(Position.MANAGER))
-            this.managerTotalRecruitCnt = teamMemberRecruits.get(Position.MANAGER);
+            this.managerCnt = teamMemberRecruits.get(Position.MANAGER);
         else
-            this.managerTotalRecruitCnt = 0;
+            this.managerCnt = 0;
     }
 
     public void updateIsPositionFull(Position position) {
@@ -130,18 +130,18 @@ public class Team extends BaseTimeEntity {
             if (position.equals(teamMember.getPosition()))
                 cnt++;
 
-        switch (position.name()) {
-            case "DESIGNER":
-                this.isDesignerFull = cnt >= this.designerTotalRecruitCnt;
+        switch (position) {
+            case DESIGNER:
+                this.isDesignerFull = cnt >= this.designerCnt;
                 break;
-            case "BACKEND":
-                this.isBackendFull = cnt >= this.backendTotalRecruitCnt;
+            case BACKEND:
+                this.isBackendFull = cnt >= this.backendCnt;
                 break;
-            case "FRONTEND":
-                this.isFrontendFull = cnt >= this.frontendTotalRecruitCnt;
+            case FRONTEND:
+                this.isFrontendFull = cnt >= this.frontendCnt;
                 break;
-            case "MANAGER":
-                this.isManagerFull = cnt >= this.managerTotalRecruitCnt;
+            case MANAGER:
+                this.isManagerFull = cnt >= this.managerCnt;
                 break;
         }
     }

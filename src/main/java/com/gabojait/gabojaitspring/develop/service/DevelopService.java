@@ -290,10 +290,10 @@ public class DevelopService {
             Team team = Team.builder()
                     .projectName("가볼까잇팀" + (i + 1))
                     .projectDescription("가보자잇 프로젝트 설명입니다.")
-                    .designerTotalRecruitCnt((byte) 2)
-                    .backendTotalRecruitCnt((byte) 2)
-                    .frontendTotalRecruitCnt((byte) 2)
-                    .managerTotalRecruitCnt((byte) 2)
+                    .designerCnt((byte) 2)
+                    .backendCnt((byte) 2)
+                    .frontendCnt((byte) 2)
+                    .managerCnt((byte) 2)
                     .isDesignerFull(false)
                     .isBackendFull(false)
                     .isFrontendFull(false)
@@ -356,10 +356,10 @@ public class DevelopService {
             Team team = Team.builder()
                     .projectName("가보자잇팀" + (i + 1))
                     .projectDescription("가보자잇 프로젝트 설명입니다.")
-                    .designerTotalRecruitCnt((byte) 2)
-                    .backendTotalRecruitCnt((byte) 2)
-                    .frontendTotalRecruitCnt((byte) 2)
-                    .managerTotalRecruitCnt((byte) 2)
+                    .designerCnt((byte) 2)
+                    .backendCnt((byte) 2)
+                    .frontendCnt((byte) 2)
+                    .managerCnt((byte) 2)
                     .isDesignerFull(false)
                     .isBackendFull(false)
                     .isFrontendFull(false)
@@ -396,13 +396,13 @@ public class DevelopService {
             entityManager.createNativeQuery("DELETE FROM work").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM fcm").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM team_member").executeUpdate();
-            entityManager.createNativeQuery("DELETE FROM favorite_member").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM favorite_user").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM favorite_team").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM offer").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM review").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM team").executeUpdate();
-            entityManager.createNativeQuery("DELETE FROM member_role").executeUpdate();
-            entityManager.createNativeQuery("DELETE FROM member").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM user_role").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM users").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM contact").executeUpdate();
 
             entityManager.createNativeQuery("ALTER TABLE education AUTO_INCREMENT = 1").executeUpdate();
@@ -411,13 +411,13 @@ public class DevelopService {
             entityManager.createNativeQuery("ALTER TABLE work AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE fcm AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE team_member AUTO_INCREMENT = 1").executeUpdate();
-            entityManager.createNativeQuery("ALTER TABLE favorite_member AUTO_INCREMENT = 1").executeUpdate();
+            entityManager.createNativeQuery("ALTER TABLE favorite_user AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE favorite_team AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE offer AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE review AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE team AUTO_INCREMENT = 1").executeUpdate();
-            entityManager.createNativeQuery("ALTER TABLE member_role AUTO_INCREMENT = 1").executeUpdate();
-            entityManager.createNativeQuery("ALTER TABLE member AUTO_INCREMENT = 1").executeUpdate();
+            entityManager.createNativeQuery("ALTER TABLE user_role AUTO_INCREMENT = 1").executeUpdate();
+            entityManager.createNativeQuery("ALTER TABLE users AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE contact AUTO_INCREMENT = 1").executeUpdate();
 
         } catch (RuntimeException e) {

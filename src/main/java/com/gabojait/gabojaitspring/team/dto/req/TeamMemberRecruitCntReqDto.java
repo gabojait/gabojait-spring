@@ -1,6 +1,7 @@
 package com.gabojait.gabojaitspring.team.dto.req;
 
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
+import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;

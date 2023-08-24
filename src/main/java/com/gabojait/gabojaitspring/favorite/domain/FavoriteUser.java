@@ -9,17 +9,17 @@ import javax.persistence.*;
 
 @Getter
 @ToString
-@Entity(name = "favorite_member")
+@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FavoriteUser extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "favorite_member_id")
+    @Column(name = "favorite_user_id")
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "user_id")
     @ToString.Exclude
     private User user;
 

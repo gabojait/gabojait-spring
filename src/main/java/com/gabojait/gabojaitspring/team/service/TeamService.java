@@ -375,17 +375,17 @@ public class TeamService {
         byte managerCurrentCnt = 0;
 
         for (TeamMember teamMember : team.getTeamMembers())
-            switch (teamMember.getPosition().name()) {
-                case "DESIGNER":
+            switch (teamMember.getPosition()) {
+                case DESIGNER:
                     designerCurrentCnt++;
                     break;
-                case "BACKEND":
+                case BACKEND:
                     backendCurrentCnt++;
                     break;
-                case "FRONTEND":
+                case FRONTEND:
                     frontendCurrentCnt++;
                     break;
-                case "MANAGER":
+                case MANAGER:
                     managerCurrentCnt++;
                     break;
             }
