@@ -23,13 +23,13 @@ import java.util.stream.Collectors;
 
 @Getter
 @ToString
-@Entity(name = "member")
+@Entity(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseTimeEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_id")
+    @Column(name = "user_id")
     private Long id;
 
     @OneToOne

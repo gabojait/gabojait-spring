@@ -65,20 +65,20 @@ public class TeamDefaultReqDto {
         boolean isFrontendFull = true;
         boolean isManagerFull = true;
 
-        switch (user.getPosition().name()) {
-            case "DESIGNER":
+        switch (user.getPosition()) {
+            case DESIGNER:
                 designerTotalRecruitCnt++;
                 isDesignerFull = false;
                 break;
-            case "BACKEND":
+            case BACKEND:
                 backendTotalRecruitCnt++;
                 isBackendFull = false;
                 break;
-            case "FRONTEND":
+            case FRONTEND:
                 frontendTotalRecruitCnt++;
                 isFrontendFull = false;
                 break;
-            case "MANAGER":
+            case MANAGER:
                 managerTotalRecruitCnt++;
                 isManagerFull = false;
                 break;
@@ -107,10 +107,10 @@ public class TeamDefaultReqDto {
         return Team.builder()
                 .projectName(this.projectName)
                 .projectDescription(this.projectDescription)
-                .designerTotalRecruitCnt(designerTotalRecruitCnt)
-                .backendTotalRecruitCnt(backendTotalRecruitCnt)
-                .frontendTotalRecruitCnt(frontendTotalRecruitCnt)
-                .managerTotalRecruitCnt(managerTotalRecruitCnt)
+                .designerCnt(designerTotalRecruitCnt)
+                .backendCnt(backendTotalRecruitCnt)
+                .frontendCnt(frontendTotalRecruitCnt)
+                .managerCnt(managerTotalRecruitCnt)
                 .isDesignerFull(isDesignerFull)
                 .isBackendFull(isBackendFull)
                 .isFrontendFull(isFrontendFull)

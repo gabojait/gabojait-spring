@@ -19,7 +19,7 @@ public class FavoriteTeam extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "member_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     @ToString.Exclude
     private User user;
 
