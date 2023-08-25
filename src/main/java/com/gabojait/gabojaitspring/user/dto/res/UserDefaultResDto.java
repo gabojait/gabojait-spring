@@ -32,14 +32,17 @@ public class UserDefaultResDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthdate;
 
-    @ApiModelProperty(position = 6, required = true, value = "연락처")
+    @ApiModelProperty(position = 6, required = true, value = "알림 여부")
+    private Boolean isNotified;
+
+    @ApiModelProperty(position = 7, required = true, value = "연락처")
     private ContactDefaultResDto contact;
 
-    @ApiModelProperty(position = 7, required = true, value = "생성일")
+    @ApiModelProperty(position = 8, required = true, value = "생성일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
-    @ApiModelProperty(position = 8, required = true, value = "수정일")
+    @ApiModelProperty(position = 9, required = true, value = "수정일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
@@ -49,6 +52,7 @@ public class UserDefaultResDto {
         this.nickname = user.getNickname();
         this.gender = user.getGender();
         this.birthdate = user.getBirthdate();
+        this.isNotified = user.getIsNotified();
         this.contact = new ContactDefaultResDto(user.getContact());
         this.createdAt = user.getCreatedAt();
         this.updatedAt = user.getUpdatedAt();
