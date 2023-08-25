@@ -29,5 +29,7 @@ public class UserRole {
     public UserRole(User user, Role role) {
         this.user = user;
         this.role = role;
+
+        this.user.getUserRoles().add(this);
     }
 }
