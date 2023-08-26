@@ -27,7 +27,7 @@ CREATE TABLE contact
 
 CREATE TABLE users
 (
-    user_id                BIGINT          AUTO_INCREMENT,
+    user_id                 BIGINT          AUTO_INCREMENT,
     created_at              DATETIME(6)     NOT NULL,
     is_deleted              BIT             NULL,
     updated_at              DATETIME(6)     NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE user_role
 (
     user_role_id            BIGINT          AUTO_INCREMENT,
     role                    VARCHAR(6)      NOT NULL,
-    user_id                BIGINT          NOT NULL,
+    user_id                 BIGINT          NOT NULL,
     PRIMARY KEY (user_role_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
@@ -67,7 +67,7 @@ CREATE TABLE fcm
     is_deleted              BIT             NULL,
     updated_at              DATETIME(6)     NOT NULL,
     fcm_token               VARCHAR(255)    NOT NULL,
-    user_id                BIGINT          NOT NULL,
+    user_id                 BIGINT          NOT NULL,
     PRIMARY KEY (fcm_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
@@ -82,7 +82,7 @@ CREATE TABLE education
     institution_name        VARCHAR(20)     NOT NULL,
     is_current              BIT             NOT NULL,
     started_at              DATE            NOT NULL,
-    user_id                BIGINT          NOT NULL,
+    user_id                 BIGINT          NOT NULL,
     PRIMARY KEY (education_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
@@ -96,7 +96,7 @@ CREATE TABLE portfolio
     media                   VARCHAR(4)      NOT NULL,
     portfolio_name          VARCHAR(10)     NOT NULL,
     portfolio_url           VARCHAR(1000)   NOT NULL,
-    user_id                BIGINT          NOT NULL,
+    user_id                 BIGINT          NOT NULL,
     PRIMARY KEY (portfolio_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
@@ -111,7 +111,7 @@ CREATE TABLE skill
     is_experienced          BIT             NOT NULL,
     level                   VARCHAR(4)      NOT NULL,
     skill_name              VARCHAR(20)     NOT NULL,
-    user_id                BIGINT          NOT NULL,
+    user_id                 BIGINT          NOT NULL,
     PRIMARY KEY (skill_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
@@ -127,7 +127,7 @@ CREATE TABLE work
     is_current              BIT             NOT NULL,
     started_at              DATE            NOT NULL,
     work_description        VARCHAR(100)    NULL,
-    user_id                BIGINT          NOT NULL,
+    user_id                 BIGINT          NOT NULL,
     PRIMARY KEY (work_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
@@ -166,7 +166,7 @@ CREATE TABLE team_member
     is_leader               BIT             NOT NULL,
     position                VARCHAR(20)     NOT NULL,
     team_id                 BIGINT          NOT NULL,
-    user_id                BIGINT          NOT NULL,
+    user_id                 BIGINT          NOT NULL,
     PRIMARY KEY (team_member_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (team_id) REFERENCES team(team_id)
@@ -199,7 +199,7 @@ CREATE TABLE offer
     offered_by              VARCHAR(4)      NOT NULL,
     position                VARCHAR(20)     NOT NULL,
     team_id                 BIGINT          NOT NULL,
-    user_id                BIGINT          NOT NULL,
+    user_id                 BIGINT          NOT NULL,
     PRIMARY KEY (offer_id),
     FOREIGN KEY (team_id) REFERENCES team(team_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
@@ -212,7 +212,7 @@ CREATE TABLE favorite_user
     is_deleted              BIT             NULL,
     updated_at              DATETIME(6)     NOT NULL,
     team_id                 BIGINT          NOT NULL,
-    user_id                BIGINT          NOT NULL,
+    user_id                 BIGINT          NOT NULL,
     PRIMARY KEY (favorite_user_id),
     FOREIGN KEY (team_id) REFERENCES team(team_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
@@ -225,7 +225,7 @@ CREATE TABLE favorite_team
     is_deleted              BIT             NULL,
     updated_at              DATETIME(6)     NOT NULL,
     team_id                 BIGINT          NOT NULL,
-    user_id                BIGINT          NOT NULL,
+    user_id                 BIGINT          NOT NULL,
     PRIMARY KEY (favorite_team_id),
     FOREIGN KEY (team_id) REFERENCES team(team_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id)

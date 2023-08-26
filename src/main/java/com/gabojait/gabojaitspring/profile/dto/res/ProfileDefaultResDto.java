@@ -62,9 +62,9 @@ public class ProfileDefaultResDto extends ProfileAbstractResDto {
             List<Review> reviews = user.getReceivedReviews();
             int reviewSize = reviews.size();
 
-            for (int i = 1; i <= Math.min(reviewSize, 3); i++)
-                if (!reviews.get(reviewSize - i).getIsDeleted())
-                    this.reviews.add(new ReviewDefaultResDto(reviews.get(reviewSize - i)));
+            for (int i = Math.min(reviewSize, 3); i > 0; i--)
+                if (!reviews.get(i - 1).getIsDeleted())
+                    this.reviews.add(new ReviewDefaultResDto(reviews.get(i - 1), i));
         }
         if (!user.getEducations().isEmpty())
             user.getEducations()

@@ -10,4 +10,6 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewCustomRepository {
 
     List<Review> findAllByReviewerAndTeamAndIsDeletedIsFalse(User reviewer, Team team);
+
+    List<Review> findAllByRevieweeAndIsDeletedIsFalseOrderByCreatedAtAsc(User reviewee);
 }

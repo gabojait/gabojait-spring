@@ -211,18 +211,14 @@ public class ReviewController {
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        Page<Review> reviews = reviewService.findManyReviews(userId, pageFrom, pageSize);
-
-        List<ReviewDefaultResDto> responses = new ArrayList<>();
-        for (Review review: reviews)
-            responses.add(new ReviewDefaultResDto(review));
+        Page<ReviewDefaultResDto> responses = reviewService.findManyReviews(userId, pageFrom, pageSize);
 
         return ResponseEntity.status(USER_REVIEWS_FOUND.getHttpStatus())
                 .body(DefaultMultiResDto.multiDataBuilder()
                         .responseCode(USER_REVIEWS_FOUND.name())
                         .responseMessage(USER_REVIEWS_FOUND.getMessage())
                         .data(responses)
-                        .size(reviews.getTotalElements())
+                        .size(responses.getTotalElements())
                         .build());
     }
 }
