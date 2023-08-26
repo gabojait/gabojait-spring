@@ -20,8 +20,8 @@ public class ReviewDefaultResDto {
     @ApiModelProperty(position = 2, required = true, value = "리뷰 대상자 식별자")
     private Long revieweeId;
 
-    @ApiModelProperty(position = 3, required = true, value = "리뷰 작성자 닉네임")
-    private String reviewerNickname;
+    @ApiModelProperty(position = 3, required = true, value = "리뷰 작성자")
+    private String reviewer;
 
     @ApiModelProperty(position = 4, required = true, value = "팀 식별자")
     private Long teamId;
@@ -40,11 +40,10 @@ public class ReviewDefaultResDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    public ReviewDefaultResDto(Review review) {
+    public ReviewDefaultResDto(Review review, int reviewerNum) {
         this.reviewId = review.getId();
         this.revieweeId = review.getReviewee().getId();
-        this.reviewerNickname = review.getReviewer().getNickname().charAt(0) +
-                review.getReviewee().getNickname().substring(1).replaceAll(".", "*");
+        this.reviewer = "익명" + reviewerNum;
         this.teamId = review.getTeam().getId();
         this.rating = review.getRate();
         this.post = review.getPost();

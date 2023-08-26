@@ -5,6 +5,7 @@ import com.gabojait.gabojaitspring.common.WebMvc;
 import com.gabojait.gabojaitspring.review.domain.Review;
 import com.gabojait.gabojaitspring.review.dto.req.ReviewCreateReqDto;
 import com.gabojait.gabojaitspring.review.dto.req.ReviewDefaultReqDto;
+import com.gabojait.gabojaitspring.review.dto.res.ReviewDefaultResDto;
 import com.gabojait.gabojaitspring.review.service.ReviewService;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.User;
@@ -17,6 +18,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -71,13 +74,17 @@ class ReviewControllerTest extends WebMvc {
                 .post("협조적이에요.")
                 .build();
 
-        Page<Review> reviews = new PageImpl<>(List.of(review));
+        Page<ReviewDefaultResDto> reviewDtos = new PageImpl<>(
+                List.of(new ReviewDefaultResDto(review, 1)),
+                (Pageable) PageRequest.of(0, 1),
+                1
+        );
 
         doReturn(List.of(team))
                 .when(this.reviewService)
                 .findAllReviewableTeams(anyLong());
 
-        doReturn(reviews)
+        doReturn(reviewDtos)
                 .when(this.reviewService)
                 .findManyReviews(anyLong(), anyLong(), any());
 

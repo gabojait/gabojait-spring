@@ -5,6 +5,7 @@ import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.review.domain.Review;
 import com.gabojait.gabojaitspring.review.dto.req.ReviewCreateReqDto;
 import com.gabojait.gabojaitspring.review.dto.req.ReviewDefaultReqDto;
+import com.gabojait.gabojaitspring.review.dto.res.ReviewDefaultResDto;
 import com.gabojait.gabojaitspring.review.repository.ReviewRepository;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.domain.TeamMember;
@@ -14,6 +15,7 @@ import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -122,17 +124,32 @@ public class ReviewService {
      * 404(USER_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
-    public Page<Review> findManyReviews(long userId, long pageFrom, Integer pageSize) {
+    public Page<ReviewDefaultResDto> findManyReviews(long userId, long pageFrom, Integer pageSize) {
         User reviewee = findOneUser(userId);
 
         pageFrom = pageProvider.validatePageFrom(pageFrom);
         Pageable pageable = pageProvider.validatePageable(pageSize, 20);
+        List<Review> reviewResults;
+        List<Review> reviewAll;
 
         try {
-            return reviewRepository.searchOrderByCreatedAt(pageFrom, reviewee, pageable);
+            reviewResults = reviewRepository.searchOrderByCreatedAt(pageFrom, reviewee, pageable);
+            reviewAll = reviewRepository.findAllByRevieweeAndIsDeletedIsFalseOrderByCreatedAtAsc(reviewee);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
+
+        List<ReviewDefaultResDto> reviewDtoList = new ArrayList<>();
+        int allSize = reviewAll.size();
+
+        for (Review reviewResult : reviewResults)
+            for (int j = allSize; j > 0 ; j--)
+                if (reviewResult == reviewAll.get(j - 1)) {
+                    reviewDtoList.add(new ReviewDefaultResDto(reviewResult, j));
+                    break;
+                }
+
+        return new PageImpl<>(reviewDtoList, pageable, allSize);
     }
 
     /**
