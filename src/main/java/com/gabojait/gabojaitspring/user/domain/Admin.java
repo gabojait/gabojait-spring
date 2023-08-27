@@ -38,7 +38,7 @@ public class Admin extends BaseTimeEntity {
     private Boolean isApproved;
 
     @Builder
-    public Admin(String username, String password, LocalDate birthdate, String legalName) {
+    private Admin(String username, String password, LocalDate birthdate, String legalName) {
         this.username = username;
         this.password = password;
         this.birthdate = birthdate;

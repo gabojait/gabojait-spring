@@ -59,9 +59,9 @@ CREATE TABLE admin
     is_deleted              BIT             NOT NULL,
     is_approved             BIT             NULL,
     updated_at              DATETIME(6)     NOT NULL,
-    last_request_at         DATETIME(6)     NULL,
+    last_request_at         DATETIME(6)     NOT NULL,
     legal_name              VARCHAR(5)      NOT NULL,
-    birthdate               DATETIME(6)     NULL,
+    birthdate               DATETIME(6)     NOT NULL,
     password                VARCHAR(255)    NOT NULL,
     username                VARCHAR(15)     NOT NULL,
     PRIMARY KEY (admin_id)
