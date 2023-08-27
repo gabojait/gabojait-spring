@@ -1,12 +1,14 @@
-package com.gabojait.gabojaitspring.admin.service;
+package com.gabojait.gabojaitspring.user.service;
 
-import com.gabojait.gabojaitspring.admin.dto.req.AdminLoginReqDto;
-import com.gabojait.gabojaitspring.admin.dto.req.AdminRegisterReqDto;
+import com.gabojait.gabojaitspring.user.domain.Admin;
+import com.gabojait.gabojaitspring.user.dto.req.AdminLoginReqDto;
+import com.gabojait.gabojaitspring.user.dto.req.AdminRegisterReqDto;
 import com.gabojait.gabojaitspring.common.util.PasswordProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.domain.UserRole;
 import com.gabojait.gabojaitspring.user.domain.type.Role;
+import com.gabojait.gabojaitspring.user.repository.AdminRepository;
 import com.gabojait.gabojaitspring.user.repository.UserRepository;
 import com.gabojait.gabojaitspring.user.repository.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 public class AdminService {
 
     private final UserRepository userRepository;
+    private final AdminRepository adminRepository;
     private final UserRoleRepository userRoleRepository;
     private final PasswordProvider passwordProvider;
 
@@ -33,8 +36,8 @@ public class AdminService {
      * 401(LOGIN_UNAUTHENTICATED)
      * 500(SERVER_ERROR)
      */
-    public User login(AdminLoginReqDto request) {
-        User admin = findOneAdmin(request.getUsername());
+    public Admin login(AdminLoginReqDto request) {
+        Admin admin = findOneAdmin(request.getUsername());
 
         boolean isVerified = passwordProvider.verifyPassword(admin, request.getPassword());
         if (!isVerified)
@@ -52,12 +55,12 @@ public class AdminService {
      * 500(SERVER_ERROR)
      */
     public void register(AdminRegisterReqDto request) {
-        validateDuplicateUsername(request.getAdminName());
+        validateDuplicateUsername(request.getUsername());
         validateMatchingPassword(request.getPassword(), request.getPasswordReEntered());
 
         String password = passwordProvider.encodePassword(request.getPassword());
 
-        User admin = saveAdmin(request.toEntity(password));
+        Admin admin = saveAdmin(request.toEntity(password));
         List<UserRole> adminRoles = createAdminRoles(admin);
         saveAdminRoles(adminRoles);
     }
@@ -77,9 +80,9 @@ public class AdminService {
      * 관리자 저장 |
      * 500(SERVER_ERROR)
      */
-    private User saveAdmin(User admin) {
+    private Admin saveAdmin(Admin admin) {
         try {
-            return userRepository.save(admin);
+            return adminRepository.save(admin);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -100,15 +103,15 @@ public class AdminService {
     /**
      * 관리자 권한 생성
      */
-    private List<UserRole> createAdminRoles(User admin) {
+    private List<UserRole> createAdminRoles(Admin admin) {
         List<UserRole> adminRoles = new ArrayList<>();
 
         adminRoles.add(UserRole.builder()
-                .user(admin)
+                .admin(admin)
                 .role(Role.USER)
                 .build());
         adminRoles.add(UserRole.builder()
-                .user(admin)
+                .admin(admin)
                 .role(Role.ADMIN)
                 .build());
 
@@ -119,23 +122,25 @@ public class AdminService {
      * 아이디로 관리자 단건 조회 |
      * 401(LOGIN_UNAUTHENTICATED)
      */
-    private User findOneAdmin(String username) {
-        Optional<User> admin = userRepository.findByUsernameAndIsDeletedIsNull(username);
+    private Admin findOneAdmin(String username) {
+        Optional<Admin> admin = adminRepository.findByUsernameAndIsApprovedIsTrueAndIsDeletedIsFalse(username);
 
         if (admin.isEmpty())
             throw new CustomException(LOGIN_UNAUTHENTICATED);
-        if (!admin.get().getRoles().contains(Role.ADMIN.name()))
-            throw new CustomException(LOGIN_UNAUTHENTICATED);
 
-        return admin.get();
+        for (UserRole userRole : admin.get().getUserRoles())
+            if (userRole.getRole().equals(Role.ADMIN))
+                return admin.get();
+
+        throw new CustomException(LOGIN_UNAUTHENTICATED);
     }
 
     /**
      * 마지막 요청일 업데이트 |
      * 500(SERVER_ERROR)
      */
-    private void updateLastRequestAt(User user) {
-        user.updateLastRequestAt();
+    private void updateLastRequestAt(Admin admin) {
+        admin.updateLastRequestAt();
     }
 
     /**
@@ -143,7 +148,7 @@ public class AdminService {
      * 409(EXISTING_USERNAME)
      */
     private void validateDuplicateUsername(String username) {
-        Optional<User> admin = userRepository.findByUsername(username);
+        Optional<Admin> admin = adminRepository.findByUsernameAndIsDeletedIsFalse(username);
 
         if (admin.isPresent())
             throw new CustomException(EXISTING_USERNAME);

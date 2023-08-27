@@ -1,8 +1,8 @@
 package com.gabojait.gabojaitspring.admin.dto.req;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.gabojait.gabojaitspring.admin.domain.Admin;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
-import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.domain.type.Gender;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -63,8 +63,8 @@ public class AdminRegisterReqDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthdate;
 
-    public User toEntity(String password) {
-        return User.adminBuilder()
+    public Admin toEntity(String password) {
+        return Admin.adminBuilder()
                 .username(this.adminName)
                 .password(password)
                 .legalName(this.legalName)

@@ -1,14 +1,14 @@
-package com.gabojait.gabojaitspring.admin.controller;
+package com.gabojait.gabojaitspring.user.controller;
 
-import com.gabojait.gabojaitspring.admin.dto.req.AdminLoginReqDto;
-import com.gabojait.gabojaitspring.admin.dto.req.AdminRegisterDecideReqDto;
-import com.gabojait.gabojaitspring.admin.dto.req.AdminRegisterReqDto;
-import com.gabojait.gabojaitspring.admin.service.AdminService;
-import com.gabojait.gabojaitspring.admin.service.MasterService;
+import com.gabojait.gabojaitspring.user.domain.Admin;
+import com.gabojait.gabojaitspring.user.dto.req.AdminLoginReqDto;
+import com.gabojait.gabojaitspring.user.dto.req.AdminRegisterDecideReqDto;
+import com.gabojait.gabojaitspring.user.dto.req.AdminRegisterReqDto;
+import com.gabojait.gabojaitspring.user.service.AdminService;
+import com.gabojait.gabojaitspring.user.service.MasterService;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.WebMvc;
 import com.gabojait.gabojaitspring.user.domain.User;
-import com.gabojait.gabojaitspring.user.domain.type.Gender;
 import com.gabojait.gabojaitspring.user.domain.type.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -51,17 +51,16 @@ class AdminControllerTest extends WebMvc {
                 .when(this.jwtProvider)
                 .getId(any());
 
-        User adminTester = User.testOnlyBuilder()
+        Admin adminTester = Admin.testBuilder()
                 .id(1L)
                 .role(Role.ADMIN)
                 .build();
 
-        User userTester = User.testOnlyBuilder()
+        User userTester = User.testBuilder()
                 .id(2L)
-                .role(Role.USER)
                 .build();
 
-        Page<User> admins = new PageImpl<>(List.of(adminTester));
+        Page<Admin> admins = new PageImpl<>(List.of(adminTester));
 
         doReturn(adminTester)
                 .when(this.adminService)
@@ -99,10 +98,10 @@ class AdminControllerTest extends WebMvc {
 
     @Test
     @DisplayName("관리자 가입 | 잘못된 아이디 길이시 | 400반환")
-    void register_givenAdminNameLengthInvalid_return400() throws Exception {
+    void register_givenUsernameLengthInvalid_return400() throws Exception {
         // given
         AdminRegisterReqDto reqDto = getValidAdminRegisterReqDto();
-        reqDto.setAdminName("abc1");
+        reqDto.setUsername("abc1");
         String request = mapToJson(reqDto);
 
         // when
@@ -115,16 +114,16 @@ class AdminControllerTest extends WebMvc {
         int status = mvcResult.getResponse().getStatus();
         String response = mvcResult.getResponse().getContentAsString();
 
-        assertThat(status).isEqualTo(ADMIN_NAME_LENGTH_INVALID.getHttpStatus().value());
-        assertThat(response).contains(ADMIN_NAME_LENGTH_INVALID.name());
+        assertThat(status).isEqualTo(USERNAME_LENGTH_INVALID.getHttpStatus().value());
+        assertThat(response).contains(USERNAME_LENGTH_INVALID.name());
     }
 
     @Test
     @DisplayName("관리자 가입 | 잘못된 아이디 포맷시 | 400반환")
-    void register_givenAdminNameFormatInvalid_return400() throws Exception {
+    void register_givenUsernameFormatInvalid_return400() throws Exception {
         // given
         AdminRegisterReqDto reqDto = getValidAdminRegisterReqDto();
-        reqDto.setAdminName("tester123");
+        reqDto.setUsername("관리자123");
         String request = mapToJson(reqDto);
 
         // when
@@ -137,8 +136,8 @@ class AdminControllerTest extends WebMvc {
         int status = mvcResult.getResponse().getStatus();
         String response = mvcResult.getResponse().getContentAsString();
 
-        assertThat(status).isEqualTo(ADMIN_NAME_FORMAT_INVALID.getHttpStatus().value());
-        assertThat(response).contains(ADMIN_NAME_FORMAT_INVALID.name());
+        assertThat(status).isEqualTo(USERNAME_FORMAT_INVALID.getHttpStatus().value());
+        assertThat(response).contains(USERNAME_FORMAT_INVALID.name());
     }
 
     @Test
@@ -293,50 +292,6 @@ class AdminControllerTest extends WebMvc {
 
         assertThat(status).isEqualTo(LEGAL_NAME_FORMAT_INVALID.getHttpStatus().value());
         assertThat(response).contains(LEGAL_NAME_FORMAT_INVALID.name());
-    }
-
-    @Test
-    @DisplayName("관리자 가입 | 설별 미입력시 | 400반환")
-    void register_givenGenderFieldRequired_return400() throws Exception {
-        // given
-        AdminRegisterReqDto reqDto = getValidAdminRegisterReqDto();
-        reqDto.setGender("");
-        String request = mapToJson(reqDto);
-
-        // when
-        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/admin")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(status).isEqualTo(GENDER_FIELD_REQUIRED.getHttpStatus().value());
-        assertThat(response).contains(GENDER_FIELD_REQUIRED.name());
-    }
-
-    @Test
-    @DisplayName("관리자 가입 | 잘못된 설별 타입시 | 400반환")
-    void register_givenGenderTypeInvalid_return400() throws Exception {
-        // given
-        AdminRegisterReqDto reqDto = getValidAdminRegisterReqDto();
-        reqDto.setGender("boy");
-        String request = mapToJson(reqDto);
-
-        // when
-        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/admin")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(status).isEqualTo(GENDER_TYPE_INVALID.getHttpStatus().value());
-        assertThat(response).contains(GENDER_TYPE_INVALID.name());
     }
 
     @Test
@@ -591,21 +546,19 @@ class AdminControllerTest extends WebMvc {
     }
 
     private AdminRegisterReqDto getValidAdminRegisterReqDto() {
-        AdminRegisterReqDto reqDto = new AdminRegisterReqDto();
-        reqDto.setAdminName("test_admin");
-        reqDto.setPassword("password1!");
-        reqDto.setPasswordReEntered("password1!");
-        reqDto.setLegalName("김가보자잇");
-        reqDto.setGender(Gender.M.name());
-        reqDto.setBirthdate(LocalDate.of(1997, 2, 11));
-        return reqDto;
+        return AdminRegisterReqDto.builder()
+                .username("tester")
+                .password("password1!")
+                .passwordReEntered("password1!")
+                .legalName("김가보자잇")
+                .birthdate(LocalDate.of(1997, 2, 11)).build();
     }
 
     private AdminLoginReqDto getValidAdminLoginReqDto() {
-        AdminLoginReqDto reqDto = new AdminLoginReqDto();
-        reqDto.setUsername("test_admin");
-        reqDto.setPassword("password1!");
-        return reqDto;
+        return AdminLoginReqDto.builder()
+                .username("tester")
+                .password("password")
+                .build();
     }
 
     private Integer getValidPageFrom() {
@@ -621,8 +574,8 @@ class AdminControllerTest extends WebMvc {
     }
 
     private AdminRegisterDecideReqDto getValidAdminRegisterDecideReqDto() {
-        AdminRegisterDecideReqDto reqDto = new AdminRegisterDecideReqDto();
-        reqDto.setIsApproved(true);
-        return reqDto;
+        return AdminRegisterDecideReqDto.builder()
+                .isApproved(true)
+                .build();
     }
 }
