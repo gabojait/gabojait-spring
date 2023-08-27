@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MvcResult;
 
+import static com.gabojait.gabojaitspring.common.code.ErrorCode.SERVER_ERROR;
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -42,5 +43,20 @@ class DevelopControllerTest extends WebMvc {
 
         assertThat(status).isEqualTo(SERVER_OK.getHttpStatus().value());
         assertThat(response).contains(SERVER_OK.name());
+    }
+
+    @Test
+    @DisplayName("모니터링 체크 | 올바른 요청시 | 500반환")
+    void healthCheck_givenValidReq_return500() throws Exception {
+        // given & when
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/monitor"))
+                .andReturn();
+
+        // then
+        int status = mvcResult.getResponse().getStatus();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(status).isEqualTo(SERVER_ERROR.getHttpStatus().value());
+        assertThat(response).contains(SERVER_ERROR.name());
     }
 }
