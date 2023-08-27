@@ -66,6 +66,21 @@ class DevelopControllerTest extends WebMvc {
     }
 
     @Test
+    @DisplayName("모니터링 체크 | 올바른 요청시 | 500반환")
+    void healthCheck_givenValidReq_return500() throws Exception {
+        // given & when
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/monitor"))
+                .andReturn();
+
+        // then
+        int status = mvcResult.getResponse().getStatus();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(status).isEqualTo(SERVER_ERROR.getHttpStatus().value());
+        assertThat(response).contains(SERVER_ERROR.name());
+    }
+
+    @Test
     @DisplayName("데이터베이스 초기화 후 테스트 데이터 주입 | 올바른 요청시 | 200반환")
     void resetAndInjectTest_givenValidReq_return200() throws Exception {
         // given & when

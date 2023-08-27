@@ -402,6 +402,7 @@ public class DevelopService {
             entityManager.createNativeQuery("DELETE FROM review").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM team").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM user_role").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM admin").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM users").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM contact").executeUpdate();
 
@@ -417,6 +418,7 @@ public class DevelopService {
             entityManager.createNativeQuery("ALTER TABLE review AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE team AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE user_role AUTO_INCREMENT = 1").executeUpdate();
+            entityManager.createNativeQuery("ALTER TABLE admin AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE users AUTO_INCREMENT = 1").executeUpdate();
             entityManager.createNativeQuery("ALTER TABLE contact AUTO_INCREMENT = 1").executeUpdate();
 
