@@ -1004,36 +1004,31 @@ class TeamControllerTest extends WebMvc {
     }
 
     private TeamDefaultReqDto getValidTeamDefaultReqDto() {
-        TeamMemberRecruitCntReqDto designerTeamMemberRecruitCntReqDto = new TeamMemberRecruitCntReqDto();
-        designerTeamMemberRecruitCntReqDto.setTotalRecruitCnt((byte) 2);
-        designerTeamMemberRecruitCntReqDto.setPosition(Position.DESIGNER.name());
-
-        TeamMemberRecruitCntReqDto backendTeamMemberRecruitCntReqDto = new TeamMemberRecruitCntReqDto();
-        backendTeamMemberRecruitCntReqDto.setTotalRecruitCnt((byte) 2);
-        backendTeamMemberRecruitCntReqDto.setPosition(Position.BACKEND.name());
-
-        TeamMemberRecruitCntReqDto frontendTeamMemberRecruitCntReqDto = new TeamMemberRecruitCntReqDto();
-        frontendTeamMemberRecruitCntReqDto.setTotalRecruitCnt((byte) 2);
-        frontendTeamMemberRecruitCntReqDto.setPosition(Position.FRONTEND.name());
-
-        TeamMemberRecruitCntReqDto managerTeamMemberRecruitCntReqDto = new TeamMemberRecruitCntReqDto();
-        managerTeamMemberRecruitCntReqDto.setTotalRecruitCnt((byte) 2);
-        managerTeamMemberRecruitCntReqDto.setPosition(Position.MANAGER.name());
-
         List<TeamMemberRecruitCntReqDto> teamMemberRecruitCntReqDto = new ArrayList<>();
-        teamMemberRecruitCntReqDto.add(designerTeamMemberRecruitCntReqDto);
-        teamMemberRecruitCntReqDto.add(backendTeamMemberRecruitCntReqDto);
-        teamMemberRecruitCntReqDto.add(frontendTeamMemberRecruitCntReqDto);
-        teamMemberRecruitCntReqDto.add(managerTeamMemberRecruitCntReqDto);
+        teamMemberRecruitCntReqDto.add(TeamMemberRecruitCntReqDto.builder()
+                .totalRecruitCnt((byte) 2)
+                .position(Position.DESIGNER.name())
+                .build());
+        teamMemberRecruitCntReqDto.add(TeamMemberRecruitCntReqDto.builder()
+                .totalRecruitCnt((byte) 2)
+                .position(Position.BACKEND.name())
+                .build());
+        teamMemberRecruitCntReqDto.add(TeamMemberRecruitCntReqDto.builder()
+                .totalRecruitCnt((byte) 2)
+                .position(Position.FRONTEND.name())
+                .build());
+        teamMemberRecruitCntReqDto.add(TeamMemberRecruitCntReqDto.builder()
+                .totalRecruitCnt((byte) 2)
+                .position(Position.MANAGER.name())
+                .build());
 
-        TeamDefaultReqDto reqDto = new TeamDefaultReqDto();
-        reqDto.setProjectName("가보자잇");
-        reqDto.setProjectDescription("가보자잇 프로젝트 설명입니다.");
-        reqDto.setTeamMemberRecruitCnts(teamMemberRecruitCntReqDto);
-        reqDto.setExpectation("열정적인 팀원을 구합니다.");
-        reqDto.setOpenChatUrl("https://open.kakao.com/o/");
-
-        return reqDto;
+        return TeamDefaultReqDto.builder()
+                .projectName("가보자잇")
+                .projectDescription("가보자잇 프로젝트 설명입니다.")
+                .teamMemberRecruitCnts(teamMemberRecruitCntReqDto)
+                .expectation("열정적인 팀원을 구합니다.")
+                .openChatUrl("https://open.kakao.com/o/")
+                .build();
     }
 
     private String getValidPosition() {
@@ -1049,14 +1044,14 @@ class TeamControllerTest extends WebMvc {
     }
 
     private TeamIsRecruitingUpdateReqDto getValidTeamIsRecruitingUpdateReqDto() {
-        TeamIsRecruitingUpdateReqDto reqDto = new TeamIsRecruitingUpdateReqDto();
-        reqDto.setIsRecruiting(true);
-        return reqDto;
+        return TeamIsRecruitingUpdateReqDto.builder()
+                .isRecruiting(true)
+                .build();
     }
 
     private TeamCompleteReqDto getValidTeamCompleteReqDto() {
-        TeamCompleteReqDto reqDto = new TeamCompleteReqDto();
-        reqDto.setProjectUrl("github.com/gabojait");
-        return reqDto;
+        return TeamCompleteReqDto.builder()
+                .projectUrl("github.com/gabojait")
+                .build();
     }
 }

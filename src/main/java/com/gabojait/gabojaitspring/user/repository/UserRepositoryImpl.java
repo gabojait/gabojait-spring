@@ -76,32 +76,4 @@ public class UserRepositoryImpl implements UserCustomRepository {
 
         return new PageImpl<>(users, pageable, count);
     }
-
-    @Override
-    public Page<User> searchAdmin(long id, String username, Pageable pageable) {
-        List<User> users = queryFactory
-                .selectFrom(user)
-                .where(
-                        user.id.lt(id),
-                        user.username.endsWith(username),
-                        user.isDeleted.eq(true)
-                )
-                .orderBy(user.createdAt.desc())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-        Long count = queryFactory
-                .select(user.count())
-                .from(user)
-                .where(
-                        user.id.lt(id),
-                        user.username.endsWith(username),
-                        user.isDeleted.eq(false)
-                )
-                .fetchOne();
-
-        count = pageProvider.validateCount(count);
-
-        return new PageImpl<>(users, pageable, count);
-    }
 }

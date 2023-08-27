@@ -35,7 +35,7 @@ public class TeamMember extends BaseTimeEntity {
     private Boolean isLeader;
 
     @Builder
-    public TeamMember(User user, Team team, Position position, Boolean isLeader) {
+    private TeamMember(User user, Team team, Position position, Boolean isLeader) {
         this.user = user;
         this.team = team;
         this.position = position;

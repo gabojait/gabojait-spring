@@ -36,7 +36,7 @@ public class Review extends BaseTimeEntity {
     private String post;
 
     @Builder
-    public Review(User reviewer, User reviewee, Team team, Byte rate, String post) {
+    private Review(User reviewer, User reviewee, Team team, Byte rate, String post) {
         this.reviewer = reviewer;
         this.reviewee = reviewee;
         this.team = team;

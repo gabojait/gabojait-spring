@@ -9,7 +9,6 @@ import com.gabojait.gabojaitspring.review.dto.res.ReviewDefaultResDto;
 import com.gabojait.gabojaitspring.review.service.ReviewService;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.User;
-import com.gabojait.gabojaitspring.user.domain.type.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,9 +49,8 @@ class ReviewControllerTest extends WebMvc {
                 .when(this.jwtProvider)
                 .getId(any());
 
-        User tester = User.testOnlyBuilder()
+        User tester = User.testBuilder()
                 .id(1L)
-                .role(Role.USER)
                 .build();
 
         Team team = Team.builder()
@@ -435,15 +433,15 @@ class ReviewControllerTest extends WebMvc {
     }
 
     private ReviewCreateReqDto getValidReviewCreateReqDto() {
-        ReviewDefaultReqDto reviewDefaultReqDto = new ReviewDefaultReqDto();
-        reviewDefaultReqDto.setUserId(1L);
-        reviewDefaultReqDto.setRate((byte) 4);
-        reviewDefaultReqDto.setPost("협조적입니다.");
+        ReviewDefaultReqDto reviewDefaultReqDto = ReviewDefaultReqDto.builder()
+                .userId(1L)
+                .rate((byte) 4)
+                .post("협조적입니다.")
+                .build();
 
-        ReviewCreateReqDto reqDto = new ReviewCreateReqDto();
-        reqDto.setReviews(List.of(reviewDefaultReqDto));
-
-        return reqDto;
+        return ReviewCreateReqDto.builder()
+                .reviews(List.of(reviewDefaultReqDto))
+                .build();
     }
 
     private Long getValidId() {

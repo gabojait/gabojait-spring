@@ -32,7 +32,7 @@ public class Portfolio extends BaseTimeEntity {
     private Media media;
 
     @Builder
-    public Portfolio(String portfolioName, String portfolioUrl, Media media, User user) {
+    private Portfolio(String portfolioName, String portfolioUrl, Media media, User user) {
         this.portfolioName = portfolioName;
         this.portfolioUrl = portfolioUrl;
         this.media = media;

@@ -29,7 +29,7 @@ public class FavoriteTeam extends BaseTimeEntity {
     private Team team;
 
     @Builder
-    public FavoriteTeam(User user, Team team) {
+    private FavoriteTeam(User user, Team team) {
         this.user = user;
         this.team = team;
         this.isDeleted = false;

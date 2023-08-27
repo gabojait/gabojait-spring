@@ -6,9 +6,7 @@ import com.gabojait.gabojaitspring.profile.domain.Work;
 import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
@@ -19,6 +17,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @GroupSequence({WorkDefaultReqDto.class,
         ValidationSequence.Blank.class,
         ValidationSequence.Size.class,
@@ -61,5 +60,20 @@ public class WorkDefaultReqDto {
                 .endedAt(this.endedAt)
                 .isCurrent(this.isCurrent)
                 .build();
+    }
+
+    @Builder
+    private WorkDefaultReqDto(Long workId,
+                              String corporationName,
+                              String workDescription,
+                              LocalDate startedAt,
+                              LocalDate endedAt,
+                              Boolean isCurrent) {
+        this.workId = workId;
+        this.corporationName = corporationName;
+        this.workDescription = workDescription;
+        this.startedAt = startedAt;
+        this.endedAt = endedAt;
+        this.isCurrent = isCurrent;
     }
 }

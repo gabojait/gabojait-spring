@@ -6,9 +6,7 @@ import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.*;
@@ -16,6 +14,7 @@ import javax.validation.constraints.*;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @GroupSequence({ReviewDefaultReqDto.class,
         ValidationSequence.Blank.class,
         ValidationSequence.Size.class,
@@ -47,5 +46,12 @@ public class ReviewDefaultReqDto {
                 .rate(this.rate)
                 .post(this.post)
                 .build();
+    }
+
+    @Builder
+    private ReviewDefaultReqDto(Long userId, Byte rate, String post) {
+        this.userId = userId;
+        this.rate = rate;
+        this.post = post;
     }
 }

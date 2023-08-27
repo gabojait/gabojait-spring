@@ -9,7 +9,6 @@ import com.gabojait.gabojaitspring.favorite.service.FavoriteTeamService;
 import com.gabojait.gabojaitspring.favorite.service.FavoriteUserService;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.User;
-import com.gabojait.gabojaitspring.user.domain.type.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,9 +49,8 @@ class FavoriteControllerTest extends WebMvc {
                 .when(this.jwtProvider)
                 .getId(any());
 
-        User tester = User.testOnlyBuilder()
+        User tester = User.testBuilder()
                 .id(1L)
-                .role(Role.USER)
                 .build();
 
         Team team = Team.builder()
@@ -434,9 +432,9 @@ class FavoriteControllerTest extends WebMvc {
     }
 
     private FavoriteUpdateReqDto getValidFavoriteUpdateReqDto() {
-        FavoriteUpdateReqDto reqDto = new FavoriteUpdateReqDto();
-        reqDto.setIsAddFavorite(true);
-        return reqDto;
+        return FavoriteUpdateReqDto.builder()
+                .isAddFavorite(true)
+                .build();
     }
 
     private Long getValidId() {

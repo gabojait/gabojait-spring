@@ -7,9 +7,7 @@ import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.domain.type.Gender;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.Email;
@@ -21,6 +19,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @GroupSequence({UserRegisterReqDto.class,
         ValidationSequence.Blank.class,
         ValidationSequence.Size.class,
@@ -72,7 +71,7 @@ public class UserRegisterReqDto {
     private String fcmToken;
 
     public User toEntity(String password, Contact contact) {
-        return User.userBuilder()
+        return User.builder()
                 .username(this.username)
                 .password(password)
                 .nickname(this.nickname)
@@ -80,5 +79,24 @@ public class UserRegisterReqDto {
                 .birthdate(this.birthdate)
                 .contact(contact)
                 .build();
+    }
+
+    @Builder
+    private UserRegisterReqDto(String username,
+                               String password,
+                               String passwordReEntered,
+                               String nickname,
+                               String gender,
+                               LocalDate birthdate,
+                               String email,
+                               String fcmToken) {
+        this.username = username;
+        this.password = password;
+        this.passwordReEntered = passwordReEntered;
+        this.nickname = nickname;
+        this.gender = gender;
+        this.birthdate = birthdate;
+        this.email = email;
+        this.fcmToken = fcmToken;
     }
 }

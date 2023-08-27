@@ -7,8 +7,7 @@ import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.GroupSequence;
 import javax.validation.Valid;
@@ -21,6 +20,8 @@ import static com.gabojait.gabojaitspring.common.code.ErrorCode.NON_EXISTING_POS
 
 @Getter
 @Setter
+@ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @GroupSequence({TeamDefaultReqDto.class,
         ValidationSequence.Blank.class,
         ValidationSequence.Size.class,
@@ -118,5 +119,18 @@ public class TeamDefaultReqDto {
                 .expectation(this.expectation)
                 .openChatUrl(this.openChatUrl)
                 .build();
+    }
+
+    @Builder
+    private TeamDefaultReqDto(String projectName,
+                              String projectDescription,
+                              List<TeamMemberRecruitCntReqDto> teamMemberRecruitCnts,
+                              String expectation,
+                              String openChatUrl) {
+        this.projectName = projectName;
+        this.projectDescription = projectDescription;
+        this.teamMemberRecruitCnts = teamMemberRecruitCnts;
+        this.expectation = expectation;
+        this.openChatUrl = openChatUrl;
     }
 }

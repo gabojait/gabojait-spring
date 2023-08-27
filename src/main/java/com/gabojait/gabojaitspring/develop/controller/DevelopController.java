@@ -1,6 +1,5 @@
 package com.gabojait.gabojaitspring.develop.controller;
 
-import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.develop.service.DevelopService;
@@ -33,7 +32,6 @@ import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 public class DevelopController {
 
     private final DevelopService developService;
-    private final JwtProvider jwtProvider;
 
     @ApiOperation(value = "헬스 체크",
             notes = "<응답 코드>\n" +

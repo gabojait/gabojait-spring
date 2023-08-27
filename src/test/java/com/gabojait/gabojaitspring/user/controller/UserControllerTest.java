@@ -4,7 +4,6 @@ import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.WebMvc;
 import com.gabojait.gabojaitspring.user.domain.User;
 import com.gabojait.gabojaitspring.user.domain.type.Gender;
-import com.gabojait.gabojaitspring.user.domain.type.Role;
 import com.gabojait.gabojaitspring.user.dto.req.*;
 import com.gabojait.gabojaitspring.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,9 +47,8 @@ class UserControllerTest extends WebMvc {
                 .when(this.jwtProvider)
                 .createJwt(any(), any());
 
-        User tester = User.testOnlyBuilder()
+        User tester = User.testBuilder()
                 .id(1L)
-                .role(Role.USER)
                 .build();
 
         doReturn(tester)
@@ -1099,71 +1097,71 @@ class UserControllerTest extends WebMvc {
     }
 
     private UserRegisterReqDto getValidUserRegisterReqDto() {
-        UserRegisterReqDto reqDto = new UserRegisterReqDto();
-        reqDto.setUsername("tester");
-        reqDto.setPassword("password123!");
-        reqDto.setPasswordReEntered("password123!");
-        reqDto.setNickname("테스터");
-        reqDto.setGender(Gender.N.name());
-        reqDto.setBirthdate(LocalDate.of(1997, 2, 11));
-        reqDto.setEmail("test@gabojait.com");
-        return reqDto;
+        return UserRegisterReqDto.builder()
+                .username("tester")
+                .password("password123!")
+                .passwordReEntered("password123!")
+                .nickname("테스터")
+                .gender(Gender.N.name())
+                .birthdate(LocalDate.of(1997, 2, 11))
+                .email("tester@gabojait.com")
+                .build();
     }
 
     private UserLoginReqDto getValidUserLoginReqDto() {
-        UserLoginReqDto reqDto = new UserLoginReqDto();
-        reqDto.setUsername("tester");
-        reqDto.setPassword("password123!");
-        return reqDto;
+        return UserLoginReqDto.builder()
+                .username("tester")
+                .password("password123!")
+                .build();
     }
 
     private UserLogoutReqDto getValidUserLogoutReqDto() {
-        UserLogoutReqDto reqDto = new UserLogoutReqDto();
-        reqDto.setFcmToken("fcm-token");
-        return reqDto;
+        return UserLogoutReqDto.builder()
+                .fcmToken("fcm-token")
+                .build();
     }
 
     private UserRenewTokenReqDto getValidUserRenewTokenReqDto() {
-        UserRenewTokenReqDto reqDto = new UserRenewTokenReqDto();
-        reqDto.setFcmToken("fcm-token");
-        return reqDto;
+        return UserRenewTokenReqDto.builder()
+                .fcmToken("fcm-token")
+                .build();
     }
 
     private UserFindUsernameReqDto getValidUserFindUsernameReqDto() {
-        UserFindUsernameReqDto reqDto = new UserFindUsernameReqDto();
-        reqDto.setEmail("tester@gabojait.com");
-        return reqDto;
+        return UserFindUsernameReqDto.builder()
+                .email("tester@gabojait.com")
+                .build();
     }
 
     private UserFindPasswordReqDto getValidUserFindPasswordReqDto() {
-        UserFindPasswordReqDto reqDto = new UserFindPasswordReqDto();
-        reqDto.setUsername("tester");
-        reqDto.setEmail("tester@gabojait.com");
-        return reqDto;
+        return UserFindPasswordReqDto.builder()
+                .username("tester")
+                .email("tester@gabojait.com")
+                .build();
     }
 
     private UserVerifyReqDto getValidUserVerifyReqDto() {
-        UserVerifyReqDto reqDto = new UserVerifyReqDto();
-        reqDto.setPassword("password123!");
-        return reqDto;
+        return UserVerifyReqDto.builder()
+                .password("password123!")
+                .build();
     }
 
     private UserNicknameUpdateReqDto getValidUserNicknameUpdateReqDto() {
-        UserNicknameUpdateReqDto reqDto = new UserNicknameUpdateReqDto();
-        reqDto.setNickname("테스터");
-        return reqDto;
+        return UserNicknameUpdateReqDto.builder()
+                .nickname("테스터")
+                .build();
     }
 
     private UserUpdatePasswordReqDto getValidUserUpdatePasswordReqDto() {
-        UserUpdatePasswordReqDto reqDto = new UserUpdatePasswordReqDto();
-        reqDto.setPassword("password123!");
-        reqDto.setPasswordReEntered("password123!");
-        return reqDto;
+        return UserUpdatePasswordReqDto.builder()
+                .password("password123!")
+                .passwordReEntered("password123!")
+                .build();
     }
 
     private UserIsNotifiedUpdateReqDto getValidUserIsNotifiedUpdateReqDto() {
-        UserIsNotifiedUpdateReqDto reqDto = new UserIsNotifiedUpdateReqDto();
-        reqDto.setIsNotified(true);
-        return reqDto;
+        return UserIsNotifiedUpdateReqDto.builder()
+                .isNotified(true)
+                .build();
     }
 }

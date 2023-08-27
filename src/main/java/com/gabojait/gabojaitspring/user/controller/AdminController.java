@@ -1,12 +1,13 @@
-package com.gabojait.gabojaitspring.admin.controller;
+package com.gabojait.gabojaitspring.user.controller;
 
-import com.gabojait.gabojaitspring.admin.dto.req.AdminLoginReqDto;
-import com.gabojait.gabojaitspring.admin.dto.req.AdminRegisterDecideReqDto;
-import com.gabojait.gabojaitspring.admin.dto.req.AdminRegisterReqDto;
-import com.gabojait.gabojaitspring.admin.dto.res.AdminAbstractResDto;
-import com.gabojait.gabojaitspring.admin.dto.res.AdminDefaultResDto;
-import com.gabojait.gabojaitspring.admin.service.AdminService;
-import com.gabojait.gabojaitspring.admin.service.MasterService;
+import com.gabojait.gabojaitspring.user.domain.Admin;
+import com.gabojait.gabojaitspring.user.dto.req.AdminLoginReqDto;
+import com.gabojait.gabojaitspring.user.dto.req.AdminRegisterDecideReqDto;
+import com.gabojait.gabojaitspring.user.dto.req.AdminRegisterReqDto;
+import com.gabojait.gabojaitspring.user.dto.res.AdminAbstractResDto;
+import com.gabojait.gabojaitspring.user.dto.res.AdminDefaultResDto;
+import com.gabojait.gabojaitspring.user.service.AdminService;
+import com.gabojait.gabojaitspring.user.service.MasterService;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.dto.DefaultMultiResDto;
 import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
@@ -57,11 +58,11 @@ public class AdminController {
     @ApiOperation(value = "관리자 가입",
             notes = "<응답 코드>\n" +
                     "- 201 = ADMIN_REGISTERED\n" +
-                    "- 400 = ADMIN_NAME_FIELD_REQUIRED || PASSWORD_FIELD_REQUIRED || " +
-                    "PASSWORD_RE_ENTERED_FIELD_REQUIRED || LEGAL_NAME_FIELD_REQUIRED || GENDER_FIELD_REQUIRED || " +
-                    "BIRTHDATE_FIELD_REQUIRED || ADMIN_NAME_LENGTH_INVALID || PASSWORD_LENGTH_INVALID || " +
-                    "LEGAL_NAME_LENGTH_INVALID || ADMIN_NAME_FORMAT_INVALID || PASSWORD_FORMAT_INVALID || " +
-                    "LEGAL_NAME_FORMAT_INVALID || GENDER_TYPE_INVALID || PASSWORD_MATCH_INVALID\n" +
+                    "- 400 = USERNAME_FIELD_REQUIRED || PASSWORD_FIELD_REQUIRED || " +
+                    "PASSWORD_RE_ENTERED_FIELD_REQUIRED || LEGAL_NAME_FIELD_REQUIRED || BIRTHDATE_FIELD_REQUIRED || " +
+                    "USERNAME_LENGTH_INVALID || PASSWORD_LENGTH_INVALID || LEGAL_NAME_LENGTH_INVALID || " +
+                    "USERNAME_FORMAT_INVALID || PASSWORD_FORMAT_INVALID || LEGAL_NAME_FORMAT_INVALID || " +
+                    "PASSWORD_MATCH_INVALID\n" +
                     "- 409 = EXISTING_USERNAME\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
@@ -101,7 +102,7 @@ public class AdminController {
     })
     @PostMapping("/login")
     public ResponseEntity<DefaultSingleResDto<Object>> login(@RequestBody @Valid AdminLoginReqDto request) {
-        User admin = adminService.login(request);
+        Admin admin = adminService.login(request);
 
         HttpHeaders headers;
 
@@ -150,10 +151,10 @@ public class AdminController {
             @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        Page<User> admins = masterService.findManyUnregisteredAdmin(pageFrom, pageSize);
+        Page<Admin> admins = masterService.findManyUnregisteredAdmin(pageFrom, pageSize);
 
         List<AdminDefaultResDto> responses = new ArrayList<>();
-        for(User admin : admins)
+        for(Admin admin : admins)
             responses.add(new AdminDefaultResDto(admin));
 
         return ResponseEntity.status(UNREGISTERED_ADMIN_FOUND.getHttpStatus())

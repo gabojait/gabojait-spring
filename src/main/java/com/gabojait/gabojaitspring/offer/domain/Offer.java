@@ -39,7 +39,7 @@ public class Offer extends BaseTimeEntity {
     private Position position;
 
     @Builder
-    public Offer(User user, Team team, OfferedBy offeredBy, Position position) {
+    private Offer(User user, Team team, OfferedBy offeredBy, Position position) {
         this.user = user;
         this.team = team;
         this.isAccepted = null;

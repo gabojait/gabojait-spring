@@ -23,5 +23,6 @@ public abstract class BaseTimeEntity {
     @Column(nullable = false)
     protected LocalDateTime updatedAt;
 
+    @Column(nullable = false)
     protected Boolean isDeleted;
 }

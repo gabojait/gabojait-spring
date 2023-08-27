@@ -34,7 +34,7 @@ public class Work extends BaseTimeEntity {
     private Boolean isCurrent;
 
     @Builder
-    public Work(String corporationName,
+    private Work(String corporationName,
                 String workDescription,
                 LocalDate startedAt,
                 LocalDate endedAt,

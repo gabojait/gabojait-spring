@@ -63,7 +63,7 @@ public class Team extends BaseTimeEntity {
     private Long visitedCnt;
 
     @Builder
-    public Team(String projectName,
+    private Team(String projectName,
                 String projectDescription,
                 Byte designerCnt,
                 Byte backendCnt,

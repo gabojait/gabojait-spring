@@ -73,7 +73,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     private String username;
     @Column(nullable = false)
     private String password;
-    @Column(length = 8)
+    @Column(length = 8, nullable = false)
     private String nickname;
     @Column(length = 120)
     private String profileDescription;
@@ -83,9 +83,10 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(nullable = false, length = 1)
     @Enumerated(EnumType.STRING)
     private Gender gender;
-    @Column(length = 20)
+    @Column(length = 20, nullable = false)
     @Enumerated(EnumType.STRING)
     private Position position;
+    @Column(nullable = false)
     private Boolean isSeekingTeam;
     private String imageUrl;
 
@@ -95,8 +96,8 @@ public class User extends BaseTimeEntity implements UserDetails {
     private Boolean isTemporaryPassword;
     private Boolean isNotified;
 
-    @Builder(builderMethodName = "userBuilder", builderClassName = "userBuilder")
-    public User(String username,
+    @Builder
+    private User(String username,
                 String password,
                 Gender gender,
                 LocalDate birthdate,
@@ -123,30 +124,8 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.isDeleted = false;
     }
 
-    @Builder(builderMethodName = "adminBuilder", builderClassName = "adminBuilder")
-    public User(String username, String password, Gender gender, LocalDate birthdate, String legalName) {
-        this.username = username;
-        this.password = password;
-        this.gender = gender;
-        this.birthdate = birthdate;
-        this.nickname = legalName;
-
-        this.lastRequestAt = LocalDateTime.now();
-        this.isDeleted = true;
-    }
-
-    @Builder(builderMethodName = "masterBuilder", builderClassName = "masterBuilder")
-    public User(String username, String password) {
-        this.username = username;
-        this.password = password;
-        this.gender = Gender.N;
-
-        this.lastRequestAt = LocalDateTime.now();
-        this.isDeleted = null;
-    }
-
-    @Builder(builderMethodName = "testOnlyBuilder", builderClassName = "testOnlyBuilder")
-    public User(Long id, Role role) {
+    @Builder(builderMethodName = "testBuilder", builderClassName = "testBuilder")
+    private User(Long id) {
         this.id = id;
         this.username = "tester";
         this.nickname = "테스터";
@@ -163,24 +142,6 @@ public class User extends BaseTimeEntity implements UserDetails {
                 .build();
 
         this.userRoles.add(userRole);
-
-        if (role == Role.ADMIN || role == Role.MASTER) {
-            UserRole adminRole = UserRole.builder()
-                    .user(this)
-                    .role(Role.USER)
-                    .build();
-
-            this.userRoles.add(adminRole);
-
-            if (role == Role.MASTER) {
-                UserRole masterRole = UserRole.builder()
-                        .user(this)
-                        .role(Role.MASTER)
-                        .build();
-
-                this.userRoles.add(masterRole);
-            }
-        }
     }
 
     public void updatePassword(String password, boolean isTemporaryPassword) {
@@ -198,10 +159,6 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void updateLastRequestAt() {
         this.lastRequestAt = LocalDateTime.now();
-    }
-
-    public void decideAdminRegistration(Boolean isDeleted) {
-        this.isDeleted = isDeleted;
     }
 
     public void deleteAccount() {

@@ -3,9 +3,7 @@ package com.gabojait.gabojaitspring.user.dto.req;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
@@ -13,6 +11,7 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @GroupSequence({UserLoginReqDto.class, ValidationSequence.Blank.class})
 @ApiModel(value = "회원 로그인 요청")
 public class UserLoginReqDto {
@@ -27,4 +26,11 @@ public class UserLoginReqDto {
 
     @ApiModelProperty(position = 3, value = "FCM 토큰")
     private String fcmToken;
+
+    @Builder
+    private UserLoginReqDto(String username, String password, String fcmToken) {
+        this.username = username;
+        this.password = password;
+        this.fcmToken = fcmToken;
+    }
 }

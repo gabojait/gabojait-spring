@@ -32,7 +32,7 @@ public class Skill extends BaseTimeEntity {
     private Level level;
 
     @Builder
-    public Skill(String skillName, boolean isExperienced, Level level, User user) {
+    private Skill(String skillName, boolean isExperienced, Level level, User user) {
         this.skillName = skillName;
         this.isExperienced = isExperienced;
         this.level = level;

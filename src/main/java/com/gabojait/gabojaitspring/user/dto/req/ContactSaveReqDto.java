@@ -4,9 +4,7 @@ import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.user.domain.Contact;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.Email;
@@ -15,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @GroupSequence({ContactSaveReqDto.class, ValidationSequence.Blank.class, ValidationSequence.Format.class})
 @ApiModel(value = "연락처 저장 요청")
 public class ContactSaveReqDto {
@@ -29,5 +28,10 @@ public class ContactSaveReqDto {
                 .email(this.email)
                 .verificationCode(verificationCode)
                 .build();
+    }
+
+    @Builder
+    private ContactSaveReqDto(String email) {
+        this.email = email;
     }
 }

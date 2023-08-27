@@ -1,12 +1,12 @@
-package com.gabojait.gabojaitspring.admin.service;
+package com.gabojait.gabojaitspring.user.service;
 
 import com.gabojait.gabojaitspring.common.util.PageProvider;
 import com.gabojait.gabojaitspring.common.util.PasswordProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
-import com.gabojait.gabojaitspring.user.domain.User;
+import com.gabojait.gabojaitspring.user.domain.Admin;
 import com.gabojait.gabojaitspring.user.domain.UserRole;
 import com.gabojait.gabojaitspring.user.domain.type.Role;
-import com.gabojait.gabojaitspring.user.repository.UserRepository;
+import com.gabojait.gabojaitspring.user.repository.AdminRepository;
 import com.gabojait.gabojaitspring.user.repository.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +19,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +35,7 @@ public class MasterService implements ApplicationRunner {
     @Value("${api.master.id}")
     private String masterName;
 
-    private final UserRepository userRepository;
+    private final AdminRepository adminRepository;
     private final UserRoleRepository userRoleRepository;
     private final PasswordProvider passwordProvider;
     private final PageProvider pageProvider;
@@ -45,15 +46,9 @@ public class MasterService implements ApplicationRunner {
      * 500(SERVER_ERROR)
      */
     public void decideAdminRegistration(Long adminId, boolean isApproval) {
-        User admin = findOneUnregisteredAdmin(adminId);
+        Admin admin = findOneUnregisteredAdmin(adminId);
 
-        if (isApproval) {
-            admin.decideAdminRegistration(null);
-        } else {
-            admin.decideAdminRegistration(true);
-        }
-
-        saveAdmin(admin);
+        admin.decideRegistration(isApproval);
     }
 
     /**
@@ -65,9 +60,9 @@ public class MasterService implements ApplicationRunner {
         String password = passwordProvider.generateRandomCode(10);
         String encodedPassword = passwordProvider.encodePassword(password);
 
-        Optional<User> master = findOneMaster();
+        Optional<Admin> master = findOneMaster();
         if (master.isPresent()) {
-            master.get().updatePassword(encodedPassword, false);
+            master.get().updatePassword(encodedPassword);
         } else {
             injectMaster();
         }
@@ -79,9 +74,9 @@ public class MasterService implements ApplicationRunner {
      * 관리자 저장 |
      * 500(SERVER_ERROR)
      */
-    private void saveAdmin(User admin) {
+    private void saveAdmin(Admin master) {
         try {
-            userRepository.save(admin);
+            adminRepository.save(master);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -103,12 +98,12 @@ public class MasterService implements ApplicationRunner {
      * 가입 승인을 기다리는 관리자 페이징 다건 조회 |
      * 500(SERVER_ERROR)
      */
-    public Page<User> findManyUnregisteredAdmin(long pageFrom, Integer pageSize) {
+    public Page<Admin> findManyUnregisteredAdmin(long pageFrom, Integer pageSize) {
         pageFrom = pageProvider.validatePageFrom(pageFrom);
         Pageable pageable = pageProvider.validatePageable(pageSize, 5);
 
         try {
-            return userRepository.searchAdmin(pageFrom, "_admin", pageable);
+            return adminRepository.findAllByIdIsLessThanAndIsApprovedIsNullAndIsDeletedIsFalseOrderByCreatedAtDesc(pageFrom, pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -118,9 +113,9 @@ public class MasterService implements ApplicationRunner {
      * 마스터 계정 조회 |
      * 500(SERVER_ERROR)
      */
-    private Optional<User> findOneMaster() {
+    private Optional<Admin> findOneMaster() {
         try {
-            return userRepository.findByUsername(masterName);
+            return adminRepository.findByUsernameAndIsApprovedIsTrueAndIsDeletedIsFalse(masterName);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -130,8 +125,8 @@ public class MasterService implements ApplicationRunner {
      * 식별자로 가입 대기 관리자 단건 조회 |
      * 404(ADMIN_NOT_FOUND)
      */
-    private User findOneUnregisteredAdmin(Long adminId) {
-        return userRepository.findByIdAndIsDeletedIsTrue(adminId)
+    private Admin findOneUnregisteredAdmin(Long adminId) {
+        return adminRepository.findByIdAndIsApprovedIsNullAndIsDeletedIsFalse(adminId)
                 .orElseThrow(() -> {
                     throw new CustomException(ADMIN_NOT_FOUND);
                 });
@@ -140,19 +135,19 @@ public class MasterService implements ApplicationRunner {
     /**
      * 마스터 권한 생성
      */
-    private List<UserRole> createMasterRoles(User master) {
+    private List<UserRole> createMasterRoles(Admin master) {
         List<UserRole> masterRoles = new ArrayList<>();
 
         masterRoles.add(UserRole.builder()
-                .user(master)
+                .admin(master)
                 .role(Role.USER)
                 .build());
         masterRoles.add(UserRole.builder()
-                .user(master)
+                .admin(master)
                 .role(Role.ADMIN)
                 .build());
         masterRoles.add(UserRole.builder()
-                .user(master)
+                .admin(master)
                 .role(Role.MASTER)
                 .build());
 
@@ -167,10 +162,13 @@ public class MasterService implements ApplicationRunner {
         String password = passwordProvider.generateRandomCode(10);
         String encodedPassword = passwordProvider.encodePassword(password);
 
-        User master = User.masterBuilder()
+        Admin master = Admin.builder()
                 .username(masterName)
                 .password(encodedPassword)
+                .birthdate(LocalDate.of(1997, 2, 11))
+                .legalName(masterName)
                 .build();
+        master.decideRegistration(true);
         saveAdmin(master);
 
         List<UserRole> masterRoles = createMasterRoles(master);
@@ -190,7 +188,7 @@ public class MasterService implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        Optional<User> master = findOneMaster();
+        Optional<Admin> master = findOneMaster();
 
         if (master.isEmpty())
             injectMaster();
