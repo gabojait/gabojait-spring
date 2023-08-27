@@ -30,7 +30,7 @@ public class Contact extends BaseTimeEntity {
     private Boolean isVerified;
 
     @Builder
-    public Contact(String email, String verificationCode) {
+    private Contact(String email, String verificationCode) {
         this.email = email;
         this.verificationCode = verificationCode;
         this.isVerified = false;

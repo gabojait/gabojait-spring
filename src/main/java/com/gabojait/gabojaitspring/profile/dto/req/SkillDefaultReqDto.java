@@ -6,9 +6,7 @@ import com.gabojait.gabojaitspring.profile.domain.type.Level;
 import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
@@ -19,6 +17,7 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @GroupSequence({SkillDefaultReqDto.class,
         ValidationSequence.Blank.class,
         ValidationSequence.Size.class,
@@ -52,5 +51,13 @@ public class SkillDefaultReqDto {
                 .isExperienced(this.isExperienced)
                 .level(Level.valueOf(this.level))
                 .build();
+    }
+
+    @Builder
+    private SkillDefaultReqDto(Long skillId, String skillName, Boolean isExperienced, String level) {
+        this.skillId = skillId;
+        this.skillName = skillName;
+        this.isExperienced = isExperienced;
+        this.level = level;
     }
 }

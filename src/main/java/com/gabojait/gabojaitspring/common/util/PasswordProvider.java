@@ -1,5 +1,6 @@
 package com.gabojait.gabojaitspring.common.util;
 
+import com.gabojait.gabojaitspring.user.domain.Admin;
 import com.gabojait.gabojaitspring.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,7 +39,13 @@ public class PasswordProvider {
     /**
      * 비밀번호 검증
      */
-    public boolean verifyPassword(User user, String password) {
-        return passwordEncoder.matches(password, user.getPassword());
+    public boolean verifyPassword(Object object, String password) {
+        if (object.getClass().equals(User.class)) {
+            User user = (User) object;
+            return passwordEncoder.matches(password, user.getPassword());
+        } else {
+            Admin admin = (Admin) object;
+            return passwordEncoder.matches(password, admin.getPassword());
+        }
     }
 }

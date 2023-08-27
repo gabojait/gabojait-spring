@@ -17,7 +17,6 @@ import com.gabojait.gabojaitspring.profile.service.ProfileService;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.team.service.TeamService;
 import com.gabojait.gabojaitspring.user.domain.User;
-import com.gabojait.gabojaitspring.user.domain.type.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -63,9 +62,8 @@ class ProfileControllerTest extends WebMvc {
                 .when(this.jwtProvider)
                 .getId(any());
 
-        User tester = User.testOnlyBuilder()
+        User tester = User.testBuilder()
                 .id(1L)
-                .role(Role.USER)
                 .build();
 
         Team team = Team.builder()
@@ -1000,55 +998,56 @@ class ProfileControllerTest extends WebMvc {
     }
 
     private ProfileIsSeekingTeamUpdateReqDto getValidProfileIsSeekingTeamUpdateReqDto() {
-        ProfileIsSeekingTeamUpdateReqDto reqDto = new ProfileIsSeekingTeamUpdateReqDto();
-        reqDto.setIsSeekingTeam(false);
-        return reqDto;
+        return ProfileIsSeekingTeamUpdateReqDto.builder()
+                .isSeekingTeam(false)
+                .build();
     }
 
     private ProfileDescriptionUpdateReqDto getValidProfileDescriptionUpdateReqDto() {
-        ProfileDescriptionUpdateReqDto reqDto = new ProfileDescriptionUpdateReqDto();
-        reqDto.setProfileDescription("테스트 자기소개입니다.");
-        return reqDto;
+        return ProfileDescriptionUpdateReqDto.builder()
+                .profileDescription("테스트 자기소개입니다.")
+                .build();
     }
 
     private ProfileDefaultReqDto getValidProfileDefaultReqDto() {
-        String positionReqDto = Position.BACKEND.name();
+        SkillDefaultReqDto skillDefaultReqDto = SkillDefaultReqDto.builder()
+                .skillId(null)
+                .skillName("스프링")
+                .isExperienced(true)
+                .level(Level.MID.name())
+                .build();
 
-        SkillDefaultReqDto skillDefaultReqDto = new SkillDefaultReqDto();
-        skillDefaultReqDto.setSkillId(null);
-        skillDefaultReqDto.setSkillName("스프링");
-        skillDefaultReqDto.setIsExperienced(true);
-        skillDefaultReqDto.setLevel(Level.MID.name());
+        EducationDefaultReqDto educationDefaultReqDto = EducationDefaultReqDto.builder()
+                .educationId(null)
+                .institutionName("하버드대학교")
+                .startedAt(LocalDate.of(2019, 3, 1))
+                .endedAt(LocalDate.of(2023, 8, 1))
+                .isCurrent(true)
+                .build();
 
-        EducationDefaultReqDto educationDefaultReqDto = new EducationDefaultReqDto();
-        educationDefaultReqDto.setEducationId(null);
-        educationDefaultReqDto.setInstitutionName("하버드대학교");
-        educationDefaultReqDto.setStartedAt(LocalDate.of(2019, 3, 1));
-        educationDefaultReqDto.setEndedAt(LocalDate.of(2023, 8, 1));
-        educationDefaultReqDto.setIsCurrent(true);
+        WorkDefaultReqDto workDefaultReqDto = WorkDefaultReqDto.builder()
+                .workId(null)
+                .corporationName("가보자잇사")
+                .workDescription("가보자잇에서 백엔드 개발")
+                .startedAt(LocalDate.of(2023, 9, 1))
+                .endedAt(null)
+                .isCurrent(true)
+                .build();
 
-        WorkDefaultReqDto workDefaultReqDto = new WorkDefaultReqDto();
-        workDefaultReqDto.setWorkId(null);
-        workDefaultReqDto.setCorporationName("가보자잇사");
-        workDefaultReqDto.setWorkDescription("가보자잇에서 백엔드 개발");
-        workDefaultReqDto.setStartedAt(LocalDate.of(2023, 9, 1));
-        workDefaultReqDto.setEndedAt(null);
-        workDefaultReqDto.setIsCurrent(true);
+        PortfolioDefaultReqDto portfolioDefaultReqDto = PortfolioDefaultReqDto.builder()
+                .portfolioId(null)
+                .portfolioName("깃허브")
+                .portfolioUrl("github.com/gabojait")
+                .media(Media.LINK.name())
+                .build();
 
-        PortfolioDefaultReqDto portfolioDefaultReqDto = new PortfolioDefaultReqDto();
-        portfolioDefaultReqDto.setPortfolioId(null);
-        portfolioDefaultReqDto.setPortfolioName("깃허브");
-        portfolioDefaultReqDto.setPortfolioUrl("github.com/gabojait");
-        portfolioDefaultReqDto.setMedia(Media.LINK.name());
-
-        ProfileDefaultReqDto reqDto = new ProfileDefaultReqDto();
-        reqDto.setPosition(positionReqDto);
-        reqDto.setSkills(List.of(skillDefaultReqDto));
-        reqDto.setEducations(List.of(educationDefaultReqDto));
-        reqDto.setWorks(List.of(workDefaultReqDto));
-        reqDto.setPortfolios(List.of(portfolioDefaultReqDto));
-
-        return reqDto;
+        return ProfileDefaultReqDto.builder()
+                .position(Position.BACKEND.name())
+                .skills(List.of(skillDefaultReqDto))
+                .educations(List.of(educationDefaultReqDto))
+                .works(List.of(workDefaultReqDto))
+                .portfolios(List.of(portfolioDefaultReqDto))
+                .build();
     }
 
     private MockMultipartFile getValidMultipartFile() {

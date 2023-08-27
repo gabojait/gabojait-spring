@@ -1,6 +1,7 @@
-package com.gabojait.gabojaitspring.admin.dto.res;
+package com.gabojait.gabojaitspring.user.dto.res;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.gabojait.gabojaitspring.user.domain.Admin;
 import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -28,7 +29,7 @@ public class AdminAbstractResDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    public AdminAbstractResDto(User admin) {
+    public AdminAbstractResDto(Admin admin) {
         this.adminId = admin.getId();
         this.username = admin.getUsername();
         this.createdAt = admin.getCreatedAt();

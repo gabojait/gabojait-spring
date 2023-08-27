@@ -1,8 +1,8 @@
-package com.gabojait.gabojaitspring.admin.dto.res;
+package com.gabojait.gabojaitspring.user.dto.res;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.gabojait.gabojaitspring.user.domain.Admin;
 import com.gabojait.gabojaitspring.user.domain.User;
-import com.gabojait.gabojaitspring.user.domain.type.Gender;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -22,10 +22,10 @@ public class AdminDefaultResDto extends AdminAbstractResDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthdate;
 
-    public AdminDefaultResDto(User admin) {
+    public AdminDefaultResDto(Admin admin) {
         super(admin);
 
-        this.legalName = admin.getNickname();
+        this.legalName = admin.getLegalName();
         this.birthdate = admin.getBirthdate();
     }
 }

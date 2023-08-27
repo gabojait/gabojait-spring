@@ -4,9 +4,7 @@ import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
@@ -17,6 +15,7 @@ import javax.validation.constraints.PositiveOrZero;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @GroupSequence({TeamMemberRecruitCntReqDto.class, ValidationSequence.Blank.class, ValidationSequence.Format.class})
 @ApiModel(value = "포지션별 팀원 수 요청")
 public class TeamMemberRecruitCntReqDto {
@@ -33,4 +32,10 @@ public class TeamMemberRecruitCntReqDto {
             message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 또는 'MANAGER' 중 하나여야 됩니다.",
             groups = ValidationSequence.Format.class)
     private String position;
+
+    @Builder
+    private TeamMemberRecruitCntReqDto(Byte totalRecruitCnt, String position) {
+        this.totalRecruitCnt = totalRecruitCnt;
+        this.position = position;
+    }
 }

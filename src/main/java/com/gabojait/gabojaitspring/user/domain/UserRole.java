@@ -17,19 +17,28 @@ public class UserRole {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     @ToString.Exclude
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "admin_id")
+    @ToString.Exclude
+    private Admin admin;
 
     @Column(nullable = false, length = 6)
     @Enumerated(EnumType.STRING)
     private Role role;
 
     @Builder
-    public UserRole(User user, Role role) {
+    private UserRole(User user, Admin admin, Role role) {
         this.user = user;
+        this.admin = admin;
         this.role = role;
 
-        this.user.getUserRoles().add(this);
+        if (user != null)
+            this.user.getUserRoles().add(this);
+        else
+            this.admin.getUserRoles().add(this);
     }
 }

@@ -158,7 +158,7 @@ public class DevelopService {
         for (int i = 0; i < contacts.size(); i++) {
             int n = i + 1;
 
-            User user = User.userBuilder()
+            User user = User.builder()
                     .username("test" + n)
                     .password(passwordProvider.encodePassword("password1!"))
                     .gender(Gender.N)

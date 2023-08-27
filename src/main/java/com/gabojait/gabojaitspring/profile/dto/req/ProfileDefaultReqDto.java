@@ -3,9 +3,7 @@ package com.gabojait.gabojaitspring.profile.dto.req;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.GroupSequence;
 import javax.validation.Valid;
@@ -17,6 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @GroupSequence({
         ProfileDefaultReqDto.class,
         ValidationSequence.Blank.class,
@@ -49,4 +48,17 @@ public class ProfileDefaultReqDto {
     @ApiModelProperty(position = 5, value = "포트폴리오들")
     @Valid
     private List<PortfolioDefaultReqDto> portfolios = new ArrayList<>();
+
+    @Builder
+    private ProfileDefaultReqDto(String position,
+                                 List<SkillDefaultReqDto> skills,
+                                 List<EducationDefaultReqDto> educations,
+                                 List<WorkDefaultReqDto> works,
+                                 List<PortfolioDefaultReqDto> portfolios) {
+        this.position = position;
+        this.skills = skills;
+        this.educations = educations;
+        this.works = works;
+        this.portfolios = portfolios;
+    }
 }

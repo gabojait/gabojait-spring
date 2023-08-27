@@ -181,15 +181,15 @@ class ContactControllerTest extends WebMvc {
     }
 
     private ContactSaveReqDto getValidContactSaveReqDto() {
-        ContactSaveReqDto reqDto = new ContactSaveReqDto();
-        reqDto.setEmail("tester@gabojait.com");
-        return reqDto;
+        return ContactSaveReqDto.builder()
+                .email("tester@gabojait.com")
+                .build();
     }
 
     private ContactVerifyReqDto getValidContactVerifyReqDto() {
-        ContactVerifyReqDto reqDto = new ContactVerifyReqDto();
-        reqDto.setEmail("tester@gabojait.com");
-        reqDto.setVerificationCode("000000");
-        return reqDto;
+        return ContactVerifyReqDto.builder()
+                .email("tester@gabojait.com")
+                .verificationCode("000000")
+                .build();
     }
 }

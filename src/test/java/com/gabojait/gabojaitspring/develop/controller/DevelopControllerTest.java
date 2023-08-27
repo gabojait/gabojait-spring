@@ -5,7 +5,6 @@ import com.gabojait.gabojaitspring.common.WebMvc;
 import com.gabojait.gabojaitspring.develop.dto.req.DevelopFcmReqDto;
 import com.gabojait.gabojaitspring.develop.service.DevelopService;
 import com.gabojait.gabojaitspring.user.domain.User;
-import com.gabojait.gabojaitspring.user.domain.type.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,9 +33,8 @@ class DevelopControllerTest extends WebMvc {
 
     @BeforeEach
     void setUp() {
-        User tester = User.testOnlyBuilder()
+        User tester = User.testBuilder()
                 .id(1L)
-                .role(Role.USER)
                 .build();
 
         doReturn(1L)
@@ -188,9 +186,9 @@ class DevelopControllerTest extends WebMvc {
     }
 
     private DevelopFcmReqDto getValidDevelopFcmReqDto() {
-        DevelopFcmReqDto reqDto = new DevelopFcmReqDto();
-        reqDto.setFcmTitle("테스트 제목");
-        reqDto.setFcmMessage("테스트 메세지");
-        return reqDto;
+        return DevelopFcmReqDto.builder()
+                .fcmTitle("테스트 제목")
+                .fcmMessage("테스트 메세지")
+                .build();
     }
 }

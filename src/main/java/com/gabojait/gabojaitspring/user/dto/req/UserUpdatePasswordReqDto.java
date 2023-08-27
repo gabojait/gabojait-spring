@@ -3,9 +3,7 @@ package com.gabojait.gabojaitspring.user.dto.req;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
@@ -15,6 +13,7 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @GroupSequence({UserUpdatePasswordReqDto.class,
         ValidationSequence.Blank.class,
         ValidationSequence.Size.class,
@@ -32,4 +31,10 @@ public class UserUpdatePasswordReqDto {
     @ApiModelProperty(position = 2, required = true, value = "비밀번호 재입력", example = "password2!")
     @NotBlank(message = "비밀번호 재입력은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
     private String passwordReEntered;
+
+    @Builder
+    private UserUpdatePasswordReqDto(String password, String passwordReEntered) {
+        this.password = password;
+        this.passwordReEntered = passwordReEntered;
+    }
 }

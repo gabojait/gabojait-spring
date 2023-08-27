@@ -10,6 +10,4 @@ public interface UserCustomRepository {
     Page<User> searchOrderByCreatedAt(long id, Pageable pageable);
 
     Page<User> searchByPositionOrderByCreatedAt(long id, Position position, Pageable pageable);
-
-    Page<User> searchAdmin(long id, String username, Pageable pageable);
 }

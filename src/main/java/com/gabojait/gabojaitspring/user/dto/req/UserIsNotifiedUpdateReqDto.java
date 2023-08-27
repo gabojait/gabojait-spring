@@ -3,9 +3,7 @@ package com.gabojait.gabojaitspring.user.dto.req;
 import com.gabojait.gabojaitspring.common.util.validator.ValidationSequence;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotNull;
@@ -13,6 +11,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @GroupSequence({UserIsNotifiedUpdateReqDto.class, ValidationSequence.Blank.class})
 @ApiModel(value = "회원 알림 여부 업데이트 요청")
 public class UserIsNotifiedUpdateReqDto {
@@ -21,4 +20,9 @@ public class UserIsNotifiedUpdateReqDto {
             allowableValues = "true, false")
     @NotNull(message = "알림 여부는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
     private Boolean isNotified;
+
+    @Builder
+    private UserIsNotifiedUpdateReqDto(Boolean isNotified) {
+        this.isNotified = isNotified;
+    }
 }

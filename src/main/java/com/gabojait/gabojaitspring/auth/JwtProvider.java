@@ -142,12 +142,12 @@ public class JwtProvider {
     private void authenticate(String token, Role role, Jwt jwt) {
         DecodedJWT decodedJwt = verifyJwt(token);
         List<String> roles;
-        long userId;
+        long id;
         long validTime;
 
         try {
             roles = decodedJwt.getClaim("roles").asList(String.class);
-            userId = Long.parseLong(decodedJwt.getSubject());
+            id = Long.parseLong(decodedJwt.getSubject());
             validTime = decodedJwt.getExpiresAt().getTime() - decodedJwt.getIssuedAt().getTime();
         } catch (RuntimeException e) {
             throw new CustomException(e, TOKEN_UNAUTHORIZED);
@@ -165,13 +165,13 @@ public class JwtProvider {
             throw new CustomException(TOKEN_UNAUTHORIZED);
 
         if (role.equals(Role.USER))
-            customuserDetailsService.loadUserByUserId(userId);
-        else if (role.equals(Role.ADMIN) || role.equals(Role.MASTER))
-            customuserDetailsService.loadAdminByUserId(userId);
+            customuserDetailsService.loadUserById(id);
+        else
+            customuserDetailsService.loadAdminById(id);
 
         try {
             UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(userId, "", authorities);
+                    new UsernamePasswordAuthenticationToken(id, "", authorities);
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         } catch (JWTVerificationException e) {
             throw new CustomException(e, TOKEN_UNAUTHENTICATED);

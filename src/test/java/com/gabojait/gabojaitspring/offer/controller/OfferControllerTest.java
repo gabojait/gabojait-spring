@@ -10,7 +10,6 @@ import com.gabojait.gabojaitspring.offer.service.OfferService;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.User;
-import com.gabojait.gabojaitspring.user.domain.type.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,9 +47,8 @@ class OfferControllerTest extends WebMvc {
                 .when(this.jwtProvider)
                 .getId(any());
 
-        User tester = User.testOnlyBuilder()
+        User tester = User.testBuilder()
                 .id(1L)
-                .role(Role.USER)
                 .build();
 
         Team team = Team.builder()
@@ -873,21 +871,6 @@ class OfferControllerTest extends WebMvc {
     }
 
     @Test
-    @DisplayName("팀이 보낸 제안 취소 | 제안 식별자 미입력시 | 400반환")
-    void cancelOfferByTeam_givenOfferIdFieldRequired_return400() throws Exception {
-        // given & when
-        MvcResult mvcResult = this.mockMvc.perform(delete("/api/v1/team/offer/{offer-id}", ""))
-                .andReturn();
-
-        // then
-        int status = mvcResult.getResponse().getStatus();
-        String response = mvcResult.getResponse().getContentAsString();
-
-//        assertThat(status).isEqualTo(OFFER_ID_FIELD_REQUIRED.getHttpStatus().value());
-//        assertThat(response).contains(OFFER_ID_FIELD_REQUIRED.name());
-    }
-
-    @Test
     @DisplayName("팀이 보낸 제안 취소 | 제안 식별자가 양수 아닐시 | 400반환")
     void cancelOfferByTeam_givenOfferIdPositiveOnly_return400() throws Exception {
         // given
@@ -906,15 +889,15 @@ class OfferControllerTest extends WebMvc {
     }
 
     private OfferCreateReqDto getValidOfferCreateReqDto() {
-        OfferCreateReqDto reqDto = new OfferCreateReqDto();
-        reqDto.setPosition(Position.DESIGNER.name());
-        return reqDto;
+        return OfferCreateReqDto.builder()
+                .position(Position.DESIGNER.name())
+                .build();
     }
 
     private OfferUpdateReqDto getValidOfferUpdateReqDto() {
-        OfferUpdateReqDto reqDto = new OfferUpdateReqDto();
-        reqDto.setIsAccepted(true);
-        return reqDto;
+        return OfferUpdateReqDto.builder()
+                .isAccepted(true)
+                .build();
     }
 
     private Long getValidId() {

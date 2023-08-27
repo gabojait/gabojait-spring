@@ -32,7 +32,7 @@ public class Education extends BaseTimeEntity {
     private Boolean isCurrent;
 
     @Builder
-    public Education(String institutionName, LocalDate startedAt, LocalDate endedAt, boolean isCurrent, User user) {
+    private Education(String institutionName, LocalDate startedAt, LocalDate endedAt, boolean isCurrent, User user) {
         this.institutionName = institutionName;
         this.startedAt = startedAt;
         this.endedAt = endedAt;

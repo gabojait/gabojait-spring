@@ -26,7 +26,7 @@ public class Fcm extends BaseTimeEntity {
     private String fcmToken;
 
     @Builder
-    public Fcm(User user, String fcmToken) {
+    private Fcm(User user, String fcmToken) {
         this.user = user;
         this.fcmToken = fcmToken;
         this.isDeleted = false;

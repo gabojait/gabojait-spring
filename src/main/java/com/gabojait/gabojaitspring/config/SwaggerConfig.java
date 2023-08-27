@@ -1,8 +1,8 @@
 package com.gabojait.gabojaitspring.config;
 
 import com.fasterxml.classmate.TypeResolver;
-import com.gabojait.gabojaitspring.admin.dto.res.AdminAbstractResDto;
-import com.gabojait.gabojaitspring.admin.dto.res.AdminDefaultResDto;
+import com.gabojait.gabojaitspring.user.dto.res.AdminAbstractResDto;
+import com.gabojait.gabojaitspring.user.dto.res.AdminDefaultResDto;
 import com.gabojait.gabojaitspring.common.dto.DefaultMultiResDto;
 import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
 import com.gabojait.gabojaitspring.common.dto.DefaultSingleResDto;

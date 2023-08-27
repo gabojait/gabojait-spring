@@ -8,9 +8,7 @@ import com.gabojait.gabojaitspring.team.domain.Team;
 import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
@@ -19,6 +17,7 @@ import javax.validation.constraints.Pattern;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @GroupSequence({OfferCreateReqDto.class, ValidationSequence.Blank.class, ValidationSequence.Format.class})
 @ApiModel(value = "제안 기본 요청")
 public class OfferCreateReqDto {
@@ -38,5 +37,10 @@ public class OfferCreateReqDto {
                 .offeredBy(offeredBy)
                 .position(Position.valueOf(this.position))
                 .build();
+    }
+
+    @Builder
+    private OfferCreateReqDto(String position) {
+        this.position = position;
     }
 }

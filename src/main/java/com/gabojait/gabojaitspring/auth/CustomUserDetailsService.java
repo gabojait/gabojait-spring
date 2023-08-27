@@ -2,6 +2,7 @@ package com.gabojait.gabojaitspring.auth;
 
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.user.domain.User;
+import com.gabojait.gabojaitspring.user.repository.AdminRepository;
 import com.gabojait.gabojaitspring.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +19,7 @@ import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final AdminRepository adminRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -31,15 +33,15 @@ public class CustomUserDetailsService implements UserDetailsService {
                 user.getAuthorities());
     }
 
-    public void loadUserByUserId(Long userId) {
+    public void loadUserById(Long userId) {
         userRepository.findByIdAndIsDeletedIsFalse(userId)
                 .orElseThrow(() -> {
                     throw new CustomException(TOKEN_UNAUTHORIZED);
                 });
     }
 
-    public User loadAdminByUserId(Long userId) {
-        return userRepository.findByIdAndIsDeletedIsNull(userId)
+    public void loadAdminById(Long adminId) {
+        adminRepository.findByIdAndIsApprovedIsTrueAndIsDeletedIsFalse(adminId)
                 .orElseThrow(() -> {
                     throw new CustomException(TOKEN_UNAUTHORIZED);
                 });

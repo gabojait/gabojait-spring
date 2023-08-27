@@ -6,9 +6,7 @@ import com.gabojait.gabojaitspring.profile.domain.type.Media;
 import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
@@ -18,6 +16,7 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @GroupSequence({PortfolioDefaultReqDto.class,
         ValidationSequence.Blank.class,
         ValidationSequence.Size.class,
@@ -51,5 +50,13 @@ public class PortfolioDefaultReqDto {
                 .portfolioUrl(this.portfolioUrl.trim())
                 .media(Media.valueOf(this.media))
                 .build();
+    }
+
+    @Builder
+    private PortfolioDefaultReqDto(Long portfolioId, String portfolioName, String portfolioUrl, String media) {
+        this.portfolioId = portfolioId;
+        this.portfolioName = portfolioName;
+        this.portfolioUrl = portfolioUrl;
+        this.media = media;
     }
 }
