@@ -1,5 +1,6 @@
 package com.gabojait.gabojaitspring.develop.controller;
 
+import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.common.WebMvc;
 import com.gabojait.gabojaitspring.develop.service.DevelopService;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +23,9 @@ class DevelopControllerTest extends WebMvc {
 
     @MockBean
     private DevelopService developService;
+
+    @MockBean
+    private JwtProvider jwtProvider;
 
     @BeforeEach
     void setUp() {
