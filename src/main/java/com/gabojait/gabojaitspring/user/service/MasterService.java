@@ -48,13 +48,7 @@ public class MasterService implements ApplicationRunner {
     public void decideAdminRegistration(Long adminId, boolean isApproval) {
         Admin admin = findOneUnregisteredAdmin(adminId);
 
-        if (isApproval) {
-            admin.decideRegistration(true);
-        } else {
-            admin.decideRegistration(false);
-        }
-
-        saveAdmin(admin);
+        admin.decideRegistration(isApproval);
     }
 
     /**
@@ -80,9 +74,9 @@ public class MasterService implements ApplicationRunner {
      * 관리자 저장 |
      * 500(SERVER_ERROR)
      */
-    private void saveAdmin(Admin admin) {
+    private void saveAdmin(Admin master) {
         try {
-            adminRepository.save(admin);
+            adminRepository.save(master);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
