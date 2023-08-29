@@ -30,7 +30,7 @@ public class FavoriteUserRepositoryImpl implements FavoriteUserCustomRepository 
                 .where(
                         favoriteUser.id.lt(id),
                         favoriteUser.team.eq(team),
-                        favoriteUser.isDeleted.eq(false)
+                        favoriteUser.isDeleted.isFalse()
                 )
                 .orderBy(favoriteUser.createdAt.desc())
                 .limit(pageable.getPageSize())
@@ -41,7 +41,7 @@ public class FavoriteUserRepositoryImpl implements FavoriteUserCustomRepository 
                 .from(favoriteUser)
                 .where(
                         favoriteUser.team.eq(team),
-                        favoriteUser.isDeleted.eq(false)
+                        favoriteUser.isDeleted.isFalse()
                 )
                 .fetchOne();
 
