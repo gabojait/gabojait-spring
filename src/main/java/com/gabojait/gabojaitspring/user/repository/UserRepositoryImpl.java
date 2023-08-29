@@ -27,8 +27,8 @@ public class UserRepositoryImpl implements UserCustomRepository {
                 .selectFrom(user)
                 .where(
                         user.id.lt(id),
-                        user.isSeekingTeam.eq(true),
-                        user.isDeleted.eq(false)
+                        user.isSeekingTeam.isTrue(),
+                        user.isDeleted.isFalse()
                 )
                 .orderBy(user.createdAt.desc())
                 .limit(pageable.getPageSize())
@@ -38,8 +38,8 @@ public class UserRepositoryImpl implements UserCustomRepository {
                 .select(user.count())
                 .from(user)
                 .where(
-                        user.isSeekingTeam.eq(true),
-                        user.isDeleted.eq(false)
+                        user.isSeekingTeam.isTrue(),
+                        user.isDeleted.isFalse()
                 )
                 .fetchOne();
 
@@ -55,8 +55,8 @@ public class UserRepositoryImpl implements UserCustomRepository {
                 .where(
                         user.id.lt(id),
                         user.position.eq(position),
-                        user.isSeekingTeam.eq(true),
-                        user.isDeleted.eq(false)
+                        user.isSeekingTeam.isTrue(),
+                        user.isDeleted.isFalse()
                 )
                 .orderBy(user.createdAt.desc())
                 .limit(pageable.getPageSize())
@@ -67,8 +67,8 @@ public class UserRepositoryImpl implements UserCustomRepository {
                 .from(user)
                 .where(
                         user.position.eq(position),
-                        user.isSeekingTeam.eq(true),
-                        user.isDeleted.eq(false)
+                        user.isSeekingTeam.isTrue(),
+                        user.isDeleted.isFalse()
                 )
                 .fetchOne();
 

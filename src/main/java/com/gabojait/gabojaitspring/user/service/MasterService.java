@@ -103,7 +103,7 @@ public class MasterService implements ApplicationRunner {
         Pageable pageable = pageProvider.validatePageable(pageSize, 5);
 
         try {
-            return adminRepository.findAllByIdIsLessThanAndIsApprovedIsNullAndIsDeletedIsFalseOrderByCreatedAtDesc(pageFrom, pageable);
+            return adminRepository.searchUnapprovedOrderByCreatedAt(pageFrom, pageable);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }

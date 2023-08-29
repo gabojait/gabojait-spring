@@ -51,8 +51,8 @@ public class TeamRepositoryImpl implements TeamCustomRepository {
                 .selectFrom(team)
                 .where(
                         team.id.lt(id),
-                        team.isRecruiting.eq(true),
-                        team.isDeleted.eq(false)
+                        team.isRecruiting.isTrue(),
+                        team.isDeleted.isFalse()
                 )
                 .orderBy(team.createdAt.desc())
                 .limit(pageable.getPageSize())
@@ -62,8 +62,8 @@ public class TeamRepositoryImpl implements TeamCustomRepository {
                 .select(team.count())
                 .from(team)
                 .where(
-                        team.isRecruiting.eq(true),
-                        team.isDeleted.eq(false)
+                        team.isRecruiting.isTrue(),
+                        team.isDeleted.isFalse()
                 )
                 .fetchOne();
 
@@ -77,9 +77,9 @@ public class TeamRepositoryImpl implements TeamCustomRepository {
                 .selectFrom(team)
                 .where(
                         team.id.lt(id),
-                        team.isDesignerFull.eq(false),
-                        team.isRecruiting.eq(true),
-                        team.isDeleted.eq(false)
+                        team.isDesignerFull.isFalse(),
+                        team.isRecruiting.isTrue(),
+                        team.isDeleted.isFalse()
                 )
                 .orderBy(team.createdAt.desc())
                 .limit(pageable.getPageSize())
@@ -89,9 +89,9 @@ public class TeamRepositoryImpl implements TeamCustomRepository {
                 .select(team.count())
                 .from(team)
                 .where(
-                        team.isDesignerFull.eq(false),
-                        team.isRecruiting.eq(true),
-                        team.isDeleted.eq(false)
+                        team.isDesignerFull.isFalse(),
+                        team.isRecruiting.isTrue(),
+                        team.isDeleted.isFalse()
                 )
                 .fetchOne();
 
@@ -105,9 +105,9 @@ public class TeamRepositoryImpl implements TeamCustomRepository {
                 .selectFrom(team)
                 .where(
                         team.id.lt(id),
-                        team.isBackendFull.eq(false),
-                        team.isRecruiting.eq(true),
-                        team.isDeleted.eq(false)
+                        team.isBackendFull.isFalse(),
+                        team.isRecruiting.isTrue(),
+                        team.isDeleted.isFalse()
                 )
                 .orderBy(team.createdAt.desc())
                 .limit(pageable.getPageSize())
@@ -117,9 +117,9 @@ public class TeamRepositoryImpl implements TeamCustomRepository {
                 .select(team.count())
                 .from(team)
                 .where(
-                        team.isBackendFull.eq(false),
-                        team.isRecruiting.eq(true),
-                        team.isDeleted.eq(false)
+                        team.isBackendFull.isFalse(),
+                        team.isRecruiting.isTrue(),
+                        team.isDeleted.isFalse()
                 )
                 .fetchOne();
 
@@ -133,9 +133,9 @@ public class TeamRepositoryImpl implements TeamCustomRepository {
                 .selectFrom(team)
                 .where(
                         team.id.lt(id),
-                        team.isFrontendFull.eq(false),
-                        team.isRecruiting.eq(true),
-                        team.isDeleted.eq(false)
+                        team.isFrontendFull.isFalse(),
+                        team.isRecruiting.isTrue(),
+                        team.isDeleted.isFalse()
                 )
                 .orderBy(team.createdAt.desc())
                 .limit(pageable.getPageSize())
@@ -145,9 +145,9 @@ public class TeamRepositoryImpl implements TeamCustomRepository {
                 .select(team.count())
                 .from(team)
                 .where(
-                        team.isFrontendFull.eq(false),
-                        team.isRecruiting.eq(true),
-                        team.isDeleted.eq(false)
+                        team.isFrontendFull.isFalse(),
+                        team.isRecruiting.isTrue(),
+                        team.isDeleted.isFalse()
                 )
                 .fetchOne();
 
@@ -161,9 +161,9 @@ public class TeamRepositoryImpl implements TeamCustomRepository {
                 .selectFrom(team)
                 .where(
                         team.id.lt(id),
-                        team.isManagerFull.eq(false),
-                        team.isRecruiting.eq(true),
-                        team.isDeleted.eq(false)
+                        team.isManagerFull.isFalse(),
+                        team.isRecruiting.isTrue(),
+                        team.isDeleted.isFalse()
                 )
                 .orderBy(team.createdAt.desc())
                 .limit(pageable.getPageSize())
@@ -173,9 +173,9 @@ public class TeamRepositoryImpl implements TeamCustomRepository {
                 .select(team.count())
                 .from(team)
                 .where(
-                        team.isManagerFull.eq(false),
-                        team.isRecruiting.eq(true),
-                        team.isDeleted.eq(false)
+                        team.isManagerFull.isFalse(),
+                        team.isRecruiting.isTrue(),
+                        team.isDeleted.isFalse()
                 )
                 .fetchOne();
 

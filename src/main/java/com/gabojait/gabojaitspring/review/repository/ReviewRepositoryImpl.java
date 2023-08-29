@@ -25,7 +25,7 @@ public class ReviewRepositoryImpl implements ReviewCustomRepository {
                 .where(
                         review.id.lt(id),
                         review.reviewee.eq(reviewee),
-                        review.isDeleted.eq(false)
+                        review.isDeleted.isFalse()
                 )
                 .orderBy(review.createdAt.desc())
                 .limit(pageable.getPageSize())

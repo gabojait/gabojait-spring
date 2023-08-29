@@ -12,12 +12,4 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
     Optional<User> findByUsernameAndIsDeletedIsFalse(String username);
 
     Optional<User> findByNicknameAndIsDeletedIsFalse(String nickname);
-
-    Optional<User> findByIdAndIsDeletedIsTrue(Long id);
-
-    Optional<User> findByIdAndIsDeletedIsNull(Long id);
-
-    Optional<User> findByUsernameAndIsDeletedIsNull(String username);
-
-    Optional<User> findByUsername(String username);
 }

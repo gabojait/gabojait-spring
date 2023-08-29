@@ -32,7 +32,7 @@ public class OfferRepositoryImpl implements OfferCustomRepository {
                         offer.id.lt(id),
                         offer.user.eq(user),
                         offer.offeredBy.eq(offeredBy),
-                        offer.isDeleted.eq(false)
+                        offer.isDeleted.isFalse()
                 )
                 .orderBy(offer.createdAt.desc())
                 .limit(pageable.getPageSize())
@@ -44,7 +44,7 @@ public class OfferRepositoryImpl implements OfferCustomRepository {
                 .where(
                         offer.user.eq(user),
                         offer.offeredBy.eq(offeredBy),
-                        offer.isDeleted.eq(false)
+                        offer.isDeleted.isFalse()
                 )
                 .fetchOne();
 
@@ -65,7 +65,7 @@ public class OfferRepositoryImpl implements OfferCustomRepository {
                         offer.id.lt(id),
                         offer.team.eq(team),
                         offer.offeredBy.eq(offeredBy),
-                        offer.isDeleted.eq(false)
+                        offer.isDeleted.isFalse()
                 )
                 .orderBy(offer.createdAt.desc())
                 .limit(pageable.getPageSize())
@@ -77,7 +77,7 @@ public class OfferRepositoryImpl implements OfferCustomRepository {
                 .where(
                         offer.team.eq(team),
                         offer.offeredBy.eq(offeredBy),
-                        offer.isDeleted.eq(false)
+                        offer.isDeleted.isFalse()
                 )
                 .fetchOne();
 

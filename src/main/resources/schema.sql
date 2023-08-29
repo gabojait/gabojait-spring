@@ -93,7 +93,7 @@ CREATE TABLE fcm
 CREATE TABLE education
 (
     education_id            BIGINT          AUTO_INCREMENT,
-    created_at              DATETIME(6)     NULL,
+    created_at              DATETIME(6)     NOT NULL,
     is_deleted              BIT             NOT NULL,
     updated_at              DATETIME(6)     NOT NULL,
     ended_at                DATE            NULL,
@@ -108,7 +108,7 @@ CREATE TABLE education
 CREATE TABLE portfolio
 (
     portfolio_id            BIGINT          AUTO_INCREMENT,
-    created_at              DATETIME(6)     NULL,
+    created_at              DATETIME(6)     NOT NULL,
     is_deleted              BIT             NOT NULL,
     updated_at              DATETIME        NOT NULL,
     media                   VARCHAR(4)      NOT NULL,
