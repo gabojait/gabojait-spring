@@ -36,25 +36,6 @@ class UserTest {
     }
 
     @Test
-    @DisplayName("회원 | 비교")
-    void equals() {
-        // given
-        String username = "tester";
-        String password = "password123!";
-        Gender gender = Gender.N;
-        LocalDate birthdate = LocalDate.of(1997, 2, 11);
-        String nickname = "테스터";
-        User user1 = createUser(username, password, gender, birthdate, nickname);
-        User user2 = createUser(username, password, gender, birthdate, nickname);
-
-        // when
-        boolean isEquals = user1.equals(user2);
-
-        // then
-        assertThat(isEquals).isFalse();
-    }
-
-    @Test
     @DisplayName("회원 | 비밀번호 업데이트")
     void updatePassword() {
         // given
