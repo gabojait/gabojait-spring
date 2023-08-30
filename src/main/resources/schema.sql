@@ -182,6 +182,7 @@ CREATE TABLE team_member
     is_deleted              BIT             NOT NULL,
     updated_at              DATETIME(6)     NOT NULL,
     is_leader               BIT             NOT NULL,
+    is_quit                 BIT             NOT NULL,
     position                VARCHAR(20)     NOT NULL,
     team_id                 BIGINT          NOT NULL,
     user_id                 BIGINT          NOT NULL,

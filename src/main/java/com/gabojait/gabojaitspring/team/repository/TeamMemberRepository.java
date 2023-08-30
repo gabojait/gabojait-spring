@@ -10,13 +10,13 @@ import java.util.Optional;
 
 public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
 
-    Optional<TeamMember> findByUserAndIsDeletedIsFalse(User user);
+    Optional<TeamMember> findByUserAndIsQuitIsFalseAndIsDeletedIsFalse(User user);
 
-    Optional<TeamMember> findByUserAndTeamAndIsDeletedIsFalse(User user, Team team);
+    Optional<TeamMember> findByUserAndTeamAndIsQuitIsFalseAndIsDeletedIsFalse(User user, Team team);
 
-    List<TeamMember> findByUserAndIsDeletedIsTrue(User user);
+    List<TeamMember> findAllByUserAndIsQuitIsFalseAndIsDeletedIsTrue(User user);
 
-    Optional<TeamMember> findByUserAndTeamAndIsDeletedIsTrue(User user, Team team);
+    Optional<TeamMember> findByUserAndTeamAndIsQuitIsFalseAndIsDeletedIsTrue(User user, Team team);
 
-    List<TeamMember> findAllByUser(User user);
+    List<TeamMember> findAllByUserAndIsQuitIsFalse(User user);
 }

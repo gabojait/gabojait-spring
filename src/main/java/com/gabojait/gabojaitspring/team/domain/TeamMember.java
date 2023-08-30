@@ -33,17 +33,21 @@ public class TeamMember extends BaseTimeEntity {
     private Position position;
     @Column(nullable = false)
     private Boolean isLeader;
+    @Column(nullable = false)
+    private Boolean isQuit;
 
     @Builder
-    private TeamMember(User user, Team team, Position position, Boolean isLeader) {
+    private TeamMember(User user, Team team, Position position, boolean isLeader) {
         this.user = user;
         this.team = team;
         this.position = position;
         this.isLeader = isLeader;
+        this.isQuit = false;
         this.isDeleted = false;
     }
 
-    public void delete() {
+    public void delete(boolean isQuit) {
+        this.isQuit = isQuit;
         this.isDeleted = true;
     }
 }
