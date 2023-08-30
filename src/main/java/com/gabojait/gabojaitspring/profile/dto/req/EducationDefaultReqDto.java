@@ -13,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -68,5 +69,21 @@ public class EducationDefaultReqDto {
         this.startedAt = startedAt;
         this.endedAt = endedAt;
         this.isCurrent = isCurrent;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EducationDefaultReqDto that = (EducationDefaultReqDto) o;
+        return Objects.equals(educationId, that.educationId)
+                && institutionName.equals(that.institutionName)
+                && startedAt.equals(that.startedAt)
+                && Objects.equals(endedAt, that.endedAt)
+                && isCurrent.equals(that.isCurrent);
+    }
+
+    public int hashCode(User user) {
+        return Objects.hash(educationId, user, institutionName, startedAt, endedAt, isCurrent);
     }
 }

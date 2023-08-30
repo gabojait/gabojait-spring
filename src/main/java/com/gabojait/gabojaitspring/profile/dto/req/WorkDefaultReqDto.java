@@ -13,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -75,5 +76,22 @@ public class WorkDefaultReqDto {
         this.startedAt = startedAt;
         this.endedAt = endedAt;
         this.isCurrent = isCurrent;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        WorkDefaultReqDto that = (WorkDefaultReqDto) o;
+        return Objects.equals(workId, that.workId)
+                && corporationName.equals(that.corporationName)
+                && workDescription.equals(that.workDescription)
+                && startedAt.equals(that.startedAt)
+                && Objects.equals(endedAt, that.endedAt)
+                && isCurrent.equals(that.isCurrent);
+    }
+
+    public int hashCode(User user) {
+        return Objects.hash(workId, user, corporationName, workDescription, startedAt, endedAt, isCurrent);
     }
 }

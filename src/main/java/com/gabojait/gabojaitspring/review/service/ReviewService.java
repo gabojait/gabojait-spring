@@ -178,7 +178,7 @@ public class ReviewService {
      * 회원 식별자로 팀원 다건 조회
      */
     private List<TeamMember> findManyCompleteTeamMember(User user) {
-        return teamMemberRepository.findByUserAndIsDeletedIsTrue(user);
+        return teamMemberRepository.findAllByUserAndIsQuitIsFalseAndIsDeletedIsTrue(user);
     }
 
     /**
@@ -203,7 +203,7 @@ public class ReviewService {
         User user = findOneUser(userId);
         Team team = findOneTeam(teamId);
 
-        teamMemberRepository.findByUserAndTeamAndIsDeletedIsTrue(user, team)
+        teamMemberRepository.findByUserAndTeamAndIsQuitIsFalseAndIsDeletedIsTrue(user, team)
                 .orElseThrow(() -> {
                     throw new CustomException(TEAM_MEMBER_NOT_FOUND);
                 });

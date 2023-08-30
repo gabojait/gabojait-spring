@@ -6,6 +6,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Getter
 @ToString
@@ -39,8 +40,6 @@ public class Education extends BaseTimeEntity {
         this.isCurrent = isCurrent;
         this.user = user;
         this.isDeleted = false;
-
-        user.getEducations().add(this);
     }
 
     public void update(String institutionName, LocalDate startedAt, LocalDate endedAt, boolean isCurrent) {
@@ -52,5 +51,23 @@ public class Education extends BaseTimeEntity {
 
     public void delete() {
         this.isDeleted = true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Education education = (Education) o;
+        return id.equals(education.id)
+                && user.equals(education.user)
+                && institutionName.equals(education.institutionName)
+                && startedAt.equals(education.startedAt)
+                && Objects.equals(endedAt, education.endedAt)
+                && isCurrent.equals(education.isCurrent);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, user, institutionName, startedAt, endedAt, isCurrent);
     }
 }

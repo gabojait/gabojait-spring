@@ -147,7 +147,7 @@ public class TeamService {
         User user = findOneUser(userId);
         TeamMember teamMember = findOneTeamMember(user, leaderTeamMember.getTeam());
 
-        teamMember.delete();
+        teamMember.delete(true);
         teamMember.getUser().updateIsSeekingTeam(true);
         fcmProvider.sendTeamMemberFired(user, teamMember.getTeam());
     }
@@ -187,7 +187,7 @@ public class TeamService {
 
         user.updateIsSeekingTeam(true);
 
-        teamMember.delete();
+        teamMember.delete(true);
 
         fcmProvider.sendTeamMemberQuit(user, team);
     }
@@ -237,7 +237,8 @@ public class TeamService {
         User user = findOneUser(userId);
         Team team = findOneTeam(teamId);
 
-        Optional<TeamMember> foundTeamMember = teamMemberRepository.findByUserAndTeamAndIsDeletedIsFalse(user, team);
+        Optional<TeamMember> foundTeamMember =
+                teamMemberRepository.findByUserAndTeamAndIsQuitIsFalseAndIsDeletedIsFalse(user, team);
         if (foundTeamMember.isEmpty())
             team.incrementVisitedCnt();
 
@@ -287,7 +288,7 @@ public class TeamService {
      * 404(TEAM_MEMBER_NOT_FOUND)
      */
     private TeamMember findOneTeamMember(User user, Team team) {
-       return teamMemberRepository.findByUserAndTeamAndIsDeletedIsFalse(user, team)
+       return teamMemberRepository.findByUserAndTeamAndIsQuitIsFalseAndIsDeletedIsFalse(user, team)
                .orElseThrow(() -> {
                    throw new CustomException(TEAM_MEMBER_NOT_FOUND);
                });
@@ -309,7 +310,7 @@ public class TeamService {
      * 현재 팀 멤버 단건 조회
      */
     public Optional<TeamMember> findOneCurrentTeamMember(User user) {
-        return teamMemberRepository.findByUserAndIsDeletedIsFalse(user);
+        return teamMemberRepository.findByUserAndIsQuitIsFalseAndIsDeletedIsFalse(user);
     }
 
     /**
@@ -441,7 +442,7 @@ public class TeamService {
      */
     private void incomplete(Team team) {
         for(TeamMember teamMember : team.getTeamMembers()) {
-            teamMember.delete();
+            teamMember.delete(true);
             teamMember.getUser().updateIsSeekingTeam(true);
         }
 
@@ -455,7 +456,7 @@ public class TeamService {
      */
     private void complete(Team team, String projectUrl) {
         for(TeamMember teamMember : team.getTeamMembers()) {
-            teamMember.delete();
+            teamMember.delete(false);
             teamMember.getUser().updateIsSeekingTeam(true);
         }
 

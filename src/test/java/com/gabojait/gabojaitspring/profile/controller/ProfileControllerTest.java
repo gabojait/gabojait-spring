@@ -9,6 +9,7 @@ import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
 import com.gabojait.gabojaitspring.profile.domain.type.Level;
 import com.gabojait.gabojaitspring.profile.domain.type.Media;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
+import com.gabojait.gabojaitspring.profile.dto.ProfileInfoDto;
 import com.gabojait.gabojaitspring.profile.dto.ProfileSeekPageDto;
 import com.gabojait.gabojaitspring.profile.dto.req.*;
 import com.gabojait.gabojaitspring.profile.dto.res.ProfileDefaultResDto;
@@ -90,7 +91,9 @@ class ProfileControllerTest extends WebMvc {
 
         ProfileSeekPageDto profileSeekPageDto = new ProfileSeekPageDto(List.of(profileSeekResDto), 15);
 
-        ProfileDefaultResDto profileResDto = new ProfileDefaultResDto(tester, List.of());
+        ProfileInfoDto profileInfoDto = new ProfileInfoDto(List.of(), List.of(), List.of(), List.of(), List.of());
+
+        ProfileDefaultResDto profileResDto = new ProfileDefaultResDto(tester, profileInfoDto);
 
         doReturn(profileSeekPageDto)
                 .when(this.profileService)

@@ -2,7 +2,6 @@ package com.gabojait.gabojaitspring.user.domain;
 
 import com.gabojait.gabojaitspring.common.entity.BaseTimeEntity;
 import com.gabojait.gabojaitspring.fcm.domain.Fcm;
-import com.gabojait.gabojaitspring.profile.domain.Education;
 import com.gabojait.gabojaitspring.profile.domain.Portfolio;
 import com.gabojait.gabojaitspring.profile.domain.Skill;
 import com.gabojait.gabojaitspring.profile.domain.Work;
@@ -52,22 +51,6 @@ public class User extends BaseTimeEntity implements UserDetails {
     @OneToMany(mappedBy = "reviewer")
     @ToString.Exclude
     private List<Review> givenReviews = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    @ToString.Exclude
-    private List<Education> educations = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    @ToString.Exclude
-    private List<Portfolio> portfolios = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    @ToString.Exclude
-    private List<Skill> skills = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    @ToString.Exclude
-    private List<Work> works = new ArrayList<>();
 
     @Column(nullable = false, length = 15)
     private String username;
@@ -161,17 +144,11 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.lastRequestAt = LocalDateTime.now();
     }
 
-    public void deleteAccount() {
+    public void delete() {
         this.username = null;
         this.isDeleted = true;
-    }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.userRoles.stream()
-                .map(userRole ->
-                        new SimpleGrantedAuthority(userRole.getRole().name()))
-                .collect(Collectors.toList());
+        this.contact.delete();
     }
 
     public Set<String> getRoles() {
@@ -180,6 +157,43 @@ public class User extends BaseTimeEntity implements UserDetails {
             roles.add(userRole.getRole().name());
 
         return roles;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id)
+                && username.equals(user.username)
+                && password.equals(user.password)
+                && nickname.equals(user.nickname)
+                && Objects.equals(profileDescription, user.profileDescription)
+                && Objects.equals(birthdate, user.birthdate)
+                && lastRequestAt.equals(user.lastRequestAt)
+                && gender == user.gender
+                && position == user.position
+                && isSeekingTeam.equals(user.isSeekingTeam)
+                && Objects.equals(imageUrl, user.imageUrl)
+                && rating.equals(user.rating)
+                && visitedCnt.equals(user.visitedCnt)
+                && reviewCnt.equals(user.reviewCnt)
+                && isTemporaryPassword.equals(user.isTemporaryPassword)
+                && isNotified.equals(user.isNotified);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, password, nickname, profileDescription, birthdate, lastRequestAt, gender,
+                position, isSeekingTeam, imageUrl, rating, visitedCnt, reviewCnt, isTemporaryPassword, isNotified);
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.userRoles.stream()
+                .map(userRole ->
+                        new SimpleGrantedAuthority(userRole.getRole().name()))
+                .collect(Collectors.toList());
     }
 
     @Override

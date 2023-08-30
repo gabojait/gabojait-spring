@@ -1,5 +1,10 @@
 package com.gabojait.gabojaitspring.profile.dto.res;
 
+import com.gabojait.gabojaitspring.profile.domain.Education;
+import com.gabojait.gabojaitspring.profile.domain.Portfolio;
+import com.gabojait.gabojaitspring.profile.domain.Skill;
+import com.gabojait.gabojaitspring.profile.domain.Work;
+import com.gabojait.gabojaitspring.profile.dto.ProfileInfoDto;
 import com.gabojait.gabojaitspring.review.domain.Review;
 import com.gabojait.gabojaitspring.review.dto.res.ReviewDefaultResDto;
 import com.gabojait.gabojaitspring.team.domain.TeamMember;
@@ -51,7 +56,7 @@ public class ProfileDefaultResDto extends ProfileAbstractResDto {
     @ApiModelProperty(position = 18, required = true, value = "현재 팀")
     private TeamAbstractResDto currentTeam;
 
-    public ProfileDefaultResDto(User user, List<TeamMember> teamMembers) {
+    public ProfileDefaultResDto(User user, ProfileInfoDto profileInfo) {
         super(user);
 
         this.profileDescription = user.getProfileDescription();
@@ -66,40 +71,13 @@ public class ProfileDefaultResDto extends ProfileAbstractResDto {
                 if (!reviews.get(i - 1).getIsDeleted())
                     this.reviews.add(new ReviewDefaultResDto(reviews.get(i - 1), i));
         }
-        if (!user.getEducations().isEmpty())
-            user.getEducations()
-                    .forEach(education -> {
-                        if (!education.getIsDeleted())
-                            this.educations.add(new EducationDefaultResDto(education));
-                    });
-        if (!user.getPortfolios().isEmpty())
-            user.getPortfolios()
-                    .forEach(portfolio -> {
-                        if (!portfolio.getIsDeleted())
-                            this.portfolios.add(new PortfolioDefaultResDto(portfolio));
-                    });
-        if (!user.getSkills().isEmpty())
-            user.getSkills()
-                    .forEach(skill -> {
-                        if (!skill.getIsDeleted())
-                            this.skills.add(new SkillDefaultResDto(skill));
-                    });
-        if (!user.getWorks().isEmpty())
-            user.getWorks()
-                    .forEach(work -> {
-                        if (!work.getIsDeleted())
-                            this.works.add(new WorkDefaultResDto(work));
-                    });
 
-        if (!teamMembers.isEmpty()) {
-            teamMembers.forEach(teamMember -> {
-                if (teamMember.getTeam().getIsDeleted()) {
-                    this.completedTeams.add(new TeamAbstractResDto(teamMember.getTeam()));
-                } else {
-                    this.isLeader = teamMember.getIsLeader();
-                    this.currentTeam = new TeamAbstractResDto(teamMember.getTeam());
-                }
-            });
-        }
+        this.educations.addAll(profileInfo.getEducations());
+        this.portfolios.addAll(profileInfo.getPortfolios());
+        this.skills.addAll(profileInfo.getSkills());
+        this.works.addAll(profileInfo.getWorks());
+        this.completedTeams.addAll(profileInfo.getCompletedTeams());
+        this.currentTeam = profileInfo.getCurrentTeam();
+        this.isLeader = profileInfo.getIsLeader();
     }
 }
