@@ -73,10 +73,15 @@ public class User extends BaseTimeEntity implements UserDetails {
     private Boolean isSeekingTeam;
     private String imageUrl;
 
+    @Column(nullable = false)
     private Float rating;
+    @Column(nullable = false)
     private Long visitedCnt;
+    @Column(nullable = false)
     private Integer reviewCnt;
+    @Column(nullable = false)
     private Boolean isTemporaryPassword;
+    @Column(nullable = false)
     private Boolean isNotified;
 
     @Builder
