@@ -6,6 +6,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Getter
 @ToString
@@ -47,8 +48,6 @@ public class Work extends BaseTimeEntity {
         this.isCurrent = isCurrent;
         this.user = user;
         this.isDeleted = false;
-
-        user.getWorks().add(this);
     }
 
     public void update(String corporationName,
@@ -65,5 +64,24 @@ public class Work extends BaseTimeEntity {
 
     public void delete() {
         this.isDeleted = true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Work work = (Work) o;
+        return id.equals(work.id)
+                && user.equals(work.user)
+                && corporationName.equals(work.corporationName)
+                && workDescription.equals(work.workDescription)
+                && startedAt.equals(work.startedAt)
+                && Objects.equals(endedAt, work.endedAt)
+                && isCurrent.equals(work.isCurrent);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, user, corporationName, workDescription, startedAt, endedAt, isCurrent);
     }
 }

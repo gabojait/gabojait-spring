@@ -231,13 +231,11 @@ public class UserService {
      */
     public void deleteAccount(long userId) {
         User user = findOneUser(userId);
-        List<Fcm> fcms = user.getFcms();
+        List<Fcm> fcms = findAllFcm(user);
 
-        for(Fcm fcm : fcms)
-            hardDeleteFcm(fcm);
+        fcms.forEach(this::hardDeleteFcm);
 
-        user.getContact().delete();
-        user.deleteAccount();
+        user.delete();
     }
 
     /**
@@ -346,7 +344,7 @@ public class UserService {
     }
 
     /**
-     * 이메일로 가입된 연락처 단건 조회 | main |
+     * 이메일로 가입된 연락처 단건 조회 |
      * 404(CONTACT_NOT_FOUND)
      * 500(SERVER_ERROR)
      */
@@ -357,6 +355,18 @@ public class UserService {
             throw new CustomException(CONTACT_NOT_FOUND);
 
         return contact.get();
+    }
+
+    /**
+     * 회원으로 FCM 전체 조회 |
+     * 500(SERVER_ERROR)
+     */
+    private List<Fcm> findAllFcm(User user) {
+        try {
+            return fcmRepository.findAllByUserAndIsDeletedIsFalse(user);
+        } catch (RuntimeException e) {
+            throw new CustomException(e, SERVER_ERROR);
+        }
     }
 
     /**

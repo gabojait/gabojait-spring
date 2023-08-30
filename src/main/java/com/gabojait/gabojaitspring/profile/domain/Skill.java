@@ -6,6 +6,7 @@ import com.gabojait.gabojaitspring.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Getter
 @ToString
@@ -38,8 +39,6 @@ public class Skill extends BaseTimeEntity {
         this.level = level;
         this.user = user;
         this.isDeleted = false;
-
-        user.getSkills().add(this);
     }
 
     public void update(String skillName, boolean isExperienced, Level level) {
@@ -50,5 +49,22 @@ public class Skill extends BaseTimeEntity {
 
     public void delete() {
         this.isDeleted = true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Skill skill = (Skill) o;
+        return id.equals(skill.id)
+                && user.equals(skill.user)
+                && skillName.equals(skill.skillName)
+                && isExperienced.equals(skill.isExperienced)
+                && level == skill.level;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, user, skillName, isExperienced, level);
     }
 }

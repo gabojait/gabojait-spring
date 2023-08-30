@@ -13,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -59,5 +60,20 @@ public class SkillDefaultReqDto {
         this.skillName = skillName;
         this.isExperienced = isExperienced;
         this.level = level;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SkillDefaultReqDto that = (SkillDefaultReqDto) o;
+        return Objects.equals(skillId, that.skillId)
+                && skillName.equals(that.skillName)
+                && isExperienced.equals(that.isExperienced)
+                && level.equals(that.level);
+    }
+
+    public int hashCode(User user) {
+        return Objects.hash(skillId, user, skillName, isExperienced, Level.valueOf(level));
     }
 }

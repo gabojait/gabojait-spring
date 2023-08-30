@@ -314,7 +314,7 @@ public class DevelopService {
                         .isLeader(isLeader)
                         .build();
 
-                teamMember.delete();
+                teamMember.delete(false);
 
                 teamMemberRepository.save(teamMember);
 

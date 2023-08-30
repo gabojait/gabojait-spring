@@ -102,8 +102,7 @@ public class OfferService {
             createTeamMember(user, team, offer.getPosition());
 
             List<Offer> offers = findAllOfferByUserAndTeam(user, team);
-            for (Offer o : offers)
-                o.cancel();
+            offers.forEach(Offer::cancel);
 
             fcmProvider.sendTeamMemberJoin(offer);
         } else {
@@ -337,7 +336,7 @@ public class OfferService {
      * 404(CURRENT_TEAM_NOT_FOUND)
      */
     private TeamMember findOneCurrentTeamMember(User user) {
-        return teamMemberRepository.findByUserAndIsDeletedIsFalse(user)
+        return teamMemberRepository.findByUserAndIsQuitIsFalseAndIsDeletedIsFalse(user)
                 .orElseThrow(() -> {
                     throw new CustomException(CURRENT_TEAM_NOT_FOUND);
                 });
@@ -348,7 +347,7 @@ public class OfferService {
      * 409(EXISTING_CURRENT_TEAM)
      */
     private void validateHasNoCurrentTeam(User user) {
-        Optional<TeamMember> foundTeamMember =  teamMemberRepository.findByUserAndIsDeletedIsFalse(user);
+        Optional<TeamMember> foundTeamMember =  teamMemberRepository.findByUserAndIsQuitIsFalseAndIsDeletedIsFalse(user);
 
         if (foundTeamMember.isPresent())
             throw new CustomException(EXISTING_CURRENT_TEAM);

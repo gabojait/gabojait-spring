@@ -131,7 +131,7 @@ public class FavoriteUserService {
      * 404(CURRENT_TEAM_NOT_FOUND)
      */
     private TeamMember findOneCurrentTeamMember(User user) {
-        return teamMemberRepository.findByUserAndIsDeletedIsFalse(user)
+        return teamMemberRepository.findByUserAndIsQuitIsFalseAndIsDeletedIsFalse(user)
                 .orElseThrow(() -> {
                     throw new CustomException(CURRENT_TEAM_NOT_FOUND);
                 });

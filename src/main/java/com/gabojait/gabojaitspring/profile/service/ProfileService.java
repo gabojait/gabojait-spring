@@ -7,10 +7,7 @@ import com.gabojait.gabojaitspring.favorite.domain.FavoriteUser;
 import com.gabojait.gabojaitspring.favorite.repository.FavoriteUserRepository;
 import com.gabojait.gabojaitspring.offer.domain.Offer;
 import com.gabojait.gabojaitspring.offer.repository.OfferRepository;
-import com.gabojait.gabojaitspring.profile.domain.Education;
-import com.gabojait.gabojaitspring.profile.domain.Portfolio;
-import com.gabojait.gabojaitspring.profile.domain.Skill;
-import com.gabojait.gabojaitspring.profile.domain.Work;
+import com.gabojait.gabojaitspring.profile.domain.*;
 import com.gabojait.gabojaitspring.profile.domain.type.Level;
 import com.gabojait.gabojaitspring.profile.domain.type.Media;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
@@ -77,14 +74,14 @@ public class ProfileService {
         validateDate(request.getEducations(), request.getWorks());
 
         updatePosition(user, Position.valueOf(request.getPosition()));
-        cudSkills(user, request.getSkills());
-        cudEducations(user, request.getEducations());
-        cudWorks(user, request.getWorks());
-        cudPortfolios(user, request.getPortfolios());
+        commandEducations(user, request.getEducations());
+        commandPortfolios(user, request.getPortfolios());
+        commandSkills(user, request.getSkills());
+        commandWorks(user, request.getWorks());
 
-        List<TeamMember> teamMembers = findAllTeamMembers(user);
+        ProfileInfoDto profileInfo = findAllProfileInfo(user);
 
-        return new ProfileDefaultResDto(user, teamMembers);
+        return new ProfileDefaultResDto(user, profileInfo);
     }
 
     /**
@@ -137,9 +134,9 @@ public class ProfileService {
 
         user.updateImageUrl(url);
 
-        List<TeamMember> teamMembers = findAllTeamMembers(user);
+        ProfileInfoDto profileInfo = findAllProfileInfo(user);
 
-        return new ProfileDefaultResDto(user, teamMembers);
+        return new ProfileDefaultResDto(user, profileInfo);
     }
 
     /**
@@ -150,9 +147,9 @@ public class ProfileService {
         User user = findOneUser(userId);
         user.updateImageUrl(null);
 
-        List<TeamMember> teamMembers = findAllTeamMembers(user);
+        ProfileInfoDto profileInfo = findAllProfileInfo(user);
 
-        return new ProfileDefaultResDto(user, teamMembers);
+        return new ProfileDefaultResDto(user, profileInfo);
     }
 
     /**
@@ -162,10 +159,10 @@ public class ProfileService {
      */
     public ProfileOfferAndFavoriteResDto findOneOtherProfile(long userId, Long otherUserId) {
         User user = findOneUser(userId);
-        List<TeamMember> teamMembers = findAllTeamMembers(user);
+        ProfileInfoDto profileInfo = findAllProfileInfo(user);
 
         if (userId == otherUserId)
-            return new ProfileOfferAndFavoriteResDto(user, teamMembers, List.of(), null);
+            return new ProfileOfferAndFavoriteResDto(user, profileInfo, List.of(), null);
 
         User otherUser = findOneUser(otherUserId);
 
@@ -182,16 +179,16 @@ public class ProfileService {
             isFavorite = isFavoriteUser(otherUser, user);
         }
 
-        return new ProfileOfferAndFavoriteResDto(otherUser, teamMembers, offers, isFavorite);
+        return new ProfileOfferAndFavoriteResDto(otherUser, profileInfo, offers, isFavorite);
     }
 
     /**
      * 기술 저장 |
      * 500(SERVER_ERROR)
      */
-    public Skill saveSkill(Skill skill) {
+    public void saveSkill(Skill skill) {
         try {
-            return skillRepository.save(skill);
+            skillRepository.save(skill);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -201,9 +198,9 @@ public class ProfileService {
      * 학력 저장 |
      * 500(SERVER_ERROR)
      */
-    public Education saveEducation(Education education) {
+    public void saveEducation(Education education) {
         try {
-            return educationRepository.save(education);
+            educationRepository.save(education);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -213,9 +210,9 @@ public class ProfileService {
      * 경력 저장 |
      * 500(SERVER_ERROR)
      */
-    public Work saveWork(Work work) {
+    public void saveWork(Work work) {
         try {
-            return workRepository.save(work);
+            workRepository.save(work);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -225,9 +222,9 @@ public class ProfileService {
      * 포트폴리오 저장 |
      * 500(SERVER_ERROR)
      */
-    public Portfolio savePortfolio(Portfolio portfolio) {
+    public void savePortfolio(Portfolio portfolio) {
         try {
-            return portfolioRepository.save(portfolio);
+            portfolioRepository.save(portfolio);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -317,9 +314,9 @@ public class ProfileService {
     public ProfileDefaultResDto findOneProfile(long userId) {
         User user = findOneUser(userId);
 
-        List<TeamMember> teamMembers = findAllTeamMembers(user);
+        ProfileInfoDto profileInfo = findAllProfileInfo(user);
 
-        return new ProfileDefaultResDto(user, teamMembers);
+        return new ProfileDefaultResDto(user, profileInfo);
     }
 
     /**
@@ -413,17 +410,37 @@ public class ProfileService {
     }
 
     /**
+     * 회원으로 학력, 포트폴리오, 기술, 경력, 팀 전체 조회 |
+     * 500(SERVER_ERROR)
+     */
+    private ProfileInfoDto findAllProfileInfo(User user) {
+        List<Education> educations = findAllEducation(user);
+        List<Portfolio> portfolios = findAllPortfolio(user);
+        List<Skill> skills = findAllSkill(user);
+        List<Work> works = findAllWork(user);
+        List<TeamMember> teamMembers = findAllTeamMembers(user);
+
+        return ProfileInfoDto.builder()
+                .educations(educations)
+                .portfolios(portfolios)
+                .skills(skills)
+                .works(works)
+                .teamMembers(teamMembers)
+                .build();
+    }
+
+    /**
      * 회원으로 팀원 단건 조회
      */
     private Optional<TeamMember> findOneCurrentTeamMember(User user) {
-        return teamMemberRepository.findByUserAndIsDeletedIsFalse(user);
+        return teamMemberRepository.findByUserAndIsQuitIsFalseAndIsDeletedIsFalse(user);
     }
 
     /**
      * 회원으로 전체 팀원 조회
      */
     private List<TeamMember> findAllTeamMembers(User user) {
-        return teamMemberRepository.findAllByUser(user);
+        return teamMemberRepository.findAllByUserAndIsQuitIsFalse(user);
     }
 
     /**
@@ -458,269 +475,123 @@ public class ProfileService {
      * 기술들 생성, 수정, 삭제 |
      * 500(SERVER_ERROR)
      */
-    private void cudSkills(User user, List<SkillDefaultReqDto> requests) {
+    private void commandSkills(User user, List<SkillDefaultReqDto> requests) {
         List<Skill> currentSkills = findAllSkill(user);
 
         if (requests.isEmpty()) {
-            deleteSkills(currentSkills);
+            currentSkills.forEach(this::softDeleteSkill);
             return;
         }
 
-        List<SkillDefaultReqDto> createSkills = new ArrayList<>();
-        List<SkillUpdateDto> updateSkills = new ArrayList<>();
         for (SkillDefaultReqDto request : requests) {
-            if (request.getSkillId() == null) {
-                createSkills.add(request);
-                continue;
-            }
+            if (request.getSkillId() == null)
+                saveSkill(request.toEntity(user));
+            else
+                for (Skill currentSkill : currentSkills)
+                    if (request.getSkillId().equals(currentSkill.getId())) {
+                        if (request.hashCode(user) != currentSkill.hashCode())
+                            currentSkill.update(request.getSkillName(),
+                                    request.getIsExperienced(),
+                                    Level.valueOf(request.getLevel()));
 
-            for (Skill skill : currentSkills)
-                if (request.getSkillId().equals(skill.getId())) {
-                    if (!request.getSkillName().trim().equals(skill.getSkillName())
-                            || !request.getIsExperienced().equals(skill.getIsExperienced())
-                            || !Level.valueOf(request.getLevel()).equals(skill.getLevel()))
-                        updateSkills.add(new SkillUpdateDto(skill, request));
-
-                    currentSkills.remove(skill);
-                    break;
-                }
+                        currentSkills.remove(currentSkill);
+                        break;
+                    }
         }
 
-        createSkills(user, createSkills);
-        updateSkills(updateSkills);
-        deleteSkills(currentSkills);
-    }
-
-    /**
-     * 기술들 생성 |
-     * 500(SERVER_ERROR)
-     */
-    private void createSkills(User user, List<SkillDefaultReqDto> skills) {
-        for (SkillDefaultReqDto skill : skills) {
-            Skill s = skill.toEntity(user);
-            saveSkill(s);
-        }
-    }
-
-    /**
-     * 기술들 수정
-     */
-    private void updateSkills(List<SkillUpdateDto> skills) {
-        for (SkillUpdateDto skill : skills)
-            skill.getPrevSkill().update(skill.getSkillName(), skill.getIsExperienced(), skill.getLevel());
-    }
-
-    /**
-     * 기술들 삭제
-     */
-    private void deleteSkills(List<Skill> skills) {
-        for (Skill skill : skills) {
-            softDeleteSkill(skill);
-        }
+        currentSkills.forEach(this::softDeleteSkill);
     }
 
     /**
      * 학력들 생성, 수정, 삭제 |
      * 500(SERVER_ERROR)
      */
-    private void cudEducations(User user, List<EducationDefaultReqDto> requests) {
+    private void commandEducations(User user, List<EducationDefaultReqDto> requests) {
         List<Education> currentEducations = findAllEducation(user);
 
         if (requests.isEmpty()) {
-            deleteEducations(currentEducations);
+            currentEducations.forEach(this::softDeleteEducation);
             return;
         }
 
-        List<EducationDefaultReqDto> createEducations = new ArrayList<>();
-        List<EducationUpdateDto> updateEducations = new ArrayList<>();
         for (EducationDefaultReqDto request : requests) {
-            if (request.getEducationId() == null){
-                createEducations.add(request);
-                continue;
-            }
+            if (request.getEducationId() == null)
+                saveEducation(request.toEntity(user));
+            else
+                for (Education currentEducation : currentEducations)
+                    if (request.getEducationId().equals(currentEducation.getId())) {
+                        if (request.hashCode(user) != currentEducation.hashCode())
+                            currentEducation.update(request.getInstitutionName(),
+                                    request.getStartedAt(),
+                                    request.getEndedAt(),
+                                    request.getIsCurrent());
 
-            for (Education education : currentEducations)
-                if (request.getEducationId().equals(education.getId())) {
-                    if (!request.getInstitutionName().trim().equals(education.getInstitutionName())
-                            || !request.getStartedAt().equals(education.getStartedAt())
-                            || !request.getEndedAt().equals(education.getEndedAt())
-                            || !request.getIsCurrent().equals(education.getIsCurrent()))
-                        updateEducations.add(new EducationUpdateDto(education, request));
-
-                    currentEducations.remove(education);
-                    break;
-                }
+                        currentEducations.remove(currentEducation);
+                        break;
+                    }
         }
 
-        createEducations(user, createEducations);
-        updateEducations(updateEducations);
-        deleteEducations(currentEducations);
-    }
-
-    /**
-     * 학력들 생성 |
-     * 500(SERVER_ERROR)
-     */
-    private void createEducations(User user, List<EducationDefaultReqDto> educations) {
-        for (EducationDefaultReqDto education : educations) {
-            Education e = education.toEntity(user);
-            saveEducation(e);
-        }
-    }
-
-    /**
-     * 학력들 수정
-     */
-    private void updateEducations(List<EducationUpdateDto> educations) {
-        for (EducationUpdateDto education : educations)
-            education.getPrevEducation().update(education.getInstitutionName(),
-                    education.getStartedAt(),
-                    education.getEndedAt(),
-                    education.getIsCurrent());
-    }
-
-    /**
-     * 학력들 삭제
-     */
-    private void deleteEducations(List<Education> educations) {
-        for (Education education : educations)
-            softDeleteEducation(education);
+        currentEducations.forEach(this::softDeleteEducation);
     }
 
     /**
      * 경력들 생성, 수정, 삭제 |
      * 500(SERVER_ERROR)
      */
-    private void cudWorks(User user, List<WorkDefaultReqDto> requests) {
+    private void commandWorks(User user, List<WorkDefaultReqDto> requests) {
         List<Work> currentWorks = findAllWork(user);
 
         if (requests.isEmpty()) {
-            deleteWorks(currentWorks);
+            currentWorks.forEach(this::softDeleteWork);
             return;
         }
 
-        List<WorkDefaultReqDto> createWorks = new ArrayList<>();
-        List<WorkUpdateDto> updateWorks = new ArrayList<>();
         for (WorkDefaultReqDto request : requests) {
-            if (request.getWorkId() == null) {
-                createWorks.add(request);
-                continue;
-            }
+            if (request.getWorkId() == null)
+                saveWork(request.toEntity(user));
+            else
+                for (Work currentWork : currentWorks)
+                    if (request.getWorkId().equals(currentWork.getId())) {
+                        if (request.hashCode(user) != currentWorks.hashCode())
+                            currentWork.update(request.getCorporationName(),
+                                    request.getWorkDescription(),
+                                    request.getStartedAt(),
+                                    request.getEndedAt(),
+                                    request.getIsCurrent());
 
-            for (Work work : currentWorks)
-                if (request.getWorkId().equals(work.getId())) {
-                    if (!request.getCorporationName().trim().equals(work.getCorporationName())
-                            || !request.getWorkDescription().trim().equals(work.getWorkDescription())
-                            || !request.getStartedAt().equals(work.getStartedAt())
-                            || !request.getEndedAt().equals(work.getEndedAt())
-                            || !request.getIsCurrent().equals(work.getIsCurrent()))
-                        updateWorks.add(new WorkUpdateDto(work, request));
-
-                    currentWorks.remove(work);
-                    break;
-                }
+                        currentWorks.remove(currentWork);
+                        break;
+                    }
         }
-
-        createWorks(user, createWorks);
-        updateWorks(updateWorks);
-        deleteWorks(currentWorks);
-    }
-
-    /**
-     * 경력들 생성 |
-     * 500(SERVER_ERROR)
-     */
-    private void createWorks(User user, List<WorkDefaultReqDto> works) {
-        for (WorkDefaultReqDto work : works) {
-            Work w = work.toEntity(user);
-            saveWork(w);
-        }
-    }
-
-    /**
-     * 경력들 수정
-     */
-    private void updateWorks(List<WorkUpdateDto> works) {
-        for (WorkUpdateDto work : works)
-            work.getPrevWork().update(work.getCorporationName(),
-                    work.getWorkDescription(),
-                    work.getStartedAt(),
-                    work.getEndedAt(),
-                    work.getIsCurrent());
-    }
-
-    /**
-     * 경력들 삭제
-     */
-    private void deleteWorks(List<Work> works) {
-        for (Work work : works)
-            softDeleteWork(work);
     }
 
     /**
      * 포트폴리오 업데이트 |
      * 500(SERVER_ERROR)
      */
-    private void cudPortfolios(User user, List<PortfolioDefaultReqDto> requests) {
+    private void commandPortfolios(User user, List<PortfolioDefaultReqDto> requests) {
         List<Portfolio> currentPortfolios = findAllPortfolio(user);
 
         if (requests.isEmpty()) {
-            deletePortfolios(currentPortfolios);
+            currentPortfolios.forEach(this::softDeletePortfolio);
             return;
         }
 
-        List<PortfolioDefaultReqDto> createPortfolios = new ArrayList<>();
-        List<PortfolioUpdateDto> updatePortfolios = new ArrayList<>();
         for (PortfolioDefaultReqDto request : requests) {
-            if (request.getPortfolioId() == null) {
-                createPortfolios.add(request);
-                continue;
-            }
-
-            for (Portfolio portfolio : currentPortfolios)
-                if (request.getPortfolioId().equals(portfolio.getId())) {
-                    if (!request.getPortfolioName().trim().equals(portfolio.getPortfolioName())
-                            || request.getPortfolioUrl().trim().equals(portfolio.getPortfolioUrl())
-                            || Media.valueOf(request.getMedia()).equals(portfolio.getMedia()))
-                        updatePortfolios.add(new PortfolioUpdateDto(portfolio, request));
-
-                    currentPortfolios.remove(portfolio);
+            if (request.getPortfolioId() == null)
+                savePortfolio(request.toEntity(user));
+            else for (Portfolio currentPortfolio : currentPortfolios)
+                if (request.getPortfolioId().equals(currentPortfolio.getId())
+                        && request.hashCode(user) != currentPortfolio.hashCode()) {
+                    currentPortfolio.update(request.getPortfolioName(),
+                            request.getPortfolioUrl(),
+                            Media.valueOf(request.getMedia()));
+                    currentPortfolios.remove(currentPortfolio);
                     break;
                 }
         }
 
-        createPortfolios(user, createPortfolios);
-        updatePortfolios(updatePortfolios);
-        deletePortfolios(currentPortfolios);
-    }
-
-    /**
-     * 포트폴리오 생성 |
-     * 500(SERVER_ERROR)
-     */
-    private void createPortfolios(User user, List<PortfolioDefaultReqDto> portfolios) {
-        for (PortfolioDefaultReqDto portfolio : portfolios) {
-            Portfolio p = portfolio.toEntity(user);
-            savePortfolio(p);
-        }
-    }
-
-    /**
-     * 포트폴리오 수정
-     */
-    private void updatePortfolios(List<PortfolioUpdateDto> portfolios) {
-        for (PortfolioUpdateDto portfolio : portfolios)
-            portfolio.getPrevPortfolio().update(portfolio.getPortfolioName(),
-                    portfolio.getPortfolioUrl(),
-                    portfolio.getMedia());
-    }
-
-    /**
-     * 포트폴리오들 삭제
-     */
-    private void deletePortfolios(List<Portfolio> portfolios) {
-        for (Portfolio portfolio : portfolios)
-            softDeletePortfolio(portfolio);
+        currentPortfolios.forEach(this::softDeletePortfolio);
     }
 
     /**

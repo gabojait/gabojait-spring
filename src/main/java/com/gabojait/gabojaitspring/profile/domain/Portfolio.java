@@ -6,6 +6,7 @@ import com.gabojait.gabojaitspring.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Getter
 @ToString
@@ -38,8 +39,6 @@ public class Portfolio extends BaseTimeEntity {
         this.media = media;
         this.user = user;
         this.isDeleted = false;
-
-        user.getPortfolios().add(this);
     }
 
     public void update(String portfolioName, String portfolioUrl, Media media) {
@@ -50,5 +49,22 @@ public class Portfolio extends BaseTimeEntity {
 
     public void delete() {
         this.isDeleted = true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Portfolio portfolio = (Portfolio) o;
+        return id.equals(portfolio.id)
+                && user.equals(portfolio.user)
+                && portfolioName.equals(portfolio.portfolioName)
+                && portfolioUrl.equals(portfolio.portfolioUrl)
+                && media == portfolio.media;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, user, portfolioName, portfolioUrl, media);
     }
 }
