@@ -166,7 +166,7 @@ public class JwtProvider {
 
         if (role.equals(Role.USER))
             customuserDetailsService.loadUserById(id);
-        else
+        else if (role.equals(Role.ADMIN))
             customuserDetailsService.loadAdminById(id);
 
         try {
