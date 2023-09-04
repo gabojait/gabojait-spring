@@ -5,6 +5,7 @@ import com.gabojait.gabojaitspring.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Getter
 @ToString
@@ -30,5 +31,18 @@ public class Fcm extends BaseTimeEntity {
         this.user = user;
         this.fcmToken = fcmToken;
         this.isDeleted = false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Fcm)) return false;
+        Fcm fcm = (Fcm) o;
+        return Objects.equals(id, fcm.id) && user.equals(fcm.user) && fcmToken.equals(fcm.fcmToken);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, user, fcmToken);
     }
 }

@@ -1,10 +1,6 @@
 package com.gabojait.gabojaitspring.user.domain;
 
 import com.gabojait.gabojaitspring.common.entity.BaseTimeEntity;
-import com.gabojait.gabojaitspring.fcm.domain.Fcm;
-import com.gabojait.gabojaitspring.profile.domain.Portfolio;
-import com.gabojait.gabojaitspring.profile.domain.Skill;
-import com.gabojait.gabojaitspring.profile.domain.Work;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
 import com.gabojait.gabojaitspring.review.domain.Review;
 import com.gabojait.gabojaitspring.user.domain.type.Gender;
@@ -39,10 +35,6 @@ public class User extends BaseTimeEntity implements UserDetails {
     @OneToMany(mappedBy = "user")
     @ToString.Exclude
     private Set<UserRole> userRoles = new HashSet<>();
-
-    @OneToMany(mappedBy = "user")
-    @ToString.Exclude
-    private List<Fcm> fcms = new ArrayList<>();
 
     @OneToMany(mappedBy = "reviewee")
     @ToString.Exclude
@@ -86,11 +78,11 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     @Builder
     private User(String username,
-                String password,
-                Gender gender,
-                LocalDate birthdate,
-                String nickname,
-                Contact contact) {
+                 String password,
+                 Gender gender,
+                 LocalDate birthdate,
+                 String nickname,
+                 Contact contact) {
         this.username = username;
         this.password = password;
         this.gender = gender;

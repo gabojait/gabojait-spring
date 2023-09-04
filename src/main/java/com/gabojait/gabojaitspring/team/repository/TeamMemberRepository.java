@@ -19,4 +19,8 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
     Optional<TeamMember> findByUserAndTeamAndIsQuitIsFalseAndIsDeletedIsTrue(User user, Team team);
 
     List<TeamMember> findAllByUserAndIsQuitIsFalse(User user);
+
+    List<TeamMember> findAllByTeamAndIsQuitIsFalseAndIsDeletedIsFalse(Team team);
+
+    Optional<TeamMember> findByTeamAndIsLeaderIsTrueAndIsQuitIsFalseAndIsDeletedIsFalse(Team team);
 }

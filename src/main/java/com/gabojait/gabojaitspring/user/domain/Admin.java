@@ -8,6 +8,7 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Getter
@@ -87,5 +88,24 @@ public class Admin extends BaseTimeEntity {
         for(UserRole userRole : this.userRoles)
             roles.add(userRole.getRole().name());
         return roles;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Admin)) return false;
+        Admin admin = (Admin) o;
+        return Objects.equals(id, admin.id)
+                && username.equals(admin.username)
+                && password.equals(admin.password)
+                && legalName.equals(admin.legalName)
+                && birthdate.equals(admin.birthdate)
+                && lastRequestAt.equals(admin.lastRequestAt)
+                && isApproved.equals(admin.isApproved);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, password, legalName, birthdate, lastRequestAt, isApproved);
     }
 }

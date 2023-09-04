@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Getter
 @ToString
@@ -123,10 +124,10 @@ public class Team extends BaseTimeEntity {
             this.managerCnt = 0;
     }
 
-    public void updateIsPositionFull(Position position) {
+    public void updateIsPositionFull(Position position, List<TeamMember> teamMembers) {
         byte cnt = 0;
 
-        for(TeamMember teamMember : this.teamMembers)
+        for(TeamMember teamMember : teamMembers)
             if (position.equals(teamMember.getPosition()))
                 cnt++;
 
@@ -151,14 +152,14 @@ public class Team extends BaseTimeEntity {
     }
 
     public boolean isPositionFull(Position position) {
-        switch (position.name()) {
-            case "DESIGNER":
+        switch (position) {
+            case DESIGNER:
                 return this.isDesignerFull;
-            case "BACKEND":
+            case BACKEND:
                 return this.isBackendFull;
-            case "FRONTEND":
+            case FRONTEND:
                 return this.isFrontendFull;
-            case "MANAGER":
+            case MANAGER:
                 return this.isManagerFull;
             default:
                 return true;
@@ -177,5 +178,36 @@ public class Team extends BaseTimeEntity {
         this.projectUrl = projectUrl;
         this.completedAt = LocalDateTime.now();
         this.isDeleted = true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Team)) return false;
+        Team team = (Team) o;
+        return Objects.equals(id, team.id)
+                && projectName.equals(team.projectName)
+                && projectDescription.equals(team.projectDescription)
+                && designerCnt.equals(team.designerCnt)
+                && backendCnt.equals(team.backendCnt)
+                && frontendCnt.equals(team.frontendCnt)
+                && managerCnt.equals(team.managerCnt)
+                && expectation.equals(team.expectation)
+                && openChatUrl.equals(team.openChatUrl)
+                && Objects.equals(projectUrl, team.projectUrl)
+                && isRecruiting.equals(team.isRecruiting)
+                && isDesignerFull.equals(team.isDesignerFull)
+                && isBackendFull.equals(team.isBackendFull)
+                && isFrontendFull.equals(team.isFrontendFull)
+                && isManagerFull.equals(team.isManagerFull)
+                && Objects.equals(completedAt, team.completedAt)
+                && visitedCnt.equals(team.visitedCnt);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, projectName, projectDescription, designerCnt, backendCnt, frontendCnt, managerCnt,
+                expectation, openChatUrl, projectUrl, isRecruiting, isDesignerFull, isBackendFull, isFrontendFull,
+                isManagerFull, completedAt, visitedCnt);
     }
 }

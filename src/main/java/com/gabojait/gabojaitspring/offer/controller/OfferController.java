@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
-import static com.gabojait.gabojaitspring.common.code.SuccessCode.OFFER_CANCEL_BY_USER;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "제안")
@@ -56,7 +55,7 @@ public class OfferController {
                     "TEAM_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 404 = USER_NOT_FOUND || TEAM_NOT_FOUND\n" +
+                    "- 404 = USER_NOT_FOUND || TEAM_NOT_FOUND || TEAM_LEADER_NOT_FOUND\n" +
                     "- 409 = EXISTING_CURRENT_TEAM || TEAM_POSITION_UNAVAILABLE\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")

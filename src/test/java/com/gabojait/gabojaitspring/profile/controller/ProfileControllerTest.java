@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
