@@ -1,8 +1,8 @@
 package com.gabojait.gabojaitspring.offer.service;
 
-import com.gabojait.gabojaitspring.common.util.FcmProvider;
 import com.gabojait.gabojaitspring.common.util.PageProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.fcm.service.FcmService;
 import com.gabojait.gabojaitspring.offer.domain.Offer;
 import com.gabojait.gabojaitspring.offer.domain.type.OfferedBy;
 import com.gabojait.gabojaitspring.offer.dto.req.OfferCreateReqDto;
@@ -35,11 +35,11 @@ public class OfferService {
     private final UserRepository userRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final PageProvider pageProvider;
-    private final FcmProvider fcmProvider;
+    private final FcmService fcmService;
 
     /**
      * 회원이 팀에 제안 |
-     * 404(TEAM_NOT_FOUND)
+     * 404(TEAM_NOT_FOUND / TEAM_LEADER_NOT_FOUND)
      * 409(EXISTING_CURRENT_TEAM / TEAM_POSITION_UNAVAILABLE)
      * 500(SERVER_ERROR)
      */
@@ -53,7 +53,7 @@ public class OfferService {
         Offer offer = request.toEntity(user, team, OfferedBy.USER);
         saveOffer(offer);
 
-        fcmProvider.sendOfferByUser(offer);
+        fcmService.sendOfferByUser(offer);
     }
 
     /**
@@ -80,7 +80,7 @@ public class OfferService {
         Offer offer = request.toEntity(user, team, OfferedBy.TEAM);
         saveOffer(offer);
 
-        fcmProvider.sendOfferByTeam(offer);
+        fcmService.sendOfferByTeam(offer);
     }
 
     /**
@@ -104,7 +104,7 @@ public class OfferService {
             List<Offer> offers = findAllOfferByUserAndTeam(user, team);
             offers.forEach(Offer::cancel);
 
-            fcmProvider.sendTeamMemberJoin(offer);
+            fcmService.sendTeamMemberJoin(offer);
         } else {
             offer.decline();
         }
@@ -137,7 +137,7 @@ public class OfferService {
             for (Offer o : offers)
                 o.cancel();
 
-            fcmProvider.sendTeamMemberJoin(offer);
+            fcmService.sendTeamMemberJoin(offer);
         } else {
             offer.decline();
         }

@@ -137,6 +137,7 @@ public enum ErrorCode {
     FAVORITE_USER_NOT_FOUND(NOT_FOUND, "존재하지 않는 찜한 회원입니다."),
     CURRENT_TEAM_NOT_FOUND(NOT_FOUND, "현재 팀이 존재하지 않습니다."),
     TEAM_MEMBER_NOT_FOUND(NOT_FOUND, "존재하지 않는 팀원입니다."),
+    TEAM_LEADER_NOT_FOUND(NOT_FOUND, "존재하지 않는 팀리더입니다."),
     OFFER_NOT_FOUND(NOT_FOUND, "존재하지 않는 제안입니다."),
     ADMIN_NOT_FOUND(NOT_FOUND, "존재하지 않는 관리자입니다."),
     TESTER_NOT_FOUND(NOT_FOUND, "존재하지 않는 테스터입니다."),

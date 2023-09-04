@@ -123,10 +123,10 @@ public class Team extends BaseTimeEntity {
             this.managerCnt = 0;
     }
 
-    public void updateIsPositionFull(Position position) {
+    public void updateIsPositionFull(Position position, List<TeamMember> teamMembers) {
         byte cnt = 0;
 
-        for(TeamMember teamMember : this.teamMembers)
+        for(TeamMember teamMember : teamMembers)
             if (position.equals(teamMember.getPosition()))
                 cnt++;
 

@@ -4,6 +4,7 @@ import com.gabojait.gabojaitspring.user.domain.type.Role;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Getter
 @ToString
@@ -40,5 +41,19 @@ public class UserRole {
             this.user.getUserRoles().add(this);
         else
             this.admin.getUserRoles().add(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UserRole)) return false;
+        UserRole userRole = (UserRole) o;
+        return Objects.equals(id, userRole.id)
+                && role == userRole.role;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, role);
     }
 }

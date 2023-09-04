@@ -1,10 +1,10 @@
 package com.gabojait.gabojaitspring.team.service;
 
-import com.gabojait.gabojaitspring.common.util.FcmProvider;
 import com.gabojait.gabojaitspring.common.util.PageProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.favorite.domain.FavoriteTeam;
 import com.gabojait.gabojaitspring.favorite.repository.FavoriteTeamRepository;
+import com.gabojait.gabojaitspring.fcm.service.FcmService;
 import com.gabojait.gabojaitspring.offer.domain.Offer;
 import com.gabojait.gabojaitspring.offer.repository.OfferRepository;
 import com.gabojait.gabojaitspring.profile.domain.type.Position;
@@ -38,7 +38,7 @@ public class TeamService {
     private final OfferRepository offerRepository;
     private final UserRepository userRepository;
     private final PageProvider pageProvider;
-    private final FcmProvider fcmProvider;
+    private final FcmService fcmService;
 
     /**
      * 팀 생성 |
@@ -78,20 +78,20 @@ public class TeamService {
         Map<Position, Byte> teamMemberRecruits = new HashMap<>();
         for(TeamMemberRecruitCntReqDto teamMemberRecruitCnt : request.getTeamMemberRecruitCnts()) {
             Position position = Position.valueOf(teamMemberRecruitCnt.getPosition());
-            
+
             teamMemberRecruits.put(position, teamMemberRecruitCnt.getTotalRecruitCnt());
         }
-
-        validateAllPositionCnt(teamMember.getTeam(), teamMemberRecruits);
-
         Team team = teamMember.getTeam();
+        List<TeamMember> teamMembers = findAllTeamMemberByTeam(team);
+        validateAllPositionCnt(teamMembers, teamMemberRecruits);
+
         team.update(request.getProjectName(),
                 request.getProjectDescription(),
                 request.getExpectation(),
                 request.getOpenChatUrl(),
                 teamMemberRecruits);
 
-        fcmProvider.sendTeamProfileUpdated(team);
+        fcmService.sendTeamProfileUpdated(team);
 
         return team;
     }
@@ -123,11 +123,14 @@ public class TeamService {
         Optional<TeamMember> foundTeamMember = findOneCurrentTeamMember(user);
         TeamMember teamMember = validateHasCurrentTeam(foundTeamMember);
         validateIsLeader(teamMember);
+        Team team = teamMember.getTeam();
+
+        List<TeamMember> teamMembers = findAllTeamMemberByTeam(team);
 
         if (projectUrl.isBlank())
-            incomplete(teamMember.getTeam());
+            incomplete(team, teamMembers);
         else
-            complete(teamMember.getTeam(), projectUrl);
+            complete(team, teamMembers, projectUrl);
     }
 
     /**
@@ -149,7 +152,7 @@ public class TeamService {
 
         teamMember.delete(true);
         teamMember.getUser().updateIsSeekingTeam(true);
-        fcmProvider.sendTeamMemberFired(user, teamMember.getTeam());
+        fcmService.sendTeamMemberFired(user, teamMember.getTeam());
     }
 
     /**
@@ -169,8 +172,9 @@ public class TeamService {
 
         saveTeamMember(teamMember);
         user.updateIsSeekingTeam(false);
+        List<TeamMember> teamMembers = findAllTeamMemberByTeam(team);
 
-        team.updateIsPositionFull(position);
+        team.updateIsPositionFull(position, teamMembers);
     }
 
     /**
@@ -189,16 +193,16 @@ public class TeamService {
 
         teamMember.delete(true);
 
-        fcmProvider.sendTeamMemberQuit(user, team);
+        fcmService.sendTeamMemberQuit(user, team);
     }
 
     /**
      * 팀 저장 |
      * 500(SERVER_ERROR)
      */
-    private Team saveTeam(Team team) {
+    private void saveTeam(Team team) {
         try {
-            return teamRepository.save(team);
+            teamRepository.save(team);
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
@@ -288,10 +292,10 @@ public class TeamService {
      * 404(TEAM_MEMBER_NOT_FOUND)
      */
     private TeamMember findOneTeamMember(User user, Team team) {
-       return teamMemberRepository.findByUserAndTeamAndIsQuitIsFalseAndIsDeletedIsFalse(user, team)
-               .orElseThrow(() -> {
-                   throw new CustomException(TEAM_MEMBER_NOT_FOUND);
-               });
+        return teamMemberRepository.findByUserAndTeamAndIsQuitIsFalseAndIsDeletedIsFalse(user, team)
+                .orElseThrow(() -> {
+                    throw new CustomException(TEAM_MEMBER_NOT_FOUND);
+                });
     }
 
     /**
@@ -323,6 +327,13 @@ public class TeamService {
         } catch (RuntimeException e) {
             throw new CustomException(e, SERVER_ERROR);
         }
+    }
+
+    /**
+     * 팀으로 전체 팀원 조회
+     */
+    private List<TeamMember> findAllTeamMemberByTeam(Team team) {
+        return teamMemberRepository.findAllByTeamAndIsQuitIsFalseAndIsDeletedIsFalse(team);
     }
 
     /**
@@ -368,14 +379,13 @@ public class TeamService {
      * 409(DESIGNER_CNT_UPDATE_UNAVAILABLE / BACKEND_CNT_UPDATE_UNAVAILABLE / FRONTEND_CNT_UPDATE_UNAVAILABLE /
      * MANAGER_CNT_UPDATE_UNAVAILABLE)
      */
-    private void validateAllPositionCnt(Team team,
-                                        Map<Position, Byte> teamMemberRecruits) {
+    private void validateAllPositionCnt(List<TeamMember> teamMembers, Map<Position, Byte> teamMemberRecruits) {
         byte designerCurrentCnt = 0;
         byte backendCurrentCnt = 0;
         byte frontendCurrentCnt = 0;
         byte managerCurrentCnt = 0;
 
-        for (TeamMember teamMember : team.getTeamMembers())
+        for (TeamMember teamMember : teamMembers)
             switch (teamMember.getPosition()) {
                 case DESIGNER:
                     designerCurrentCnt++;
@@ -440,29 +450,29 @@ public class TeamService {
      * 프로젝트 미완료 |
      * 500(SERVER_ERROR)
      */
-    private void incomplete(Team team) {
-        for(TeamMember teamMember : team.getTeamMembers()) {
+    private void incomplete(Team team, List<TeamMember> teamMembers) {
+        for(TeamMember teamMember : teamMembers) {
             teamMember.delete(true);
             teamMember.getUser().updateIsSeekingTeam(true);
         }
 
         team.incomplete();
 
-        fcmProvider.sendTeamIncomplete(team);
+        fcmService.sendTeamIncomplete(team);
     }
 
     /**
      * 프로젝트 완료
      */
-    private void complete(Team team, String projectUrl) {
-        for(TeamMember teamMember : team.getTeamMembers()) {
+    private void complete(Team team, List<TeamMember> teamMembers, String projectUrl) {
+        for(TeamMember teamMember : teamMembers) {
             teamMember.delete(false);
             teamMember.getUser().updateIsSeekingTeam(true);
         }
 
         team.complete(projectUrl);
 
-        fcmProvider.sendTeamComplete(team);
+        fcmService.sendTeamComplete(team);
     }
 
     /**

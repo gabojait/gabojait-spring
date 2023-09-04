@@ -1,8 +1,10 @@
 package com.gabojait.gabojaitspring.develop.service;
 
-import com.gabojait.gabojaitspring.common.util.FcmProvider;
 import com.gabojait.gabojaitspring.common.util.PasswordProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.fcm.domain.Fcm;
+import com.gabojait.gabojaitspring.fcm.repository.FcmRepository;
+import com.gabojait.gabojaitspring.fcm.service.FcmService;
 import com.gabojait.gabojaitspring.profile.domain.Education;
 import com.gabojait.gabojaitspring.profile.domain.Portfolio;
 import com.gabojait.gabojaitspring.profile.domain.Skill;
@@ -53,6 +55,7 @@ public class DevelopService {
     @PersistenceContext
     private final EntityManager entityManager;
 
+    private final FcmService fcmService;
     private final ContactRepository contactRepository;
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
@@ -63,8 +66,8 @@ public class DevelopService {
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final PasswordProvider passwordProvider;
-    private final FcmProvider fcmProvider;
     private final ReviewRepository reviewRepository;
+    private final FcmRepository fcmRepository;
 
     /**
      * 서버명 반환
@@ -126,7 +129,7 @@ public class DevelopService {
         data.put("body", body);
         data.put("time", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
-        fcmProvider.sendOne(user, data);
+        fcmService.sendTest(user, data);
     }
 
     /**

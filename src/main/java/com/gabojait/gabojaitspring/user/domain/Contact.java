@@ -4,6 +4,7 @@ import com.gabojait.gabojaitspring.common.entity.BaseTimeEntity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Getter
 @ToString
@@ -44,5 +45,21 @@ public class Contact extends BaseTimeEntity {
     public void delete() {
         this.email = null;
         this.isDeleted = true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Contact)) return false;
+        Contact contact = (Contact) o;
+        return Objects.equals(id, contact.id)
+                && email.equals(contact.email)
+                && verificationCode.equals(contact.verificationCode)
+                && Objects.equals(isVerified, contact.isVerified);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, email, verificationCode, isVerified);
     }
 }
