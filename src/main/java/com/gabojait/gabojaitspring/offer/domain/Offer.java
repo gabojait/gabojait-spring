@@ -8,6 +8,7 @@ import com.gabojait.gabojaitspring.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Getter
 @ToString
@@ -60,5 +61,23 @@ public class Offer extends BaseTimeEntity {
 
     public void cancel() {
         this.isDeleted = true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Offer)) return false;
+        Offer offer = (Offer) o;
+        return Objects.equals(id, offer.id)
+                && user.equals(offer.user)
+                && team.equals(offer.team)
+                && Objects.equals(isAccepted, offer.isAccepted)
+                && offeredBy == offer.offeredBy
+                && position == offer.position;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, user, team, isAccepted, offeredBy, position);
     }
 }

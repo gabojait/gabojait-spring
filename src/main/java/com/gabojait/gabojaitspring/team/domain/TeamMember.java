@@ -6,6 +6,7 @@ import com.gabojait.gabojaitspring.user.domain.User;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Getter
 @ToString
@@ -49,5 +50,23 @@ public class TeamMember extends BaseTimeEntity {
     public void delete(boolean isQuit) {
         this.isQuit = isQuit;
         this.isDeleted = true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TeamMember)) return false;
+        TeamMember that = (TeamMember) o;
+        return Objects.equals(id, that.id)
+                && user.equals(that.user)
+                && team.equals(that.team)
+                && position == that.position
+                && isLeader.equals(that.isLeader)
+                && isQuit.equals(that.isQuit);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, user, team, position, isLeader, isQuit);
     }
 }
