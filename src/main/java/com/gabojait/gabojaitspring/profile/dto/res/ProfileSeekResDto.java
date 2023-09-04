@@ -22,7 +22,6 @@ public class ProfileSeekResDto extends ProfileAbstractResDto {
     public ProfileSeekResDto(User user, List<Offer> offers) {
         super(user);
 
-        for (Offer offer : offers)
-            this.offers.add(new OfferAbstractResDto(offer));
+        offers.forEach(offer -> this.offers.add(new OfferAbstractResDto(offer)));
     }
 }

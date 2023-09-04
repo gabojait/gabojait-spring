@@ -2,7 +2,6 @@ package com.gabojait.gabojaitspring.user.dto.res;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.gabojait.gabojaitspring.user.domain.Admin;
-import com.gabojait.gabojaitspring.user.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
