@@ -147,7 +147,7 @@ class ProfileControllerTest {
 
         // when
         ResultActions actions = mockMvc.perform(
-                patch("/api/v1/user/seek")
+                patch("/api/v1/user/seeking-team")
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(APPLICATION_JSON)
         );
@@ -170,7 +170,7 @@ class ProfileControllerTest {
 
         // when
         ResultActions actions = mockMvc.perform(
-                patch("/api/v1/user/seek")
+                patch("/api/v1/user/seeking-team")
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(APPLICATION_JSON)
         );

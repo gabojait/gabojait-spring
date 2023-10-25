@@ -217,7 +217,7 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
-    @PatchMapping("/seek")
+    @PatchMapping("/seeking-team")
     public ResponseEntity<DefaultNoResponse> updateIsSeekingTeam(HttpServletRequest servletRequest,
                                                                  @RequestBody @Valid
                                                                  ProfileIsSeekRequest request) {
