@@ -1,18 +1,20 @@
 package com.gabojait.gabojaitspring.config;
 
 import com.fasterxml.classmate.TypeResolver;
-import com.gabojait.gabojaitspring.user.dto.res.AdminAbstractResDto;
-import com.gabojait.gabojaitspring.user.dto.res.AdminDefaultResDto;
-import com.gabojait.gabojaitspring.common.dto.DefaultMultiResDto;
-import com.gabojait.gabojaitspring.common.dto.DefaultNoResDto;
-import com.gabojait.gabojaitspring.common.dto.DefaultSingleResDto;
-import com.gabojait.gabojaitspring.common.dto.ExceptionResDto;
-import com.gabojait.gabojaitspring.offer.dto.res.OfferDefaultResDto;
-import com.gabojait.gabojaitspring.profile.dto.res.*;
-import com.gabojait.gabojaitspring.review.dto.res.ReviewDefaultResDto;
-import com.gabojait.gabojaitspring.team.dto.res.*;
-import com.gabojait.gabojaitspring.user.dto.res.ContactDefaultResDto;
-import com.gabojait.gabojaitspring.user.dto.res.UserDefaultResDto;
+import com.gabojait.gabojaitspring.api.dto.common.response.*;
+import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteTeamResponse;
+import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteUserResponse;
+import com.gabojait.gabojaitspring.api.dto.notification.response.NotificationDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.offer.response.OfferAbstractResponse;
+import com.gabojait.gabojaitspring.api.dto.offer.response.OfferDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.profile.response.*;
+import com.gabojait.gabojaitspring.api.dto.review.response.ReviewDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.team.response.TeamAbstractResponse;
+import com.gabojait.gabojaitspring.api.dto.team.response.TeamDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.team.response.TeamMemberDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.team.response.TeamOfferFavoriteResponse;
+import com.gabojait.gabojaitspring.api.dto.user.response.ContactDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.user.response.UserDefaultResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +39,48 @@ import java.util.List;
 @EnableWebMvc
 public class SwaggerConfig {
 
+    @Bean
+    public Docket api() {
+        TypeResolver typeResolver = new TypeResolver();
+
+        return new Docket(DocumentationType.SWAGGER_2)
+                .additionalModels(typeResolver.resolve(DefaultNoResponse.class))
+                .additionalModels(typeResolver.resolve(DefaultSingleResponse.class))
+                .additionalModels(typeResolver.resolve(DefaultMultiResponse.class))
+                .additionalModels(typeResolver.resolve(PageData.class))
+                .additionalModels(typeResolver.resolve(ExceptionResponse.class))
+                .additionalModels(typeResolver.resolve(ContactDefaultResponse.class))
+                .additionalModels(typeResolver.resolve(UserDefaultResponse.class))
+                .additionalModels(typeResolver.resolve(EducationDefaultResponse.class))
+                .additionalModels(typeResolver.resolve(PortfolioDefaultResponse.class))
+                .additionalModels(typeResolver.resolve(PortfolioUrlResponse.class))
+                .additionalModels(typeResolver.resolve(SkillDefaultResponse.class))
+                .additionalModels(typeResolver.resolve(WorkDefaultResponse.class))
+                .additionalModels(typeResolver.resolve(ProfileAbstractResponse.class))
+                .additionalModels(typeResolver.resolve(ProfileDefaultResponse.class))
+                .additionalModels(typeResolver.resolve(ProfileDetailResponse.class))
+                .additionalModels(typeResolver.resolve(ProfileOfferResponse.class))
+                .additionalModels(typeResolver.resolve(TeamAbstractResponse.class))
+                .additionalModels(typeResolver.resolve(TeamDefaultResponse.class))
+                .additionalModels(typeResolver.resolve(TeamOfferFavoriteResponse.class))
+                .additionalModels(typeResolver.resolve(TeamMemberDefaultResponse.class))
+                .additionalModels(typeResolver.resolve(ReviewDefaultResponse.class))
+                .additionalModels(typeResolver.resolve(OfferAbstractResponse.class))
+                .additionalModels(typeResolver.resolve(OfferDefaultResponse.class))
+                .additionalModels(typeResolver.resolve(NotificationDefaultResponse.class))
+                .additionalModels(typeResolver.resolve(FavoriteTeamResponse.class))
+                .additionalModels(typeResolver.resolve(FavoriteUserResponse.class))
+                .useDefaultResponseMessages(false)
+                .apiInfo(apiInfo())
+                .securityContexts(Collections.singletonList(securityContext()))
+                .securitySchemes(List.of(accessToken(), refreshToken()))
+                .select()
+                .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
+                .paths(PathSelectors.any())
+                .build();
+    }
+
+
     private ApiKey accessToken() {
         return new ApiKey("access token", "Authorization", "header");
     }
@@ -58,45 +102,6 @@ public class SwaggerConfig {
                 new SecurityReference("refresh token", authorizationScopes)
         };
         return List.of(references);
-    }
-
-    @Bean
-    public Docket api() {
-        TypeResolver typeResolver = new TypeResolver();
-
-        return new Docket(DocumentationType.SWAGGER_2)
-                .additionalModels(typeResolver.resolve(DefaultNoResDto.class))
-                .additionalModels(typeResolver.resolve(DefaultSingleResDto.class))
-                .additionalModels(typeResolver.resolve(DefaultMultiResDto.class))
-                .additionalModels(typeResolver.resolve(ExceptionResDto.class))
-                .additionalModels(typeResolver.resolve(ContactDefaultResDto.class))
-                .additionalModels(typeResolver.resolve(UserDefaultResDto.class))
-                .additionalModels(typeResolver.resolve(ProfileAbstractResDto.class))
-                .additionalModels(typeResolver.resolve(ProfileDefaultResDto.class))
-                .additionalModels(typeResolver.resolve(ProfileOfferAndFavoriteResDto.class))
-                .additionalModels(typeResolver.resolve(PortfolioUrlResDto.class))
-                .additionalModels(typeResolver.resolve(ProfileSeekResDto.class))
-                .additionalModels(typeResolver.resolve(EducationDefaultResDto.class))
-                .additionalModels(typeResolver.resolve(PortfolioDefaultResDto.class))
-                .additionalModels(typeResolver.resolve(SkillDefaultResDto.class))
-                .additionalModels(typeResolver.resolve(WorkDefaultResDto.class))
-                .additionalModels(typeResolver.resolve(TeamAbstractResDto.class))
-                .additionalModels(typeResolver.resolve(TeamDefaultResDto.class))
-                .additionalModels(typeResolver.resolve(TeamOfferAndFavoriteResDto.class))
-                .additionalModels(typeResolver.resolve(TeamMemberPositionResDto.class))
-                .additionalModels(typeResolver.resolve(TeamMemberCntResDto.class))
-                .additionalModels(typeResolver.resolve(OfferDefaultResDto.class))
-                .additionalModels(typeResolver.resolve(ReviewDefaultResDto.class))
-                .additionalModels(typeResolver.resolve(AdminAbstractResDto.class))
-                .additionalModels(typeResolver.resolve(AdminDefaultResDto.class))
-                .useDefaultResponseMessages(false)
-                .apiInfo(apiInfo())
-                .securityContexts(Collections.singletonList(securityContext()))
-                .securitySchemes(List.of(accessToken(), refreshToken()))
-                .select()
-                .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
-                .paths(PathSelectors.any())
-                .build();
     }
 
     private ApiInfo apiInfo() {

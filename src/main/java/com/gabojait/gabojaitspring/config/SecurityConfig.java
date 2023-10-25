@@ -2,6 +2,8 @@ package com.gabojait.gabojaitspring.config;
 
 import com.gabojait.gabojaitspring.auth.CustomAuthenticationEntryPoint;
 import com.gabojait.gabojaitspring.auth.CustomAuthenticationFilter;
+import com.gabojait.gabojaitspring.domain.user.Role;
+import com.gabojait.gabojaitspring.domain.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,7 +39,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
+                .csrf()
+                .disable()
                 .cors()
                 .and()
                 .sessionManagement()
@@ -46,15 +49,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET,
                         "/swagger-resources/**", "/v2/api-docs", "/api/**/docs/**/**",
-                        "/docs/**", "/api/**/health", "/api/**/monitor", "/api/**/user/username", "/api/**/user/nickname",
-                        "/api/**/test/user/**")
+                        "/docs/**", "/api/**/health", "/api/**/monitor", "/api/**/user/username",
+                        "/api/**/user/nickname", "/api/**/test/user/**")
                 .permitAll()
                 .antMatchers(HttpMethod.POST,
                         "/api/**/contact", "/api/**/user", "/api/**/user/login", "/api/**/user/username",
-                        "/api/**/user/password", "/api/**/admin", "/api/**/admin/login")
+                        "/api/**/user/password", "/api/**/admin")
+                .permitAll()
+                .antMatchers(HttpMethod.PATCH, "/api/**/contact")
                 .permitAll()
                 .antMatchers(HttpMethod.DELETE, "/api/**/test")
                 .permitAll()
+                .antMatchers("/api/**/master", "/api/**/master/**", "/api/**/master/**/**",
+                        "/api/**/master/**/**/**")
+                .hasAuthority(Role.MASTER.name())
+                .antMatchers("/api/**/admin", "/api/**/admin/**", "/api/**/admin/**/**",
+                        "/api/**/admin/**/**/**")
+                .hasAuthority(Role.ADMIN.name())
+                .antMatchers("/api/**/user", "/api/**/user/**", "/api/**/user/**/**",
+                        "/api/**/user/**/**/**", "/api/**/team", "/api/**/team/**", "/api/**/team/**/**",
+                        "/api/**/team/**/**/**")
+                .hasAuthority(Role.USER.name())
                 .anyRequest()
                 .authenticated()
                 .and()

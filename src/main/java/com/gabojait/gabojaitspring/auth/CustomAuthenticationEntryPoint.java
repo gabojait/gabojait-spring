@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gabojait.gabojaitspring.common.dto.ExceptionResDto;
+import com.gabojait.gabojaitspring.api.dto.common.response.ExceptionResponse;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,7 +31,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setContentType("application/json");
 
         try {
-            String responseBody = objectMapper.writeValueAsString(ExceptionResDto.builder()
+            String responseBody = objectMapper.writeValueAsString(ExceptionResponse.builder()
                     .responseCode(TOKEN_UNAUTHENTICATED.name())
                     .responseMessage(TOKEN_UNAUTHENTICATED.getMessage())
                     .build());
@@ -40,7 +40,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             outputStream.write(responseBody.getBytes());
             outputStream.flush();
         } catch (IOException e) {
-            throw new CustomException(e, SERVER_ERROR);
+            throw new CustomException(SERVER_ERROR, e.getCause());
         }
     }
 }

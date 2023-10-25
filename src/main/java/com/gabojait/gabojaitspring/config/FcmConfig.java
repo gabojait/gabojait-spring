@@ -61,7 +61,7 @@ public class FcmConfig {
 
             return FirebaseApp.initializeApp(firebaseOptions);
         } catch (IOException e) {
-            throw new CustomException(e, SERVER_ERROR);
+            throw new CustomException(SERVER_ERROR, e.getCause());
         }
     }
 }

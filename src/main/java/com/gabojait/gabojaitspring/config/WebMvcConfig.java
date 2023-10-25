@@ -1,6 +1,6 @@
 package com.gabojait.gabojaitspring.config;
 
-import com.gabojait.gabojaitspring.log.InterceptorLogging;
+import com.gabojait.gabojaitspring.common.log.InterceptorLogging;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
