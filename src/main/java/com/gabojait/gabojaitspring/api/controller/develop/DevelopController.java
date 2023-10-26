@@ -41,6 +41,7 @@ public class DevelopController {
     @ApiOperation(value = "헬스 체크",
             notes = "<응답 코드>\n" +
                     "- 200 = SERVER_OK\n" +
+                    "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
@@ -84,7 +85,7 @@ public class DevelopController {
     })
     @DeleteMapping("/test")
     public ResponseEntity<DefaultNoResponse> resetAndInjectTest() {
-        developService.reset();
+        developService.resetAndInject();
 
         return ResponseEntity.status(DATABASE_RESET.getHttpStatus())
                 .body(DefaultNoResponse.noDataBuilder()
@@ -98,7 +99,7 @@ public class DevelopController {
                     "- tester-id = 1 ~ 100\n\n" +
                     "<응답 코드>\n" +
                     "- 200 = TESTER_TOKEN_ISSUED\n" +
-                    "- 400 = TESTER_ID_FIELD_REQUIRED || TESTER_ID_POSITIVE_ONLY\n" +
+                    "- 400 = TESTER_ID_POSITIVE_ONLY\n" +
                     "- 404 = TESTER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION\n")
@@ -113,12 +114,15 @@ public class DevelopController {
     public ResponseEntity<DefaultNoResponse> testDataToken(
             @PathVariable(value = "tester-id")
             @Positive(message = "테스터 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-            Integer testerId
+            Long testerId
     ) {
+        System.out.println("===== 1 ====="); ///
         UserDefaultResponse response = developService.findTester(testerId);
 
+        System.out.println("===== 2 ====="); ///
         HttpHeaders headers = jwtProvider.createJwt(response.getUsername());
 
+        System.out.println("===== 3 ====="); ///
         return ResponseEntity.status(TESTER_TOKEN_ISSUED.getHttpStatus())
                 .headers(headers)
                 .body(DefaultNoResponse.noDataBuilder()

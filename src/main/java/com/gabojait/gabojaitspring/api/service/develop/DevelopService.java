@@ -36,15 +36,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.SERVER_ERROR;
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class DevelopService {
 
     @Value("${api.name}")
@@ -69,20 +66,29 @@ public class DevelopService {
     private final FavoriteRepository favoriteRepository;
 
     /**
-     * 서버명 반환
+     * 서버명 조회
      * @return 서버명
      */
     public String getServerName() {
         return serverName;
     }
 
+    /**
+     * 테스트 회원 조회
+     * @param testerId 테스터 식별자
+     * @return 회원 기본 응답
+     */
     public UserDefaultResponse findTester(long testerId) {
         User user = findUser("tester" + testerId);
 
         return new UserDefaultResponse(user);
     }
 
-    public void reset() {
+    /**
+     * 데이터베이스 초기화 및 테스트 데이터 주입
+     */
+    @Transactional
+    public void resetAndInject() {
         resetDatabase();
 
         List<Contact> contacts = injectContacts();
@@ -93,8 +99,12 @@ public class DevelopService {
         injectCurrentTeams(users);
     }
 
-//    @Transactional
-    private List<Contact> injectContacts() {
+    /**
+     * 테스트 연락처 데이터 주입
+     * @return 테스트 연락처들
+     */
+    @Transactional
+    public List<Contact> injectContacts() {
         List<Contact> contacts = new ArrayList<>();
         for (int i = 1; i <= 100; i++) {
             Contact contact = Contact.builder()
@@ -110,8 +120,13 @@ public class DevelopService {
         return contacts;
     }
 
-//    @Transactional
-    private List<User> injectUsers(List<Contact> contacts) {
+    /**
+     * 테스트 회원 데이터 주입
+     * @param contacts 테스트 연락처들
+     * @return 테스트 회원들
+     */
+    @Transactional
+    public List<User> injectUsers(List<Contact> contacts) {
         List<User> users = new ArrayList<>();
         for (int i = 0; i < contacts.size(); i++) {
             User user = User.builder()
@@ -131,8 +146,12 @@ public class DevelopService {
         return users;
     }
 
-//    @Transactional
-    private void injectUserRoles(List<User> users) {
+    /**
+     * 테스트 회원 권환 데이터 주입
+     * @param users 테스트 회원들
+     */
+    @Transactional
+    public void injectUserRoles(List<User> users) {
         users.forEach(user -> {
             UserRole userRole = UserRole.builder()
                     .user(user)
@@ -142,8 +161,12 @@ public class DevelopService {
         });
     }
 
-//    @Transactional
-    private void injectProfiles(List<User> users) {
+    /**
+     * 테스트 프로필 데이터 주입
+     * @param users 테스트 회원들
+     */
+    @Transactional
+    public void injectProfiles(List<User> users) {
         for (int i = 0; i < users.size(); i++) {
             Position position = Position.NONE;
 
@@ -200,8 +223,12 @@ public class DevelopService {
         }
     }
 
-//    @Transactional
-    private void injectCompleteTeams(List<User> users) {
+    /**
+     * 테스트 완료한 팀 데이터 주입
+     * @param users 테스트 회원들
+     */
+    @Transactional
+    public void injectCompleteTeams(List<User> users) {
         List<TeamMember> teamMembers = new ArrayList<>();
         for (int i = 0; i < 25; i += 5) {
             Team team = Team.builder()
@@ -236,7 +263,6 @@ public class DevelopService {
                 for (int k = i; k < i + 5; k++) {
                     if (j == k) continue;
 
-                    System.out.println("REVIEW j=" + j + ", k=" + k + "|size=" + teamMembers.size());
                     Review review = Review.builder()
                             .reviewee(teamMembers.get(j))
                             .reviewer(teamMembers.get(k))
@@ -248,8 +274,12 @@ public class DevelopService {
         }
     }
 
-//    @Transactional
-    private void injectCurrentTeams(List<User> users) {
+    /**
+     * 테스트 현재 팀 데이터 주입
+     * @param users 테스트 회원들
+     */
+    @Transactional
+    public void injectCurrentTeams(List<User> users) {
         for (int i = 0; i < 50; i++) {
             Team team = Team.builder()
                     .projectName("가보자잇" + (i + 1))
@@ -273,8 +303,11 @@ public class DevelopService {
         }
     }
 
-//    @Transactional
-    private void resetDatabase() {
+    /**
+     * 데이터베이스 초기
+     */
+    @Transactional
+    public void resetDatabase() {
         entityManager.createNativeQuery("DELETE FROM favorite").executeUpdate();
         entityManager.createNativeQuery("DELETE FROM fcm").executeUpdate();
         entityManager.createNativeQuery("DELETE FROM notification").executeUpdate();
