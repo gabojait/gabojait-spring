@@ -116,13 +116,10 @@ public class DevelopController {
             @Positive(message = "테스터 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long testerId
     ) {
-        System.out.println("===== 1 ====="); ///
         UserDefaultResponse response = developService.findTester(testerId);
 
-        System.out.println("===== 2 ====="); ///
         HttpHeaders headers = jwtProvider.createJwt(response.getUsername());
 
-        System.out.println("===== 3 ====="); ///
         return ResponseEntity.status(TESTER_TOKEN_ISSUED.getHttpStatus())
                 .headers(headers)
                 .body(DefaultNoResponse.noDataBuilder()
