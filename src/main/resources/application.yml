@@ -148,11 +148,6 @@ logging:
   file:
     name: gabojait-rolling.log
 
-springfox:
-  documentation:
-    swagger-ui:
-      base-url: ${SWAGGER_BASE_URL}
-
 firebase:
   project:
     id: ${FIREBASE_PROJECT_ID}
