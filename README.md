@@ -33,10 +33,10 @@ Play Store:
 ---
 
 ## Link
-- ### [API Status Page](https://uptime-kuma.nogamsung.com/status/gabojait)
-- ### [Test API Swagger](https://gabojait-dev.nogamsung.com/api/v1/docs/swagger-ui/index.html)
-- ### [Load Test Result](docs/LoadTestResult.md)
-- ### [Client Repository](https://github.com/gabojait/gabojait-react-native)
+- ### [API 상태](https://uptime-kuma.nogamsung.com/status/gabojait)
+- ### [테스트 API Swagger](https://gabojait-dev.nogamsung.com/api/v1/docs/swagger-ui/index.html)
+- ### [테스트 결과](docs/breakpoint-test.md)
+- ### [클라이언트 Repository](https://github.com/gabojait/gabojait-react-native)
 
 ---
 
