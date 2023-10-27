@@ -23,6 +23,7 @@ spring:
       ddl-auto: create
     properties:
       hibernate:
+        default_batch_fetch_size: 100
         show_sql: false
         format_sql: true
         highlight_sql: true
@@ -119,6 +120,7 @@ spring:
       ddl-auto: create
     properties:
       hibernate:
+        default_batch_fetch_size: 100
         show_sql: false
         format_sql: true
         highlight_sql: true
@@ -210,6 +212,7 @@ spring:
       ddl-auto: ${DB_DDL}
     properties:
       hibernate:
+        default_batch_fetch_size: 100
         show_sql: false
         format_sql: true
         highlight_sql: true
@@ -306,6 +309,7 @@ spring:
       ddl-auto: ${DB_DDL}
     properties:
       hibernate:
+        default_batch_fetch_size: 100
         show_sql: false
         format_sql: true
         highlight_sql: true
