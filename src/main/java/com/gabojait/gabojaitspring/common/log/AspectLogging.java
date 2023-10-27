@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 @Slf4j
 @Aspect
@@ -28,15 +29,22 @@ public class AspectLogging {
         final MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         final String className = signature.getDeclaringType().getSimpleName();
         final Method method = signature.getMethod();
+        final Parameter[] parameterNames = method.getParameters();
+        final Object[] arguments = joinPoint.getArgs();
+        final int paramLength = Math.min(parameterNames.length, arguments.length);
         final String uuid = InterceptorLogging.getRequestId() == null ? "SYSTEM" : InterceptorLogging.getRequestId();
 
-        StringBuilder argsLog = new StringBuilder();
-        for (Object arg : joinPoint.getArgs()) {
-            if (arg != null) argsLog.append(arg);
-            else argsLog.append("null");
+        StringBuilder param = new StringBuilder();
+        for (int i = 0; i < paramLength; i++) {
+            param.append(parameterNames[i].getName()).append("=");
+
+            if (arguments[i] != null) param.append(arguments[i]);
+            else param.append("null");
+
+            if (i != parameterNames.length - 1) param.append(", ");
         }
 
-        log.info("[{} | BEFORE] {} | {} ({})", uuid, className, method.getName(), argsLog);
+        log.info("[{} | BEFORE] {} | {} ({})", uuid, className, method.getName(), param);
     }
 
     @AfterReturning(value = "global()", returning = "result")
