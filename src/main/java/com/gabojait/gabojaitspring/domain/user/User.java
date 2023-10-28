@@ -169,13 +169,13 @@ public class User extends BaseEntity implements UserDetails {
     }
 
     @Override
-    public String getPassword() {
-        return this.password;
+    public String getUsername() {
+        return this.username;
     }
 
     @Override
-    public String getUsername() {
-        return this.username;
+    public String getPassword() {
+        return this.password;
     }
 
     @Override
