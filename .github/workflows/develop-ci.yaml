@@ -2,9 +2,15 @@ name: Develop - CI
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "master" ]
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
   pull_request:
-    branches: [ "develop" ]
+    branches: [ "master" ]
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
 
 jobs:
   build:
@@ -50,6 +56,29 @@ jobs:
           S3_REGION: ${{ secrets.S3_REGION }}
           S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
           SWAGGER_BASE_URL: ${{ secrets.SWAGGER_BASE_URL }}
+
+      - name: JaCoCo Code Coverage Report
+        id: jacoco_reporter
+        uses: PavanMudigonda/jacoco-reporter@v4.8
+        with:
+          coverage_results_path: gabojait-spring/build/reports/jacoco/test/jacocoTestReport.xml
+          coverage_report_name: Coverage
+          coverage_report_title: JaCoCo
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_check_run: false
+          minimum_coverage: 80
+          fail_below_threshold: true
+          publish_only_summary: true
+
+      - name: Add Coverage Job Summary
+        run: echo "${{ steps.jacoco_reporter.outputs.coverageSummary }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Code Coverage Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: code-coverage-report-markdown
+          path: */coverage-results.md
+          retention-days: 1
 
       - name: Build and push Docker image
         uses: mr-smithers-excellent/docker-build-push@v5
