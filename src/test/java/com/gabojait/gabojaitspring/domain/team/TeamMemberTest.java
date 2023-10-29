@@ -214,6 +214,20 @@ class TeamMemberTest {
         assertEquals((byte) 1, team.getBackendCurrentCnt());
     }
 
+    @Test
+    @DisplayName("같은 객체인 팀원을 비교하면 동일하다.")
+    void givenEqualInstance_whenEquals_thenReturn() {
+        // given
+        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
+                (byte) 2, (byte) 2);
+
+        // when
+        boolean result = team.equals(team);
+
+        // then
+        assertThat(result).isTrue();
+    }
+
     private TeamMember createTeamMember(Position position, boolean isLeader, User user, Team team) {
         return TeamMember.builder()
                 .position(position)
