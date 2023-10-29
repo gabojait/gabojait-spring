@@ -76,9 +76,9 @@ jobs:
       - name: Upload Code Coverage Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: code-coverage-report-markdown
-          path: docs/coverage.md
-          retention-days: 1
+          name: code-coverage-report-html
+          path: build/reports/jacoco/test/html
+          retention-days: 90
 
       - name: Build and Push Docker image
         uses: mr-smithers-excellent/docker-build-push@v5
