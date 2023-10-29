@@ -12,6 +12,13 @@ import static org.springframework.http.HttpStatus.OK;
 public enum SuccessCode {
 
     /**
+     * Notification Controller
+     */
+    // 200 Ok
+    NOTIFICATIONS_FOUND(OK, "알림 다건 조회를 했습니다."),
+    NOTIFICATION_READ(OK, "알림을 읽음 처리 했습니다."),
+
+    /**
      * Review controller
      */
     // 200 Ok
@@ -51,8 +58,8 @@ public enum SuccessCode {
     FAVORITE_USERS_FOUND(OK, "찜한 회원 다건 조회를 했습니다."),
 
     // 201 Created
-    FAVORITE_TEAM_ADDED(OK, "찜 목록에 팀을 추가하였습니다."),
-    FAVORITE_USER_ADDED(OK, "찜 목록에 회원을 추가하였습니다."),
+    FAVORITE_TEAM_ADDED(CREATED, "찜 목록에 팀을 추가하였습니다."),
+    FAVORITE_USER_ADDED(CREATED, "찜 목록에 회원을 추가하였습니다."),
 
     /**
      * Team controller
@@ -136,7 +143,7 @@ public enum SuccessCode {
     SERVER_OK(OK, "헬스 체크를 했습니다."),
     TESTER_TOKEN_ISSUED(OK, "테스트 계정 토큰을 발급 했습니다."),
     TEST_FCM_SENT(OK, "테스트 FCM을 보냈습니다."),
-    TEST_DATA_INJECTED(OK, "데이터베이스 초기화 후 테스트 데이터를 주입했습니다.");
+    DATABASE_RESET(OK, "데이터베이스 초기화 후 테스트 데이터를 주입했습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

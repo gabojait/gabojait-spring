@@ -21,5 +21,4 @@ public class AsyncConfig extends AsyncConfigurerSupport {
         executor.initialize();
         return executor;
     }
-
 }

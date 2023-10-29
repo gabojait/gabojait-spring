@@ -35,20 +35,23 @@ public enum ErrorCode {
     PORTFOLIO_URL_FIELD_REQUIRED(BAD_REQUEST, "포트폴리오 URL은 필수 입력입니다."),
     MEDIA_FIELD_REQUIRED(BAD_REQUEST, "미디어는 필수 입력입니다."),
     PAGE_FROM_FIELD_REQUIRED(BAD_REQUEST, "페이지 시작점은 필수 입력입니다."),
-    TEAM_ID_FIELD_REQUIRED(BAD_REQUEST, "팀 식별자는 필수 입력입니다."),
     PROJECT_NAME_FIELD_REQUIRED(BAD_REQUEST, "프로젝트명는 필수 입력입니다."),
     PROJECT_DESCRIPTION_FIELD_REQUIRED(BAD_REQUEST, "프로젝트 설명은 필수 입력입니다."),
-    TOTAL_RECRUIT_CNT_FIELD_REQUIRED(BAD_REQUEST, "팀원 수는 필수 입력입니다."),
     EXPECTATION_FIELD_REQUIRED(BAD_REQUEST, "바라는 점은 필수 입력입니다."),
     OPEN_CHAT_URL_FIELD_REQUIRED(BAD_REQUEST, "오픈 채팅 URL은 필수 입력입니다."),
+    DESIGNER_MAX_CNT_FIELD_REQUIRED(BAD_REQUEST, "디자이너 최대 수는 필수 입력입니다."),
+    BACKEND_MAX_CNT_FIELD_REQUIRED(BAD_REQUEST, "백엔드 최대 수는 필수 입력입니다."),
+    FRONTEND_MAX_CNT_FIELD_REQUIRED(BAD_REQUEST, "프런트 최대 수는 필수 입력입니다."),
+    MANAGER_MAX_CNT_FIELD_REQUIRED(BAD_REQUEST, "매니저 최대 수는 필수 입력입니다."),
     IS_RECRUITING_FIELD_REQUIRED(BAD_REQUEST, "팀원 모집 여부는 필수 입력입니다."),
     PROJECT_URL_FIELD_REQUIRED(BAD_REQUEST, "완료된 프로젝트 URL은 필수 입력입니다."),
     IS_ADD_FAVORITE_FIELD_REQUIRED(BAD_REQUEST, "찜 추가 여부는 필수 입력입니다."),
     IS_ACCEPTED_FIELD_REQUIRED(BAD_REQUEST, "수락 여부는 필수 입력입니다."),
-    REVIEWEE_ID_FIELD_REQUIRED(BAD_REQUEST, "리뷰 대상자 식별자는 필수 입력입니다."),
-    RATE_FIELD_REQUIRED(BAD_REQUEST, "평점은 필수 입력입니다."),
+    TEAM_MEMBER_ID_FIELD_REQUIRED(BAD_REQUEST, "팀원 식별자는 필수 입력입니다."),
+    RATING_FIELD_REQUIRED(BAD_REQUEST, "평점은 필수 입력입니다."),
     POST_FIELD_REQUIRED(BAD_REQUEST, "후기는 필수 입력입니다."),
     OFFER_ID_FIELD_REQUIRED(BAD_REQUEST, "제안 식별자는 필수 입력입니다."),
+    OFFER_POSITION_FIELD_REQUIRED(BAD_REQUEST, "제안할 포지션은 필수 입력입니다."),
     BIRTHDATE_FIELD_REQUIRED(BAD_REQUEST, "생년월일은 필수 입력입니다."),
     IS_APPROVED_FIELD_REQUIRED(BAD_REQUEST, "승인 여부는 필수 입력입니다."),
     IS_NOTIFIED_FIELD_REQUIRED(BAD_REQUEST, "알림 여부는 필수 입력입니다."),
@@ -72,7 +75,7 @@ public enum ErrorCode {
     PROJECT_NAME_LENGTH_INVALID(BAD_REQUEST, "프로젝트명은 1~20자만 가능합니다."),
     PROJECT_DESCRIPTION_LENGTH_INVALID(BAD_REQUEST, "프로젝트 설명은 1~500자만 가능합니다."),
     EXPECTATION_LENGTH_INVALID(BAD_REQUEST, "바라는 점은 1~200자만 가능합니다."),
-    OPEN_CHAT_URL_LENGTH_INVALID(BAD_REQUEST, "오픈 채팅 URL집 25~100자만 가능합니다."),
+    OPEN_CHAT_URL_LENGTH_INVALID(BAD_REQUEST, "오픈 채팅 URL은 25~100자만 가능합니다."),
     POST_LENGTH_INVALID(BAD_REQUEST, "후기는 1~200자만 가능합니다."),
     LEGAL_NAME_LENGTH_INVALID(BAD_REQUEST, "실명은 1~5자만 가능합니다."),
 
@@ -84,24 +87,31 @@ public enum ErrorCode {
     NICKNAME_FORMAT_INVALID(BAD_REQUEST, "닉네임은 한글 조합으로 입력해 주세요."),
     OPEN_CHAT_URL_FORMAT_INVALID(BAD_REQUEST, "오픈 채팅 URL은 카카오 오픈 채팅 형식만 가능합니다."),
 
-    // @Patter - type
+    // @Pattern - type
     GENDER_TYPE_INVALID(BAD_REQUEST, "성별은 'M', 'F', 또는 'N' 중 하나여야 됩니다."),
     POSITION_TYPE_INVALID(BAD_REQUEST, "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다."),
+    OFFER_POSITION_TYPE_INVALID(BAD_REQUEST, "제안할 포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 또는 'MANAGER' 중 하나여야 됩니다."),
     LEVEL_TYPE_INVALID(BAD_REQUEST, "레벨은 'LOW', 'MID', 또는 'HIGH' 중 하나여야 됩니다."),
     MEDIA_TYPE_INVALID(BAD_REQUEST, "미디어는 'LINK' 또는 'FILE' 중 하나여야 됩니다."),
-
-    // @Range
-    RATE_RANGE_INVALID(BAD_REQUEST, "평점은 1부터 5까지의 수만 가능합니다."),
 
     // @Positive, @PositiveOrZero
     USER_ID_POSITIVE_ONLY(BAD_REQUEST, "회원 식별자는 양수만 가능합니다."),
     TEAM_ID_POSITIVE_ONLY(BAD_REQUEST, "팀 식별자는 양수만 가능합니다."),
-    PAGE_FROM_POSITIVE_OR_ZERO_ONLY(BAD_REQUEST, "페이지 시작점은 0 또는 양수만 가능합니다."),
+    PAGE_FROM_POSITIVE_ONLY(BAD_REQUEST, "페이지 시작점은 양수만 가능합니다."),
     PAGE_SIZE_POSITIVE_ONLY(BAD_REQUEST, "페이지 사이즈는 양수만 가능합니다."),
-    TOTAL_RECRUIT_CNT_POSITIVE_OR_ZERO_ONLY(BAD_REQUEST, "팀원 수는 0 또는 양수만 가능합니다."),
+    DESIGNER_MAX_CNT_POSITIVE_OR_ZERO_ONLY(BAD_REQUEST, "디자이너 최대 수는 0 또는 양수만 가능합니다."),
+    BACKEND_MAX_CNT_POSITIVE_OR_ZERO_ONLY(BAD_REQUEST, "백엔드 최대 수는 0 또는 양수만 가능합니다."),
+    FRONTEND_MAX_CNT_POSITIVE_OR_ZERO_ONLY(BAD_REQUEST, "프런트 최대 수는 0 또는 양수만 가능합니다."),
+    MANAGER_MAX_CNT_POSITIVE_OR_ZERO_ONLY(BAD_REQUEST, "매니저 최대 수는 0 또는 양수만 가능합니다."),
+    TEAM_MEMBER_ID_POSITIVE_ONLY(BAD_REQUEST, "팀원 식별자는 양수만 가능합니다."),
     OFFER_ID_POSITIVE_ONLY(BAD_REQUEST, "제안 식별자는 양수만 가능합니다."),
+    NOTIFICATION_ID_POSITIVE_ONLY(BAD_REQUEST, "알림 식별자는 양수만 가능합니다."),
     ADMIN_ID_POSITIVE_ONLY(BAD_REQUEST, "관리자 식별자는 양수만 가능합니다."),
     TESTER_ID_POSITIVE_ONLY(BAD_REQUEST, "테스터 식별자는 양수만 가능합니다."),
+
+    // @Min, @Max
+    RATING_RANGE_INVALID(BAD_REQUEST, "평점은 1부터 5까지의 수만 가능합니다."),
+    PAGE_SIZE_RANGE_INVALID(BAD_REQUEST, "페이지 사이즈는 100까지의 수만 가능합니다."),
 
     // Custom
     VERIFICATION_CODE_INVALID(BAD_REQUEST, "인증코드가 틀렸습니다."),
@@ -132,12 +142,13 @@ public enum ErrorCode {
     EMAIL_NOT_FOUND(NOT_FOUND, "이메일 인증하기를 해주세요."),
     CONTACT_NOT_FOUND(NOT_FOUND, "존재하지 않는 연락처입니다."),
     USER_NOT_FOUND(NOT_FOUND, "존재하지 않는 회원입니다."),
+    USER_ROLE_NOT_FOUND(NOT_FOUND, "존재하지 않는 회원 권한입니다."),
     TEAM_NOT_FOUND(NOT_FOUND, "존재하지 않는 팀입니다."),
     FAVORITE_TEAM_NOT_FOUND(NOT_FOUND, "존재하지 않는 찜한 팀입니다."),
     FAVORITE_USER_NOT_FOUND(NOT_FOUND, "존재하지 않는 찜한 회원입니다."),
     CURRENT_TEAM_NOT_FOUND(NOT_FOUND, "현재 팀이 존재하지 않습니다."),
     TEAM_MEMBER_NOT_FOUND(NOT_FOUND, "존재하지 않는 팀원입니다."),
-    TEAM_LEADER_NOT_FOUND(NOT_FOUND, "존재하지 않는 팀리더입니다."),
+    TEAM_LEADER_NOT_FOUND(NOT_FOUND, "존재하지 않는 팀장입니다."),
     OFFER_NOT_FOUND(NOT_FOUND, "존재하지 않는 제안입니다."),
     ADMIN_NOT_FOUND(NOT_FOUND, "존재하지 않는 관리자입니다."),
     TESTER_NOT_FOUND(NOT_FOUND, "존재하지 않는 테스터입니다."),
@@ -162,7 +173,8 @@ public enum ErrorCode {
     BACKEND_CNT_UPDATE_UNAVAILABLE(CONFLICT, "현재 소속되어 있는 백엔드 개발자 팀원 수가 수정한 백엔드 개발자 팀원 수 보다 많습니다."),
     FRONTEND_CNT_UPDATE_UNAVAILABLE(CONFLICT, "현재 소속되어 있는 프론트엔드 개발자 팀원 수가 수정한 프론트엔드 개발자 팀원 수 보다 많습니다."),
     MANAGER_CNT_UPDATE_UNAVAILABLE(CONFLICT, "현재 소속되어 있는 매니저 팀원 수가 수정한 매니저 팀원 수 보다 많습니다."),
-    SELF_FIRE_UNAVAILABLE(CONFLICT, "팀장은 본인을 추방할 수 없습니다."),
+    TEAM_LEADER_UNAVAILABLE(CONFLICT, "팀장은 할 수 없는 행동입니다."),
+    UNAVAILABLE_REVIEW(CONFLICT, "리뷰 가능한 기간이 지나 리뷰를 작성할 수 없습니다."),
 
     /**
      * 413 Payload too large

@@ -5,22 +5,24 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.gabojait.gabojaitspring.auth.type.Jwt;
+import com.gabojait.gabojaitspring.common.code.ErrorCode;
+import com.gabojait.gabojaitspring.domain.user.Role;
 import com.gabojait.gabojaitspring.exception.CustomException;
-import com.gabojait.gabojaitspring.user.domain.type.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.TOKEN_UNAUTHORIZED;
+import static com.gabojait.gabojaitspring.common.code.ErrorCode.TOKEN_UNAUTHENTICATED;
 
 @Component
 @RequiredArgsConstructor
@@ -38,162 +40,100 @@ public class JwtProvider {
     @Value("${api.jwt.time.refresh}")
     private long refreshTokenTime;
 
-    private final CustomUserDetailsService customuserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
     private final String tokenPrefix = "Bearer ";
 
-    /**
-     * Guest JWT 생성
-     */
-    public HttpHeaders createGuestJwt() {
-        return generateHeaderWithToken(0L, Set.of(Role.GUEST.name()), false);
-    }
+    public HttpHeaders createJwt(String username) {
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+        List<String> authorities = userDetails.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
 
-    /**
-     * User & Admin JWT 생성
-     */
-    public HttpHeaders createJwt(Long userId, Set<String> roles) {
-        return generateHeaderWithToken(userId, roles, true);
-    }
-
-    /**
-     * Master JWT 생성
-     */
-    public HttpHeaders createMasterJwt(Long userId, Set<String> roles) {
-        return generateHeaderWithToken(userId, roles, false);
-    }
-
-    /**
-     * 토큰 생성자
-     */
-    private HttpHeaders generateHeaderWithToken(Long userId, Set<String> roles, boolean isRefreshToken) {
         long time = System.currentTimeMillis();
         Algorithm algorithm = Algorithm.HMAC256(secret.getBytes(StandardCharsets.UTF_8));
-        List<String> roleList = new ArrayList<>(roles);
-
-        String accessJwt = JWT.create()
-                .withSubject(userId.toString())
+        HttpHeaders headers = new HttpHeaders();
+        String accessToken = JWT.create()
+                .withSubject(userDetails.getUsername())
                 .withIssuedAt(new Date(time))
                 .withExpiresAt(new Date(time + accessTokenTime))
                 .withIssuer(domain)
-                .withClaim("roles", roleList)
+                .withClaim("roles", authorities)
                 .sign(algorithm);
 
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(HttpHeaders.AUTHORIZATION, accessJwt);
+        headers.add(HttpHeaders.AUTHORIZATION, accessToken);
 
-        if (isRefreshToken) {
-            String refreshJwt = JWT.create()
-                    .withSubject(userId.toString())
-                    .withIssuedAt(new Date(time))
-                    .withExpiresAt(new Date(time + refreshTokenTime))
-                    .withIssuer(domain)
-                    .withClaim("roles", roleList)
-                    .sign(algorithm);
+        if (authorities.contains(Role.MASTER.name()))
+            return headers;
 
-            httpHeaders.add("Refresh-Token", refreshJwt);
+        String refreshToken = JWT.create()
+                .withSubject(userDetails.getUsername())
+                .withIssuedAt(new Date(time))
+                .withExpiresAt(new Date(time + refreshTokenTime))
+                .withIssuer(domain)
+                .withClaim("roles",  authorities)
+                .sign(algorithm);
+
+        headers.add("Refresh-Token", refreshToken);
+
+        return headers;
+    }
+
+    public void authenticate(String token, Jwt jwt) {
+        DecodedJWT decodedJWT = decodeJwt(token);
+
+        long validTime = decodedJWT.getExpiresAt().getTime() - decodedJWT.getIssuedAt().getTime();
+
+        switch (jwt) {
+            case ACCESS:
+                if (validTime != accessTokenTime)
+                    throw new CustomException(TOKEN_UNAUTHENTICATED);
+                break;
+            case REFRESH:
+                if (validTime != refreshTokenTime)
+                    throw new CustomException(TOKEN_UNAUTHENTICATED);
+                break;
+            default:
+                throw new CustomException(TOKEN_UNAUTHENTICATED);
         }
 
-        return httpHeaders;
+        String username = decodedJWT.getSubject();
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(userDetails.getUsername(), "", userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
 
-    public void authGuestAccessJwt(String token) {
-        authenticate(token, Role.GUEST, Jwt.ACCESS);
-    }
+    public String getUsernameByAccess(String token) {
+        DecodedJWT decodedJWT = decodeJwt(token);
 
-    public void authUserAccessJwt(String token) {
-        authenticate(token, Role.USER, Jwt.ACCESS);
-    }
-
-    public void authUserRefreshJwt(String token) {
-        authenticate(token, Role.USER, Jwt.REFRESH);
-    }
-
-    public void authAdminAccessJwt(String token) {
-        authenticate(token, Role.ADMIN, Jwt.ACCESS);
-    }
-
-    public void authAdminRefreshJwt(String token) {
-        authenticate(token, Role.ADMIN, Jwt.REFRESH);
-    }
-
-    public void authMasterJwt(String token) {
-        authenticate(token, Role.MASTER, Jwt.ACCESS);
-    }
-
-    /**
-     * 식별자 반환 |
-     * 403(TOKEN_UNAUTHORIZED)
-     */
-    public long getId(String token) {
-        DecodedJWT decodedJwt = verifyJwt(token);
-
-        try {
-            return Long.parseLong(decodedJwt.getSubject());
-        } catch (NumberFormatException e) {
-            throw new CustomException(e, TOKEN_UNAUTHORIZED);
-        }
-    }
-
-    /**
-     * JWT 인가
-     * 401(TOKEN_UNAUTHENTICATED)
-     * 403(TOKEN_UNAUTHORIZED)
-     */
-    private void authenticate(String token, Role role, Jwt jwt) {
-        DecodedJWT decodedJwt = verifyJwt(token);
-        List<String> roles;
-        long id;
-        long validTime;
-
-        try {
-            roles = decodedJwt.getClaim("roles").asList(String.class);
-            id = Long.parseLong(decodedJwt.getSubject());
-            validTime = decodedJwt.getExpiresAt().getTime() - decodedJwt.getIssuedAt().getTime();
-        } catch (RuntimeException e) {
-            throw new CustomException(e, TOKEN_UNAUTHORIZED);
-        }
-
-        Collection<SimpleGrantedAuthority> authorities = new HashSet<>();
-        roles.forEach(r -> authorities.add(new SimpleGrantedAuthority(r)));
-
-        if (!roles.contains(role.name()))
-            throw new CustomException(TOKEN_UNAUTHORIZED);
-
-        if (jwt.equals(Jwt.ACCESS) && validTime != accessTokenTime)
-            throw new CustomException(TOKEN_UNAUTHORIZED);
-        else if (jwt.equals(Jwt.REFRESH) && validTime != refreshTokenTime)
-            throw new CustomException(TOKEN_UNAUTHORIZED);
-
-        if (role.equals(Role.USER))
-            customuserDetailsService.loadUserById(id);
-        else if (role.equals(Role.ADMIN))
-            customuserDetailsService.loadAdminById(id);
-
-        try {
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(id, "", authorities);
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-        } catch (JWTVerificationException e) {
-            throw new CustomException(e, TOKEN_UNAUTHENTICATED);
-        }
-    }
-
-    /**
-     * JWT 검증 |
-     * 401(TOKEN_UNAUTHENTICATED)
-     */
-    private DecodedJWT verifyJwt(String token) {
-        if (token == null || token.trim().equals(""))
+        long validTime = decodedJWT.getExpiresAt().getTime() - decodedJWT.getIssuedAt().getTime();
+        if (validTime != accessTokenTime)
             throw new CustomException(TOKEN_UNAUTHENTICATED);
 
-        token = token.trim().substring(tokenPrefix.length());
+        return decodedJWT.getSubject();
+    }
+
+    public String getUsernameByRefresh(String token) {
+        DecodedJWT decodedJWT = decodeJwt(token);
+
+        long validTime = decodedJWT.getExpiresAt().getTime() - decodedJWT.getIssuedAt().getTime();
+        if (validTime != refreshTokenTime)
+            throw new CustomException(TOKEN_UNAUTHENTICATED);
+
+        return decodedJWT.getSubject();
+    }
+
+    private DecodedJWT decodeJwt(String token) {
+        if (token == null || token.equals(""))
+            throw new CustomException(TOKEN_UNAUTHENTICATED);
+
+        token = token.substring(tokenPrefix.length());
+
         Algorithm algorithm = Algorithm.HMAC256(secret.getBytes(StandardCharsets.UTF_8));
         JWTVerifier verifier = JWT.require(algorithm).build();
 
-        try {
-            return verifier.verify(token);
-        } catch (JWTVerificationException e) {
-            throw new CustomException(e, TOKEN_UNAUTHENTICATED);
-        }
+        return verifier.verify(token);
     }
 }

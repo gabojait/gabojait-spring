@@ -3,24 +3,21 @@ name: Develop - CI
 on:
   push:
     branches: [ "develop" ]
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
   pull_request:
     branches: [ "develop" ]
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql
-        env:
-          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up JDK
         uses: actions/setup-java@v3
@@ -28,18 +25,13 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
 
-      - name: Grant execute permission for Gradlew
+      - name: Grant Execute Permission for Gradlew
         run: chmod +x gradlew
 
       - name: Build with Gradle
         run: ./gradlew build
         env:
-          API_NAME: ${{ secrets.API_NAME }}
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_MODE: ${{ secrets.DB_MODE }}
-          DB_NAME: ${{ secrets.DB_NAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_PORT: ${{ secrets.DB_PORT }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           FIREBASE_CLIENT_CERT_URL: ${{ secrets.FIREBASE_CLIENT_CERT_URL }}
           FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
@@ -51,31 +43,48 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_TIME_ACCESS: ${{ secrets.JWT_TIME_ACCESS }}
           JWT_TIME_REFRESH: ${{ secrets.JWT_TIME_REFRESH }}
-          LOG_FILE_PATH: ${{ secrets.LOG_FILE_PATH }}
           MAIL_ADDRESS: ${{ secrets.MAIL_ADDRESS }}
           MAIL_HOST: ${{ secrets.MAIL_HOST }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
           MAIL_PORT: ${{ secrets.MAIL_PORT }}
           MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
-          MASTER_ID: ${{ secrets.MASTER_ID }}
           MAX_FILE_SIZE: ${{ secrets.MAX_FILE_SIZE }}
           MAX_REQUEST_SIZE: ${{ secrets.MAX_REQUEST_SIZE }}
-          P6SPY_ENABLED: ${{ secrets.P6SPY_ENABLED }}
-          PROFILES_ACTIVE: ${{ secrets.PROFILES_ACTIVE }}
           S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
           S3_PORTFOLIO_FILE_BUCKET: ${{ secrets.S3_PORTFOLIO_FILE_BUCKET }}
           S3_PROFILE_IMG_BUCKET: ${{ secrets.S3_PROFILE_IMG_BUCKET }}
           S3_REGION: ${{ secrets.S3_REGION }}
           S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SWAGGER_BASE_URL: ${{ secrets.SWAGGER_BASE_URL }}
-          SWAGGER_ENABLED: ${{ secrets.SWAGGER_ENABLED }}
 
-      - name: Build and push Docker image
+      - name: JaCoCo Code Coverage Report
+        id: jacoco_reporter
+        uses: PavanMudigonda/jacoco-reporter@v4.8
+        with:
+          coverage_results_path: build/reports/jacoco/test/jacocoTestReport.xml
+          coverage_report_name: Coverage
+          coverage_report_title: JaCoCo
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_check_run: false
+          minimum_coverage: 80
+          fail_below_threshold: true
+          publish_only_summary: true
+
+      - name: Add Coverage Job Summary
+        run: echo "${{ steps.jacoco_reporter.outputs.coverageSummary }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Code Coverage Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: code-coverage-report-html
+          path: build/reports/jacoco/test/html
+          retention-days: 90
+
+      - name: Build and Push Docker image
         uses: mr-smithers-excellent/docker-build-push@v5
         with:
           image: gs97ahn/server
-          tags: gabojait-alpha
+          tags: gabojait-alpha-latest
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}

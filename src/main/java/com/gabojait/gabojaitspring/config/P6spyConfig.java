@@ -1,6 +1,6 @@
 package com.gabojait.gabojaitspring.config;
 
-import com.gabojait.gabojaitspring.log.P6spyLogging;
+import com.gabojait.gabojaitspring.common.log.P6spyLogging;
 import com.p6spy.engine.spy.P6SpyOptions;
 import org.springframework.context.annotation.Configuration;
 

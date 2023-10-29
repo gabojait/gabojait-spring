@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.exception;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.gabojait.gabojaitspring.common.dto.ExceptionResDto;
+import com.gabojait.gabojaitspring.api.dto.common.response.ExceptionResponse;
 import io.sentry.Sentry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -29,12 +29,9 @@ import static org.springframework.http.HttpStatus.PAYLOAD_TOO_LARGE;
 @RestControllerAdvice
 public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(value = { CustomException.class })
-    protected ResponseEntity<ExceptionResDto> handleCustomException(CustomException exception) {
-        if (exception.getExceptionCode().getHttpStatus().equals(INTERNAL_SERVER_ERROR))
-            Sentry.captureException(exception);
-
-        return ExceptionResDto.exceptionResponse(exception.getExceptionCode());
+    @ExceptionHandler(CustomException.class)
+    protected ResponseEntity<ExceptionResponse> handleCustomException(CustomException exception) {
+        return ExceptionResponse.exceptionResponse(exception.getErrorCode());
     }
 
     /**
@@ -54,13 +51,16 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         responseCode = formatIfInnerDto(responseCode);
         responseCode += formatResponseCode(responseMessage);
         return ResponseEntity.status(status)
-                .body(ExceptionResDto.builder()
+                .body(ExceptionResponse.builder()
                         .responseCode(responseCode)
                         .responseMessage(responseMessage)
                         .build());
     }
 
-    @ExceptionHandler(value = { ConstraintViolationException.class })
+    /**
+     * 400 Bad Request
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
     protected ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException exception) {
         String responseCode;
         String responseMessage;
@@ -85,7 +85,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         }
 
         return ResponseEntity.status(400)
-                .body(ExceptionResDto.builder()
+                .body(ExceptionResponse.builder()
                         .responseCode(responseCode)
                         .responseMessage(responseMessage)
                         .build());
@@ -131,14 +131,14 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * 401 Unauthorized
      */
-    @ExceptionHandler(value = JWTVerificationException.class)
-    protected ResponseEntity<ExceptionResDto> handleJwtVerificationException(JWTVerificationException exception) {
-        return ExceptionResDto.exceptionResponse(TOKEN_UNAUTHORIZED);
+    @ExceptionHandler(JWTVerificationException.class)
+    protected ResponseEntity<ExceptionResponse> handleJwtVerificationException(JWTVerificationException exception) {
+        return ExceptionResponse.exceptionResponse(TOKEN_UNAUTHORIZED);
     }
 
     @ExceptionHandler(value = AccessDeniedException.class)
-    protected ResponseEntity<ExceptionResDto> handleAccessDeniedException(AccessDeniedException exception) {
-        return ExceptionResDto.exceptionResponse(TOKEN_UNAUTHORIZED);
+    protected ResponseEntity<ExceptionResponse> handleAccessDeniedException(AccessDeniedException exception) {
+        return ExceptionResponse.exceptionResponse(TOKEN_UNAUTHORIZED);
     }
 
     /**
@@ -155,7 +155,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         String responseMessage = METHOD_DISABLED.getMessage();
 
         return ResponseEntity.status(status)
-                .body(ExceptionResDto.builder()
+                .body(ExceptionResponse.builder()
                         .responseCode(responseCode)
                         .responseMessage(responseMessage)
                         .build());
@@ -164,9 +164,19 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * 413 Payload Too Large
      */
-    @ExceptionHandler(value = { MaxUploadSizeExceededException.class })
     @ResponseStatus(PAYLOAD_TOO_LARGE)
-    protected ResponseEntity<ExceptionResDto> handleFileSizeLimitExceeded() {
-        return ExceptionResDto.exceptionResponse(FILE_SIZE_EXCEED);
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    protected ResponseEntity<ExceptionResponse> handleFileSizeLimitExceeded() {
+        return ExceptionResponse.exceptionResponse(FILE_SIZE_EXCEED);
+    }
+
+    /**
+     * 500 Internal Server Error
+     */
+    @ResponseStatus(INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity<ExceptionResponse> handleException(Exception exception) {
+        Sentry.captureException(exception);
+        return ExceptionResponse.exceptionResponse(SERVER_ERROR);
     }
 }

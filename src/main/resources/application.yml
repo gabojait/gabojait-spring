@@ -1,35 +1,33 @@
 spring:
   profiles:
-    active: ${PROFILES_ACTIVE}
+    default: local
 
-  mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher
+###################
+###### LOCAL ######
+###################
+---
+spring:
+  config:
+    activate:
+      on-profile: local
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/gabojait_local?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-
-  sql:
-    init:
-      mode: ${DB_MODE}
 
   jpa:
     hibernate:
       use-new-id-generator-mappings: false
+      ddl-auto: create
     properties:
       hibernate:
+        default_batch_fetch_size: 100
         show_sql: false
         format_sql: true
         highlight_sql: true
         use_sql_comments: true
-
-  servlet:
-    multipart:
-      max-request-size: ${MAX_REQUEST_SIZE}
-      max-file-size: ${MAX_FILE_SIZE}
 
   mail:
     host: ${MAIL_HOST}
@@ -44,27 +42,54 @@ spring:
           starttls:
             enable: true
             require: true
+
+  servlet:
+    multipart:
+      max-request-size: ${MAX_REQUEST_SIZE}
+      max-file-size: ${MAX_FILE_SIZE}
+
 logging:
-  config: classpath:logback/${PROFILES_ACTIVE}-logback.xml
+  config: classpath:logback/develop-logback.xml
   file:
-    path: ${LOG_FILE_PATH}
     name: gabojait-rolling.log
 
 springfox:
   documentation:
     swagger-ui:
-      enabled: ${SWAGGER_ENABLED}
       base-url: ${SWAGGER_BASE_URL}
 
-decorator:
-  datasource:
-    p6spy:
-      enable-logging: ${P6SPY_ENABLED}
+firebase:
+  project:
+    id: ${FIREBASE_PROJECT_ID}
+  private:
+    key-id: ${FIREBASE_PRIVATE_KEY_ID}
+    key: ${FIREBASE_PRIVATE_KEY}
+  client:
+    email: ${FIREBASE_CLIENT_EMAIL}
+    id: ${FIREBASE_CLIENT_ID}
+    x509:
+      cert:
+        url: ${FIREBASE_CLIENT_CERT_URL}
+
+sentry:
+  dsn:
+  traces-sample-rate: 1.0
+  logging:
+    minimum-event-level: info
+    minimum-breadcrumb-level: info
+
+s3:
+  access-key: ${S3_ACCESS_KEY}
+  secret-key: ${S3_SECRET_KEY}
+  bucket:
+    profile-img: ${S3_PROFILE_IMG_BUCKET}
+    portfolio-file: ${S3_PORTFOLIO_FILE_BUCKET}
+  region: ${S3_REGION}
 
 api:
-  name: ${API_NAME}
+  name: "Gabojait Local"
   master:
-    id: ${MASTER_ID}
+    id: gabojait
   jwt:
     secret: ${JWT_SECRET}
     domain: ${JWT_DOMAIN}
@@ -74,6 +99,77 @@ api:
   mail:
     address: ${MAIL_ADDRESS}
 
+##################
+###### TEST ######
+##################
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:~/gabojait
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      use-new-id-generator-mappings: false
+      ddl-auto: create
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+        show_sql: false
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            require: true
+
+  servlet:
+    multipart:
+      max-request-size: ${MAX_REQUEST_SIZE}
+      max-file-size: ${MAX_FILE_SIZE}
+
+logging:
+  config: classpath:logback/develop-logback.xml
+  file:
+    name: gabojait-rolling.log
+
+firebase:
+  project:
+    id: ${FIREBASE_PROJECT_ID}
+  private:
+    key-id: ${FIREBASE_PRIVATE_KEY_ID}
+    key: ${FIREBASE_PRIVATE_KEY}
+  client:
+    email: ${FIREBASE_CLIENT_EMAIL}
+    id: ${FIREBASE_CLIENT_ID}
+    x509:
+      cert:
+        url: ${FIREBASE_CLIENT_CERT_URL}
+
+sentry:
+  dsn:
+  traces-sample-rate: 1.0
+  logging:
+    minimum-event-level: info
+    minimum-breadcrumb-level: info
+
 s3:
   access-key: ${S3_ACCESS_KEY}
   secret-key: ${S3_SECRET_KEY}
@@ -81,6 +177,74 @@ s3:
     profile-img: ${S3_PROFILE_IMG_BUCKET}
     portfolio-file: ${S3_PORTFOLIO_FILE_BUCKET}
   region: ${S3_REGION}
+
+api:
+  name: "Gabojait Test"
+  master:
+    id: gabojait
+  jwt:
+    secret: ${JWT_SECRET}
+    domain: ${JWT_DOMAIN}
+    time:
+      access: ${JWT_TIME_ACCESS}
+      refresh: ${JWT_TIME_REFRESH}
+  mail:
+    address: ${MAIL_ADDRESS}
+
+###################
+###### ALPHA ######
+###################
+---
+spring:
+  config:
+    activate:
+      on-profile: alpha
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      use-new-id-generator-mappings: false
+      ddl-auto: ${DB_DDL}
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+        show_sql: false
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            require: true
+
+  servlet:
+    multipart:
+      max-request-size: ${MAX_REQUEST_SIZE}
+      max-file-size: ${MAX_FILE_SIZE}
+
+logging:
+  config: classpath:logback/deploy-logback.xml
+  file.name: gabojait-rolling.log
+
+springfox:
+  documentation:
+    swagger-ui:
+      base-url: ${SWAGGER_BASE_URL}
 
 firebase:
   project:
@@ -97,7 +261,131 @@ firebase:
 
 sentry:
   dsn: ${SENTRY_DSN}
+  environment: alpha
   traces-sample-rate: 1.0
   logging:
     minimum-event-level: info
     minimum-breadcrumb-level: info
+
+s3:
+  access-key: ${S3_ACCESS_KEY}
+  secret-key: ${S3_SECRET_KEY}
+  bucket:
+    profile-img: ${S3_PROFILE_IMG_BUCKET}
+    portfolio-file: ${S3_PORTFOLIO_FILE_BUCKET}
+  region: ${S3_REGION}
+
+api:
+  name: "Gabojait Alpha"
+  master:
+    id: gabojait
+  jwt:
+    secret: ${JWT_SECRET}
+    domain: ${JWT_DOMAIN}
+    time:
+      access: ${JWT_TIME_ACCESS}
+      refresh: ${JWT_TIME_REFRESH}
+  mail:
+    address: ${MAIL_ADDRESS}
+
+###################
+##### RELEASE #####
+###################
+---
+spring:
+  config:
+    activate:
+      on-profile: release
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      use-new-id-generator-mappings: false
+      ddl-auto: ${DB_DDL}
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+        show_sql: false
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            require: true
+
+  servlet:
+    multipart:
+      max-request-size: ${MAX_REQUEST_SIZE}
+      max-file-size: ${MAX_FILE_SIZE}
+
+logging:
+  config: classpath:logback/deploy-logback.xml
+  file.name: gabojait-rolling.log
+
+springfox:
+  documentation:
+    swagger-ui:
+      base-url: ${SWAGGER_BASE_URL}
+
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: ${P6SPY_ENABLED}
+
+firebase:
+  project:
+    id: ${FIREBASE_PROJECT_ID}
+  private:
+    key-id: ${FIREBASE_PRIVATE_KEY_ID}
+    key: ${FIREBASE_PRIVATE_KEY}
+  client:
+    email: ${FIREBASE_CLIENT_EMAIL}
+    id: ${FIREBASE_CLIENT_ID}
+    x509:
+      cert:
+        url: ${FIREBASE_CLIENT_CERT_URL}
+
+s3:
+  access-key: ${S3_ACCESS_KEY}
+  secret-key: ${S3_SECRET_KEY}
+  bucket:
+    profile-img: ${S3_PROFILE_IMG_BUCKET}
+    portfolio-file: ${S3_PORTFOLIO_FILE_BUCKET}
+  region: ${S3_REGION}
+
+sentry:
+  dsn: ${SENTRY_DSN}
+  environment: release
+  traces-sample-rate: 1.0
+  logging:
+    minimum-event-level: info
+    minimum-breadcrumb-level: info
+
+api:
+  name: ${API_NAME}
+  master:
+    id: gabojait
+  jwt:
+    secret: ${JWT_SECRET}
+    domain: ${JWT_DOMAIN}
+    time:
+      access: ${JWT_TIME_ACCESS}
+      refresh: ${JWT_TIME_REFRESH}
+  mail:
+    address: ${MAIL_ADDRESS}
