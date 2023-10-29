@@ -14,6 +14,10 @@
 - 1 GiB Memory
 - 20 GiB Storage
 
+### 요구 사항
+- Think Time = 1초
+- Response Time = 5초 이내
+
 ## 목차 📋
 1. [회원](#user)
     - [본인조회](#get/api/v1/user)
