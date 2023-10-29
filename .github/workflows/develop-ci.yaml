@@ -76,8 +76,8 @@ jobs:
       - name: Upload Code Coverage Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: code-coverage-report-markdown
-          path: docs/coverage.md
+          name: code-coverage-report-html
+          path: build/reports/jacoco/test/html
           retention-days: 1
 
       - name: Build and Push Docker image
