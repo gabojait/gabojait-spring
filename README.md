@@ -6,10 +6,6 @@
 
 ### 가보자IT으로 사이드 프로젝트를 함께할 팀원을 찾다.
 
-App Store:
-
-Play Store:
-
 ![Release API-Status](https://uptime-kuma.nogamsung.com/api/badge/3/status?label=Release%20API%20Status&style=flat)
 ![Alpha API-Status](https://uptime-kuma.nogamsung.com/api/badge/2/status?label=Alpha%20API%20Status&style=flat)
 ![Release-CI](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fgabojait%2Fgabojait-spring%2Fbadge%3Fref%3Dmaster%26token%3D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&style=flat&label=Release-CI&logo=GitHub-Actions)
@@ -33,10 +29,10 @@ Play Store:
 ---
 
 ## Link
-- ### [API 상태](https://uptime-kuma.nogamsung.com/status/gabojait)
-- ### [테스트 API Swagger](https://gabojait-dev.nogamsung.com/api/v1/docs/swagger-ui/index.html)
-- ### [테스트 결과](docs/breakpoint-test.md)
-- ### [클라이언트 Repository](https://github.com/gabojait/gabojait-react-native)
+- ### [API Status](https://uptime-kuma.nogamsung.com/status/gabojait)
+- ### [Test API Swagger](https://gabojait-dev.nogamsung.com/api/v1/docs/swagger-ui/index.html)
+- ### [Breakpoint Test](docs/breakpoint-test.md)
+- ### [Client Repository](https://github.com/gabojait/gabojait-react-native)
 
 ---
 
