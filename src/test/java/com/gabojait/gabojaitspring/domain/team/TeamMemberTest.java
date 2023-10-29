@@ -218,11 +218,14 @@ class TeamMemberTest {
     @DisplayName("같은 객체인 팀원을 비교하면 동일하다.")
     void givenEqualInstance_whenEquals_thenReturn() {
         // given
+        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), LocalDateTime.now());
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
                 (byte) 2, (byte) 2);
+        TeamMember teamMember = createTeamMember(Position.BACKEND, true, user, team);
 
         // when
-        boolean result = team.equals(team);
+        boolean result = teamMember.equals(teamMember);
 
         // then
         assertThat(result).isTrue();
