@@ -25,7 +25,7 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
 
-      - name: Grant execute permission for Gradlew
+      - name: Grant Execute Permission for Gradlew
         run: chmod +x gradlew
 
       - name: Build with Gradle
@@ -80,7 +80,7 @@ jobs:
           path: docs/coverage.md
           retention-days: 1
 
-      - name: Build and push Docker image
+      - name: Build and Push Docker image
         uses: mr-smithers-excellent/docker-build-push@v5
         with:
           image: gs97ahn/server
