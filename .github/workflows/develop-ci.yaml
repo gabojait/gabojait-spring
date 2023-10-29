@@ -2,9 +2,15 @@ name: Develop - CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "develop" ]
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
   pull_request:
-    branches: [ "master" ]
+    branches: [ "develop" ]
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
 
 jobs:
   build:
