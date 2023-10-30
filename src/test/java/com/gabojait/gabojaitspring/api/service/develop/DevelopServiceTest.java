@@ -6,13 +6,13 @@ import com.gabojait.gabojaitspring.domain.review.Review;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
 import com.gabojait.gabojaitspring.domain.team.TeamMemberStatus;
 import com.gabojait.gabojaitspring.domain.user.*;
+import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.profile.EducationRepository;
 import com.gabojait.gabojaitspring.repository.profile.PortfolioRepository;
 import com.gabojait.gabojaitspring.repository.profile.SkillRepository;
 import com.gabojait.gabojaitspring.repository.profile.WorkRepository;
 import com.gabojait.gabojaitspring.repository.review.ReviewRepository;
 import com.gabojait.gabojaitspring.repository.team.TeamMemberRepository;
-import com.gabojait.gabojaitspring.repository.team.TeamRepository;
 import com.gabojait.gabojaitspring.repository.user.ContactRepository;
 import com.gabojait.gabojaitspring.repository.user.UserRepository;
 import com.gabojait.gabojaitspring.repository.user.UserRoleRepository;
@@ -28,7 +28,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.gabojait.gabojaitspring.common.code.ErrorCode.TESTER_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -80,6 +82,19 @@ class DevelopServiceTest {
                         .containsExactly(user.getContact().getId(), user.getContact().getEmail(),
                                 user.getContact().getCreatedAt(), user.getContact().getUpdatedAt())
         );
+    }
+
+    @Test
+    @DisplayName("존재하지 않은 테스트 회원 식별자로 테스트 회원을 조회하면 예외가 발생한다.")
+    void givenNonExistingUser_whenFindTester_thenThrow() {
+        // given
+        long testerId = Long.MAX_VALUE;
+
+        // when & then
+        assertThatThrownBy(() -> developService.findTester(testerId))
+                .isInstanceOf(CustomException.class)
+                .extracting("errorCode")
+                .isEqualTo(TESTER_NOT_FOUND);
     }
 
     @Test
