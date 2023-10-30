@@ -231,6 +231,166 @@ class TeamMemberTest {
         assertThat(result).isTrue();
     }
 
+    @Test
+    @DisplayName("같은 정보인 팀원을 비교하면 동일하다.")
+    void givenEqualData_whenEquals_thenReturn() {
+        // given
+        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
+                (byte) 2, (byte) 2);
+
+        TeamMember teamMember1 = createTeamMember(Position.BACKEND, true, user, team);
+        TeamMember teamMember2 = createTeamMember(Position.BACKEND, true, user, team);
+
+        // when
+        boolean result = teamMember1.equals(teamMember2);
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @DisplayName("다른 객체인 팀원을 비교하면 동일하지 않다.")
+    void givenUnequalInstance_whenEquals_thenReturn() {
+        // given
+        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
+                (byte) 2, (byte) 2);
+
+        TeamMember teamMember = createTeamMember(Position.BACKEND, true, user, team);
+        Object object = new Object();
+
+        // when
+        boolean result = teamMember.equals(object);
+
+        // then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("다른 팀장 여부인 팀원을 비교하면 동일하지 않다.")
+    void givenUnequalIsLeader_whenEquals_thenReturn() {
+        // given
+        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
+                (byte) 2, (byte) 2);
+
+        TeamMember teamMember1 = createTeamMember(Position.BACKEND, true, user, team);
+        TeamMember teamMember2 = createTeamMember(Position.BACKEND, false, user, team);
+
+        // when
+        boolean result = teamMember1.equals(teamMember2);
+
+        // then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("다른 팀원 상태인 팀원을 비교하면 동일하지 않다.")
+    void givenUnequalTeamMemberStatus_whenEquals_thenReturn() {
+        // given
+        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
+                (byte) 2, (byte) 2);
+
+        TeamMember teamMember1 = createTeamMember(Position.BACKEND, false, user, team);
+        TeamMember teamMember2 = createTeamMember(Position.BACKEND, false, user, team);
+
+        teamMember1.updateTeamMemberStatus(TeamMemberStatus.QUIT);
+
+        // when
+        boolean result = teamMember1.equals(teamMember2);
+
+        // then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("다른 회원인 팀원을 비교하면 동일하지 않다.")
+    void givenUnequalUser_whenEquals_thenReturn() {
+        // given
+        User user1 = createDefaultUser("tester@gabojait.com", "000000", "tester1", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        User user2 = createDefaultUser("tester@gabojait.com", "000000", "tester2", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
+                (byte) 2, (byte) 2);
+
+        TeamMember teamMember1 = createTeamMember(Position.BACKEND, false, user1, team);
+        TeamMember teamMember2 = createTeamMember(Position.BACKEND, false, user2, team);
+
+        // when
+        boolean result = teamMember1.equals(teamMember2);
+
+        // then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("다른 팀인 팀원을 비교하면 동일하지 않다.")
+    void givenUnequalTeam_whenEquals_thenReturn() {
+        // given
+        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team1 = createTeam("가보자잇1", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
+                (byte) 2, (byte) 2);
+        Team team2 = createTeam("가보자잇2", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
+                (byte) 2, (byte) 2);
+
+        TeamMember teamMember1 = createTeamMember(Position.BACKEND, false, user, team1);
+        TeamMember teamMember2 = createTeamMember(Position.BACKEND, false, user, team2);
+
+        // when
+        boolean result = teamMember1.equals(teamMember2);
+
+        // then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("동일한 팀원의 해시코드는 같다.")
+    void givenEqual_whenHashCode_thenReturn() {
+        // given
+        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
+                (byte) 2, (byte) 2);
+
+        TeamMember teamMember1 = createTeamMember(Position.BACKEND, false, user, team);
+        TeamMember teamMember2 = createTeamMember(Position.BACKEND, false, user, team);
+
+        // when
+        int hashCode1 = teamMember1.hashCode();
+        int hashCode2 = teamMember2.hashCode();
+
+        // then
+        assertThat(hashCode1).isEqualTo(hashCode2);
+    }
+
+    @Test
+    @DisplayName("동일하지 않은 팀원의 해시코드는 다르다.")
+    void givenUnequal_whenHashCode_thenReturn() {
+        // given
+        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
+                (byte) 2, (byte) 2);
+
+        TeamMember teamMember1 = createTeamMember(Position.BACKEND, false, user, team);
+        TeamMember teamMember2 = createTeamMember(Position.FRONTEND, false, user, team);
+
+        // when
+        int hashCode1 = teamMember1.hashCode();
+        int hashCode2 = teamMember2.hashCode();
+
+        // then
+        assertThat(hashCode1).isNotEqualTo(hashCode2);
+    }
+
     private TeamMember createTeamMember(Position position, boolean isLeader, User user, Team team) {
         return TeamMember.builder()
                 .position(position)
