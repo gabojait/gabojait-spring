@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static com.gabojait.gabojaitspring.common.code.ErrorCode.TESTER_NOT_FOUND;
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.USER_NOT_FOUND;
 
 @Service
@@ -74,7 +75,8 @@ public class DevelopService {
     }
 
     /**
-     * 테스트 회원 조회
+     * 테스트 회원 조회 |
+     * 404(TESTER_NOT_FOUND)
      * @param testerId 테스터 식별자
      * @return 회원 기본 응답
      */
@@ -341,14 +343,14 @@ public class DevelopService {
 
     /**
      * 회원 단건 조회 |
-     * 404(USER_NOT_FOUND)
+     * 404(TESTER_NOT_FOUND)
      * @param username 아이디
      * @return 회원
      */
     private User findUser(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> {
-                    throw new CustomException(USER_NOT_FOUND);
+                    throw new CustomException(TESTER_NOT_FOUND);
                 });
     }
 }
