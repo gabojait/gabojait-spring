@@ -76,7 +76,7 @@ class EducationTest {
 
     @Test
     @DisplayName("같은 정보인 학력을 비교하면 동일하다.")
-    void givenEqualData_whenEqausl_thenReturn() {
+    void givenEqualData_whenEquals_thenReturn() {
         // given
         String institutionName = "가보자잇대";
         LocalDate startedAt = LocalDate.of(2019, 3, 1);
