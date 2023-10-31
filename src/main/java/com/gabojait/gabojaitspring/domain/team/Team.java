@@ -161,18 +161,22 @@ public class Team extends BasePermanentEntity {
     }
 
     public boolean isPositionFull(Position position) {
+        boolean isPositionFull = true;
         switch (position) {
             case DESIGNER:
-                return this.designerMaxCnt <= this.designerCurrentCnt;
+                isPositionFull = this.designerMaxCnt <= this.designerCurrentCnt;
+                break;
             case BACKEND:
-                return this.backendMaxCnt <= this.backendCurrentCnt;
+                isPositionFull = this.backendMaxCnt <= this.backendCurrentCnt;
+                break;
             case FRONTEND:
-                return this.frontendMaxCnt <= this.frontendCurrentCnt;
+                isPositionFull = this.frontendMaxCnt <= this.frontendCurrentCnt;
+                break;
             case MANAGER:
-                return this.managerMaxCnt <= this.managerCurrentCnt;
-            default:
-                return true;
+                isPositionFull = this.managerMaxCnt <= this.managerCurrentCnt;
+                break;
         }
+        return isPositionFull;
     }
 
     public void visit() {
