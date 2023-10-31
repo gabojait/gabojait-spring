@@ -144,7 +144,7 @@ class DevelopServiceTest {
         developService.injectUserRoles(users);
 
         // then
-        List<UserRole> userRoles = userRoleRepository.findAllByUser(users.get(0));
+        List<UserRole> userRoles = userRoleRepository.findAll(users.get(0).getUsername());
         assertThat(userRoles)
                 .extracting("role")
                 .containsExactly(Role.USER);
