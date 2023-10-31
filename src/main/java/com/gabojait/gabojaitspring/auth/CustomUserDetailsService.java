@@ -1,6 +1,7 @@
 package com.gabojait.gabojaitspring.auth;
 
 import com.gabojait.gabojaitspring.domain.user.User;
+import com.gabojait.gabojaitspring.domain.user.UserRole;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.user.UserRepository;
 import com.gabojait.gabojaitspring.repository.user.UserRoleRepository;
@@ -28,13 +29,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> {
-                    throw new CustomException(USER_NOT_FOUND);
-                });
+        List<UserRole> userRoles = userRoleRepository.findAll(username);
 
-        List<GrantedAuthority> grantedAuthorities = userRoleRepository.findAllByUser(user)
-                .stream()
+        User user = userRoles.stream()
+                .findFirst()
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND))
+                .getUser();
+        List<GrantedAuthority> grantedAuthorities = userRoles.stream()
                 .map(userRole -> new SimpleGrantedAuthority(userRole.getRole().name()))
                 .collect(Collectors.toList());
 

@@ -320,7 +320,7 @@ public class UserService {
 
         fcmRepository.deleteAll(fcmRepository.findAllByUser(user));
         notificationRepository.deleteAll(notificationRepository.findAllByUser(user));
-        userRoleRepository.deleteAll(userRoleRepository.findAllByUser(user));
+        userRoleRepository.deleteAll(userRoleRepository.findAll(username));
 
         educationRepository.deleteAll(educationRepository.findAll(user.getId()));
         portfolioRepository.deleteAll(portfolioRepository.findAll(user.getId()));

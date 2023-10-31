@@ -180,7 +180,7 @@ class UserServiceTest {
 
         Optional<User> user = userRepository.findByContact(contact);
 
-        List<UserRole> userRoles = userRoleRepository.findAllByUser(user.get());
+        List<UserRole> userRoles = userRoleRepository.findAll(user.get().getUsername());
         assertEquals(Role.USER, userRoles.get(0).getRole());
 
         List<Fcm> fcms = fcmRepository.findAllByUser(user.get());
@@ -787,7 +787,7 @@ class UserServiceTest {
         assertThat(contactRepository.findByEmail(email)).isEmpty();
         assertThat(fcmRepository.findAllByUser(user)).isEmpty();
         assertThat(notificationRepository.findAllByUser(user)).isEmpty();
-        assertThat(userRoleRepository.findAllByUser(user)).isEmpty();
+        assertThat(userRoleRepository.findAll(username)).isEmpty();
         assertThat(educationRepository.findAll(user.getId())).isEmpty();
         assertThat(portfolioRepository.findAll(user.getId())).isEmpty();
         assertThat(skillRepository.findAll(user.getId())).isEmpty();
