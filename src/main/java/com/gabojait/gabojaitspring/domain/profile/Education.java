@@ -3,7 +3,6 @@ package com.gabojait.gabojaitspring.domain.profile;
 import com.gabojait.gabojaitspring.domain.base.BaseEntity;
 import com.gabojait.gabojaitspring.domain.user.User;
 import lombok.*;
-import org.hibernate.annotations.OnDelete;
 
 import javax.persistence.*;
 import java.time.LocalDate;
