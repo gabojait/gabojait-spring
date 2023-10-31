@@ -105,24 +105,8 @@ public class JwtProvider {
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
 
-    public String getUsernameByAccess(String token) {
-        DecodedJWT decodedJWT = decodeJwt(token);
-
-        long validTime = decodedJWT.getExpiresAt().getTime() - decodedJWT.getIssuedAt().getTime();
-        if (validTime != accessTokenTime)
-            throw new CustomException(TOKEN_UNAUTHENTICATED);
-
-        return decodedJWT.getSubject();
-    }
-
-    public String getUsernameByRefresh(String token) {
-        DecodedJWT decodedJWT = decodeJwt(token);
-
-        long validTime = decodedJWT.getExpiresAt().getTime() - decodedJWT.getIssuedAt().getTime();
-        if (validTime != refreshTokenTime)
-            throw new CustomException(TOKEN_UNAUTHENTICATED);
-
-        return decodedJWT.getSubject();
+    public String getUsername(String token) {
+        return decodeJwt(token).getSubject();
     }
 
     private DecodedJWT decodeJwt(String token) {

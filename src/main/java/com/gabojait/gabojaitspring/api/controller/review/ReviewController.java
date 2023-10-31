@@ -69,7 +69,7 @@ public class ReviewController {
     })
     @GetMapping("/user/team/review")
     public ResponseEntity<DefaultMultiResponse<Object>> findAllReviewableTeams(HttpServletRequest servletRequest) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         PageData<List<TeamAbstractResponse>> responses = reviewService.findAllReviewableTeams(username,
                 LocalDateTime.now());
@@ -110,7 +110,7 @@ public class ReviewController {
             @Positive(message = "팀 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long teamId
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         TeamAbstractResponse response = reviewService.findReviewableTeam(username, teamId, LocalDateTime.now());
 
@@ -152,7 +152,7 @@ public class ReviewController {
             Long teamId,
             @RequestBody @Valid ReviewCreateRequest request
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         reviewService.createReview(username, teamId, request);
 

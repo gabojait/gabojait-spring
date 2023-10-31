@@ -84,7 +84,7 @@ public class TeamController {
     @PostMapping("/team")
     public ResponseEntity<DefaultSingleResponse<Object>> createTeam(HttpServletRequest servletRequest,
                                                                     @RequestBody @Valid TeamDefaultRequest request) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         TeamDefaultResponse response = teamService.createTeam(username, request);
 
@@ -128,7 +128,7 @@ public class TeamController {
     @PutMapping("/team")
     public ResponseEntity<DefaultSingleResponse<Object>> updateTeam(HttpServletRequest servletRequest,
                                                                     @RequestBody @Valid TeamDefaultRequest request) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         TeamDefaultResponse response = teamService.updateTeam(username, request);
 
@@ -159,7 +159,7 @@ public class TeamController {
     })
     @GetMapping("/user/team")
     public ResponseEntity<DefaultSingleResponse<Object>> findCurrentTeam(HttpServletRequest servletRequest) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         TeamDefaultResponse response = teamService.findCurrentTeam(username);
 
@@ -197,7 +197,7 @@ public class TeamController {
             @Positive(message = "팀 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long teamId
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         TeamOfferFavoriteResponse response = teamService.findOtherTeam(username, teamId);
 
@@ -280,7 +280,7 @@ public class TeamController {
     public ResponseEntity<DefaultNoResponse> updateIsRecruiting(HttpServletRequest servletRequest,
                                                                 @RequestBody @Valid
                                                                 TeamIsRecruitingUpdateRequest request) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         teamService.updateIsRecruiting(username, request.getIsRecruiting());
 
@@ -310,7 +310,7 @@ public class TeamController {
     })
     @DeleteMapping("/team/incomplete")
     public ResponseEntity<DefaultNoResponse> projectIncomplete(HttpServletRequest servletRequest) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         teamService.endProject(username, "", LocalDateTime.now());
 
@@ -343,7 +343,7 @@ public class TeamController {
     @PatchMapping("/team/complete")
     public ResponseEntity<DefaultNoResponse> quitCompleteProject(HttpServletRequest servletRequest,
                                                                 @RequestBody @Valid TeamCompleteRequest request) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         teamService.endProject(username, request.getProjectUrl(), LocalDateTime.now());
 
@@ -382,7 +382,7 @@ public class TeamController {
             @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long userId
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         teamService.fire(username, userId);
 
@@ -414,7 +414,7 @@ public class TeamController {
     })
     @PatchMapping("/team/leave")
     public ResponseEntity<DefaultNoResponse> leaveTeam(HttpServletRequest servletRequest) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         teamService.leave(username);
 

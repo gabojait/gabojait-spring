@@ -72,7 +72,7 @@ public class ProfileController {
     })
     @GetMapping("/profile")
     public ResponseEntity<DefaultSingleResponse<Object>> findMyself(HttpServletRequest servletRequest) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         ProfileDefaultResponse response = profileService.findMyProfile(username);
 
@@ -112,7 +112,7 @@ public class ProfileController {
             @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long userId
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         ProfileDetailResponse response = profileService.findOtherProfile(username, userId);
 
@@ -155,7 +155,7 @@ public class ProfileController {
     public ResponseEntity<DefaultSingleResponse<Object>> uploadProfileImage(HttpServletRequest servletRequest,
                                                                           @RequestPart(value = "image", required = false)
                                                                           MultipartFile image) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         ProfileDefaultResponse response = profileService.uploadProfileImage(username, image);
 
@@ -186,7 +186,7 @@ public class ProfileController {
     })
     @DeleteMapping("/image")
     public ResponseEntity<DefaultSingleResponse<Object>> deleteProfileImage(HttpServletRequest servletRequest) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         ProfileDefaultResponse response = profileService.deleteProfileImage(username);
 
@@ -221,7 +221,7 @@ public class ProfileController {
     public ResponseEntity<DefaultNoResponse> updateIsSeekingTeam(HttpServletRequest servletRequest,
                                                                  @RequestBody @Valid
                                                                  ProfileIsSeekRequest request) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         profileService.updateIsSeekingTeam(username, request.getIsSeekingTeam());
 
@@ -255,7 +255,7 @@ public class ProfileController {
     public ResponseEntity<DefaultNoResponse> updateDescription(HttpServletRequest servletRequest,
                                                                 @RequestBody @Valid
                                                                 ProfileDescriptionUpdateRequest request) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         profileService.updateProfileDescription(username, request.getProfileDescription());
 
@@ -297,7 +297,7 @@ public class ProfileController {
     public ResponseEntity<DefaultSingleResponse<Object>> updateProfile(HttpServletRequest servletRequest,
                                                                        @RequestBody @Valid
                                                                        ProfileDefaultRequest request) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         ProfileDefaultResponse response = profileService.updateProfile(username, request);
 
@@ -339,7 +339,7 @@ public class ProfileController {
     public ResponseEntity<DefaultSingleResponse<Object>> uploadPortfolioFile(HttpServletRequest servletRequest,
                                                                              @RequestPart(value = "file", required = false)
                                                                              MultipartFile file) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         PortfolioUrlResponse response = profileService.uploadPortfolioFile(username, file);
 
@@ -391,7 +391,7 @@ public class ProfileController {
             @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         PageData<List<ProfileOfferResponse>> responses = profileService.findPageUser(username, Position.valueOf(position),
                  pageFrom, pageSize);

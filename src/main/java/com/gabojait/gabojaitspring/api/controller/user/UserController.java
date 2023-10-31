@@ -208,7 +208,7 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<DefaultNoResponse> logout(HttpServletRequest servletRequest,
                                                     @RequestBody @Valid UserLogoutRequest request) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         userService.logout(username, request.getFcmToken());
 
@@ -238,7 +238,7 @@ public class UserController {
     })
     @GetMapping
     public ResponseEntity<DefaultSingleResponse<Object>> findMyself(HttpServletRequest servletRequest) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         UserDefaultResponse response = userService.findUserInfo(username);
 
@@ -270,7 +270,7 @@ public class UserController {
     @PostMapping("/token")
     public ResponseEntity<DefaultNoResponse> renewToken(HttpServletRequest servletRequest,
                                                         @RequestBody @Valid UserRenewTokenRequest request) {
-        String username = jwtProvider.getUsernameByRefresh(servletRequest.getHeader("Refresh-Token"));
+        String username = jwtProvider.getUsername(servletRequest.getHeader("Refresh-Token"));
 
         userService.updateFcmToken(username, request.getFcmToken(), LocalDateTime.now());
 
@@ -359,7 +359,7 @@ public class UserController {
     @PostMapping("/password/verify")
     public ResponseEntity<DefaultNoResponse> verifyPassword(HttpServletRequest servletRequest,
                                                             @RequestBody @Valid UserVerifyRequest request) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         userService.verifyPassword(username, request.getPassword());
 
@@ -394,7 +394,7 @@ public class UserController {
     @PatchMapping("/nickname")
     public ResponseEntity<DefaultNoResponse> updateNickname(HttpServletRequest servletRequest,
                                                             @RequestBody @Valid UserNicknameUpdateRequest request) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         userService.updateNickname(username, request.getNickname());
 
@@ -428,7 +428,7 @@ public class UserController {
     @PatchMapping("/password")
     public ResponseEntity<DefaultNoResponse> updatePassword(HttpServletRequest servletRequest,
                                                             @RequestBody @Valid UserUpdatePasswordRequest request) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         userService.updatePassword(username, request.getPassword(), request.getPasswordReEntered());
 
@@ -462,7 +462,7 @@ public class UserController {
     public ResponseEntity<DefaultNoResponse> updateIsNotified(HttpServletRequest servletRequest,
                                                               @RequestBody @Valid
                                                               UserIsNotifiedUpdateRequest request) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         userService.updateIsNotified(username, request.getIsNotified());
 
@@ -492,7 +492,7 @@ public class UserController {
     })
     @DeleteMapping
     public ResponseEntity<DefaultNoResponse> deactivate(HttpServletRequest servletRequest) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         userService.deleteAccount(username);
 
