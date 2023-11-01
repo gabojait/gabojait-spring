@@ -2,75 +2,33 @@ package com.gabojait.gabojaitspring.domain.user;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PositionTest {
 
-    @Test
-    @DisplayName("디자이너 텍스트를 반환한다.")
-    void givenDesigner_whenGetText_thenReturn() {
-        // given
-        Position position = Position.DESIGNER;
-
-        // when
-        String text = position.getText();
-
-        // then
-        assertThat(text).isEqualTo("디자이너");
+    private static Stream<Arguments> providerGetText() {
+        return Stream.of(
+                Arguments.of(Position.DESIGNER, "디자이너"),
+                Arguments.of(Position.BACKEND, "백엔드 개발자"),
+                Arguments.of(Position.FRONTEND, "프런트엔드 개발자"),
+                Arguments.of(Position.MANAGER, "프로젝트 매니저"),
+                Arguments.of(Position.NONE, "선택 안함")
+        );
     }
 
-    @Test
-    @DisplayName("백엔드 개발자 텍스트를 반환한다.")
-    void givenBackend_whenGetText_thenReturn() {
-        // given
-        Position position = Position.BACKEND;
-
-        // when
-        String text = position.getText();
-
-        // then
-        assertThat(text).isEqualTo("백엔드 개발자");
-    }
-
-    @Test
-    @DisplayName("프런트엔드 개발자 텍스트를 반환한다.")
-    void givenFrontend_whenGetText_thenReturn() {
-        // given
-        Position position = Position.FRONTEND;
-
-        // when
-        String text = position.getText();
-
-        // then
-        assertThat(text).isEqualTo("프런트엔드 개발자");
-    }
-
-    @Test
-    @DisplayName("프로젝트 매니저 텍스트를 반환한다.")
-    void givenManager_whenGetText_thenReturn() {
-        // given
-        Position position = Position.MANAGER;
-
-        // when
-        String text = position.getText();
-
-        // then
-        assertThat(text).isEqualTo("프로젝트 매니저");
-    }
-
-    @Test
-    @DisplayName("선택 안함 텍스트를 반환한다.")
-    void givenNone_whenGetText_thenReturn() {
-        // given
-        Position position = Position.NONE;
-
-        // when
-        String text = position.getText();
-
-        // then
-        assertThat(text).isEqualTo("선택 안함");
+    @ParameterizedTest(name = "[{index}] {0} 포지션 텍스트는 {1}다.")
+    @MethodSource("providerGetText")
+    @DisplayName("포지션 텍스트를 반환한다.")
+    void givenProvider_whenGetText_thenReturn(Position position, String text) {
+        // when & then
+        assertThat(position.getText()).isEqualTo(text);
     }
 
     @Test
@@ -84,73 +42,26 @@ class PositionTest {
                 Position.MANAGER, Position.NONE);
     }
 
-    @Test
-    @DisplayName("값 디자이너를 포지션으로 변환한다.")
-    void givenDesigner_whenValueOf_thenReturn() {
-        // given
-        String s = "DESIGNER";
+    private static Stream<Arguments> providerValueOf() {
+        return Stream.of(
+                Arguments.of("DESIGNER", Position.DESIGNER),
+                Arguments.of("BACKEND", Position.BACKEND),
+                Arguments.of("FRONTEND", Position.FRONTEND),
+                Arguments.of("MANAGER", Position.MANAGER),
+                Arguments.of("NONE", Position.NONE)
+        );
+    }
 
-        // when
-        Position position = Position.valueOf(s);
-
-        // then
-        assertThat(position).isEqualTo(Position.DESIGNER);
+    @ParameterizedTest(name = "[{index}] {0} 값을 {1} 포지션으로 변환한다.")
+    @MethodSource("providerValueOf")
+    @DisplayName("포지션 값을 변환한다.")
+    void givenProvider_whenValueOf_thenReturn(String value, Position position) {
+        // when & then
+        assertThat(Position.valueOf(value)).isEqualTo(position);
     }
 
     @Test
-    @DisplayName("값 백엔드 개발자를 포지션으로 변환한다.")
-    void givenBackend_whenValueOf_thenReturn() {
-        // given
-        String s = "BACKEND";
-
-        // when
-        Position position = Position.valueOf(s);
-
-        // then
-        assertThat(position).isEqualTo(Position.BACKEND);
-    }
-
-    @Test
-    @DisplayName("값 프런트엔드 개발자를 포지션으로 변환한다.")
-    void givenFrontend_whenValueOf_thenReturn() {
-        // given
-        String s = "FRONTEND";
-
-        // when
-        Position position = Position.valueOf(s);
-
-        // then
-        assertThat(position).isEqualTo(Position.FRONTEND);
-    }
-
-    @Test
-    @DisplayName("값 프로젝트 매니저를 포지션으로 변환한다.")
-    void givenManager_whenValueOf_thenReturn() {
-        // given
-        String s = "MANAGER";
-
-        // when
-        Position position = Position.valueOf(s);
-
-        // then
-        assertThat(position).isEqualTo(Position.MANAGER);
-    }
-
-    @Test
-    @DisplayName("값 선택 안함을 포지션으로 변환한다.")
-    void givenNone_whenValueOf_thenReturn() {
-        // given
-        String s = "NONE";
-
-        // when
-        Position position = Position.valueOf(s);
-
-        // then
-        assertThat(position).isEqualTo(Position.NONE);
-    }
-
-    @Test
-    @DisplayName("잘못된 값을 포지션으로 반환하면 예외가 발생한다.")
+    @DisplayName("잘못된 값을 포지션으로 변환하면 예외가 발생한다.")
     void givenInvalid_whenValueOf_thenThrow() {
         // given
         String s = "INVALID";
