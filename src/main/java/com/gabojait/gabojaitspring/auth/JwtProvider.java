@@ -3,9 +3,7 @@ package com.gabojait.gabojaitspring.auth;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.gabojait.gabojaitspring.common.code.ErrorCode;
 import com.gabojait.gabojaitspring.domain.user.Role;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -41,7 +38,7 @@ public class JwtProvider {
     private long refreshTokenTime;
 
     private final CustomUserDetailsService customUserDetailsService;
-    private final String tokenPrefix = "Bearer ";
+    private static final String tokenPrefix = "Bearer ";
 
     public HttpHeaders createJwt(String username) {
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
