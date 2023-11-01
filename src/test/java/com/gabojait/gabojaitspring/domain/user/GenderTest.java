@@ -61,10 +61,10 @@ class GenderTest {
     @DisplayName("잘못된 값을 성별로 변환하면 예외가 발생한다.")
     void givenInvalid_whenValueOf_thenThrow() {
         // given
-        String s = "INVALID";
+        String value = "INVALID";
 
         // when & then
-        assertThatThrownBy(() -> Gender.valueOf(s))
+        assertThatThrownBy(() -> Gender.valueOf(value))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 }
