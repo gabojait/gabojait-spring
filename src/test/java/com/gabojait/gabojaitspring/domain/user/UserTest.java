@@ -207,7 +207,7 @@ class UserTest {
 
     @ParameterizedTest(name = "[{index}] {0}로 포지션을 업데이트한다.")
     @MethodSource("providerUpdatePosition")
-    @DisplayName("회원 포지션을 언데이트 한다.")
+    @DisplayName("회원 포지션을 업데이트 한다.")
     void givenProvider_whenUpdatePosition_thenReturn(Position position) {
         // given
         String email = "tester@gabojait.com";
