@@ -504,8 +504,6 @@ class UserTest {
                                 LocalDate.of(1997, 2, 11), now),
                         false
                 ),
-                Arguments.of(profileDescriptionUser1, profileDescriptionUser2 , false),
-                Arguments.of(imageUrlUser1, imageUrlUser2, false),
                 Arguments.of(
                         createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
                                 LocalDate.of(1997, 2, 11), now),
@@ -527,6 +525,8 @@ class UserTest {
                                 LocalDate.of(1997, 2, 11), now),
                         false
                 ),
+                Arguments.of(profileDescriptionUser1, profileDescriptionUser2 , false),
+                Arguments.of(imageUrlUser1, imageUrlUser2, false),
                 Arguments.of(positionUser1, positionUser2, false),
                 Arguments.of(ratingUser1, ratingUser2, false),
                 Arguments.of(visitUser1, visitUser2, false),
