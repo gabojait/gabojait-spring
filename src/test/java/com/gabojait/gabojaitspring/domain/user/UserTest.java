@@ -131,17 +131,10 @@ class UserTest {
                         Position.NONE, 0F, 0L, 0, true, false, true);
     }
 
-    private static Stream<Arguments> providerUpdateIsNotified() {
-        return Stream.of(
-                Arguments.of(true),
-                Arguments.of(false)
-        );
-    }
-
     @ParameterizedTest(name = "[{index}] {0}로 회원 알림 여부를 업데이트한다.")
-    @MethodSource("providerUpdateIsNotified")
+    @ValueSource(booleans = {true, false})
     @DisplayName("회원 알림 여부를 업데이트한다.")
-    void givenProvider_whenUpdateIsNotified_thenReturn(boolean isNotified) {
+    void givenValid_whenUpdateIsNotified_thenReturn(boolean isNotified) {
         // given
         String email = "tester@gabojait.com";
         String verificationCode = "000000";
@@ -317,7 +310,7 @@ class UserTest {
     @ParameterizedTest(name = "[{index}] {0}로 팀 찾기 여부를 업데이트한다.")
     @ValueSource(booleans = {true, false})
     @DisplayName("회원 팀 찾기 여부를 업데이트한다.")
-    void givenProvider_whenUpdateIsSeekingTeam_thenReturn(boolean isSeekingTeam) {
+    void givenValid_whenUpdateIsSeekingTeam_thenReturn(boolean isSeekingTeam) {
         // given
         String email = "tester@gabojait.com";
         String verificationCode = "000000";
@@ -345,7 +338,7 @@ class UserTest {
     @ParameterizedTest(name = "[{index}] {0}번 회원 프로필을 방문한다.")
     @ValueSource(longs = {1, 3, 5, 7, 10})
     @DisplayName("회원 프로필을 방문한다.")
-    void givenProvider_whenVisit_thenReturn(long visitCnt) {
+    void givenValid_whenVisit_thenReturn(long visitCnt) {
         // given
         String email = "tester@gabojait.com";
         String verificationCode = "000000";

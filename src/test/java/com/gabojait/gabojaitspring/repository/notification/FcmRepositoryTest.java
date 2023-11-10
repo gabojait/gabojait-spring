@@ -3,7 +3,6 @@ package com.gabojait.gabojaitspring.repository.notification;
 import com.gabojait.gabojaitspring.domain.notification.Fcm;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
-import com.gabojait.gabojaitspring.domain.team.TeamMemberStatus;
 import com.gabojait.gabojaitspring.domain.user.Contact;
 import com.gabojait.gabojaitspring.domain.user.Gender;
 import com.gabojait.gabojaitspring.domain.user.Position;
@@ -134,7 +133,7 @@ class FcmRepositoryTest {
         TeamMember teamMember1 = createSavedTeamMember(true, user1, team);
         TeamMember teamMember2 = createSavedTeamMember(false, user2, team);
         TeamMember teamMember3 = createSavedTeamMember(false, user3, team);
-        teamMember3.updateTeamMemberStatus(TeamMemberStatus.QUIT);
+        teamMember3.quit();
         teamMemberRepository.save(teamMember3);
 
         // when

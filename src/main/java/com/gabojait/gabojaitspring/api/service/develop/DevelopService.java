@@ -6,7 +6,6 @@ import com.gabojait.gabojaitspring.domain.profile.*;
 import com.gabojait.gabojaitspring.domain.review.Review;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
-import com.gabojait.gabojaitspring.domain.team.TeamMemberStatus;
 import com.gabojait.gabojaitspring.domain.user.*;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.favorite.FavoriteRepository;
@@ -38,7 +37,6 @@ import java.util.List;
 import java.util.Random;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.TESTER_NOT_FOUND;
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -254,12 +252,10 @@ public class DevelopService {
                         .team(team)
                         .build();
 
-                teamMember.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
+                teamMember.complete("github.com/gabojait", LocalDateTime.now());
                 teamMemberRepository.save(teamMember);
                 teamMembers.add(teamMember);
             }
-            team.complete("github.com/gabojait", LocalDateTime.now());
-            teamRepository.save(team);
 
             for (int j = i; j < i + 5; j++)
                 for (int k = i; k < i + 5; k++) {

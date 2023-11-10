@@ -183,7 +183,7 @@ public class Team extends BasePermanentEntity {
         this.visitedCnt++;
     }
 
-    public void incomplete() {
+    protected void incomplete() {
         this.isRecruiting = false;
         this.isDeleted = true;
     }

@@ -74,7 +74,7 @@ class ProfileServiceTest {
         Team completedTeam = createTeam("가보자잇1");
         teamRepository.save(completedTeam);
         TeamMember completedTeamMember1 = createTeamMember(user1, completedTeam);
-        completedTeamMember1.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
+        completedTeamMember1.complete("github.com/gabojait", LocalDateTime.now());
         teamMemberRepository.save(completedTeamMember1);
 
         User user2 = createSavedDefaultUser("tester2@gabojait.com","tester2", "테스터이");
@@ -100,10 +100,8 @@ class ProfileServiceTest {
         workRepository.saveAll(List.of(work1, work2));
 
         TeamMember completedTeamMember2 = createTeamMember(user2, completedTeam);
-        completedTeamMember2.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
+        completedTeamMember2.complete("github.com/gabojait", LocalDateTime.now());
         teamMemberRepository.save(completedTeamMember2);
-        completedTeam.complete("github.com/gabojait", LocalDateTime.now());
-        teamRepository.save(completedTeam);
 
         Review review = createReview(completedTeamMember1, completedTeamMember2);
         reviewRepository.save(review);
@@ -222,7 +220,7 @@ class ProfileServiceTest {
         Team completedTeam = createTeam("가보자잇1");
         teamRepository.save(completedTeam);
         TeamMember completedTeamMember1 = createTeamMember(user1, completedTeam);
-        completedTeamMember1.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
+        completedTeamMember1.complete("github.com/gabojait", LocalDateTime.now());
         teamMemberRepository.save(completedTeamMember1);
 
         User user2 = createSavedDefaultUser("tester2@gabojait.com","tester2", "테스터이");
@@ -248,10 +246,8 @@ class ProfileServiceTest {
         workRepository.saveAll(List.of(work1, work2));
 
         TeamMember completedTeamMember2 = createTeamMember(user2, completedTeam);
-        completedTeamMember2.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
+        completedTeamMember2.complete("github.com/gabojait", LocalDateTime.now());
         teamMemberRepository.save(completedTeamMember2);
-        completedTeam.complete("github.com/gabojait", LocalDateTime.now());
-        teamRepository.save(completedTeam);
 
         Review review = createReview(completedTeamMember1, completedTeamMember2);
         reviewRepository.save(review);
@@ -373,7 +369,7 @@ class ProfileServiceTest {
         Team completedTeam = createTeam("가보자잇1");
         teamRepository.save(completedTeam);
         TeamMember completedTeamMember1 = createTeamMember(user1, completedTeam);
-        completedTeamMember1.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
+        completedTeamMember1.complete("github.com/gabojait", LocalDateTime.now());
         teamMemberRepository.save(completedTeamMember1);
 
         User user2 = createSavedDefaultUser("tester2@gabojait.com","tester2", "테스터이");
@@ -399,10 +395,8 @@ class ProfileServiceTest {
         workRepository.saveAll(List.of(work1, work2));
 
         TeamMember completedTeamMember2 = createTeamMember(user2, completedTeam);
-        completedTeamMember2.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
+        completedTeamMember2.complete("github.com/gabojait", LocalDateTime.now());
         teamMemberRepository.save(completedTeamMember2);
-        completedTeam.complete("github.com/gabojait", LocalDateTime.now());
-        teamRepository.save(completedTeam);
 
         Review review = createReview(completedTeamMember1, completedTeamMember2);
         reviewRepository.save(review);

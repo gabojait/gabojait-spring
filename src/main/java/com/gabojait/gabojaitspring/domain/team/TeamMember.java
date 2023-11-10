@@ -7,9 +7,11 @@ import com.gabojait.gabojaitspring.exception.CustomException;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.TEAM_LEADER_UNAVAILABLE;
+import static com.gabojait.gabojaitspring.common.code.ErrorCode.UNREGISTER_UNAVAILABLE;
 
 @Getter
 @Entity
@@ -50,26 +52,45 @@ public class TeamMember extends BasePermanentEntity {
         user.updateIsSeekingTeam(false);
     }
 
-    public void updateTeamMemberStatus(TeamMemberStatus teamMemberStatus) {
-        this.teamMemberStatus = teamMemberStatus;
+    public void complete(String projectUrl, LocalDateTime completedAt) {
+        this.teamMemberStatus = TeamMemberStatus.COMPLETE;
 
         this.user.updateIsSeekingTeam(true);
+        if (this.isLeader) this.team.complete(projectUrl, completedAt);
+    }
 
-        if ((teamMemberStatus.equals(TeamMemberStatus.QUIT) || teamMemberStatus.equals(TeamMemberStatus.FIRED))
-                && this.isLeader)
-            throw new CustomException(TEAM_LEADER_UNAVAILABLE);
+    public void incomplete() {
+        this.teamMemberStatus = TeamMemberStatus.INCOMPLETE;
+        this.isDeleted = true;
 
-        if (teamMemberStatus.equals(TeamMemberStatus.QUIT) || teamMemberStatus.equals(TeamMemberStatus.FIRED)
-                || teamMemberStatus.equals(TeamMemberStatus.INCOMPLETE)) {
-            this.isDeleted = true;
-            this.team.leave(this.position);
-        }
+        this.team.incomplete();
+        this.user.updateIsSeekingTeam(true);
+    }
+
+    public void fire() {
+        if (this.isLeader) throw new CustomException(TEAM_LEADER_UNAVAILABLE);
+
+        this.teamMemberStatus = TeamMemberStatus.FIRED;
+        this.isDeleted = true;
+
+        this.team.leave(this.position);
+        this.user.updateIsSeekingTeam(true);
+    }
+
+    public void quit() {
+        if (this.isLeader) throw new CustomException(TEAM_LEADER_UNAVAILABLE);
+
+        this.teamMemberStatus = TeamMemberStatus.QUIT;
+        this.isDeleted = true;
+
+        this.team.leave(this.position);
+        this.user.updateIsSeekingTeam(true);
     }
 
     public void disconnectUser() {
         if (this.teamMemberStatus.equals(TeamMemberStatus.PROGRESS)) {
-            team.leave(position);
-            this.isDeleted = true;
+            if (!this.isLeader) quit();
+            else throw new CustomException(UNREGISTER_UNAVAILABLE);
         }
 
         this.user = null;
