@@ -29,8 +29,6 @@ class GenderTest {
         assertThat(gender.getText()).isEqualTo(text);
     }
 
-
-
     @Test
     @DisplayName("전체 성별을 반환한다.")
     void values() {
