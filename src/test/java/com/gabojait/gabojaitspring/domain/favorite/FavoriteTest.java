@@ -6,9 +6,13 @@ import com.gabojait.gabojaitspring.domain.user.Gender;
 import com.gabojait.gabojaitspring.domain.user.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -50,7 +54,81 @@ class FavoriteTest {
                 .containsExactly(user, team, null);
     }
 
-    private Favorite createFavorite(User user, Team favoriteTeam, User favoriteUser) {
+    private static Stream<Arguments> providerEquals() {
+        User user = createDefaultUser("tester1@gabojait.com", "000000", "tester1", "password1!", "테스터일", Gender.M,
+                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        User favoriteUser = createDefaultUser("tester2@gabojait.com", "000000", "tester2", "password1!", "테스터이", Gender.M,
+                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team favoriteTeam = createTeam("가보자잇", (byte) 2);
+        Favorite favorite = createFavorite(user, favoriteTeam, null);
+
+        Team team1 = createTeam("가보자잇1", (byte) 2);
+        Favorite favoriteTeamFavorite1 = createFavorite(user, team1, null);
+        Team team2 = createTeam("가보자잇2", (byte) 2);
+        Favorite favoriteTeamFavorite2 = createFavorite(user, team2, null);
+
+        User user1 = createDefaultUser("tester1@gabojait.com", "000000", "tester1", "password1!", "테스터일", Gender.M,
+                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Favorite favoriteUserFavorite1 = createFavorite(user, null, user1);
+        User user2 = createDefaultUser("tester2@gabojait.com", "000000", "tester2", "password1!", "테스터이", Gender.M,
+                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Favorite favoriteUserFavorite2 = createFavorite(user, null, user2);
+
+        return Stream.of(
+                Arguments.of(favorite, favorite, true),
+                Arguments.of(favorite, new Object(), false),
+                Arguments.of(
+                        createFavorite(user, null, favoriteUser),
+                        createFavorite(user, null, favoriteUser),
+                        true
+                ),
+                Arguments.of(favoriteTeamFavorite1, favoriteTeamFavorite2, false),
+                Arguments.of(favoriteUserFavorite1, favoriteUserFavorite2, false)
+        );
+    }
+
+    @ParameterizedTest(name = "[{index}] 찜 객체를 비교한다.")
+    @MethodSource("providerEquals")
+    @DisplayName("찜 객체를 비교한다.")
+    void givenProvider_whenEquals_thenReturn(Favorite favorite, Object object, boolean result) {
+        // when & then
+        assertThat(favorite.equals(object)).isEqualTo(result);
+    }
+
+    private static Stream<Arguments> providerHashCode() {
+        User user = createDefaultUser("tester1@gabojait.com", "000000", "tester1", "password1!", "테스터일", Gender.M,
+                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team favoriteTeam = createTeam("가보자잇", (byte) 2);
+        User favoriteUser = createDefaultUser("tester2@gabojait.com", "000000", "tester2", "password1!", "테스터이",
+                Gender.M, LocalDate.of(1997, 2, 11), LocalDateTime.now());
+
+        return Stream.of(
+                Arguments.of(
+                        createFavorite(user, favoriteTeam, null),
+                        createFavorite(user, favoriteTeam, null),
+                        true
+                ),
+                Arguments.of(
+                        createFavorite(user, favoriteTeam, null),
+                        createFavorite(user, null, favoriteUser),
+                        false
+                )
+        );
+    }
+
+    @ParameterizedTest(name = "[{index}] 찜 해시코드를 비교한다.")
+    @MethodSource("providerHashCode")
+    @DisplayName("찜 해시코드를 비교한다.")
+    void givenProvider_whenHashCode_thenReturn(Favorite favorite1, Favorite favorite2, boolean result) {
+        // when
+        int hashCode1 = favorite1.hashCode();
+        int hashCode2 = favorite2.hashCode();
+
+        // then
+        assertThat(hashCode1 == hashCode2).isEqualTo(result);
+    }
+
+    private static Favorite createFavorite(User user, Team favoriteTeam, User favoriteUser) {
         return Favorite.builder()
                 .user(user)
                 .favoriteTeam(favoriteTeam)
@@ -58,8 +136,7 @@ class FavoriteTest {
                 .build();
     }
 
-    private Team createTeam(String projectName,
-                            byte maxCnt) {
+    private static Team createTeam(String projectName, byte maxCnt) {
         return Team.builder()
                 .projectName(projectName)
                 .projectDescription("프로젝트 설명입니다.")
@@ -72,7 +149,7 @@ class FavoriteTest {
                 .build();
     }
 
-    private User createDefaultUser(String email,
+    private static User createDefaultUser(String email,
                                    String verificationCode,
                                    String username,
                                    String password,
