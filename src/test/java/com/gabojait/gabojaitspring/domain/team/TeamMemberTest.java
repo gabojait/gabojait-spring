@@ -369,9 +369,6 @@ class TeamMemberTest {
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 5, (byte) 5,
                 (byte) 5, (byte) 5);
 
-        TeamMember teamMember1 = createTeamMember(Position.BACKEND, false, user, team);
-        TeamMember teamMember2 = createTeamMember(Position.BACKEND, false, user, team);
-
         return Stream.of(
                 Arguments.of(
                         createTeamMember(Position.BACKEND, false, user, team),
