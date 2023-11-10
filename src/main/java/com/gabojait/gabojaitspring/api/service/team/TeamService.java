@@ -189,13 +189,11 @@ public class TeamService {
         List<TeamMember> teamMembers = teamMemberRepository.findAllCurrentFetchUser(teamMember.getTeam().getId());
 
         if (projectUrl.isBlank()) {
-            teamMember.getTeam().incomplete();
-            teamMembers.forEach(tm -> tm.updateTeamMemberStatus(TeamMemberStatus.INCOMPLETE));
+            teamMembers.forEach(TeamMember::incomplete);
 
             notificationService.sendTeamIncomplete(teamMember.getTeam());
         } else {
-            teamMember.getTeam().complete(projectUrl, completedAt);
-            teamMembers.forEach(tm -> tm.updateTeamMemberStatus(TeamMemberStatus.COMPLETE));
+            teamMembers.forEach(tm -> tm.complete(projectUrl, completedAt));
 
             notificationService.sendTeamComplete(teamMember.getTeam());
         }
@@ -217,7 +215,7 @@ public class TeamService {
         validateLeader(teamLeader);
 
         TeamMember teamMember = findCurrentTeamMember(userId, teamLeader.getTeam().getId());
-        teamMember.updateTeamMemberStatus(TeamMemberStatus.FIRED);
+        teamMember.fire();
 
         notificationService.sendTeamMemberFired(teamMember.getUser(), teamLeader.getTeam());
     }
@@ -228,12 +226,13 @@ public class TeamService {
      * 409(TEAM_LEADER_UNAVAILABLE)
      * @param username 회원 아이디
      */
+    @Transactional
     public void leave(String username) {
         User user = findUser(username);
 
         TeamMember teamMember = findCurrentTeamMemberFetchTeam(user.getId());
 
-        teamMember.updateTeamMemberStatus(TeamMemberStatus.QUIT);
+        teamMember.quit();
 
         notificationService.sendTeamMemberQuit(user, teamMember.getTeam());
     }

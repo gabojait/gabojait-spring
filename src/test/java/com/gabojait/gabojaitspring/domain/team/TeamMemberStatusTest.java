@@ -2,75 +2,33 @@ package com.gabojait.gabojaitspring.domain.team;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class TeamMemberStatusTest {
 
-    @Test
-    @DisplayName("진행으로 텍스트를 변환한다.")
-    void givenProgress_WhenGetText_thenReturn() {
-        // given
-        TeamMemberStatus teamMemberStatus = TeamMemberStatus.PROGRESS;
-
-        // when
-        String text = teamMemberStatus.getText();
-
-        // then
-        assertThat(text).isEqualTo("진행");
+    private static Stream<Arguments> providerGetText() {
+        return Stream.of(
+                Arguments.of(TeamMemberStatus.PROGRESS, "진행"),
+                Arguments.of(TeamMemberStatus.COMPLETE, "완료"),
+                Arguments.of(TeamMemberStatus.INCOMPLETE, "미완료"),
+                Arguments.of(TeamMemberStatus.FIRED, "추방"),
+                Arguments.of(TeamMemberStatus.QUIT, "포기")
+        );
     }
 
-    @Test
-    @DisplayName("완료로 텍스트를 변환한다.")
-    void givenComplete_WhenGetText_thenReturn() {
-        // given
-        TeamMemberStatus teamMemberStatus = TeamMemberStatus.COMPLETE;
-
-        // when
-        String text = teamMemberStatus.getText();
-
-        // then
-        assertThat(text).isEqualTo("완료");
-    }
-
-    @Test
-    @DisplayName("미완료로 텍스트를 변환한다.")
-    void givenIncomplete_WhenGetText_thenReturn() {
-        // given
-        TeamMemberStatus teamMemberStatus = TeamMemberStatus.INCOMPLETE;
-
-        // when
-        String text = teamMemberStatus.getText();
-
-        // then
-        assertThat(text).isEqualTo("미완료");
-    }
-
-    @Test
-    @DisplayName("추방으로 텍스트를 변환한다.")
-    void givenFired_WhenGetText_thenReturn() {
-        // given
-        TeamMemberStatus teamMemberStatus = TeamMemberStatus.FIRED;
-
-        // when
-        String text = teamMemberStatus.getText();
-
-        // then
-        assertThat(text).isEqualTo("추방");
-    }
-
-    @Test
-    @DisplayName("포기로 텍스트를 변환한다.")
-    void givenQuit_WhenGetText_thenReturn() {
-        // given
-        TeamMemberStatus teamMemberStatus = TeamMemberStatus.QUIT;
-
-        // when
-        String text = teamMemberStatus.getText();
-
-        // then
-        assertThat(text).isEqualTo("포기");
+    @ParameterizedTest(name = "[{index}] {0} 팀원 상태 텍스트는 {1}다.")
+    @MethodSource("providerGetText")
+    @DisplayName("팀원 상태 텍스트를 반환한다.")
+    void givenProvider_whenGetText_thenReturn(TeamMemberStatus teamMemberStatus, String text) {
+        // when & then
+        assertThat(teamMemberStatus.getText()).isEqualTo(text);
     }
 
     @Test
@@ -84,79 +42,32 @@ class TeamMemberStatusTest {
                 TeamMemberStatus.INCOMPLETE, TeamMemberStatus.FIRED, TeamMemberStatus.QUIT);
     }
 
-    @Test
-    @DisplayName("값 진행을 팀원상태로 반환한다.")
-    void givenProgress_whenValueOf_thenReturn() {
-        // given
-        String s = "PROGRESS";
-
-        // when
-        TeamMemberStatus teamMemberStatus = TeamMemberStatus.valueOf(s);
-
-        // then
-        assertThat(teamMemberStatus).isEqualTo(TeamMemberStatus.PROGRESS);
+    private static Stream<Arguments> providerValueOf() {
+        return Stream.of(
+                Arguments.of("PROGRESS", TeamMemberStatus.PROGRESS),
+                Arguments.of("COMPLETE", TeamMemberStatus.COMPLETE),
+                Arguments.of("INCOMPLETE", TeamMemberStatus.INCOMPLETE),
+                Arguments.of("FIRED", TeamMemberStatus.FIRED),
+                Arguments.of("QUIT", TeamMemberStatus.QUIT)
+        );
     }
 
-    @Test
-    @DisplayName("값 완료를 팀원상태로 반환한다.")
-    void givenComplete_whenValueOf_thenReturn() {
-        // given
-        String s = "COMPLETE";
-
-        // when
-        TeamMemberStatus teamMemberStatus = TeamMemberStatus.valueOf(s);
-
-        // then
-        assertThat(teamMemberStatus).isEqualTo(TeamMemberStatus.COMPLETE);
-    }
-
-    @Test
-    @DisplayName("값 미완료를 팀원상태로 반환한다.")
-    void givenIncomplete_whenValueOf_thenReturn() {
-        // given
-        String s = "INCOMPLETE";
-
-        // when
-        TeamMemberStatus teamMemberStatus = TeamMemberStatus.valueOf(s);
-
-        // then
-        assertThat(teamMemberStatus).isEqualTo(TeamMemberStatus.INCOMPLETE);
-    }
-
-    @Test
-    @DisplayName("값 추방을 팀원상태로 반환한다.")
-    void givenFired_whenValueOf_thenReturn() {
-        // given
-        String s = "FIRED";
-
-        // when
-        TeamMemberStatus teamMemberStatus = TeamMemberStatus.valueOf(s);
-
-        // then
-        assertThat(teamMemberStatus).isEqualTo(TeamMemberStatus.FIRED);
-    }
-
-    @Test
-    @DisplayName("값 포기를 팀원상태로 반환한다.")
-    void givenQuit_whenValueOf_thenReturn() {
-        // given
-        String s = "QUIT";
-
-        // when
-        TeamMemberStatus teamMemberStatus = TeamMemberStatus.valueOf(s);
-
-        // then
-        assertThat(teamMemberStatus).isEqualTo(TeamMemberStatus.QUIT);
+    @ParameterizedTest(name = "[{index}] {0} 값을 {1} 팀원 상태로 변환한다.")
+    @MethodSource("providerValueOf")
+    @DisplayName("팀원 상태 값을 변환한다.")
+    void givenProvider_whenValueOf_thenReturn(String value, TeamMemberStatus teamMemberStatus) {
+        // when & then
+        assertThat(TeamMemberStatus.valueOf(value)).isEqualTo(teamMemberStatus);
     }
 
     @Test
     @DisplayName("잘못된 값을 팀원상태로 반환하면 예외가 발생한다.")
     void givenInvalid_whenValueOf_thenReturn() {
         // given
-        String s = "INVALID";
+        String value = "INVALID";
 
         // when & then
-        assertThatThrownBy(() -> TeamMemberStatus.valueOf(s))
+        assertThatThrownBy(() -> TeamMemberStatus.valueOf(value))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 }

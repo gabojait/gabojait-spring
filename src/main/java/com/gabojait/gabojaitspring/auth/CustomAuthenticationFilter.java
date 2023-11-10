@@ -25,7 +25,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         String accessToken = request.getHeader(AUTHORIZATION);
         String refreshToken = request.getHeader("Refresh-Token");
 
-        if (accessToken != null && !accessToken.isBlank())
+        if (accessToken != null && !accessToken.isBlank() && !request.getRequestURI().contains("token"))
             jwtProvider.authenticate(accessToken, Jwt.ACCESS);
         else if (refreshToken != null && !refreshToken.isBlank())
             jwtProvider.authenticate(refreshToken, Jwt.REFRESH);

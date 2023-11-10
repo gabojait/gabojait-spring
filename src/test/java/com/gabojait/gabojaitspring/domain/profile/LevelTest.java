@@ -2,49 +2,32 @@ package com.gabojait.gabojaitspring.domain.profile;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LevelTest {
 
-    @Test
-    @DisplayName("하 텍스트를 반환한다.")
-    void givenLow_whenGetText_thenReturn() {
-        // given
-        Level level = Level.LOW;
-
-        // when
-        String text = level.getText();
-
-        // then
-        assertThat(text).isEqualTo("하");
+    private static Stream<Arguments> providerGetText() {
+        return Stream.of(
+                Arguments.of(Level.HIGH, "상"),
+                Arguments.of(Level.MID, "중"),
+                Arguments.of(Level.LOW, "하")
+        );
     }
 
-    @Test
-    @DisplayName("중 텍스트를 반환한다.")
-    void givenMid_whenGetText_thenReturn() {
-        // given
-        Level level = Level.MID;
-
-        // when
-        String text = level.getText();
-
-        // then
-        assertThat(text).isEqualTo("중");
-    }
-
-    @Test
-    @DisplayName("상 텍스트를 반환한다.")
-    void givenHigh_whenGetText_thenReturn() {
-        // given
-        Level level = Level.HIGH;
-
-        // when
-        String text = level.getText();
-
-        // then
-        assertThat(text).isEqualTo("상");
+    @ParameterizedTest(name = "[{index}] {0} 레벨 텍스트는 {1}이다.")
+    @MethodSource("providerGetText")
+    @DisplayName("레벨 텍스트를 반환한다.")
+    void givenProvider_whenGetText_thenReturn(Level level, String text) {
+        // when & then
+        assertThat(level.getText()).isEqualTo(text);
     }
 
     @Test
@@ -57,42 +40,30 @@ class LevelTest {
         assertThat(levels).containsExactlyInAnyOrder(Level.LOW, Level.MID, Level.HIGH);
     }
 
-    @Test
-    @DisplayName("값 하를 레벨로 변환한다.")
-    void givenLow_whenValueOf_thenReturn() {
-        // given
-        String s = "LOW";
+    private static Stream<Arguments> providerValueOf() {
+        return Stream.of(
+                Arguments.of("HIGH", Level.HIGH),
+                Arguments.of("MID", Level.MID),
+                Arguments.of("LOW", Level.LOW)
+        );
+    }
 
-        // when
-        Level level = Level.valueOf(s);
-
-        // then
-        assertThat(level).isEqualTo(Level.LOW);
+    @ParameterizedTest(name = "[{index}] {0} 값을 {1} 레벨로 변환한다.")
+    @MethodSource("providerValueOf")
+    @DisplayName("레벨 값을 반환한다.")
+    void givenProvider_whenValueOf_thenReturn(String value, Level level) {
+        // when & then
+        assertThat(Level.valueOf(value)).isEqualTo(level);
     }
 
     @Test
-    @DisplayName("값 중을 레벨로 변환한다.")
-    void givenMid_whenValueOf_thenReturn() {
+    @DisplayName("잘못된 값을 레벨로 변환하면 예외가 발생한다.")
+    void givenInvalid_whenValueOf_thenThrow() {
         // given
-        String s = "MID";
+        String value = "INVALID";
 
-        // when
-        Level level = Level.valueOf(s);
-
-        // then
-        assertThat(level).isEqualTo(Level.MID);
-    }
-
-    @Test
-    @DisplayName("값 상을 레벨로 변환한다.")
-    void givenHigh_whenValueOf_thenReturn() {
-        // given
-        String s = "HIGH";
-
-        // when
-        Level level = Level.valueOf(s);
-
-        // then
-        assertThat(level).isEqualTo(Level.HIGH);
+        // when & then
+        assertThatThrownBy(() -> Level.valueOf(value))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }

@@ -8,7 +8,6 @@ import com.gabojait.gabojaitspring.api.dto.team.response.TeamAbstractResponse;
 import com.gabojait.gabojaitspring.domain.review.Review;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
-import com.gabojait.gabojaitspring.domain.team.TeamMemberStatus;
 import com.gabojait.gabojaitspring.domain.user.Contact;
 import com.gabojait.gabojaitspring.domain.user.Gender;
 import com.gabojait.gabojaitspring.domain.user.Position;
@@ -58,16 +57,16 @@ class ReviewServiceTest {
         LocalDateTime now = LocalDateTime.now();
 
         Team team1 = createSavedTeam("가보자잇1");
-        team1.complete("github.com/gabojait1", now.minusWeeks(4).minusSeconds(1));
         Team team2 = createSavedTeam("가보자잇2");
-        team2.complete("github.com/gabojait2", now.minusWeeks(4).plusSeconds(1));
         Team team3 = createSavedTeam("가보자잇3");
-        team3.incomplete();
         teamRepository.saveAll(List.of(team1, team2));
 
-        TeamMember teamMember1 = createSavedTeamMember(true, TeamMemberStatus.COMPLETE, user, team1);
-        TeamMember teamMember2 = createSavedTeamMember(true, TeamMemberStatus.COMPLETE, user, team2);
-        TeamMember teamMember3 = createSavedTeamMember(false, TeamMemberStatus.INCOMPLETE, user, team3);
+        TeamMember teamMember1 = createSavedTeamMember(true, user, team1);
+        teamMember1.complete("github.com/gabojait1", now.minusWeeks(4).minusSeconds(1));
+        TeamMember teamMember2 = createSavedTeamMember(true, user, team2);
+        teamMember2.complete("github.com/gabojait2", now.minusWeeks(4).plusSeconds(1));
+        TeamMember teamMember3 = createSavedTeamMember(false, user, team3);
+        teamMember3.incomplete();
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3));
 
         // when
@@ -111,9 +110,10 @@ class ReviewServiceTest {
         LocalDateTime now = LocalDateTime.now();
 
         Team team = createSavedTeam("가보자잇");
-        team.complete("github.com/gabojait", now);
         teamRepository.save(team);
-        TeamMember teamMember = createSavedTeamMember(true, TeamMemberStatus.COMPLETE, user, team);
+        TeamMember teamMember = createSavedTeamMember(true, user, team);
+        teamMember.complete("github.com/gabojait", now);
+        teamMemberRepository.save(teamMember);
 
         // when
         TeamAbstractResponse response = reviewService.findReviewableTeam(user.getUsername(), team.getId(), now);
@@ -171,11 +171,14 @@ class ReviewServiceTest {
         LocalDateTime now = LocalDateTime.now();
 
         Team team = createSavedTeam("가보자잇");
-        team.complete("github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
         teamRepository.save(team);
-        TeamMember teamMember1 = createSavedTeamMember(true, TeamMemberStatus.COMPLETE, user1, team);
-        TeamMember teamMember2 = createSavedTeamMember(false, TeamMemberStatus.COMPLETE, user2, team);
-        TeamMember teamMember3 = createSavedTeamMember(false, TeamMemberStatus.COMPLETE, user3, team);
+        TeamMember teamMember1 = createSavedTeamMember(true, user1, team);
+        teamMember1.complete("github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
+        TeamMember teamMember2 = createSavedTeamMember(false, user2, team);
+        teamMember2.complete("github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
+        TeamMember teamMember3 = createSavedTeamMember(false, user3, team);
+        teamMember3.complete("github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
+        teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3));
 
         ReviewCreateRequest request = createValidReviewCreateRequest(
                 List.of(teamMember1.getId(), teamMember2.getId(), teamMember3.getId())
@@ -231,12 +234,17 @@ class ReviewServiceTest {
         LocalDateTime now = LocalDateTime.now();
 
         Team team = createSavedTeam("가보자잇");
-        team.complete("github.com/gabojait", now);
         teamRepository.save(team);
-        TeamMember teamMember1 = createSavedTeamMember(true, TeamMemberStatus.COMPLETE, user1, team);
-        TeamMember teamMember2 = createSavedTeamMember(false, TeamMemberStatus.COMPLETE, user2, team);
-        TeamMember teamMember3 = createSavedTeamMember(false, TeamMemberStatus.COMPLETE, user3, team);
-        TeamMember teamMember4 = createSavedTeamMember(false, TeamMemberStatus.COMPLETE, user4, team);
+        TeamMember teamMember1 = createSavedTeamMember(true, user1, team);
+        teamMember1.complete("github.com/gabojait", now);
+        TeamMember teamMember2 = createSavedTeamMember(false, user2, team);
+        teamMember2.complete("github.com/gabojait", now);
+        TeamMember teamMember3 = createSavedTeamMember(false, user3, team);
+        teamMember3.complete("github.com/gabojait", now);
+        TeamMember teamMember4 = createSavedTeamMember(false, user4, team);
+        teamMember4.complete("github.com/gabojait", now);
+        teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3, teamMember4));
+
         Review review1 = createSavedReview(teamMember2, teamMember1);
         Review review2 = createSavedReview(teamMember3, teamMember1);
         Review review3 = createSavedReview(teamMember4, teamMember1);
@@ -301,7 +309,6 @@ class ReviewServiceTest {
     }
 
     private TeamMember createSavedTeamMember(boolean isLeader,
-                                             TeamMemberStatus teamMemberStatus,
                                              User user,
                                              Team team) {
         TeamMember teamMember = TeamMember.builder()
@@ -310,7 +317,6 @@ class ReviewServiceTest {
                 .user(user)
                 .team(team)
                 .build();
-        teamMember.updateTeamMemberStatus(teamMemberStatus);
 
         return teamMemberRepository.save(teamMember);
     }

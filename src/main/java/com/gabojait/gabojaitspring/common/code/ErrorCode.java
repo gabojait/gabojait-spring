@@ -175,6 +175,7 @@ public enum ErrorCode {
     MANAGER_CNT_UPDATE_UNAVAILABLE(CONFLICT, "현재 소속되어 있는 매니저 팀원 수가 수정한 매니저 팀원 수 보다 많습니다."),
     TEAM_LEADER_UNAVAILABLE(CONFLICT, "팀장은 할 수 없는 행동입니다."),
     UNAVAILABLE_REVIEW(CONFLICT, "리뷰 가능한 기간이 지나 리뷰를 작성할 수 없습니다."),
+    UNREGISTER_UNAVAILABLE(CONFLICT, "현재 팀장인 상태에서 회원탈퇴를 할 수 없습니다."),
 
     /**
      * 413 Payload too large

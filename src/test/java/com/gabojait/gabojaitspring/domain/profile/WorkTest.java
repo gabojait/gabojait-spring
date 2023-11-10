@@ -5,9 +5,13 @@ import com.gabojait.gabojaitspring.domain.user.Gender;
 import com.gabojait.gabojaitspring.domain.user.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -58,251 +62,98 @@ class WorkTest {
                 .containsExactly(corporationName, workDescription, startedAt, endedAt, isCurrent);
     }
 
-    @Test
-    @DisplayName("같은 객체인 경력을 비교하면 동일하다.")
-    void givenEqualInstance_whenEquals_thenReturn() {
-        // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Work work = createWork("가보자잇사", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user);
-
-        // when
-        boolean result = work.equals(work);
-
-        // then
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    @DisplayName("같은 정보인 경력을 비교하면 동일하다.")
-    void givenEqualData_whenEquals_thenReturn() {
-        // given
-        String corporationName = "가보자잇사";
-        String workDescription = "백엔드 개발";
-        LocalDate startedAt = LocalDate.of(2001, 1, 1);
-        LocalDate endedAt = LocalDate.of(2002, 1, 1);
-        boolean isCurrent = false;
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Work work1 = createWork(corporationName, workDescription, startedAt, endedAt, isCurrent, user);
-        Work work2 = createWork(corporationName, workDescription, startedAt, endedAt, isCurrent, user);
-
-        // when
-        boolean result = work1.equals(work2);
-
-        // then
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    @DisplayName("다른 객체인 경력을 비교하면 동일하지 않다.")
-    void givenUnequalInstance_whenEquals_thenReturn() {
-        // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Work work = createWork("가보자잇사", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user);
-        Object object = new Object();
-
-        // when
-        boolean result = work.equals(object);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 회원인 경력을 비교하면 동일하지 않다.")
-    void givenUnequalUser_whenEquals_thenReturn() {
-        // given
-        String username1 = "tester1";
-        String username2 = "tester2";
-        String email = "tester@gabojait.com";
-        String verificationCode = "000000";
-        String password = "password1!";
-        String nickname = "테스터";
-        Gender gender = Gender.M;
-        LocalDate birthdate = LocalDate.of(1997, 2, 11);
+    private static Stream<Arguments> providerEquals() {
         LocalDateTime now = LocalDateTime.now();
-        User user1 = createDefaultUser(email, verificationCode, username1, password, nickname, gender, birthdate, now);
-        User user2 = createDefaultUser(email, verificationCode, username2, password, nickname, gender, birthdate, now);
 
-        String corporationName = "가보자잇사";
-        String workDescription = "백엔드 개발";
-        LocalDate startedAt = LocalDate.of(2001, 1, 1);
-        LocalDate endedAt = LocalDate.of(2002, 1, 1);
-        boolean isCurrent = false;
-        Work work1 = createWork(corporationName, workDescription, startedAt, endedAt, isCurrent, user1);
-        Work work2 = createWork(corporationName, workDescription, startedAt, endedAt, isCurrent, user2);
+        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), now);
+        Work work = createWork("가보자잇사", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user);
 
-        // when
-        boolean result = work1.equals(work2);
+        User user1 = createDefaultUser("tester@gabojait.com", "000000", "tester1", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), now);
+        User user2 = createDefaultUser("tester@gabojait.com", "000000", "tester2", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), now);
+        Work userWork1 = createWork("가보자잇사", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user1);
+        Work userWork2 = createWork("가보자잇사", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user2);
 
-        // then
-        assertThat(result).isFalse();
+        return Stream.of(
+                Arguments.of(work, work, true),
+                Arguments.of(work, new Object(), false),
+                Arguments.of(
+                        createWork("가보자잇사", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user),
+                        createWork("가보자잇사", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user),
+                        true
+                ),
+                Arguments.of(userWork1, userWork2, false),
+                Arguments.of(
+                        createWork("가보자잇사1", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user),
+                        createWork("가보자잇사2", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user),
+                        false
+                ),
+                Arguments.of(
+                        createWork("가보자잇사", "백엔드 개발1", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user),
+                        createWork("가보자잇사", "백엔드 개발2", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user),
+                        false
+                ),
+                Arguments.of(
+                        createWork("가보자잇사", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user),
+                        createWork("가보자잇사", "백엔드 개발", LocalDate.of(2001, 1, 2), LocalDate.of(2002, 1, 1), false, user),
+                        false
+                ),
+                Arguments.of(
+                        createWork("가보자잇사", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user),
+                        createWork("가보자잇사", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 2), false, user),
+                        false
+                ),
+                Arguments.of(
+                        createWork("가보자잇사", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user),
+                        createWork("가보자잇사", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), true, user),
+                        false
+                )
+        );
     }
 
-    @Test
-    @DisplayName("다른 기관명인 경력을 비교하면 동일하지 않다.")
-    void givenUnequalCorporationName_whenEquals_thenReturn() {
-        // given
-        String corporationName1 = "가보자잇사1";
-        String corporationName2 = "가보자잇사2";
-
-        String workDescription = "백엔드 개발";
-        LocalDate startedAt = LocalDate.of(2001, 1, 1);
-        LocalDate endedAt = LocalDate.of(2002, 1, 1);
-        boolean isCurrent = false;
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Work work1 = createWork(corporationName1, workDescription, startedAt, endedAt, isCurrent, user);
-        Work work2 = createWork(corporationName2, workDescription, startedAt, endedAt, isCurrent, user);
-
-        // when
-        boolean result = work1.equals(work2);
-
-        // then
-        assertThat(result).isFalse();
+    @ParameterizedTest(name = "[{index}] 경력 객체를 비교한다.")
+    @MethodSource("providerEquals")
+    @DisplayName("경력 객체를 비교한다.")
+    void givenProvider_whenEquals_thenReturn(Work work, Object object, boolean result) {
+        // when & then
+        assertThat(work.equals(object)).isEqualTo(result);
     }
 
-    @Test
-    @DisplayName("다른 경력 설명인 경력을 비교하면 동일하지 않다.")
-    void givenUnequalWorkDescription_whenEquals_thenReturn() {
-        // given
-        String workDescription1 = "백엔드 개발1";
-        String workDescription2 = "백엔드 개발2";
+    private static Stream<Arguments> providerHashCode() {
+        LocalDateTime now = LocalDateTime.now();
 
-        String corporationName = "가보자잇사";
-        LocalDate startedAt = LocalDate.of(2001, 1, 1);
-        LocalDate endedAt = LocalDate.of(2002, 1, 1);
-        boolean isCurrent = false;
         User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Work work1 = createWork(corporationName, workDescription1, startedAt, endedAt, isCurrent, user);
-        Work work2 = createWork(corporationName, workDescription2, startedAt, endedAt, isCurrent, user);
+                LocalDate.of(1997, 2, 11), now);
 
-        // when
-        boolean result = work1.equals(work2);
-
-        // then
-        assertThat(result).isFalse();
+        return Stream.of(
+                Arguments.of(
+                        createWork("가보자잇사", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user),
+                        createWork("가보자잇사", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user),
+                        true
+                ),
+                Arguments.of(
+                        createWork("가보자잇사1", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user),
+                        createWork("가보자잇사2", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user),
+                        false
+                )
+        );
     }
 
-    @Test
-    @DisplayName("다른 시작일인 경력을 비교하면 동일하지 않다.")
-    void givenUnequalStartedAt_whenEquals_thenReturn() {
-        // given
-        LocalDate startedAt1 = LocalDate.of(2001, 1, 1);
-        LocalDate startedAt2 = LocalDate.of(2001, 1, 2);
-
-        String corporationName = "가보자잇사";
-        String workDescription = "백엔드 개발";
-        LocalDate endedAt = LocalDate.of(2002, 1, 1);
-        boolean isCurrent = false;
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Work work1 = createWork(corporationName, workDescription, startedAt1, endedAt, isCurrent, user);
-        Work work2 = createWork(corporationName, workDescription, startedAt2, endedAt, isCurrent, user);
-
-        // when
-        boolean result = work1.equals(work2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 종료일인 경력을 비교하면 동일하지 않다.")
-    void givenUnequalEndedAt_whenEquals_thenReturn() {
-        // given
-        LocalDate endedAt1 = LocalDate.of(2002, 1, 1);
-        LocalDate endedAt2 = LocalDate.of(2002, 1, 2);
-
-        String corporationName = "가보자잇사";
-        String workDescription = "백엔드 개발";
-        LocalDate startedAt = LocalDate.of(2001, 1, 1);
-        boolean isCurrent = false;
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Work work1 = createWork(corporationName, workDescription, startedAt, endedAt1, isCurrent, user);
-        Work work2 = createWork(corporationName, workDescription, startedAt, endedAt2, isCurrent, user);
-
-        // when
-        boolean result = work1.equals(work2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 현재 여부인 경력을 비교하면 동일하지 않다.")
-    void givenUnequalIsCurrent_whenEquals_thenReturn() {
-        // given
-        boolean isCurrent1 = false;
-        boolean isCurrent2 = true;
-
-        String corporationName = "가보자잇사";
-        String workDescription = "백엔드 개발";
-        LocalDate startedAt = LocalDate.of(2001, 1, 1);
-        LocalDate endedAt = LocalDate.of(2002, 1, 1);
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Work work1 = createWork(corporationName, workDescription, startedAt, endedAt, isCurrent1, user);
-        Work work2 = createWork(corporationName, workDescription, startedAt, endedAt, isCurrent2, user);
-
-        // when
-        boolean result = work1.equals(work2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("동일한 경력의 해시코드는 같다.")
-    void givenEqual_whenHashCode_thenReturn() {
-        // given
-        String corporationName = "가보자잇사";
-        String workDescription = "백엔드 개발";
-        LocalDate startedAt = LocalDate.of(2001, 1, 1);
-        LocalDate endedAt = LocalDate.of(2002, 1, 1);
-        boolean isCurrent = false;
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Work work1 = createWork(corporationName, workDescription, startedAt, endedAt, isCurrent, user);
-        Work work2 = createWork(corporationName, workDescription, startedAt, endedAt, isCurrent, user);
-
+    @ParameterizedTest(name = "[{index}] 경력 해시코드를 비교한다.")
+    @MethodSource("providerHashCode")
+    @DisplayName("경력 해시코드를 비교한다.")
+    void givenProvider_whenHashCode_thenReturn(Work work1, Work work2, boolean result) {
         // when
         int hashCode1 = work1.hashCode();
         int hashCode2 = work2.hashCode();
 
         // then
-        assertThat(hashCode1).isEqualTo(hashCode2);
+        assertThat(hashCode1 == hashCode2).isEqualTo(result);
     }
 
-    @Test
-    @DisplayName("동일하지 않은 경력의 해시코드는 다르다.")
-    void givenUnequal_whenHashCode_thenReturn() {
-        // given
-        String corporationName1 = "가보자잇사1";
-        String corporationName2 = "가보자잇사2";
-
-        String workDescription = "백엔드 개발";
-        LocalDate startedAt = LocalDate.of(2001, 1, 1);
-        LocalDate endedAt = LocalDate.of(2002, 1, 1);
-        boolean isCurrent = false;
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Work work1 = createWork(corporationName1, workDescription, startedAt, endedAt, isCurrent, user);
-        Work work2 = createWork(corporationName2, workDescription, startedAt, endedAt, isCurrent, user);
-
-        // when
-        int hashCode1 = work1.hashCode();
-        int hashCode2 = work2.hashCode();
-
-        // then
-        assertThat(hashCode1).isNotEqualTo(hashCode2);
-    }
-
-    private Work createWork(String corporationName,
+    private static Work createWork(String corporationName,
                             String workDescription,
                             LocalDate startedAt,
                             LocalDate endedAt,
@@ -318,7 +169,7 @@ class WorkTest {
                 .build();
     }
 
-    private User createDefaultUser(String email,
+    private static User createDefaultUser(String email,
                                    String verificationCode,
                                    String username,
                                    String password,

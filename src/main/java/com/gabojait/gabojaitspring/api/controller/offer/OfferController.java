@@ -78,7 +78,7 @@ public class OfferController {
             Long teamId,
             @RequestBody @Valid OfferCreateRequest request
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         offerService.offerByUser(username, teamId, request);
 
@@ -119,7 +119,7 @@ public class OfferController {
             Long userId,
             @RequestBody @Valid OfferCreateRequest request
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         offerService.offerByTeam(username, userId, request);
 
@@ -163,7 +163,7 @@ public class OfferController {
             @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         PageData<List<OfferDefaultResponse>> responses = offerService.findPageUserOffer(username, OfferedBy.LEADER,
                 pageFrom, pageSize);
@@ -219,7 +219,7 @@ public class OfferController {
                     groups = ValidationSequence.Format.class)
             String offerPosition
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         PageData<List<OfferDefaultResponse>> responses = offerService.findPageTeamOffer(username,
                 Position.valueOf(offerPosition), OfferedBy.USER, pageFrom, pageSize);
@@ -265,7 +265,7 @@ public class OfferController {
             @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         PageData<List<OfferDefaultResponse>> responses = offerService.findPageUserOffer(username, OfferedBy.USER,
                 pageFrom, pageSize);
@@ -320,7 +320,7 @@ public class OfferController {
                     groups = ValidationSequence.Format.class)
             String offerPosition
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         PageData<List<OfferDefaultResponse>> responses = offerService.findPageTeamOffer(username,
                 Position.valueOf(offerPosition), OfferedBy.LEADER, pageFrom, pageSize);
@@ -363,7 +363,7 @@ public class OfferController {
             @RequestBody @Valid
             OfferDecideRequest request
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         offerService.userDecideOffer(username, offerId, request);
 
@@ -402,7 +402,7 @@ public class OfferController {
             @RequestBody @Valid
             OfferDecideRequest request
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         offerService.teamDecideOffer(username, offerId, request);
 
@@ -439,7 +439,7 @@ public class OfferController {
             @Positive(message = "제안 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long offerId
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         offerService.cancelByUser(username, offerId);
 
@@ -476,7 +476,7 @@ public class OfferController {
             @Positive(message = "제안 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long offerId
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         offerService.cancelByTeam(username, offerId);
 

@@ -7,15 +7,18 @@ import com.gabojait.gabojaitspring.domain.user.User;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Random;
+import java.util.stream.Stream;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 
 class TeamTest {
 
@@ -178,72 +181,34 @@ class TeamTest {
                 .isEqualTo(MANAGER_CNT_UPDATE_UNAVAILABLE);
     }
 
-    @Test
-    @DisplayName("디자이너가 팀을 들어간다.")
-    void givenDesigner_whenJoin_thenReturn() {
-        // given
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
-
-        // when
-        team.join(Position.DESIGNER);
-
-        // then
-        assertThat(team)
-                .extracting("designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt", "managerCurrentCnt",
-                        "isRecruiting")
-                .containsExactly((byte) 1, (byte) 0, (byte) 0, (byte) 0, true);
+    private static Stream<Arguments> providerJoin() {
+        return Stream.of(
+                Arguments.of(Position.DESIGNER, (byte) 1, (byte) 0, (byte) 0, (byte) 0),
+                Arguments.of(Position.BACKEND, (byte) 0, (byte) 1, (byte) 0, (byte) 0),
+                Arguments.of(Position.FRONTEND, (byte) 0, (byte) 0, (byte) 1, (byte) 0),
+                Arguments.of(Position.MANAGER, (byte) 0, (byte) 0, (byte) 0, (byte) 1)
+        );
     }
 
-    @Test
-    @DisplayName("백엔드 개발자가 팀을 들어간다.")
-    void givenBackend_whenJoin_thenReturn() {
+    @ParameterizedTest(name = "[{index}] {0}가 팀을 들어간다.")
+    @MethodSource("providerJoin")
+    @DisplayName("특정 포지션이 팀에 들어간다.")
+    void givenProvider_whenJoin_thenReturn(Position position,
+                                           byte designerCurrentCnt,
+                                           byte backendCurrentCnt,
+                                           byte frontendCurrentCnt,
+                                           byte managerCurrentCnt) {
         // given
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
                 (byte) 2, (byte) 2);
 
         // when
-        team.join(Position.BACKEND);
+        team.join(position);
 
         // then
         assertThat(team)
-                .extracting("designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt", "managerCurrentCnt",
-                        "isRecruiting")
-                .containsExactly((byte) 0, (byte) 1, (byte) 0, (byte) 0, true);
-    }
-
-    @Test
-    @DisplayName("프론트엔드 개발자가 팀을 들어간다.")
-    void givenFrontend_whenJoin_thenReturn() {
-        // given
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
-
-        // when
-        team.join(Position.FRONTEND);
-
-        // then
-        assertThat(team)
-                .extracting("designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt", "managerCurrentCnt",
-                        "isRecruiting")
-                .containsExactly((byte) 0, (byte) 0, (byte) 1, (byte) 0, true);
-    }
-
-    @Test
-    @DisplayName("프로젝트 매니저가 팀을 들어간다.")
-    void givenManager_whenJoin_thenReturn() {
-        // given
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
-
-        // when
-        team.join(Position.MANAGER);
-
-        // then
-        assertThat(team)
-                .extracting("designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt", "managerCurrentCnt",
-                        "isRecruiting")
-                .containsExactly((byte) 0, (byte) 0, (byte) 0, (byte) 1, true);
+                .extracting("designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt", "managerCurrentCnt")
+                .containsExactly(designerCurrentCnt, backendCurrentCnt, frontendCurrentCnt, managerCurrentCnt);
     }
 
     @Test
@@ -263,76 +228,37 @@ class TeamTest {
                 .containsExactly((byte) 0, (byte) 0, (byte) 0, (byte) 1, false);
     }
 
-    @Test
-    @DisplayName("디자이너가 팀을 나간다.")
-    void givenDesigner_whenLeave_thenReturn() {
-        // given
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
-        team.join(Position.DESIGNER);
-        team.join(Position.DESIGNER);
-
-        // when
-        team.leave(Position.DESIGNER);
-
-        // then
-        assertThat(team)
-                .extracting("designerCurrentCnt", "isRecruiting")
-                .containsExactly((byte) 1, true);
+    private static Stream<Arguments> providerLeave() {
+        return Stream.of(
+                Arguments.of(Position.DESIGNER, (byte) 1, (byte) 0, (byte) 0, (byte) 0),
+                Arguments.of(Position.BACKEND, (byte) 0, (byte) 1, (byte) 0, (byte) 0),
+                Arguments.of(Position.FRONTEND, (byte) 0, (byte) 0, (byte) 1, (byte) 0),
+                Arguments.of(Position.MANAGER, (byte) 0, (byte) 0, (byte) 0, (byte) 1)
+        );
     }
 
-    @Test
-    @DisplayName("백엔드 개발자가 팀을 나간다.")
-    void givenBackend_whenLeave_thenReturn() {
+    @ParameterizedTest(name = "[{index}] {0}가 팀에서 나간다.")
+    @MethodSource("providerLeave")
+    @DisplayName("특정 포지션이 팀에서 나간다.")
+    void givenProvider_whenLeave_thenReturn(Position position,
+                                            byte designerCurrentCnt,
+                                            byte backendCurrentCnt,
+                                            byte frontendCurrentCnt,
+                                            byte managerCurrentCnt) {
         // given
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
                 (byte) 2, (byte) 2);
-        team.join(Position.BACKEND);
-        team.join(Position.BACKEND);
+        team.join(position);
+        team.join(position);
 
         // when
-        team.leave(Position.BACKEND);
+        team.leave(position);
 
         // then
         assertThat(team)
-                .extracting("backendCurrentCnt", "isRecruiting")
-                .containsExactly((byte) 1, true);
-    }
-
-    @Test
-    @DisplayName("프런트엔드 개발자가 팀을 나간다.")
-    void givenFrontend_whenLeave_thenReturn() {
-        // given
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
-        team.join(Position.FRONTEND);
-        team.join(Position.FRONTEND);
-
-        // when
-        team.leave(Position.FRONTEND);
-
-        // then
-        assertThat(team)
-                .extracting("frontendCurrentCnt", "isRecruiting")
-                .containsExactly((byte) 1, true);
-    }
-
-    @Test
-    @DisplayName("프로젝트 매니저가 팀을 나간다.")
-    void givenManager_whenLeave_thenReturn() {
-        // given
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
-        team.join(Position.MANAGER);
-        team.join(Position.MANAGER);
-
-        // when
-        team.leave(Position.MANAGER);
-
-        // then
-        assertThat(team)
-                .extracting("managerCurrentCnt", "isRecruiting")
-                .containsExactly((byte) 1, true);
+                .extracting("designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt", "managerCurrentCnt",
+                        "isRecruiting")
+                .containsExactly(designerCurrentCnt, backendCurrentCnt, frontendCurrentCnt, managerCurrentCnt, true);
     }
 
     @Test
@@ -349,117 +275,46 @@ class TeamTest {
         assertThat(team.getIsRecruiting()).isFalse();
     }
 
-    @Test
-    @DisplayName("마감되지 않은 디자이너 포지션의 마감 여부를 확인한다.")
-    void givenDesignerFull_whenIsPositionFull_thenReturn() {
+    private static Stream<Arguments> providerIsPositionFull() {
+        return Stream.of(
+                Arguments.of(Position.DESIGNER),
+                Arguments.of(Position.BACKEND),
+                Arguments.of(Position.FRONTEND),
+                Arguments.of(Position.MANAGER)
+        );
+    }
+
+    @ParameterizedTest(name = "[{index}] 마감되지 않은 {0} 포지션의 마감 여부를 확인한다.")
+    @MethodSource("providerIsPositionFull")
+    @DisplayName("마감되지 않은 포지션의 마감 여부를 확인한다.")
+    void givenProviderNotFull_whenIsPositionFull_thenReturn(Position position) {
         // given
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 1, (byte) 1,
                 (byte) 1, (byte) 1);
 
         // when
-        boolean result = team.isPositionFull(Position.DESIGNER);
+        boolean result = team.isPositionFull(position);
 
         // then
         assertThat(result).isFalse();
     }
 
-    @Test
-    @DisplayName("마감되지 않은 백엔드 개발자 포지션의 마감 여부를 확인한다.")
-    void givenBackendFull_whenIsPositionFull_thenReturn() {
+    @ParameterizedTest(name = "[{index}] 마감된 {0} 포지션의 마감 여부를 확인한다.")
+    @MethodSource("providerIsPositionFull")
+    @DisplayName("마감되지 않은 포지션의 마감 여부를 확인한다.")
+    void givenProviderFull_whenIsPositionFull_thenReturn(Position position) {
         // given
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 1, (byte) 1,
                 (byte) 1, (byte) 1);
+        team.join(position);
 
         // when
-        boolean result = team.isPositionFull(Position.BACKEND);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("마감되지 않은 프론트엔드 개발자 포지션의 마감 여부를 확인한다.")
-    void givenFrontendFull_whenIsPositionFull_thenReturn() {
-        // given
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 1, (byte) 1,
-                (byte) 1, (byte) 1);
-
-        // when
-        boolean result = team.isPositionFull(Position.FRONTEND);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("마감되지 않은 프로젝트 매니저 포지션의 마감 여부를 확인한다.")
-    void givenManagerFull_whenIsPositionFull_thenReturn() {
-        // given
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 1, (byte) 1,
-                (byte) 1, (byte) 1);
-
-        // when
-        boolean result = team.isPositionFull(Position.MANAGER);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("마감된 디자이너 포지션의 마감 여부를 확인한다.")
-    void givenDesignerNotFull_whenIsPositionFull_thenReturn() {
-        // given
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 0, (byte) 0,
-                (byte) 0, (byte) 0);
-
-        // when
-        boolean result = team.isPositionFull(Position.DESIGNER);
+        boolean result = team.isPositionFull(position);
 
         // then
         assertThat(result).isTrue();
     }
 
-    @Test
-    @DisplayName("마감되지 않은 백엔드 개발자 포지션의 마감 여부를 확인한다.")
-    void givenBackendNotFull_whenIsPositionFull_thenReturn() {
-        // given
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 0, (byte) 0,
-                (byte) 0, (byte) 0);
-
-        // when
-        boolean result = team.isPositionFull(Position.BACKEND);
-
-        // then
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    @DisplayName("마감되지 않은 프론트엔드 개발자 포지션의 마감 여부를 확인한다.")
-    void givenFrontendNotFull_whenIsPositionFull_thenReturn() {
-        // given
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 0, (byte) 0,
-                (byte) 0, (byte) 0);
-
-        // when
-        boolean result = team.isPositionFull(Position.FRONTEND);
-
-        // then
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    @DisplayName("마감되지 않은 프로젝트 매니저 포지션의 마감 여부를 확인한다.")
-    void givenManagerNotFull_whenIsPositionFull_thenReturn() {
-        // given
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 0, (byte) 0,
-                (byte) 0, (byte) 0);
-
-        // when
-        boolean result = team.isPositionFull(Position.MANAGER);
-
-        // then
-        assertThat(result).isTrue();
-    }
     @Test
     @DisplayName("팀 프로필을 방문한다.")
     void visited() {
@@ -474,7 +329,7 @@ class TeamTest {
             team.visit();
 
         // then
-        assertEquals(visitedCnt, team.getVisitedCnt());
+        assertThat(team.getVisitedCnt()).isEqualTo(visitedCnt);
     }
 
     @Test
@@ -512,482 +367,174 @@ class TeamTest {
                 .contains(projectUrl, completedAt, false);
     }
 
-    @Test
-    @DisplayName("같은 객체인 팀을 비교하면 동일하다.")
-    void givenEqualInstance_whenEquals_thenReturn() {
-        // given
+    private static Stream<Arguments> providerEquals() {
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
                 (byte) 2, (byte) 2);
 
-        // when
-        boolean result = team.equals(team);
+        Team projectNameTeam1 = createTeam("가보자잇1", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+        Team projectNameTeam2 = createTeam("가보자잇2", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
 
-        // then
-        assertThat(result).isTrue();
+        Team projectDescriptionTeam1 = createTeam("가보자잇", "가보자잇입니다1", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+        Team projectDescriptionTeam2 = createTeam("가보자잇", "가보자잇입니다2", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+
+        Team expectationTeam1 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.1", "kakao.com/o/gabojait",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+        Team expectationTeam2 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.2", "kakao.com/o/gabojait",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+
+        Team openChatTeam1 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait1",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+        Team openChatTeam2 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait2",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+
+        LocalDateTime completedAt = LocalDateTime.now();
+        Team projectUrlTeam1 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
+                (byte) 2, (byte) 2, (byte) 2);
+        projectUrlTeam1.complete("github.com/gabojait1", completedAt);
+        Team projectUrlTeam2 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
+                (byte) 2, (byte) 2, (byte) 2);
+        projectUrlTeam2.complete("github.com/gabojait2", completedAt);
+
+        Team completedAtTeam1 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
+                (byte) 2, (byte) 2, (byte) 2);
+        completedAtTeam1.complete("github.com/gabojait", completedAt);
+        Team completedAtTeam2 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
+                (byte) 2, (byte) 2, (byte) 2);
+        completedAtTeam2.complete("github.com/gabojait", completedAt.plusSeconds(1));
+
+        Team designerCurrentCntTeam1 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+        Team designerCurrentCntTeam2 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+        designerCurrentCntTeam2.join(Position.DESIGNER);
+
+        Team backendCurrentCntTeam1 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+        Team backendCurrentCntTeam2 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+        backendCurrentCntTeam2.join(Position.BACKEND);
+
+        Team frontendCurrentCntTeam1 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+        Team frontendCurrentCntTeam2 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+        frontendCurrentCntTeam2.join(Position.FRONTEND);
+
+        Team managerCurrentCntTeam1 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+        Team managerCurrentCntTeam2 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+        managerCurrentCntTeam2.join(Position.MANAGER);
+
+        Team visitCntTeam1 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+        Team visitCntTeam2 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+        visitCntTeam2.visit();
+
+        Team isRecruitingTeam1 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+        Team isRecruitingTeam2 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait",
+                (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+        isRecruitingTeam2.updateIsRecruiting(false);
+
+        return Stream.of(
+                Arguments.of(team, team, true),
+                Arguments.of(team, new Object(), false),
+                Arguments.of(
+                        createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
+                                (byte) 2, (byte) 2, (byte) 2),
+                        createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
+                                (byte) 2, (byte) 2, (byte) 2),
+                        true
+                ),
+                Arguments.of(projectNameTeam1, projectNameTeam2, false),
+                Arguments.of(projectDescriptionTeam1, projectDescriptionTeam2, false),
+                Arguments.of(expectationTeam1, expectationTeam2, false),
+                Arguments.of(openChatTeam1, openChatTeam2, false),
+                Arguments.of(projectUrlTeam1, projectUrlTeam2, false),
+                Arguments.of(completedAtTeam1, completedAtTeam2, false),
+                Arguments.of(designerCurrentCntTeam1, designerCurrentCntTeam2, false),
+                Arguments.of(backendCurrentCntTeam1, backendCurrentCntTeam2, false),
+                Arguments.of(frontendCurrentCntTeam1, frontendCurrentCntTeam2, false),
+                Arguments.of(managerCurrentCntTeam1, managerCurrentCntTeam2, false),
+                Arguments.of(visitCntTeam1, visitCntTeam2, false),
+                Arguments.of(isRecruitingTeam1, isRecruitingTeam2, false),
+                Arguments.of(
+                        createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
+                                (byte) 2, (byte) 2, (byte) 2),
+                        createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 1,
+                                (byte) 2, (byte) 2, (byte) 2),
+                        false
+                ),
+                Arguments.of(
+                        createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
+                                (byte) 2, (byte) 2, (byte) 2),
+                        createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
+                                (byte) 1, (byte) 2, (byte) 2),
+                        false
+                ),
+                Arguments.of(
+                        createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
+                                (byte) 2, (byte) 2, (byte) 2),
+                        createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
+                                (byte) 2, (byte) 1, (byte) 2),
+                        false
+                ),
+                Arguments.of(
+                        createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
+                                (byte) 2, (byte) 2, (byte) 2),
+                        createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
+                                (byte) 2, (byte) 2, (byte) 1),
+                        false
+                )
+        );
     }
 
-    @Test
-    @DisplayName("같은 정보인 팀을 비교하면 동일하다.")
-    void givenEqualData_whenEquals_thenReturn() {
-        // given
-        String projectName = "가보자잇";
-        String projectDescription = "가보자잇입니다.";
-        String expectation = "열정적인 사람을 구합니다.";
-        String openChatUrl = "kakao.com/o/gabojait";
-        byte maxCnt = 0;
-        Team team1 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-        Team team2 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-
-        // when
-        boolean result = team1.equals(team2);
-
-        // then
-        assertThat(result).isTrue();
+    @ParameterizedTest(name = "[{index}] 팀 객체를 비교한다.")
+    @MethodSource("providerEquals")
+    @DisplayName("팀 객체를 비교한다.")
+    void givenProvider_whenEquals_thenReturn(Team team, Object object, boolean result) {
+        // when & then
+        assertThat(team.equals(object)).isEqualTo(result);
     }
 
-    @Test
-    @DisplayName("다른 객체인 팀을 비교하면 동일하지 않다.")
-    void givenUnequalInstance_whenEquals_thenReturn() {
-        // given
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
-        Object object = new Object();
-
-        // when
-        boolean result = team.equals(object);
-
-        // then
-        assertThat(result).isFalse();
+    private static Stream<Arguments> providerHashCode() {
+        return Stream.of(
+                Arguments.of(
+                        createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
+                                (byte) 2, (byte) 2, (byte) 2),
+                        createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
+                                (byte) 2, (byte) 2, (byte) 2),
+                        true
+                ),
+                Arguments.of(
+                        createTeam("가보자잇1", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
+                                (byte) 2, (byte) 2, (byte) 2),
+                        createTeam("가보자잇2", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
+                                (byte) 2, (byte) 2, (byte) 2),
+                        false
+                )
+        );
     }
 
-    @Test
-    @DisplayName("다른 프로젝트명인 팀을 비교하면 동일하지 않다.")
-    void givenUnequalProjectName_whenEquals_thenReturn() {
-        // given
-        String projectName1 = "가보자잇1";
-        String projectName2 = "가보자잇2";
-
-        String projectDescription = "가보자잇입니다.";
-        String expectation = "열정적인 사람을 구합니다.";
-        String openChatUrl = "kakao.com/o/gabojait";
-        byte maxCnt = 0;
-        Team team1 = createTeam(projectName1, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-        Team team2 = createTeam(projectName2, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-
-        // when
-        boolean result = team1.equals(team2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 프로젝트 설명인 팀을 비교하면 동일하지 않다.")
-    void givenUnequalProjectDescription_whenEquals_thenReturn() {
-        // given
-        String projectDescription1 = "가보자잇입니다.1";
-        String projectDescription2 = "가보자잇입니다.2";
-
-        String projectName = "가보자잇";
-        String expectation = "열정적인 사람을 구합니다.";
-        String openChatUrl = "kakao.com/o/gabojait";
-        byte maxCnt = 0;
-        Team team1 = createTeam(projectName, projectDescription1, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-        Team team2 = createTeam(projectName, projectDescription2, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-
-        // when
-        boolean result = team1.equals(team2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 바라는 점인 팀을 비교하면 동일하지 않다.")
-    void givenUnequalExpectation_whenEquals_thenReturn() {
-        // given
-        String expectation1 = "열정적인 사람을 구합니다.1";
-        String expectation2 = "열정적인 사람을 구합니다.2";
-
-        String projectName = "가보자잇";
-        String projectDescription = "가보자잇입니다.";
-        String openChatUrl = "kakao.com/o/gabojait";
-        byte maxCnt = 0;
-        Team team1 = createTeam(projectName, projectDescription, expectation1, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-        Team team2 = createTeam(projectName, projectDescription, expectation2, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-
-        // when
-        boolean result = team1.equals(team2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 오픈 채팅 링크인 팀을 비교하면 동일하지 않다.")
-    void givenUnequalOpenChatUrl_whenEquals_thenReturn() {
-        // given
-        String openChatUrl1 = "kakao.com/o/gabojait1";
-        String openChatUrl2 = "kakao.com/o/gabojait2";
-
-        String projectName = "가보자잇";
-        String projectDescription = "가보자잇입니다.";
-        String expectation = "열정적인 사람을 구합니다.";
-        byte maxCnt = 0;
-        Team team1 = createTeam(projectName, projectDescription, expectation, openChatUrl1, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-        Team team2 = createTeam(projectName, projectDescription, expectation, openChatUrl2, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-
-        // when
-        boolean result = team1.equals(team2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 프로젝트 URL인 팀을 비교하면 동일하지 않다.")
-    void givenUnequalProjectUrl_whenEquals_thenReturn() {
-        // given
-        String projectUrl1 = "github.com/gabojait1";
-        String projectUrl2 = "github.com/gabojait2";
-
-        String projectName = "가보자잇";
-        String projectDescription = "가보자잇입니다.";
-        String expectation = "열정적인 사람을 구합니다.";
-        String openChatUrl = "kakao.com/o/gabojait";
-        byte maxCnt = 1;
-        LocalDateTime now = LocalDateTime.now();
-        Team team1 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-        Team team2 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-
-        team1.complete(projectUrl1, now);
-        team2.complete(projectUrl2, now);
-
-        // when
-        boolean result = team1.equals(team2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 프로젝트 완료일인 팀을 비교하면 동일하지 않다.")
-    void givenUnequalCompletedAt_whenEquals_thenReturn() {
-        // given
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime completedAt1 = now;
-        LocalDateTime completedAt2 = now.minusNanos(1);
-
-        String projectName = "가보자잇";
-        String projectDescription = "가보자잇입니다.";
-        String expectation = "열정적인 사람을 구합니다.";
-        String openChatUrl = "kakao.com/o/gabojait";
-        byte maxCnt = 1;
-        String projectUrl = "github.com/gabojait";
-        Team team1 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-        Team team2 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-
-        team1.complete(projectUrl, completedAt1);
-        team2.complete(projectUrl, completedAt2);
-
-        // when
-        boolean result = team1.equals(team2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 현재 디자이너 수인 팀을 비교하면 동일하지 않다.")
-    void givenUnequalDesignerCurrentCnt_whenEquals_thenReturn() {
-        // given
-        String projectName = "가보자잇";
-        String projectDescription = "가보자잇입니다.";
-        String expectation = "열정적인 사람을 구합니다.";
-        String openChatUrl = "kakao.com/o/gabojait";
-        byte maxCnt = 1;
-        Team team1 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-        Team team2 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-
-        team1.join(Position.DESIGNER);
-
-        // when
-        boolean result = team1.equals(team2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 현재 백엔드 개발자 수인 팀을 비교하면 동일하지 않다.")
-    void givenUnequalBackendCurrentCnt_whenEquals_thenReturn() {
-        // given
-        String projectName = "가보자잇";
-        String projectDescription = "가보자잇입니다.";
-        String expectation = "열정적인 사람을 구합니다.";
-        String openChatUrl = "kakao.com/o/gabojait";
-        byte maxCnt = 1;
-        Team team1 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-        Team team2 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-
-        team1.join(Position.BACKEND);
-
-        // when
-        boolean result = team1.equals(team2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 현재 프런트엔드 개발자 수인 팀을 비교하면 동일하지 않다.")
-    void givenUnequalFrontendCurrentCnt_whenEquals_thenReturn() {
-        // given
-        String projectName = "가보자잇";
-        String projectDescription = "가보자잇입니다.";
-        String expectation = "열정적인 사람을 구합니다.";
-        String openChatUrl = "kakao.com/o/gabojait";
-        byte maxCnt = 1;
-        Team team1 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-        Team team2 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-
-        team1.join(Position.FRONTEND);
-
-        // when
-        boolean result = team1.equals(team2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 현재 프로젝트 매니저 수인 팀을 비교하면 동일하지 않다.")
-    void givenUnequalManagerCurrentCnt_whenEquals_thenReturn() {
-        // given
-        String projectName = "가보자잇";
-        String projectDescription = "가보자잇입니다.";
-        String expectation = "열정적인 사람을 구합니다.";
-        String openChatUrl = "kakao.com/o/gabojait";
-        byte maxCnt = 1;
-        Team team1 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-        Team team2 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-
-        team1.join(Position.MANAGER);
-
-        // when
-        boolean result = team1.equals(team2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 최대 디자이너 수인 팀을 비교하면 동일하지 않다.")
-    void givenUnequalDesignerMaxCnt_whenEquals_thenReturn() {
-        // given
-        byte differentMaxCnt = 0;
-        byte maxCnt = 1;
-
-        String projectName = "가보자잇";
-        String projectDescription = "가보자잇입니다.";
-        String expectation = "열정적인 사람을 구합니다.";
-        String openChatUrl = "kakao.com/o/gabojait";
-        Team team1 = createTeam(projectName, projectDescription, expectation, openChatUrl, differentMaxCnt, maxCnt,
-                maxCnt, maxCnt);
-        Team team2 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-
-        // when
-        boolean result = team1.equals(team2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 최대 백엔드 개발자 수인 팀을 비교하면 동일하지 않다.")
-    void givenUnequalBackendMaxCnt_whenEquals_thenReturn() {
-        // given
-        byte differentMaxCnt = 0;
-        byte maxCnt = 1;
-
-        String projectName = "가보자잇";
-        String projectDescription = "가보자잇입니다.";
-        String expectation = "열정적인 사람을 구합니다.";
-        String openChatUrl = "kakao.com/o/gabojait";
-        Team team1 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, differentMaxCnt,
-                maxCnt, maxCnt);
-        Team team2 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-
-        // when
-        boolean result = team1.equals(team2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 최대 프런트엔드 개발자 수인 팀을 비교하면 동일하지 않다.")
-    void givenUnequalFrontendMaxCnt_whenEquals_thenReturn() {
-        // given
-        byte differentMaxCnt = 0;
-        byte maxCnt = 1;
-
-        String projectName = "가보자잇";
-        String projectDescription = "가보자잇입니다.";
-        String expectation = "열정적인 사람을 구합니다.";
-        String openChatUrl = "kakao.com/o/gabojait";
-        Team team1 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt,
-                differentMaxCnt, maxCnt);
-        Team team2 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-
-        // when
-        boolean result = team1.equals(team2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 최대 프로젝트 매니저 수인 팀을 비교하면 동일하지 않다.")
-    void givenUnequalManagerMaxCnt_whenEquals_thenReturn() {
-        // given
-        byte differentMaxCnt = 0;
-        byte maxCnt = 1;
-
-        String projectName = "가보자잇";
-        String projectDescription = "가보자잇입니다.";
-        String expectation = "열정적인 사람을 구합니다.";
-        String openChatUrl = "kakao.com/o/gabojait";
-        Team team1 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt,
-                maxCnt, differentMaxCnt);
-        Team team2 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-
-        // when
-        boolean result = team1.equals(team2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 방문자 수인 팀을 비교하면 동일하지 않다.")
-    void givenUnequalVisitedCnt_thenEquals_thenReturn() {
-        // given
-        String projectName = "가보자잇";
-        String projectDescription = "가보자잇입니다.";
-        String expectation = "열정적인 사람을 구합니다.";
-        String openChatUrl = "kakao.com/o/gabojait";
-        byte maxCnt = 1;
-        Team team1 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-        Team team2 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-
-        team1.visit();
-
-        // when
-        boolean result = team1.equals(team2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 팀원 찾기 여부인 팀을 비교하면 동일하지 않다.")
-    void givenUnequalIsRecruiting_thenEquals_thenReturn() {
-        // given
-        String projectName = "가보자잇";
-        String projectDescription = "가보자잇입니다.";
-        String expectation = "열정적인 사람을 구합니다.";
-        String openChatUrl = "kakao.com/o/gabojait";
-        byte maxCnt = 1;
-        Team team1 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-        Team team2 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-
-        team1.updateIsRecruiting(false);
-
-        // when
-        boolean result = team1.equals(team2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("동일한 팀의 해시코드는 같다.")
-    void givenEqual_whenHashCode_thenReturn() {
-        // given
-        String projectName = "가보자잇";
-        String projectDescription = "가보자잇입니다.";
-        String expectation = "열정적인 사람을 구합니다.";
-        String openChatUrl = "kakao.com/o/gabojait";
-        byte maxCnt = 1;
-        Team team1 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-        Team team2 = createTeam(projectName, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-
+    @ParameterizedTest(name = "[{index}] 팀 해시코드를 비교한다.")
+    @MethodSource("providerHashCode")
+    @DisplayName("팀 해시코드를 비교한다.")
+    void givenProvider_whenHashCode_thenReturn(Team team1, Team team2, boolean result) {
         // when
         int hashCode1 = team1.hashCode();
         int hashCode2 = team2.hashCode();
 
         // then
-        assertThat(hashCode1).isEqualTo(hashCode2);
+        assertThat(hashCode1 == hashCode2).isEqualTo(result);
     }
 
-    @Test
-    @DisplayName("동일하지 않은 팀의 해시코드는 다르다.")
-    void givenUnequal_whenHashCode_thenReturn() {
-        // given
-        String projectName1 = "가보자잇1";
-        String projectName2 = "가보자잇2";
-
-        String projectDescription = "가보자잇입니다.";
-        String expectation = "열정적인 사람을 구합니다.";
-        String openChatUrl = "kakao.com/o/gabojait";
-        byte maxCnt = 1;
-        Team team1 = createTeam(projectName1, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-        Team team2 = createTeam(projectName2, projectDescription, expectation, openChatUrl, maxCnt, maxCnt, maxCnt,
-                maxCnt);
-
-        // when
-        int hashCode1 = team1.hashCode();
-        int hashCode2 = team2.hashCode();
-
-        // then
-        assertThat(hashCode1).isNotEqualTo(hashCode2);
-    }
-
-    private Team createTeam(String projectName,
+    private static Team createTeam(String projectName,
                             String projectDescription,
                             String expectation,
                             String openChatUrl,
@@ -1007,7 +554,7 @@ class TeamTest {
                 .build();
     }
 
-    private User createDefaultUser(String email,
+    private static User createDefaultUser(String email,
                                    String verificationCode,
                                    String username,
                                    String password,
@@ -1032,7 +579,7 @@ class TeamTest {
                 .build();
     }
 
-    private TeamMember createTeamMember(Position position, boolean isLeader, User user, Team team) {
+    private static TeamMember createTeamMember(Position position, boolean isLeader, User user, Team team) {
         return TeamMember.builder()
                 .position(position)
                 .isLeader(isLeader)

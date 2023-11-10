@@ -77,7 +77,7 @@ public class NotificationController {
             @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         PageData<List<NotificationDefaultResponse>> responses = notificationService.findPageNotifications(username,
                 pageFrom, pageSize);
@@ -117,7 +117,7 @@ public class NotificationController {
             @Positive(message = "알림 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long notificationId
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         notificationService.readNotification(username, notificationId);
 

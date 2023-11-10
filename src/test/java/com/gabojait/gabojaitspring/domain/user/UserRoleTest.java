@@ -2,9 +2,13 @@ package com.gabojait.gabojaitspring.domain.user;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,118 +36,81 @@ class UserRoleTest {
         assertThat(userRole.getRole()).isEqualTo(role);
     }
 
-    @Test
-    @DisplayName("같은 객체인 권한을 비교하면 동일하다.")
-    void givenEqualInstance_whenEquals_thenReturn() {
-        // given
+    private static Stream<Arguments> providerEquals() {
+        LocalDateTime now = LocalDateTime.now();
+
         UserRole userRole = createDefaultUserRole("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
-                Gender.N, LocalDate.of(1997, 2, 11), LocalDateTime.now(), Role.USER);
+                Gender.N, LocalDate.of(1997, 2, 11), now, Role.USER);
 
-        // when
-        boolean result = userRole.equals(userRole);
-
-        // then
-        assertThat(result).isTrue();
+        return Stream.of(
+                Arguments.of(userRole, userRole, true),
+                Arguments.of(userRole, new Object(), false),
+                Arguments.of(
+                        createDefaultUserRole("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
+                                Gender.N, LocalDate.of(1997, 2, 11), now, Role.USER),
+                        createDefaultUserRole("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
+                                Gender.N, LocalDate.of(1997, 2, 11), now, Role.USER),
+                        true
+                ),
+                Arguments.of(
+                        createDefaultUserRole("tester@gabojait.com", "000000", "tester1", "password1!", "테스터",
+                                Gender.N, LocalDate.of(1997, 2, 11), now, Role.USER),
+                        createDefaultUserRole("tester@gabojait.com", "000000", "tester2", "password1!", "테스터",
+                                Gender.N, LocalDate.of(1997, 2, 11), now, Role.USER),
+                        false
+                ),
+                Arguments.of(
+                        createDefaultUserRole("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
+                                Gender.N, LocalDate.of(1997, 2, 11), now, Role.USER),
+                        createDefaultUserRole("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
+                                Gender.N, LocalDate.of(1997, 2, 11), now, Role.ADMIN),
+                        false
+                )
+        );
     }
 
-    @Test
-    @DisplayName("같은 정보인 권한을 비교하면 동일하다.")
-    void givenEqualData_whenEquals_thenReturn() {
-        // given
-        String email = "tester@gabojait.com";
-        String verificationCode = "000000";
-        String username = "tester";
-        String password = "password1!";
-        String nickname = "테스터";
-        Gender gender = Gender.M;
-        LocalDate birthdate = LocalDate.of(1997, 2, 11);
-        LocalDateTime now = LocalDateTime.now();
-        Role role = Role.USER;
-
-        UserRole userRole1 = createDefaultUserRole(email, verificationCode, username, password, nickname, gender,
-                birthdate, now, role);
-        UserRole userRole2 = createDefaultUserRole(email, verificationCode, username, password, nickname, gender,
-                birthdate, now, role);
-
-        // when
-        boolean result = userRole1.equals(userRole2);
-
-        // then
-        assertThat(result).isTrue();
+    @ParameterizedTest(name = "[{index}] 권한 객체를 비교한다.")
+    @MethodSource("providerEquals")
+    @DisplayName("권한 객체를 비교한다.")
+    void givenProvider_whenEquals_thenReturn(UserRole userRole, Object object, boolean result) {
+        // when & then
+        assertThat(userRole.equals(object)).isEqualTo(result);
     }
 
-    @Test
-    @DisplayName("다른 객체로 권한을 비교하면 동일하지 않다.")
-    void givenUnequalInstance_whenEquals_thenReturn() {
-        // given
-        UserRole userRole = createDefaultUserRole("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
-                Gender.N, LocalDate.of(1997, 2, 11), LocalDateTime.now(), Role.USER);
-        Object object = new Object();
-
-        // when
-        boolean result = userRole.equals(object);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 회원인 권한을 비교하면 동일하지 않다.")
-    void givenUnequalUser_whenEquals_thenReturn() {
-        // given
-        String username1 = "tester1";
-        String username2 = "tester2";
-
-        String email = "tester@gabojait.com";
-        String verificationCode = "000000";
-        String password = "password1!";
-        String nickname = "테스터";
-        Gender gender = Gender.M;
-        LocalDate birthdate = LocalDate.of(1997, 2, 11);
-        LocalDateTime now = LocalDateTime.now();
-        Role role = Role.USER;
-
-        UserRole userRole1 = createDefaultUserRole(email, verificationCode, username1, password, nickname, gender,
-                birthdate, now, role);
-        UserRole userRole2 = createDefaultUserRole(email, verificationCode, username2, password, nickname, gender,
-                birthdate, now, role);
-
-        // when
-        boolean result = userRole1.equals(userRole2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 권한인 권한을 비교하면 동일하지 않다.")
-    void givenUnequalRole_whenEquals_thenReturn() {
-        // given
-        Role role1 = Role.USER;
-        Role role2 = Role.ADMIN;
-
-        String email = "tester@gabojait.com";
-        String verificationCode = "000000";
-        String username = "tester";
-        String password = "password1!";
-        String nickname = "테스터";
-        Gender gender = Gender.M;
-        LocalDate birthdate = LocalDate.of(1997, 2, 11);
+    private static Stream<Arguments> providerHashCode() {
         LocalDateTime now = LocalDateTime.now();
 
-        UserRole userRole1 = createDefaultUserRole(email, verificationCode, username, password, nickname, gender,
-                birthdate, now, role1);
-        UserRole userRole2 = createDefaultUserRole(email, verificationCode, username, password, nickname, gender,
-                birthdate, now, role2);
-
-        // when
-        boolean result = userRole1.equals(userRole2);
-
-        // then
-        assertThat(result).isFalse();
+        return Stream.of(
+                Arguments.of(
+                        createDefaultUserRole("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
+                                Gender.N, LocalDate.of(1997, 2, 11), now, Role.USER),
+                        createDefaultUserRole("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
+                                Gender.N, LocalDate.of(1997, 2, 11), now, Role.USER),
+                        true
+                ),
+                Arguments.of(
+                        createDefaultUserRole("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
+                                Gender.N, LocalDate.of(1997, 2, 11), now, Role.USER),
+                        createDefaultUserRole("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
+                                Gender.N, LocalDate.of(1997, 2, 11), now, Role.ADMIN),
+                        false
+                )
+        );
     }
 
-    private UserRole createDefaultUserRole(String email,
+    @ParameterizedTest(name = "[{index}] 권한 해시코드를 비교한다.")
+    @MethodSource("providerHashCode")
+    @DisplayName("권한 해시코드를 비교한다.")
+    void givenProvider_whenHashCode_thenReturn(UserRole userRole1, UserRole userRole2, boolean result) {
+        // when
+        int hashCode1 = userRole1.hashCode();
+        int hashCode2 = userRole2.hashCode();
+
+        // then
+        assertThat(hashCode1 == hashCode2).isEqualTo(result);
+    }
+
+    private static UserRole createDefaultUserRole(String email,
                                            String verificationCode,
                                            String username,
                                            String password,

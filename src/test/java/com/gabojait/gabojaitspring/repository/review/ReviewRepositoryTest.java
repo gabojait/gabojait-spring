@@ -47,24 +47,21 @@ class ReviewRepositoryTest {
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
         Team team = createSavedTeam("가보자잇");
         TeamMember teamMember1 = createSavedTeamMember(Position.BACKEND, true, user1, team);
-        teamMember1.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
+        teamMember1.complete("github.com/gabojait", LocalDateTime.now());
 
         User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이");
         TeamMember teamMember2 = createSavedTeamMember(Position.FRONTEND, true, user2, team);
-        teamMember2.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
+        teamMember2.complete("github.com/gabojait", LocalDateTime.now());
 
         User user3 = createSavedDefaultUser("tester3@gabojait.com", "tester3", "테스터삼");
         TeamMember teamMember3 = createSavedTeamMember(Position.MANAGER, true, user3, team);
-        teamMember3.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
+        teamMember3.complete("github.com/gabojait", LocalDateTime.now());
 
         User user4 = createSavedDefaultUser("tester4@gabojait.com", "tester4", "테스터사");
         TeamMember teamMember4 = createSavedTeamMember(Position.DESIGNER, true, user4, team);
-        teamMember4.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
+        teamMember4.complete("github.com/gabojait", LocalDateTime.now());
 
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3, teamMember4));
-
-        team.complete("github.com/gabojait", LocalDateTime.now());
-        teamRepository.save(team);
 
         Review review1 = createSavedReview(teamMember2, teamMember1);
         Review review2 = createSavedReview(teamMember3, teamMember1);
@@ -104,9 +101,9 @@ class ReviewRepositoryTest {
         teamRepository.save(team);
 
         TeamMember teamMember1 = createSavedTeamMember(Position.MANAGER, true, user1, team);
+        teamMember1.complete("github.com/gabojait", now);
         TeamMember teamMember2 = createSavedTeamMember(Position.FRONTEND, false, user2, team);
-        teamMember1.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
-        teamMember2.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
+        teamMember2.complete("github.com/gabojait", now);
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2));
 
         createSavedReview(teamMember1, teamMember2);
@@ -132,9 +129,9 @@ class ReviewRepositoryTest {
         teamRepository.save(team);
 
         TeamMember teamMember1 = createSavedTeamMember(Position.MANAGER, true, user1, team);
+        teamMember1.complete("github.com/gabojait", now);
         TeamMember teamMember2 = createSavedTeamMember(Position.FRONTEND, false, user2, team);
-        teamMember1.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
-        teamMember2.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
+        teamMember2.complete("github.com/gabojait", now);
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2));
 
         // when
@@ -155,17 +152,15 @@ class ReviewRepositoryTest {
         LocalDateTime now = LocalDateTime.now();
 
         Team team = createSavedTeam("가보자잇");
-        team.complete("github.com/gabojait", now);
-        teamRepository.save(team);
 
         TeamMember teamMember1 = createSavedTeamMember(Position.MANAGER, true, user1, team);
+        teamMember1.complete("github.com/gabojait", now);
         TeamMember teamMember2 = createSavedTeamMember(Position.FRONTEND, false, user2, team);
+        teamMember2.complete("github.com/gabojait", now);
         TeamMember teamMember3 = createSavedTeamMember(Position.BACKEND, false, user3, team);
+        teamMember3.complete("github.com/gabojait", now);
         TeamMember teamMember4 = createSavedTeamMember(Position.DESIGNER, false, user4, team);
-        teamMember1.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
-        teamMember2.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
-        teamMember3.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
-        teamMember4.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
+        teamMember4.complete("github.com/gabojait", now);
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3, teamMember4));
 
         Review review1 = createSavedReview(teamMember2, teamMember1);

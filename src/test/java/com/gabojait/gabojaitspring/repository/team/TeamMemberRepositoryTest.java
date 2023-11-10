@@ -88,15 +88,14 @@ class TeamMemberRepositoryTest {
         Team team1 = createTeam("프로젝트1");
         teamRepository.save(team1);
         TeamMember teamMember1 = createTeamMember(false, user, team1);
-        teamMember1.updateTeamMemberStatus(TeamMemberStatus.QUIT);
+        teamMember1.quit();
         teamMemberRepository.save(teamMember1);
 
         Team team2 = createTeam("프로젝트2");
         teamRepository.save(team2);
         TeamMember teamMember2 = createTeamMember(true, user, team2);
+        teamMember2.complete("github.com/gabojait2", LocalDateTime.now());
         teamMemberRepository.save(teamMember2);
-        team2.complete("github.com/gabojait2", LocalDateTime.now());
-        teamRepository.save(team2);
 
         Team team3 = createTeam("프로젝트3");
         teamRepository.save(team3);
@@ -156,10 +155,8 @@ class TeamMemberRepositoryTest {
         Team team = createTeam("프로젝트");
         teamRepository.save(team);
         TeamMember teamMember = createTeamMember(true, user, team);
-        teamMember.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
+        teamMember.complete("github.com/gabojait", LocalDateTime.now());
         teamMemberRepository.save(teamMember);
-        team.complete("github.com/gabojait", LocalDateTime.now());
-        teamRepository.save(team);
 
         // when
         Optional<TeamMember> foundTeamMember = teamMemberRepository.findCurrentFetchTeam(user.getId());
@@ -223,9 +220,7 @@ class TeamMemberRepositoryTest {
         TeamMember teamMember1 = createTeamMember(true, user1, team);
         TeamMember teamMember2 = createTeamMember(false, user2, team);
         TeamMember teamMember3 = createTeamMember(false, user3, team);
-        teamMember1.updateTeamMemberStatus(TeamMemberStatus.PROGRESS);
-        teamMember2.updateTeamMemberStatus(TeamMemberStatus.PROGRESS);
-        teamMember3.updateTeamMemberStatus(TeamMemberStatus.QUIT);
+        teamMember3.quit();
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3));
 
         // when
@@ -249,15 +244,14 @@ class TeamMemberRepositoryTest {
         LocalDateTime now = LocalDateTime.now();
 
         Team team = createTeam("가보자잇");
-        team.complete("github.com/gabojait", now);
         teamRepository.save(team);
 
         TeamMember teamMember1 = createTeamMember(true, user1, team);
         TeamMember teamMember2 = createTeamMember(false, user2, team);
         TeamMember teamMember3 = createTeamMember(false, user3, team);
-        teamMember1.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
-        teamMember2.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
-        teamMember3.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
+        teamMember1.complete("github.com/gabojait", now);
+        teamMember2.complete("github.com/gabojait", now);
+        teamMember3.complete("github.com/gabojait", now);
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3));
 
         // when
@@ -365,7 +359,7 @@ class TeamMemberRepositoryTest {
         TeamMember teamMember2 = createTeamMember(false, user2, team);
         TeamMember teamMember3 = createTeamMember(false, user3, team);
         TeamMember teamMember4 = createTeamMember(false, user4, team);
-        teamMember4.updateTeamMemberStatus(TeamMemberStatus.QUIT);
+        teamMember4.quit();
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3, teamMember4));
 
         // when
@@ -392,10 +386,9 @@ class TeamMemberRepositoryTest {
         LocalDateTime now = LocalDateTime.now();
 
         Team team = createTeam("가보자잇");
-        team.complete("github.com/gabojait", now);
         teamRepository.save(team);
         TeamMember teamMember = createTeamMember(true, user, team);
-        teamMember.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
+        teamMember.complete("github.com/gabojait", now);
         teamMemberRepository.save(teamMember);
 
         // when
@@ -419,12 +412,11 @@ class TeamMemberRepositoryTest {
         Team team1 = createTeam("가보자잇1");
         Team team2 = createTeam("가보자잇2");
         team1.complete("github.com/gabojait", now.minusWeeks(4).minusSeconds(1));
-        team2.complete("github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
         teamRepository.saveAll(List.of(team1, team2));
         TeamMember teamMember1 = createTeamMember(true, user, team1);
-        teamMember1.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
+        teamMember1.complete("github.com/gabojait", now.minusWeeks(4).minusSeconds(1));
         TeamMember teamMember2 = createTeamMember(true, user, team2);
-        teamMember2.updateTeamMemberStatus(TeamMemberStatus.COMPLETE);
+        teamMember2.complete("github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2));
 
         // when

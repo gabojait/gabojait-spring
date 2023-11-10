@@ -5,9 +5,13 @@ import com.gabojait.gabojaitspring.domain.user.Gender;
 import com.gabojait.gabojaitspring.domain.user.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -58,223 +62,96 @@ class EducationTest {
                 .containsExactly(institutionName, startedAt, endedAt, isCurrent);
     }
 
-    @Test
-    @DisplayName("같은 객체인 학력을 비교하면 동일하다.")
-    void givenEqualInstance_whenEquals_thenReturn() {
-        // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Education education = createEducation("가보자잇대", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false,
-                user);
-
-        // when
-        boolean result = education.equals(education);
-
-        // then
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    @DisplayName("같은 정보인 학력을 비교하면 동일하다.")
-    void givenEqualData_whenEquals_thenReturn() {
-        // given
-        String institutionName = "가보자잇대";
-        LocalDate startedAt = LocalDate.of(2019, 3, 1);
-        LocalDate endedAt = LocalDate.of(2023, 8, 1);
-        boolean isCurrent = false;
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Education education1 = createEducation(institutionName, startedAt, endedAt, isCurrent, user);
-        Education education2 = createEducation(institutionName, startedAt, endedAt, isCurrent, user);
-
-        // when
-        boolean result = education1.equals(education2);
-
-        // then
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    @DisplayName("다른 객체인 학력을 비교하면 동일하지 않다.")
-    void givenUnequalInstance_whenEquals_thenReturn() {
-        // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Education education = createEducation("가보자잇대", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false,
-                user);
-        Object object = new Object();
-
-        // when
-        boolean result = education.equals(object);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 회원인 학력을 비교하면 동일하지 않다.")
-    void givenUnequalUser_whenEquals_thenReturn() {
-        // given
-        String username1 = "tester1";
-        String username2 = "tester2";
-
-        String email = "tester@gabojait.com";
-        String verificationCode = "000000";
-        String password = "password1!";
-        String nickname = "테스터";
-        Gender gender = Gender.M;
-        LocalDate birthdate = LocalDate.of(1997, 2, 11);
+    private static Stream<Arguments> providerEquals() {
         LocalDateTime now = LocalDateTime.now();
-        User user1 = createDefaultUser(email, verificationCode, username1, password, nickname, gender, birthdate, now);
-        User user2 = createDefaultUser(email, verificationCode, username2, password, nickname, gender, birthdate, now);
 
-        String institutionName = "가보자잇대";
-        LocalDate startedAt = LocalDate.of(2019, 3, 1);
-        LocalDate endedAt = LocalDate.of(2023, 8, 1);
-        boolean isCurrent = false;
-        Education education1 = createEducation(institutionName, startedAt, endedAt, isCurrent, user1);
-        Education education2 = createEducation(institutionName, startedAt, endedAt, isCurrent, user2);
+        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), now);
+        Education education = createEducation("가보자잇대", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false,
+                user);
 
-        // when
-        boolean result = education1.equals(education2);
+        User user1 = createDefaultUser("tester@gabojait.com", "000000", "tester1", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), now);
+        User user2 = createDefaultUser("tester@gabojait.com", "000000", "tester2", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), now);
+        Education userEducation1 = createEducation("가보자잇대", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false,
+                user1);
+        Education userEducation2 = createEducation("가보자잇대", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false,
+                user2);
 
-        // then
-        assertThat(result).isFalse();
+        return Stream.of(
+                Arguments.of(education, education, true),
+                Arguments.of(education, new Object(), false),
+                Arguments.of(
+                        createEducation("가보자잇대", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false, user),
+                        createEducation("가보자잇대", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false, user),
+                        true
+                ),
+                Arguments.of(userEducation1, userEducation2, false),
+                Arguments.of(
+                        createEducation("가보자잇대1", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false, user),
+                        createEducation("가보자잇대2", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false, user),
+                        false
+                ),
+                Arguments.of(
+                        createEducation("가보자잇대", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false, user),
+                        createEducation("가보자잇대", LocalDate.of(2019, 3, 2), LocalDate.of(2023, 8, 1), false, user),
+                        false
+                ),
+                Arguments.of(
+                        createEducation("가보자잇대", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false, user),
+                        createEducation("가보자잇대", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 2), false, user),
+                        false
+                ),
+                Arguments.of(
+                        createEducation("가보자잇대", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false, user),
+                        createEducation("가보자잇대", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), true, user),
+                        false
+                )
+        );
     }
 
-    @Test
-    @DisplayName("다른 학교명인 학력을 비교하면 동일하지 않다.")
-    void givenUnequalInstitutionName_whenEquals_thenReturn() {
-        // given
-        String institutionName1 = "가보자잇대";
-        String institutionName2 = "가볼까잇대";
-
-        LocalDate startedAt = LocalDate.of(2019, 3, 1);
-        LocalDate endedAt = LocalDate.of(2023, 8, 1);
-        boolean isCurrent = false;
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Education education1 = createEducation(institutionName1, startedAt, endedAt, isCurrent, user);
-        Education education2 = createEducation(institutionName2, startedAt, endedAt, isCurrent, user);
-
-        // when
-        boolean result = education1.equals(education2);
-
-        // then
-        assertThat(result).isFalse();
+    @ParameterizedTest(name = "[{index}] 학력 객체를 비교한다.")
+    @MethodSource("providerEquals")
+    @DisplayName("학력 객체를 비교한다.")
+    void givenProvider_whenEquals_thenReturn(Education education, Object object, boolean result) {
+        // when & then
+        assertThat(education.equals(object)).isEqualTo(result);
     }
 
-    @Test
-    @DisplayName("다른 시작일인 학력을 비교하면 동일하지 않다.")
-    void givenUnequalStartedAt_whenEquals_thenReturn() {
-        // given
-        LocalDate startedAt1 = LocalDate.of(2019, 3, 1);
-        LocalDate startedAt2 = LocalDate.of(2019, 3, 2);
+    private static Stream<Arguments> providerHashCode() {
+        LocalDateTime now = LocalDateTime.now();
 
-        String institutionName = "가보자잇대";
-        LocalDate endedAt = LocalDate.of(2023, 8, 1);
-        boolean isCurrent = false;
         User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Education education1 = createEducation(institutionName, startedAt1, endedAt, isCurrent, user);
-        Education education2 = createEducation(institutionName, startedAt2, endedAt, isCurrent, user);
+                LocalDate.of(1997, 2, 11), now);
 
-        // when
-        boolean result = education1.equals(education2);
-
-        // then
-        assertThat(result).isFalse();
+        return Stream.of(
+                Arguments.of(
+                        createEducation("가보자잇대", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false, user),
+                        createEducation("가보자잇대", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false, user),
+                        true
+                ),
+                Arguments.of(
+                        createEducation("가보자잇대1", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false, user),
+                        createEducation("가보자잇대2", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false, user),
+                        false
+                )
+        );
     }
 
-    @Test
-    @DisplayName("다른 종료일인 학력을 비교하면 동일하지 않다.")
-    void givenUnequalEndedAt_whenEquals_thenReturn() {
-        // given
-        LocalDate endedAt1 = LocalDate.of(2023, 8, 1);
-        LocalDate endedAt2 = LocalDate.of(2023, 8, 2);
-
-        String institutionName = "가보자잇대";
-        LocalDate startedAt = LocalDate.of(2019, 3, 1);
-        boolean isCurrent = false;
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Education education1 = createEducation(institutionName, startedAt, endedAt1, isCurrent, user);
-        Education education2 = createEducation(institutionName, startedAt, endedAt2, isCurrent, user);
-
-        // when
-        boolean result = education1.equals(education2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("다른 현재 여부인 학력을 비교하면 동일하지 않다.")
-    void givenUnequalIsCurrent_whenEquals_thenReturn() {
-        // given
-        boolean isCurrent1 = false;
-        boolean isCurrent2 = true;
-
-        String institutionName = "가보자잇대";
-        LocalDate startedAt = LocalDate.of(2019, 3, 1);
-        LocalDate endedAt = LocalDate.of(2023, 8, 1);
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Education education1 = createEducation(institutionName, startedAt, endedAt, isCurrent1, user);
-        Education education2 = createEducation(institutionName, startedAt, endedAt, isCurrent2, user);
-
-        // when
-        boolean result = education1.equals(education2);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("동일한 학력의 해시코드는 같다.")
-    void givenEqual_whenHashCode_thenReturn() {
-        // given
-        String institutionName = "가보자잇대";
-        LocalDate startedAt = LocalDate.of(2019, 3, 1);
-        LocalDate endedAt = LocalDate.of(2023, 8, 1);
-        boolean isCurrent = false;
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Education education1 = createEducation(institutionName, startedAt, endedAt, isCurrent, user);
-        Education education2 = createEducation(institutionName, startedAt, endedAt, isCurrent, user);
-
+    @ParameterizedTest(name = "[{index}] 학력 해시코드를 비교한다.")
+    @MethodSource("providerHashCode")
+    @DisplayName("학력 해시코드를 비교한다.")
+    void givenProvider_whenHashCode_thenReturn(Education education1, Education education2, boolean result) {
         // when
         int hashCode1 = education1.hashCode();
         int hashCode2 = education2.hashCode();
 
         // then
-        assertThat(hashCode1).isEqualTo(hashCode2);
+        assertThat(hashCode1 == hashCode2).isEqualTo(result);
     }
 
-    @Test
-    @DisplayName("동일하지 않은 학력의 해시코드는 다르다.")
-    void givenUnequal_whenHashCode_thenReturn() {
-        // given
-        String institutionName1 = "가보자잇대";
-        String institutionName2 = "가볼까잇대";
-
-        LocalDate startedAt = LocalDate.of(2019, 3, 1);
-        LocalDate endedAt = LocalDate.of(2023, 8, 1);
-        boolean isCurrent = false;
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Education education1 = createEducation(institutionName1, startedAt, endedAt, isCurrent, user);
-        Education education2 = createEducation(institutionName2, startedAt, endedAt, isCurrent, user);
-
-        // when
-        int hashCode1 = education1.hashCode();
-        int hashCode2 = education2.hashCode();
-
-        // then
-        assertThat(hashCode1).isNotEqualTo(hashCode2);
-    }
-
-    private Education createEducation(String institutionName,
+    private static Education createEducation(String institutionName,
                                       LocalDate startedAt,
                                       LocalDate endedAt,
                                       boolean isCurrent,
@@ -288,7 +165,7 @@ class EducationTest {
                 .build();
     }
 
-    private User createDefaultUser(String email,
+    private static User createDefaultUser(String email,
                                    String verificationCode,
                                    String username,
                                    String password,

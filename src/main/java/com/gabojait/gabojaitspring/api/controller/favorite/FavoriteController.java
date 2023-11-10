@@ -76,7 +76,7 @@ public class FavoriteController {
             @RequestBody @Valid
             FavoriteDefaultRequest request
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         favoriteService.updateFavoriteUser(username, userId, request);
 
@@ -124,7 +124,7 @@ public class FavoriteController {
             @RequestBody @Valid
             FavoriteDefaultRequest request
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         favoriteService.updateFavoriteTeam(username, teamId, request);
 
@@ -175,7 +175,7 @@ public class FavoriteController {
             @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         PageData<List<FavoriteUserResponse>> responses = favoriteService.findPageFavoriteUser(username, pageFrom,
                 pageSize);
@@ -221,7 +221,7 @@ public class FavoriteController {
             @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        String username = jwtProvider.getUsernameByAccess(servletRequest.getHeader(AUTHORIZATION));
+        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         PageData<List<FavoriteTeamResponse>> responses = favoriteService.findPageFavoriteTeam(username, pageFrom,
                 pageSize);

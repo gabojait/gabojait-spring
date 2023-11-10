@@ -312,6 +312,7 @@ public class UserService {
     /**
      * 회원 탈퇴 |
      * 404(USER_NOT_FOUND)
+     * 409(UNREGISTER_UNAVAILABLE)
      * @param username 아이디
      */
     @Transactional
