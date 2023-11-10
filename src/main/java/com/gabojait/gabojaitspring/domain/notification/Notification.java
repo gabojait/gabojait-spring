@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Getter
 @Entity
@@ -44,5 +45,23 @@ public class Notification extends BasePermanentEntity {
 
     public void read() {
         this.isRead = true;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof Notification)) return false;
+        Notification that = (Notification) object;
+        return Objects.equals(id, that.id)
+                && Objects.equals(user, that.user)
+                && notificationType == that.notificationType
+                && Objects.equals(title, that.title)
+                && Objects.equals(body, that.body)
+                && Objects.equals(isRead, that.isRead);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, user, notificationType, title, body, isRead);
     }
 }
