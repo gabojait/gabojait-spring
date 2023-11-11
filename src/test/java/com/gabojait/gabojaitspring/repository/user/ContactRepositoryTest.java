@@ -10,7 +10,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -33,33 +32,6 @@ class ContactRepositoryTest {
 
         // then
         assertThat(foundContact).isEqualTo(contact);
-    }
-
-    @Test
-    @DisplayName("존재하는 연락처 이메일로 연락처 존재 여부를 확인 한다.")
-    void givenExisting_whenExistsByEmail_thenReturn() {
-        // given
-        Contact contact = createContact("tester@gabojait.com");
-        contactRepository.save(contact);
-
-        // when
-        boolean result = contactRepository.existsByEmail(contact.getEmail());
-
-        // then
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    @DisplayName("존재하지 않은 연락처 이메일로 연락처 존재 여부를 확인 한다.")
-    void givenNonExisting_whenExistsByEmail_thenReturn() {
-        // given
-        String email = "tester@gabojait.com";
-
-        // when
-        boolean result = contactRepository.existsByEmail(email);
-
-        // then
-        assertThat(result).isFalse();
     }
 
     @Test
@@ -90,6 +62,33 @@ class ContactRepositoryTest {
 
         // then
         assertThat(foundContact).isEqualTo(contact);
+    }
+
+    @Test
+    @DisplayName("존재하는 연락처 이메일로 연락처 존재 여부를 확인한다.")
+    void givenExisting_whenExistsByEmail_thenReturn() {
+        // given
+        Contact contact = createContact("tester@gabojait.com");
+        contactRepository.save(contact);
+
+        // when
+        boolean result = contactRepository.existsByEmail(contact.getEmail());
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @DisplayName("존재하지 않은 연락처 이메일로 연락처 존재 여부를 확인한다.")
+    void givenNonExisting_whenExistsByEmail_thenReturn() {
+        // given
+        String email = "tester@gabojait.com";
+
+        // when
+        boolean result = contactRepository.existsByEmail(email);
+
+        // then
+        assertThat(result).isFalse();
     }
 
     @Test

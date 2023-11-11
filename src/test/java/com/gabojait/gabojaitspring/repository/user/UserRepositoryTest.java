@@ -83,6 +83,68 @@ class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("존재하는 회원 아이디로 회원 존재 여부를 확인한다.")
+    void givenExisting_whenExistsByUsername_thenReturn() {
+        // given
+        Contact contact = createContact("tester@gabojait.com");
+        contact.verified();
+        contactRepository.save(contact);
+
+        User user = createUser("tester", "테스터", contact);
+        userRepository.save(user);
+
+        // when
+        boolean result = userRepository.existsByUsername(user.getUsername());
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @DisplayName("존재하지 않은 회원 아이디로 회원 존재 여부를 확인한다.")
+    void givenNonExisting_whenExistsByUsername_thenReturn() {
+        // given
+        String username = "tester";
+
+        // when
+        boolean result = userRepository.existsByUsername(username);
+
+        // then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("존재하는 회원 닉네임으로 회원 존재 여부를 확인한다.")
+    void givenExisting_whenExistsByNickname_thenReturn() {
+        // given
+        Contact contact = createContact("tester@gabojait.com");
+        contact.verified();
+        contactRepository.save(contact);
+
+        User user = createUser("tester", "테스터", contact);
+        userRepository.save(user);
+
+        // when
+        boolean result = userRepository.existsByNickname(user.getNickname());
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @DisplayName("존재하지 않은 닉네임으로 회원 존재 여부를 확인한다.")
+    void givenNonExisting_whenExistsByNickname_thenReturn() {
+        // given
+        String nickname = "테스터";
+
+        // when
+        boolean result = userRepository.existsByNickname(nickname);
+
+        // then
+        assertThat(result).isFalse();
+    }
+
+    @Test
     @DisplayName("동일한 아이디 저장시 예외가 발생한다.")
     void givenSameUsernames_whenSave_thenThrow() {
         // given
