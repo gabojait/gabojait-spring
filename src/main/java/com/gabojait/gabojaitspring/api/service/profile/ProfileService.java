@@ -393,11 +393,13 @@ public class ProfileService {
     public PageData<List<ProfileOfferResponse>> findPageUser(String username, Position position, long pageFrom, int pageSize) {
         User user = findUser(username);
 
-        Page<User> users = userRepository.findPage(position, pageFrom, pageSize);
-        List<Skill> skills = skillRepository.findAllInFetchUser(users.stream()
+        PageData<List<User>> users = userRepository.findPage(position, pageFrom, pageSize);
+        List<Skill> skills = skillRepository.findAllInFetchUser(users.getData()
+                .stream()
                 .map(User::getId)
                 .collect(Collectors.toList()));
-        List<Offer> offers = offerRepository.findAllInUserIds(users.stream()
+        List<Offer> offers = offerRepository.findAllInUserIds(users.getData()
+                        .stream()
                         .map(User::getId)
                         .collect(Collectors.toList()),
                 user.getId());
@@ -407,14 +409,15 @@ public class ProfileService {
         Map<Long, List<Offer>> oMap = offers.stream()
                 .collect(Collectors.groupingBy(o -> o.getUser().getId()));
 
-        List<ProfileOfferResponse> responses = users.stream()
+        List<ProfileOfferResponse> responses = users.getData()
+                .stream()
                 .map(u ->
                         new ProfileOfferResponse(u,
                                 sMap.getOrDefault(u.getId(), Collections.emptyList()),
                                 oMap.getOrDefault(u.getId(), Collections.emptyList())))
                 .collect(Collectors.toList());
 
-        return new PageData<>(responses, users.getTotalElements());
+        return new PageData<>(responses, users.getTotal());
     }
 
     /**

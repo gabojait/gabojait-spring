@@ -82,19 +82,6 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("'admin'이 포함된 아이디 검증시 예외가 발생한다.")
-    void givenAdminUsername_whenValidateUsername_thenThrow() {
-        // given
-        String username = "admintest";
-
-        // when & then
-        assertThatThrownBy(() -> userService.validateUsername(username))
-                .isInstanceOf(CustomException.class)
-                .extracting("errorCode")
-                .isEqualTo(UNAVAILABLE_USERNAME);
-    }
-
-    @Test
     @DisplayName("사용중인 아이디 검증시 예외가 발생한다.")
     void givenExistingUsername_whenValidateUsername_thenThrow() {
         // given

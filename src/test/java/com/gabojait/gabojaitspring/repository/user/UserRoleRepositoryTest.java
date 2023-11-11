@@ -25,8 +25,8 @@ class UserRoleRepositoryTest {
     @Autowired private ContactRepository contactRepository;
 
     @Test
-    @DisplayName("회원 아이디로 전체 권한 조회를 한다.")
-    void givenValid_whenFindAll_thenReturn() {
+    @DisplayName("존재하는 회원 아이디로 전체 권한 조회를 한다.")
+    void givenExisting_whenFindAll_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
         Role role = Role.USER;
@@ -38,19 +38,14 @@ class UserRoleRepositoryTest {
 
         // then
         assertAll(
-                () -> assertThat(userRoles)
-                        .extracting("role")
-                        .containsExactly(Role.USER),
-                () -> assertThat(userRoles.size()).isEqualTo(1),
-                () -> assertThat(userRoles)
-                        .extracting("id", "createdAt", "updatedAt")
-                        .isNotNull()
+                () -> assertThat(userRoles).containsExactly(userRole),
+                () -> assertThat(userRoles.size()).isEqualTo(1)
         );
     }
 
     @Test
     @DisplayName("존재하지 않은 회원 아이디로 전체 권한 조회를 한다.")
-    void givenNonExistingUsername_whenFindAll_thenReturn() {
+    void givenNonExisting_whenFindAll_thenReturn() {
         // given
         String username = "tester";
 

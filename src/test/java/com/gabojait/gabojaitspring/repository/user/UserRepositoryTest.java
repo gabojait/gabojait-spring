@@ -1,5 +1,6 @@
 package com.gabojait.gabojaitspring.repository.user;
 
+import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.user.Contact;
 import com.gabojait.gabojaitspring.domain.user.Gender;
 import com.gabojait.gabojaitspring.domain.user.Position;
@@ -9,17 +10,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -41,18 +40,10 @@ class UserRepositoryTest {
         userRepository.save(user);
 
         // when
-        Optional<User> foundUser = userRepository.findByContact(contact);
+        User foundUser = userRepository.findByContact(contact).get();
 
         // then
-        assertThat(foundUser.get())
-                .extracting("id", "username", "password", "nickname", "gender", "birthdate", "profileDescription",
-                        "imageUrl", "lastRequestAt", "position", "rating", "visitedCnt", "reviewCnt", "isSeekingTeam",
-                        "isTemporaryPassword", "isNotified", "createdAt", "updatedAt")
-                .containsExactly(user.getId(), user.getUsername(), user.getPassword(), user.getNickname(),
-                        user.getGender(), user.getBirthdate(), user.getProfileDescription(), user.getImageUrl(),
-                        user.getLastRequestAt(), user.getPosition(), user.getRating(), user.getVisitedCnt(),
-                        user.getReviewCnt(), user.getIsSeekingTeam(), user.getIsTemporaryPassword(),
-                        user.getIsNotified(), user.getCreatedAt(), user.getUpdatedAt());
+        assertThat(foundUser).isEqualTo(user);
     }
 
     @Test
@@ -67,18 +58,10 @@ class UserRepositoryTest {
         userRepository.save(user);
 
         // when
-        Optional<User> foundUser = userRepository.findByUsername(user.getUsername());
+        User foundUser = userRepository.findByUsername(user.getUsername()).get();
 
         // then
-        assertThat(foundUser.get())
-                .extracting("id", "username", "password", "nickname", "gender", "birthdate", "profileDescription",
-                        "imageUrl", "lastRequestAt", "position", "rating", "visitedCnt", "reviewCnt", "isSeekingTeam",
-                        "isTemporaryPassword", "isNotified", "createdAt", "updatedAt")
-                .containsExactly(user.getId(), user.getUsername(), user.getPassword(), user.getNickname(),
-                        user.getGender(), user.getBirthdate(), user.getProfileDescription(), user.getImageUrl(),
-                        user.getLastRequestAt(), user.getPosition(), user.getRating(), user.getVisitedCnt(),
-                        user.getReviewCnt(), user.getIsSeekingTeam(), user.getIsTemporaryPassword(),
-                        user.getIsNotified(), user.getCreatedAt(), user.getUpdatedAt());
+        assertThat(foundUser).isEqualTo(user);
     }
 
     @Test
@@ -93,18 +76,72 @@ class UserRepositoryTest {
         userRepository.save(user);
 
         // when
-        Optional<User> foundUser = userRepository.findByNickname(user.getNickname());
+        User foundUser = userRepository.findByNickname(user.getNickname()).get();
 
         // then
-        assertThat(foundUser.get())
-                .extracting("id", "username", "password", "nickname", "gender", "birthdate", "profileDescription",
-                        "imageUrl", "lastRequestAt", "position", "rating", "visitedCnt", "reviewCnt", "isSeekingTeam",
-                        "isTemporaryPassword", "isNotified", "createdAt", "updatedAt")
-                .containsExactly(user.getId(), user.getUsername(), user.getPassword(), user.getNickname(),
-                        user.getGender(), user.getBirthdate(), user.getProfileDescription(), user.getImageUrl(),
-                        user.getLastRequestAt(), user.getPosition(), user.getRating(), user.getVisitedCnt(),
-                        user.getReviewCnt(), user.getIsSeekingTeam(), user.getIsTemporaryPassword(),
-                        user.getIsNotified(), user.getCreatedAt(), user.getUpdatedAt());
+        assertThat(foundUser).isEqualTo(user);
+    }
+
+    @Test
+    @DisplayName("존재하는 회원 아이디로 회원 존재 여부를 확인한다.")
+    void givenExisting_whenExistsByUsername_thenReturn() {
+        // given
+        Contact contact = createContact("tester@gabojait.com");
+        contact.verified();
+        contactRepository.save(contact);
+
+        User user = createUser("tester", "테스터", contact);
+        userRepository.save(user);
+
+        // when
+        boolean result = userRepository.existsByUsername(user.getUsername());
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @DisplayName("존재하지 않은 회원 아이디로 회원 존재 여부를 확인한다.")
+    void givenNonExisting_whenExistsByUsername_thenReturn() {
+        // given
+        String username = "tester";
+
+        // when
+        boolean result = userRepository.existsByUsername(username);
+
+        // then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("존재하는 회원 닉네임으로 회원 존재 여부를 확인한다.")
+    void givenExisting_whenExistsByNickname_thenReturn() {
+        // given
+        Contact contact = createContact("tester@gabojait.com");
+        contact.verified();
+        contactRepository.save(contact);
+
+        User user = createUser("tester", "테스터", contact);
+        userRepository.save(user);
+
+        // when
+        boolean result = userRepository.existsByNickname(user.getNickname());
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @DisplayName("존재하지 않은 닉네임으로 회원 존재 여부를 확인한다.")
+    void givenNonExisting_whenExistsByNickname_thenReturn() {
+        // given
+        String nickname = "테스터";
+
+        // when
+        boolean result = userRepository.existsByNickname(nickname);
+
+        // then
+        assertThat(result).isFalse();
     }
 
     @Test
@@ -178,18 +215,13 @@ class UserRepositoryTest {
         Position position = Position.NONE;
 
         // when
-        Page<User> users = userRepository.findPage(position, pageFrom, pageSize);
+        PageData<List<User>> users = userRepository.findPage(position, pageFrom, pageSize);
 
         // then
-        assertThat(users.getContent())
-                .extracting("id", "username", "nickname", "position")
-                .containsExactly(
-                        tuple(user3.getId(), user3.getUsername(), user3.getNickname(), user3.getPosition()),
-                        tuple(user2.getId(), user2.getUsername(), user2.getNickname(), user2.getPosition())
-                );
-
-        assertEquals(pageSize, users.getSize());
-        assertEquals(3, users.getTotalElements());
+        assertAll(
+                () -> assertThat(users.getData()).containsExactly(user3, user2),
+                () -> assertThat(users.getTotal()).isEqualTo(3L)
+        );
     }
 
     @Test
@@ -218,18 +250,31 @@ class UserRepositoryTest {
         Position position = Position.BACKEND;
 
         // when
-        Page<User> users = userRepository.findPage(position, pageFrom, pageSize);
+        PageData<List<User>> users = userRepository.findPage(position, pageFrom, pageSize);
 
         // then
-        assertThat(users.getContent())
-                .extracting("id", "username", "nickname", "position")
-                .containsExactly(
-                        tuple(user2.getId(), user2.getUsername(), user2.getNickname(), user2.getPosition()),
-                        tuple(user1.getId(), user1.getUsername(), user1.getNickname(), user1.getPosition())
-                );
+        assertAll(
+                () -> assertThat(users.getData()).containsExactly(user2, user1),
+                () -> assertThat(users.getTotal()).isEqualTo(2L)
+        );
+    }
 
-        assertEquals(pageSize, users.getSize());
-        assertEquals(2, users.getTotalElements());
+    @Test
+    @DisplayName("결과가 없는 회원 페이징 조회를 한다.")
+    void givenNoResult_whenFindPage_thenReturn() {
+        // given
+        long pageFrom = Long.MAX_VALUE;
+        int pageSize = 1;
+        Position position = Position.NONE;
+
+        // when
+        PageData<List<User>> users = userRepository.findPage(position, pageFrom, pageSize);
+
+        // then
+        assertAll(
+                () -> assertThat(users.getData()).isEmpty(),
+                () -> assertThat(users.getTotal()).isEqualTo(0L)
+        );
     }
 
     @Test
@@ -242,12 +287,26 @@ class UserRepositoryTest {
         userRepository.save(user);
 
         // when
-        Optional<User> foundUser = userRepository.findSeekingTeam(user.getId());
+        User foundUser = userRepository.findSeekingTeam(user.getId()).get();
 
         // then
-        assertThat(foundUser.get())
-                .extracting("id", "username", "nickname", "position", "isSeekingTeam")
-                .contains(user.getId(), user.getUsername(), user.getNickname(), user.getPosition(), true);
+        assertThat(foundUser).isEqualTo(user);
+    }
+
+    @Test
+    @DisplayName("이메일로 회원 단건 조회를 한다.")
+    void givenValid_whenFind_thenReturn() {
+        // given
+        Contact contact = createContact("tester@gabojait.com");
+        contactRepository.save(contact);
+        User user = createUser("tester", "테스터", contact);
+        userRepository.save(user);
+
+        // when
+        User foundUser = userRepository.find(contact.getEmail()).get();
+
+        // then
+        assertThat(foundUser).isEqualTo(user);
     }
 
     private User createUser(String username, String nickname, Contact contact) {

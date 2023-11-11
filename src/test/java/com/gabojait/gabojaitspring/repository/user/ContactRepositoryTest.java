@@ -10,7 +10,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -26,22 +25,18 @@ class ContactRepositoryTest {
     void givenValid_whenFindByEmail_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
-
         contactRepository.save(contact);
 
         // when
-        Optional<Contact> foundContact = contactRepository.findByEmail(contact.getEmail());
+        Contact foundContact = contactRepository.findByEmail(contact.getEmail()).get();
 
         // then
-        assertThat(foundContact.get())
-                .extracting("id", "email", "verificationCode", "isVerified", "createdAt", "updatedAt")
-                .containsExactly(contact.getId(), contact.getEmail(), contact.getVerificationCode(),
-                        contact.getIsVerified(), contact.getCreatedAt(), contact.getUpdatedAt());
+        assertThat(foundContact).isEqualTo(contact);
     }
 
     @Test
     @DisplayName("이메일로 인증된 연락처 단건 조회를 한다.")
-    void givenVerifiedContact_whenFindByEmailAndIsVerified_thenReturn() {
+    void givenVerified_whenFindByEmailAndIsVerified_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
         contact.verified();
@@ -49,31 +44,65 @@ class ContactRepositoryTest {
         contactRepository.save(contact);
 
         // when
-        Optional<Contact> foundContact = contactRepository.findByEmailAndIsVerified(contact.getEmail(), true);
+        Contact foundContact = contactRepository.findByEmailAndIsVerified(contact.getEmail(), true).get();
 
         // then
-        assertThat(foundContact.get())
-                .extracting("id", "email", "verificationCode", "isVerified", "createdAt", "updatedAt")
-                .containsExactly(contact.getId(), contact.getEmail(), contact.getVerificationCode(),
-                        contact.getIsVerified(), contact.getCreatedAt(), contact.getUpdatedAt());
+        assertThat(foundContact).isEqualTo(contact);
     }
 
     @Test
-    @DisplayName("이메일로 인증 안된 연락처 단건 조회를 한다.")
-    void givenUnverifiedContact_whenFindByEmailAndIsVerifiedIsFalse_thenReturn() {
+    @DisplayName("이메일로 인증되지 않은 연락처 단건 조회를 한다.")
+    void givenUnverified_whenFindByEmailAndIsVerified_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
-
         contactRepository.save(contact);
 
         // when
-        Optional<Contact> foundContact = contactRepository.findByEmailAndIsVerified(contact.getEmail(), false);
+        Contact foundContact = contactRepository.findByEmailAndIsVerified(contact.getEmail(), false).get();
 
         // then
-        assertThat(foundContact.get())
-                .extracting("id", "email", "verificationCode", "isVerified", "createdAt", "updatedAt")
-                .containsExactly(contact.getId(), contact.getEmail(), contact.getVerificationCode(),
-                        contact.getIsVerified(), contact.getCreatedAt(), contact.getUpdatedAt());
+        assertThat(foundContact).isEqualTo(contact);
+    }
+
+    @Test
+    @DisplayName("존재하는 연락처 이메일로 연락처 존재 여부를 확인한다.")
+    void givenExisting_whenExistsByEmail_thenReturn() {
+        // given
+        Contact contact = createContact("tester@gabojait.com");
+        contactRepository.save(contact);
+
+        // when
+        boolean result = contactRepository.existsByEmail(contact.getEmail());
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @DisplayName("존재하지 않은 연락처 이메일로 연락처 존재 여부를 확인한다.")
+    void givenNonExisting_whenExistsByEmail_thenReturn() {
+        // given
+        String email = "tester@gabojait.com";
+
+        // when
+        boolean result = contactRepository.existsByEmail(email);
+
+        // then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("이메일로 연락처를 삭제한다.")
+    void givenValid_whenDeleteByEmail_thenReturn() {
+        // given
+        Contact contact = createContact("tester@gabojait.com");
+        contactRepository.save(contact);
+
+        // when
+        contactRepository.deleteByEmail(contact.getEmail());
+
+        // then
+        assertThat(contactRepository.existsByEmail(contact.getEmail())).isFalse();
     }
 
     @Test

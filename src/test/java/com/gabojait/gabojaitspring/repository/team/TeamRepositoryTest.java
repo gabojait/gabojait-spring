@@ -1,12 +1,12 @@
 package com.gabojait.gabojaitspring.repository.team;
 
+import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.user.Position;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,10 +38,10 @@ class TeamRepositoryTest {
         Position position = Position.NONE;
 
         // when
-        Page<Team> teams = teamRepository.findPage(position, pageFrom, pageSize);
+        PageData<List<Team>> teams = teamRepository.findPage(position, pageFrom, pageSize);
 
         // then
-        assertThat(teams.getContent())
+        assertThat(teams.getData())
                 .extracting("id", "projectName", "projectDescription", "expectation", "openChatUrl", "projectUrl",
                         "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt", "managerCurrentCnt",
                         "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt", "visitedCnt",
@@ -61,8 +61,8 @@ class TeamRepositoryTest {
                                 team3.getVisitedCnt(), team3.getIsRecruiting(), team3.getIsDeleted())
                 );
 
-        assertEquals(pageSize, teams.getSize());
-        assertEquals(4, teams.getTotalElements());
+        assertEquals(pageSize, teams.getData().size());
+        assertEquals(4, teams.getTotal());
 
     }
 
@@ -81,10 +81,10 @@ class TeamRepositoryTest {
         Position position = Position.BACKEND;
 
         // when
-        Page<Team> teams = teamRepository.findPage(position, pageFrom, pageSize);
+        PageData<List<Team>> teams = teamRepository.findPage(position, pageFrom, pageSize);
 
         // then
-        assertThat(teams.getContent())
+        assertThat(teams.getData())
                 .extracting("id", "projectName", "projectDescription", "expectation", "openChatUrl", "projectUrl",
                         "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt", "managerCurrentCnt",
                         "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt", "visitedCnt",
@@ -104,8 +104,8 @@ class TeamRepositoryTest {
                                 team2.getVisitedCnt(), team2.getIsRecruiting(), team2.getIsDeleted())
                 );
 
-        assertEquals(pageSize, teams.getSize());
-        assertEquals(3, teams.getTotalElements());
+        assertEquals(pageSize, teams.getData().size());
+        assertEquals(3, teams.getTotal());
     }
 
     private Team createTeam(String projectName, byte maxCnt) {

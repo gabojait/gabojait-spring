@@ -19,7 +19,6 @@ import com.gabojait.gabojaitspring.repository.team.TeamMemberRepository;
 import com.gabojait.gabojaitspring.repository.team.TeamRepository;
 import com.gabojait.gabojaitspring.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -145,13 +144,14 @@ public class TeamService {
      * @return 팀 기본 응답들
      */
     public PageData<List<TeamAbstractResponse>> findPageTeam(Position position, long pageFrom, int pageSize) {
-        Page<Team> teams = teamRepository.findPage(position, pageFrom, pageSize);
+        PageData<List<Team>> teams = teamRepository.findPage(position, pageFrom, pageSize);
 
-        List<TeamAbstractResponse> responses = teams.stream()
+        List<TeamAbstractResponse> responses = teams.getData()
+                .stream()
                 .map(TeamAbstractResponse::new)
                 .collect(Collectors.toList());
 
-        return new PageData<>(responses, teams.getTotalElements());
+        return new PageData<>(responses, teams.getTotal());
     }
 
     /**

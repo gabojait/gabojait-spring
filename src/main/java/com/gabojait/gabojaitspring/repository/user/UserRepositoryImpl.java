@@ -1,5 +1,6 @@
 package com.gabojait.gabojaitspring.repository.user;
 
+import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.user.Position;
 import com.gabojait.gabojaitspring.domain.user.User;
 import com.querydsl.core.types.Predicate;
@@ -9,9 +10,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.gabojait.gabojaitspring.domain.user.QContact.contact;
 import static com.gabojait.gabojaitspring.domain.user.QUser.user;
 
 @RequiredArgsConstructor
@@ -20,7 +23,7 @@ public class UserRepositoryImpl implements UserCustomRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<User> findPage(Position position, long pageFrom, int pageSize) {
+    public PageData<List<User>> findPage(Position position, long pageFrom, int pageSize) {
         Long count = queryFactory.select(user.id.count())
                 .from(user)
                 .where(
@@ -28,10 +31,8 @@ public class UserRepositoryImpl implements UserCustomRepository {
                         user.isSeekingTeam.isTrue()
                 ).fetchOne();
 
-        Pageable pageable = Pageable.ofSize(pageSize);
-
         if (count == null || count == 0)
-            return new PageImpl<>(List.of(), pageable, 0);
+            return new PageData<>(List.of(), 0);
 
         List<User> users = queryFactory.selectFrom(user)
                 .where(
@@ -42,9 +43,10 @@ public class UserRepositoryImpl implements UserCustomRepository {
                 .limit(pageSize)
                 .fetch();
 
-        return new PageImpl<>(users, pageable, count);
+        return new PageData<>(users, count);
     }
 
+    @Override
     public Optional<User> findSeekingTeam(long userId) {
         return Optional.ofNullable(
                 queryFactory
@@ -52,6 +54,18 @@ public class UserRepositoryImpl implements UserCustomRepository {
                         .where(
                                 user.id.eq(userId),
                                 user.isSeekingTeam.isTrue()
+                        ).fetchFirst()
+        );
+    }
+
+    @Override
+    public Optional<User> find(String email) {
+        return Optional.ofNullable(
+                queryFactory
+                        .selectFrom(user)
+                        .leftJoin(user.contact, contact)
+                        .where(
+                                contact.email.eq(email)
                         ).fetchFirst()
         );
     }
