@@ -9,9 +9,9 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
 
     Optional<Contact> findByEmail(String email);
 
-    boolean existsByEmail(String email);
-
     Optional<Contact> findByEmailAndIsVerified(String email, boolean isVerified);
+
+    boolean existsByEmail(String email);
 
     void deleteByEmail(String email);
 }

@@ -56,12 +56,10 @@ public class UserService {
      * @param username 아이디
      */
     public void validateUsername(String username) {
-        if (username.toLowerCase().contains("gabojait") || username.toLowerCase().contains("admin"))
+        if (username.toLowerCase().contains("gabojait"))
             throw new CustomException(UNAVAILABLE_USERNAME);
 
-        Optional<User> user = userRepository.findByUsername(username);
-
-        if (user.isPresent())
+        if (userRepository.existsByUsername(username))
             throw new CustomException(EXISTING_USERNAME);
     }
 
@@ -74,9 +72,7 @@ public class UserService {
         if (nickname.contains("가보자잇"))
             throw new CustomException(UNAVAILABLE_NICKNAME);
 
-        Optional<User> user = userRepository.findByNickname(nickname);
-
-        if (user.isPresent())
+        if (userRepository.existsByNickname(nickname))
             throw new CustomException(EXISTING_NICKNAME);
     }
 
@@ -167,15 +163,14 @@ public class UserService {
         if (fcmToken == null || fcmToken.isBlank())
             return;
 
-        Optional<Fcm> fcm = fcmRepository.findByUserAndFcmToken(user, fcmToken);
-        if (fcm.isPresent())
-            return;
-
-        Fcm newFcm = Fcm.builder()
-                .user(user)
-                .fcmToken(fcmToken)
-                .build();
-        fcmRepository.save(newFcm);
+        fcmRepository.findByUserAndFcmToken(user, fcmToken)
+                .ifPresentOrElse(fcm -> {}, () -> {
+                    Fcm fcm = Fcm.builder()
+                            .user(user)
+                            .fcmToken(fcmToken)
+                            .build();
+                    fcmRepository.save(fcm);
+                });
     }
 
     /**
