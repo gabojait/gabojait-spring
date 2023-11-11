@@ -86,6 +86,5 @@ jobs:
           image: gs97ahn/server
           tags: gabojait-alpha-latest
           registry: docker.io
-          dockerfile: Dockerfile
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
