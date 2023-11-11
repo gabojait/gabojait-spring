@@ -374,19 +374,20 @@ public class UserService {
      * @return 연락처
      */
     private Contact findAndValidateContact(String email, String verificationCode) {
-        Optional<Contact> contact = contactRepository.findByEmailAndIsVerified(email, true);
+        Contact contact = contactRepository.findByEmailAndIsVerified(email, true)
+                .orElseThrow(() -> {
+                    throw new CustomException(EMAIL_NOT_FOUND);
+                });
 
-        if (contact.isEmpty())
-            throw new CustomException(EMAIL_NOT_FOUND);
+        userRepository.findByContact(contact)
+                .ifPresent(user -> {
+                    throw new CustomException(EXISTING_CONTACT);
+                });
 
-        Optional<User> user = userRepository.findByContact(contact.get());
-        if (user.isPresent())
-            throw new CustomException(EXISTING_CONTACT);
-
-        if (!verificationCode.equals(contact.get().getVerificationCode()))
+        if (!verificationCode.equals(contact.getVerificationCode()))
             throw new CustomException(VERIFICATION_CODE_INVALID);
 
-        return contact.get();
+        return contact;
     }
 
     /**

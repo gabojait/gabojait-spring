@@ -34,14 +34,14 @@ public class ContactService {
      */
     @Transactional
     public void validateDuplicateContact(String email) {
-        Optional<Contact> contact = contactRepository.findByEmail(email);
+        boolean isExist = contactRepository.existsByEmail(email);
 
-        if (contact.isPresent()) {
-            Optional<User> user = userRepository.findByContact(contact.get());
-            if (user.isPresent())
-                throw new CustomException(EXISTING_CONTACT);
-            contactRepository.delete(contact.get());
-        }
+        if (isExist)
+            userRepository.find(email)
+                    .ifPresentOrElse(user -> {
+                        throw new CustomException(EXISTING_CONTACT);
+                        }, () -> contactRepository.deleteByEmail(email)
+                    );
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.gabojait.gabojaitspring.repository.team;
 
+import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.user.Position;
 import com.querydsl.core.types.Predicate;
@@ -19,7 +20,7 @@ public class TeamRepositoryImpl implements TeamCustomRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Team> findPage(Position position, long pageFrom, int pageSize) {
+    public PageData<List<Team>> findPage(Position position, long pageFrom, int pageSize) {
         Long count = queryFactory.select(team.count())
                 .from(team)
                 .where(
@@ -29,10 +30,8 @@ public class TeamRepositoryImpl implements TeamCustomRepository {
                         team.isDeleted.isFalse()
                 ).fetchOne();
 
-        Pageable pageable = Pageable.ofSize(pageSize);
-
         if (count == null || count == 0)
-            return new PageImpl<>(List.of(), pageable, 0);
+            return new PageData<>(List.of(), 0L);
 
         List<Team> teams = queryFactory.selectFrom(team)
                 .where(
@@ -45,7 +44,7 @@ public class TeamRepositoryImpl implements TeamCustomRepository {
                 .limit(pageSize)
                 .fetch();
 
-        return new PageImpl<>(teams, pageable, count);
+        return new PageData<>(teams, count);
     }
 
     private Predicate positionEq(Position position) {
