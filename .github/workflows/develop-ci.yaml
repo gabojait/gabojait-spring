@@ -81,10 +81,11 @@ jobs:
           retention-days: 90
 
       - name: Build and Push Docker image
-        uses: mr-smithers-excellent/docker-build-push@v5
+        uses: mr-smithers-excellent/docker-build-push@v6
         with:
           image: gs97ahn/server
           tags: gabojait-alpha-latest
           registry: docker.io
+          dockerfile: Dockerfile
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
