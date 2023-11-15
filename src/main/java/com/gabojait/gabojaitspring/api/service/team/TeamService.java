@@ -122,14 +122,13 @@ public class TeamService {
         User user = findUser(username);
         Team team = findTeam(teamId);
         List<TeamMember> teamMembers = teamMemberRepository.findAllCurrentFetchUser(team.getId());
-        Boolean isFavorite = null;
+        boolean isFavorite = favoriteRepository.existsTeam(user.getId(), team.getId());
         List<Offer> offers = new ArrayList<>();
 
         boolean isTeamMember = teamMemberRepository.exists(user.getId(), team.getId());
         if (!isTeamMember) {
             team.visit();
 
-            isFavorite = favoriteRepository.existsTeam(user.getId(), team.getId());
             offers = offerRepository.findAllByTeamId(user.getId(), team.getId());
         }
 

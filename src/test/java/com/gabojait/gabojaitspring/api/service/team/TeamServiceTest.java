@@ -383,7 +383,7 @@ class TeamServiceTest {
                         team.getBackendCurrentCnt(), team.getFrontendCurrentCnt(), team.getManagerCurrentCnt(),
                         team.getDesignerMaxCnt(), team.getBackendMaxCnt(), team.getFrontendMaxCnt(),
                         team.getManagerMaxCnt(), team.getCreatedAt(), team.getUpdatedAt(), team.getProjectDescription(),
-                        team.getOpenChatUrl(), team.getExpectation(), null);
+                        team.getOpenChatUrl(), team.getExpectation(), false);
 
         assertThat(response.getTeamMembers())
                 .extracting("userId", "username", "nickname", "position", "isLeader")
