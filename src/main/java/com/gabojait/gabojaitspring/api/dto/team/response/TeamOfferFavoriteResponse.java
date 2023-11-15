@@ -25,7 +25,7 @@ public class TeamOfferFavoriteResponse extends TeamDefaultResponse {
     @ApiModelProperty(position = 11, required = true, value = "찜 여부")
     private Boolean isFavorite;
 
-    public TeamOfferFavoriteResponse(Team team, List<TeamMember> teamMembers, List<Offer> offers, Boolean isFavorite) {
+    public TeamOfferFavoriteResponse(Team team, List<TeamMember> teamMembers, List<Offer> offers, boolean isFavorite) {
         super(team, teamMembers);
 
         this.offers = offers.stream()
