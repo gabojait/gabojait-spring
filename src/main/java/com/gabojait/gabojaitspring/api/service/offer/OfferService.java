@@ -50,6 +50,7 @@ public class OfferService {
      * @param teamId 팀 식별자
      * @param request 제안 생성 요청
      */
+    @Transactional
     public void offerByUser(String username, long teamId, OfferCreateRequest request) {
         User user = findUser(username);
         Team team = findTeam(teamId);
@@ -71,6 +72,7 @@ public class OfferService {
      * @param userId 회원 식별자
      * @param request 제안 생성 요청
      */
+    @Transactional
     public void offerByTeam(String username, long userId, OfferCreateRequest request) {
         User leaderUser = findUser(username);
         TeamMember teamMember = findCurrentTeamMemberFetchTeam(leaderUser.getId());
