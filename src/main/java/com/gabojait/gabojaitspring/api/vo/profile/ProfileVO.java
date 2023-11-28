@@ -2,7 +2,6 @@ package com.gabojait.gabojaitspring.api.vo.profile;
 
 import com.gabojait.gabojaitspring.domain.profile.Education;
 import com.gabojait.gabojaitspring.domain.profile.Portfolio;
-import com.gabojait.gabojaitspring.domain.profile.Skill;
 import com.gabojait.gabojaitspring.domain.profile.Work;
 import com.gabojait.gabojaitspring.domain.review.Review;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
