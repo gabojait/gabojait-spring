@@ -25,12 +25,12 @@ public class AspectLogging {
     private void exception() {}
 
     @Before("global()")
-    public void beforeGlobal(JoinPoint joinPoint) {
-        final MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+    public void beforeGlobal(JoinPoint jp) {
+        final MethodSignature signature = (MethodSignature) jp.getSignature();
         final String className = signature.getDeclaringType().getSimpleName();
         final Method method = signature.getMethod();
         final Parameter[] parameterNames = method.getParameters();
-        final Object[] arguments = joinPoint.getArgs();
+        final Object[] arguments = jp.getArgs();
         final int paramLength = Math.min(parameterNames.length, arguments.length);
         final String uuid = InterceptorLogging.getRequestId() == null ? "SYSTEM" : InterceptorLogging.getRequestId();
 
@@ -48,8 +48,8 @@ public class AspectLogging {
     }
 
     @AfterReturning(value = "global()", returning = "result")
-    public void afterGlobal(JoinPoint joinPoint, Object result) {
-        final MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+    public void afterGlobal(JoinPoint jp, Object result) {
+        final MethodSignature signature = (MethodSignature) jp.getSignature();
         final String className = signature.getDeclaringType().getSimpleName();
         final String methodName = signature.getMethod().getName();
         final String uuid = InterceptorLogging.getRequestId() == null ? "SYSTEM" : InterceptorLogging.getRequestId();
@@ -63,8 +63,8 @@ public class AspectLogging {
     }
 
     @AfterThrowing(value = "exception()", throwing = "ex")
-    public void afterThrowingGlobal(JoinPoint joinPoint, CustomException ex) {
-        final MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+    public void afterThrowingGlobal(JoinPoint jp, CustomException ex) {
+        final MethodSignature signature = (MethodSignature) jp.getSignature();
         final String className = signature.getDeclaringType().getSimpleName();
         final String methodName = signature.getMethod().getName();
         final String errorName = ex.getErrorCode().name();
