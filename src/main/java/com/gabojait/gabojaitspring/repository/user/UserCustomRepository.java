@@ -7,7 +7,7 @@ import com.gabojait.gabojaitspring.domain.user.User;
 import java.util.List;
 import java.util.Optional;
 
-public interface UserQueryRepository {
+public interface UserCustomRepository {
 
     PageData<List<User>> findPage(Position position, long pageFrom, int pageSize);
 
