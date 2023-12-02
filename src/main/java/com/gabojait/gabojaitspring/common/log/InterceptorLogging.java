@@ -50,7 +50,7 @@ public class InterceptorLogging implements HandlerInterceptor {
         final String method = request.getMethod();
         final String uri = request.getRequestURI();
 
-        log.info("========== [{} | FINISH] {} {} | time={} ms ==========", uuid, method, uri, time);
+        log.info("========== [{} | FINISH] {} {} | time={}ms ==========", uuid, method, uri, time);
 
         uuidThreadLocal.remove();
         stopWatchThreadLocal.remove();
