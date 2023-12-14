@@ -233,7 +233,7 @@ class ProfileControllerTest {
     @DisplayName("프로필 업데이트를 하면 200을 반환한다.")
     void givenValid_whenUpdateProfile_thenReturn200() throws Exception {
         // given
-        ProfileDefaultRequest request = crateValidProfileDefaultRequest();
+        ProfileDefaultRequest request = createValidProfileDefaultRequest();
 
         // when
         ResultActions actions = mockMvc.perform(
@@ -249,6 +249,29 @@ class ProfileControllerTest {
                         .value(PROFILE_UPDATED.name()))
                 .andExpect(jsonPath("$.responseMessage")
                         .value(PROFILE_UPDATED.getMessage()));
+    }
+
+    @Test
+    @DisplayName("포지션 미입력시 프로필 업데이트를 하면 400을 반환한다.")
+    void givenBlankPosition_whenUpdateProfile_thenReturn400() throws Exception {
+        // given
+        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        request.setPosition("");
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                post("/api/v1/user/profile")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(POSITION_FIELD_REQUIRED.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(POSITION_FIELD_REQUIRED.getMessage()));
     }
 
     @Test
@@ -374,11 +397,11 @@ class ProfileControllerTest {
                         .value(PAGE_SIZE_RANGE_INVALID.getMessage()));
     }
 
-    private ProfileDefaultRequest crateValidProfileDefaultRequest() {
+    private ProfileDefaultRequest createValidProfileDefaultRequest() {
         return ProfileDefaultRequest.builder()
                 .position(Position.BACKEND.toString())
                 .educations(List.of(createValidEducationDefaultRequest()))
-                .portfolios(List.of(createValidProfileDefaultRequest()))
+                .portfolios(List.of(createValidPortfolioDefaultRequest()))
                 .skills(List.of(createValidSkillDefaultRequest()))
                 .works(List.of(createValidWorkDefaultRequest()))
                 .build();
@@ -393,7 +416,7 @@ class ProfileControllerTest {
                 .build();
     }
 
-    private PortfolioDefaultRequest createValidProfileDefaultRequest() {
+    private PortfolioDefaultRequest createValidPortfolioDefaultRequest() {
         return PortfolioDefaultRequest.builder()
                 .portfolioName("깃허브")
                 .portfolioUrl("github.com/gabojait")
