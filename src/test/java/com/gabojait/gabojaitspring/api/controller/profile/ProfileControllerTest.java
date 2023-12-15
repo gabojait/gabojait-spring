@@ -275,6 +275,29 @@ class ProfileControllerTest {
     }
 
     @Test
+    @DisplayName("잘못된 포지션 타입일시 프로필 업데이트를 하면 400을 반환한다.")
+    void givenFormatPosition_whenUpdateProfile_thenReturn400() throws Exception {
+        // given
+        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        request.setPosition("OPERATOR");
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                post("/api/v1/user/profile")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(POSITION_TYPE_INVALID.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(POSITION_TYPE_INVALID.getMessage()));
+    }
+
+    @Test
     @DisplayName("파일 포트폴리오를 하면 200을 반환한다.")
     void givenValid_whenUploadPortfolioFile_thenReturn200() throws Exception {
         // given
