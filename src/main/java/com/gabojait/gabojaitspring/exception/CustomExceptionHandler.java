@@ -136,6 +136,9 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         return ExceptionResponse.exceptionResponse(TOKEN_UNAUTHORIZED);
     }
 
+    /**
+     * 401 Unauthorized
+     */
     @ExceptionHandler(value = AccessDeniedException.class)
     protected ResponseEntity<ExceptionResponse> handleAccessDeniedException(AccessDeniedException exception) {
         return ExceptionResponse.exceptionResponse(TOKEN_UNAUTHORIZED);
@@ -176,6 +179,16 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseStatus(INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ExceptionResponse> handleException(Exception exception) {
+        Sentry.captureException(exception);
+        return ExceptionResponse.exceptionResponse(SERVER_ERROR);
+    }
+
+    /**
+     * 500 Internal Server Error
+     */
+    @ResponseStatus(INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(InterruptedException.class)
+    protected ResponseEntity<ExceptionResponse> handleInterruptedException(InterruptedException exception) {
         Sentry.captureException(exception);
         return ExceptionResponse.exceptionResponse(SERVER_ERROR);
     }
