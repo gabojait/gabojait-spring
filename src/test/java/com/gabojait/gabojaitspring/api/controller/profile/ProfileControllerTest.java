@@ -321,6 +321,29 @@ class ProfileControllerTest {
     }
 
     @Test
+    @DisplayName("기술명 20자 초과일시 프로필 업데이트를 하면 400을 반환한다.")
+    void givenGreaterThan20SkillName_whenUpdateProfile_thenReturn400() throws Exception {
+        // given
+        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        request.getSkills().get(0).setSkillName("가".repeat(21));
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                post("/api/v1/user/profile")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(SKILL_NAME_LENGTH_INVALID.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(SKILL_NAME_LENGTH_INVALID.getMessage()));
+    }
+
+    @Test
     @DisplayName("파일 포트폴리오를 하면 200을 반환한다.")
     void givenValid_whenUploadPortfolioFile_thenReturn200() throws Exception {
         // given
