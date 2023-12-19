@@ -388,6 +388,30 @@ class ProfileControllerTest {
                 .andExpect(jsonPath("$.responseMessage")
                         .value(LEVEL_FIELD_REQUIRED.getMessage()));
     }
+
+    @Test
+    @DisplayName("올바르지 않은 레벨로로 프로필 업데이트를 하면 400을 반환한다.")
+    void givenFormatLevel_whenUpdateProfile_thenReturn400() throws Exception {
+        // given
+        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        request.getSkills().get(0).setLevel("GOOD");
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                post("/api/v1/user/profile")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(LEVEL_TYPE_INVALID.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(LEVEL_TYPE_INVALID.getMessage()));
+    }
+
     @Test
     @DisplayName("파일 포트폴리오를 하면 200을 반환한다.")
     void givenValid_whenUploadPortfolioFile_thenReturn200() throws Exception {
