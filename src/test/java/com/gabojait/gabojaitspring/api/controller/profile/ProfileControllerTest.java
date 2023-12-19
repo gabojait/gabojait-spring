@@ -366,7 +366,28 @@ class ProfileControllerTest {
                         .value(IS_EXPERIENCED_FIELD_REQUIRED.getMessage()));
     }
 
+    @Test
+    @DisplayName("레벨 미입력시 프로필 업데이트를 하면 400을 반환한다.")
+    void givenBlankLevel_whenUpdateProfile_thenReturn400() throws Exception {
+        // given
+        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        request.getSkills().get(0).setLevel(null);
 
+        // when
+        ResultActions actions = mockMvc.perform(
+                post("/api/v1/user/profile")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(LEVEL_FIELD_REQUIRED.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(LEVEL_FIELD_REQUIRED.getMessage()));
+    }
     @Test
     @DisplayName("파일 포트폴리오를 하면 200을 반환한다.")
     void givenValid_whenUploadPortfolioFile_thenReturn200() throws Exception {
