@@ -413,6 +413,29 @@ class ProfileControllerTest {
     }
 
     @Test
+    @DisplayName("학교명 입력시 프로필 업데이트를 하면 400을 반환한다.")
+    void givenBlankInstitutionName_whenUpdateProfile_thenReturn400() throws Exception {
+        // given
+        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        request.getEducations().get(0).setInstitutionName("");
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                post("/api/v1/user/profile")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(INSTITUTION_NAME_FIELD_REQUIRED.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(INSTITUTION_NAME_FIELD_REQUIRED.getMessage()));
+    }
+
+    @Test
     @DisplayName("파일 포트폴리오를 하면 200을 반환한다.")
     void givenValid_whenUploadPortfolioFile_thenReturn200() throws Exception {
         // given
