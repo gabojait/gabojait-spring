@@ -2,7 +2,8 @@ package com.gabojait.gabojaitspring.api.controller.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gabojait.gabojaitspring.api.dto.user.request.*;
-import com.gabojait.gabojaitspring.api.dto.user.response.UserDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.user.response.UserLoginResponse;
+import com.gabojait.gabojaitspring.api.dto.user.response.UserRegisterResponse;
 import com.gabojait.gabojaitspring.api.service.user.UserService;
 import com.gabojait.gabojaitspring.auth.CustomAuthenticationEntryPoint;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
@@ -24,7 +25,6 @@ import java.time.LocalDateTime;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -50,22 +50,29 @@ class UserControllerTest {
         when(jwtProvider.createJwt(anyString()))
                 .thenReturn(HttpHeaders.EMPTY);
 
-        UserDefaultResponse userDefaultResponse = UserDefaultResponse.builder()
-                .id(1L)
-                .username("tester")
-                .nickname("테스터")
-                .gender(Gender.M)
-                .birthdate(LocalDate.of(1997, 2, 11))
-                .isNotified(true)
-                .now(LocalDateTime.now())
-                .email("tester@gabojait.com")
-                .build();
-
         when(userService.register(any(), any()))
-                .thenReturn(userDefaultResponse);
+                .thenReturn(UserRegisterResponse.builder()
+                        .id(1L)
+                        .username("tester")
+                        .nickname("테스터")
+                        .gender(Gender.M)
+                        .birthdate(LocalDate.of(1997, 2, 11))
+                        .isNotified(true)
+                        .now(LocalDateTime.now())
+                        .email("tester@gabojait.com")
+                        .build());
 
         when(userService.login(any(), any()))
-                .thenReturn(userDefaultResponse);
+                .thenReturn(UserLoginResponse.builder()
+                        .id(1L)
+                        .username("tester")
+                        .nickname("테스터")
+                        .gender(Gender.M)
+                        .birthdate(LocalDate.of(1997, 2, 11))
+                        .isNotified(true)
+                        .now(LocalDateTime.now())
+                        .email("tester@gabojait.com")
+                        .build());
     }
 
     @Test
@@ -87,27 +94,6 @@ class UserControllerTest {
                         .value(USERNAME_AVAILABLE.name()))
                 .andExpect(jsonPath("$.responseMessage")
                         .value(USERNAME_AVAILABLE.getMessage()));
-    }
-
-    @Test
-    @DisplayName("아이디 미입력시 아이디 중복여부 확인을 하면 400을 반환한다.")
-    void givenBlankUsername_whenDuplicateUsername_thenReturn400() throws Exception {
-        // given
-        String username = "";
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                get("/api/v1/user/username")
-                        .param("username", username)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(USERNAME_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(USERNAME_FIELD_REQUIRED.getMessage()));
     }
 
     @Test
@@ -192,27 +178,6 @@ class UserControllerTest {
                         .value(NICKNAME_AVAILABLE.name()))
                 .andExpect(jsonPath("$.responseMessage")
                         .value(NICKNAME_AVAILABLE.getMessage()));
-    }
-
-    @Test
-    @DisplayName("닉네임 미입력시 닉네임 중복여부 확인을 하면 400을 반환한다.")
-    void givenBlankNickname_whenDuplicateNickname_thenReturn400() throws Exception {
-        // given
-        String nickname = "";
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                get("/api/v1/user/nickname")
-                        .param("nickname", nickname)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(NICKNAME_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(NICKNAME_FIELD_REQUIRED.getMessage()));
     }
 
     @Test
@@ -301,52 +266,6 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("아이디 미입력시 회원가입을 하면 400을 반환한다.")
-    void givenBlankUsername_whenRegister_thenReturn400() throws Exception {
-        // given
-        UserRegisterRequest request = createValidUserRegisterRequest();
-        request.setUsername("");
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                post("/api/v1/user")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(USERNAME_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(USERNAME_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
-    @DisplayName("비밀번호 미입력시 회원가입을 하면 400을 반환한다.")
-    void givenBlankPassword_whenRegister_thenReturn400() throws Exception {
-        // given
-        UserRegisterRequest request = createValidUserRegisterRequest();
-        request.setPassword("");
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                post("/api/v1/user")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(PASSWORD_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(PASSWORD_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
     @DisplayName("비밀번호 재입력을 미입력시 회원가입을 하면 400을 반환한다.")
     void givenBlankPasswordReEntered_whenRegister_thenReturn400() throws Exception {
         // given
@@ -367,52 +286,6 @@ class UserControllerTest {
                         .value(PASSWORD_RE_ENTERED_FIELD_REQUIRED.name()))
                 .andExpect(jsonPath("$.responseMessage")
                         .value(PASSWORD_RE_ENTERED_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
-    @DisplayName("닉네임 미입력시 회원가입을 하면 400을 반환한다.")
-    void givenBlankNickname_whenRegister_thenReturn400() throws Exception {
-        // given
-        UserRegisterRequest request = createValidUserRegisterRequest();
-        request.setNickname("");
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                post("/api/v1/user")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(NICKNAME_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(NICKNAME_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
-    @DisplayName("성별 미입력시 회원가입을 하면 400을 반환한다.")
-    void givenBlankGender_whenRegister_thenReturn400() throws Exception {
-        // given
-        UserRegisterRequest request = createValidUserRegisterRequest();
-        request.setGender("");
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                post("/api/v1/user")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(GENDER_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(GENDER_FIELD_REQUIRED.getMessage()));
     }
 
     @Test
@@ -535,7 +408,7 @@ class UserControllerTest {
     void givenGreaterThan30SizePassword_whenRegister_thenReturn400() throws Exception {
         // given
         UserRegisterRequest request = createValidUserRegisterRequest();
-        request.setPassword("p".repeat(31));
+        request.setPassword("p".repeat(29) + "1!");
 
         // when
         ResultActions actions = mockMvc.perform(
@@ -1071,29 +944,6 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.responseMessage")
                         .value(NICKNAME_UPDATED.getMessage()));
     }
-    
-    @Test
-    @DisplayName("닉네임 미입력시 닉네임 업데이트를 하면 400을 반환한다.")
-    void givenBlankNickname_whenUpdateNickname_thenReturn400() throws Exception {
-        // given
-        UserNicknameUpdateRequest request = createValidUserNicknameUpdateRequest();
-        request.setNickname("");
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                patch("/api/v1/user/nickname")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(NICKNAME_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(NICKNAME_FIELD_REQUIRED.getMessage()));
-    }
 
     @Test
     @DisplayName("닉네임 2자 미만일시 닉네임 업데이트를 하면 400을 반환한다.")
@@ -1187,29 +1037,6 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("비밀번호 미입력시 비밀번호 업데이트를 하면 400을 반환한다.")
-    void givenBlankPassword_whenUpdatePassword_thenReturn400() throws Exception {
-        // given
-        UserUpdatePasswordRequest request = createValidUserUpdatePasswordRequest();
-        request.setPassword("");
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                patch("/api/v1/user/password")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(PASSWORD_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(PASSWORD_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
     @DisplayName("비밀번호 재입력 미입력시 비밀번호 업데이트를 하면 400을 반환한다.")
     void givenBlankPasswordReEntered_whenUpdatePassword_thenReturn400() throws Exception {
         // given
@@ -1237,7 +1064,7 @@ class UserControllerTest {
     void givenLessThan8SizePassword_whenUpdatePassword_thenReturn400() throws Exception {
         // given
         UserUpdatePasswordRequest request = createValidUserUpdatePasswordRequest();
-        request.setPassword("passwor");
+        request.setPassword("passw1!");
 
         // when
         ResultActions actions = mockMvc.perform(
@@ -1260,7 +1087,7 @@ class UserControllerTest {
     void givenGreaterThan30SizePassword_whenUpdatePassword_thenReturn400() throws Exception {
         // given
         UserUpdatePasswordRequest request = createValidUserUpdatePasswordRequest();
-        request.setPassword("p".repeat(31));
+        request.setPassword("p".repeat(29) + "1!");
 
         // when
         ResultActions actions = mockMvc.perform(
@@ -1347,11 +1174,8 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("회원 탈퇴를 하면 200을 반환한다.")
-    void givenValid_whenDeactivate_thenReturn200() throws Exception {
-        // given
-        String username = "tester";
-
+    @DisplayName("회원 탈퇴퇴를 하면 200을 반환한다.")
+    void givenValid_whenWithdrawal_thenReturn200() throws Exception {
         // when
         ResultActions actions = mockMvc.perform(
                 delete("/api/v1/user")

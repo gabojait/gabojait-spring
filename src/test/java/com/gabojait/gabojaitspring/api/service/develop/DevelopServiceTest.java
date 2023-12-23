@@ -1,6 +1,5 @@
 package com.gabojait.gabojaitspring.api.service.develop;
 
-import com.gabojait.gabojaitspring.api.dto.user.response.UserDefaultResponse;
 import com.gabojait.gabojaitspring.domain.profile.*;
 import com.gabojait.gabojaitspring.domain.review.Review;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
@@ -67,21 +66,10 @@ class DevelopServiceTest {
         User user = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터1");
 
         // when
-        UserDefaultResponse response = developService.findTester(user.getId());
+        String response = developService.findTester(user.getId());
 
         // then
-        assertAll(
-                () -> assertThat(response)
-                        .extracting("userId", "username", "nickname", "gender", "birthdate", "isNotified", "createdAt",
-                                "updatedAt")
-                        .containsExactly(user.getId(), user.getUsername(), user.getNickname(), user.getGender(),
-                                user.getBirthdate(), user.getIsNotified(), user.getCreatedAt(),
-                                user.getUpdatedAt()),
-                () -> assertThat(response.getContact())
-                        .extracting("contactId", "email", "createdAt", "updatedAt")
-                        .containsExactly(user.getContact().getId(), user.getContact().getEmail(),
-                                user.getContact().getCreatedAt(), user.getContact().getUpdatedAt())
-        );
+        assertThat(response).isEqualTo(user.getUsername());
     }
 
     @Test

@@ -1,11 +1,9 @@
 package com.gabojait.gabojaitspring.api.controller.develop;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gabojait.gabojaitspring.api.dto.user.response.UserDefaultResponse;
 import com.gabojait.gabojaitspring.api.service.develop.DevelopService;
 import com.gabojait.gabojaitspring.auth.CustomAuthenticationEntryPoint;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
-import com.gabojait.gabojaitspring.domain.user.Gender;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +14,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.SERVER_ERROR;
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.TESTER_ID_POSITIVE_ONLY;
@@ -103,21 +98,11 @@ class DevelopControllerTest {
         // given
         long testerId = 1;
 
-        UserDefaultResponse userDefaultResponse = UserDefaultResponse.builder()
-                .id(1L)
-                .username("tester")
-                .nickname("테스터")
-                .gender(Gender.M)
-                .birthdate(LocalDate.of(1997, 2, 11))
-                .isNotified(true)
-                .now(LocalDateTime.now())
-                .email("tester@gabojait.com")
-                .build();
-
         when(jwtProvider.createJwt(anyString()))
                 .thenReturn(HttpHeaders.EMPTY);
+
         when(developService.findTester(anyLong()))
-                .thenReturn(userDefaultResponse);
+                .thenReturn("tester");
 
         // when
         ResultActions actions = mockMvc.perform(

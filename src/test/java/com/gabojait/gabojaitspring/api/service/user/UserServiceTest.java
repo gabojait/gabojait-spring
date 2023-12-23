@@ -3,7 +3,9 @@ package com.gabojait.gabojaitspring.api.service.user;
 import com.gabojait.gabojaitspring.api.dto.user.request.UserFindPasswordRequest;
 import com.gabojait.gabojaitspring.api.dto.user.request.UserLoginRequest;
 import com.gabojait.gabojaitspring.api.dto.user.request.UserRegisterRequest;
-import com.gabojait.gabojaitspring.api.dto.user.response.UserDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.user.response.UserFindMyselfResponse;
+import com.gabojait.gabojaitspring.api.dto.user.response.UserLoginResponse;
+import com.gabojait.gabojaitspring.api.dto.user.response.UserRegisterResponse;
 import com.gabojait.gabojaitspring.common.util.PasswordUtility;
 import com.gabojait.gabojaitspring.domain.notification.Fcm;
 import com.gabojait.gabojaitspring.domain.profile.*;
@@ -157,7 +159,7 @@ class UserServiceTest {
         LocalDateTime lastRequestAt = LocalDateTime.now();
 
         // when
-        UserDefaultResponse response = userService.register(request, lastRequestAt);
+        UserRegisterResponse response = userService.register(request, lastRequestAt);
 
         // then
         assertThat(response)
@@ -263,7 +265,7 @@ class UserServiceTest {
         LocalDateTime lastRequestAt = LocalDateTime.now();
 
         // when
-        UserDefaultResponse response = userService.login(request, lastRequestAt);
+        UserLoginResponse response = userService.login(request, lastRequestAt);
 
         // then
         assertEquals(request.getUsername(), response.getUsername());
@@ -352,7 +354,7 @@ class UserServiceTest {
         userRepository.save(user);
 
         // when
-        UserDefaultResponse response = userService.findUserInfo(user.getUsername());
+        UserFindMyselfResponse response = userService.findUserInfo(user.getUsername());
 
         // then
         assertThat(response)
@@ -741,7 +743,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("회원 탈퇴를 한다.")
-    void givenValid_whenDeleteAccount_thenReturn() {
+    void givenValid_whenWithdrawal_thenReturn() {
         // given
         String email = "tester@gabojait.com";
         String username = "tester";
@@ -767,7 +769,7 @@ class UserServiceTest {
 
 
         // when
-        userService.deleteAccount(user.getUsername());
+        userService.withdrawal(user.getUsername());
 
         // then
         assertThat(userRepository.findByUsername(username)).isEmpty();
@@ -784,12 +786,12 @@ class UserServiceTest {
 
     @Test
     @DisplayName("존재하지 않은 회원으로 회원 탈퇴를 하면 예외가 발생한다.")
-    void givenNonExistingUser_whenDeleteAccount_thenThrow() {
+    void givenNonExistingUser_whenWithdrawal_thenThrow() {
         // given
         String username = "tester";
 
         // when & then
-        assertThatThrownBy(() -> userService.deleteAccount(username))
+        assertThatThrownBy(() -> userService.withdrawal(username))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
