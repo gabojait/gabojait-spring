@@ -85,7 +85,7 @@ public class UserService {
      * 409(UNAVAILABLE_USERNAME / EXISTING_USERNAME / UNAVAILABLE_NICKNAME / EXISTING_NICKNAME / EXISTING_CONTACT)
      * @param request 회원 가입 요청
      * @param lastRequestAt 마지막 요청일
-     * @return 회원 기본 응답
+     * @return 회원 가입 응답
      */
     @Transactional
     public UserRegisterResponse register(UserRegisterRequest request, LocalDateTime lastRequestAt) {
@@ -110,7 +110,7 @@ public class UserService {
      * 404(USER_NOT_FOUND)
      * @param request 회원 로그인 요청
      * @param lastRequestAt 마지막 요청일
-     * @return 회원 기본 응답
+     * @return 회원 로그인 응답
      */
     @Transactional
     public UserLoginResponse login(UserLoginRequest request, LocalDateTime lastRequestAt) {
@@ -179,7 +179,7 @@ public class UserService {
      * 회원 정보 조회 |
      * 404(USER_NOT_FOUND)
      * @param username 아이디
-     * @return 회원 기본 응답
+     * @return 회원 본인 조회 응답
      */
     public UserFindMyselfResponse findUserInfo(String username) {
         User user = findUser(username);
