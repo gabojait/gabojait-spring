@@ -142,13 +142,9 @@ public enum ErrorCode {
     EMAIL_NOT_FOUND(NOT_FOUND, "이메일 인증하기를 해주세요."),
     CONTACT_NOT_FOUND(NOT_FOUND, "존재하지 않는 연락처입니다."),
     USER_NOT_FOUND(NOT_FOUND, "존재하지 않는 회원입니다."),
-    USER_ROLE_NOT_FOUND(NOT_FOUND, "존재하지 않는 회원 권한입니다."),
     TEAM_NOT_FOUND(NOT_FOUND, "존재하지 않는 팀입니다."),
-    FAVORITE_TEAM_NOT_FOUND(NOT_FOUND, "존재하지 않는 찜한 팀입니다."),
-    FAVORITE_USER_NOT_FOUND(NOT_FOUND, "존재하지 않는 찜한 회원입니다."),
     CURRENT_TEAM_NOT_FOUND(NOT_FOUND, "현재 팀이 존재하지 않습니다."),
     TEAM_MEMBER_NOT_FOUND(NOT_FOUND, "존재하지 않는 팀원입니다."),
-    TEAM_LEADER_NOT_FOUND(NOT_FOUND, "존재하지 않는 팀장입니다."),
     OFFER_NOT_FOUND(NOT_FOUND, "존재하지 않는 제안입니다."),
     ADMIN_NOT_FOUND(NOT_FOUND, "존재하지 않는 관리자입니다."),
     TESTER_NOT_FOUND(NOT_FOUND, "존재하지 않는 테스터입니다."),
@@ -174,8 +170,8 @@ public enum ErrorCode {
     FRONTEND_CNT_UPDATE_UNAVAILABLE(CONFLICT, "현재 소속되어 있는 프론트엔드 개발자 팀원 수가 수정한 프론트엔드 개발자 팀원 수 보다 많습니다."),
     MANAGER_CNT_UPDATE_UNAVAILABLE(CONFLICT, "현재 소속되어 있는 매니저 팀원 수가 수정한 매니저 팀원 수 보다 많습니다."),
     TEAM_LEADER_UNAVAILABLE(CONFLICT, "팀장은 할 수 없는 행동입니다."),
-    UNAVAILABLE_REVIEW(CONFLICT, "리뷰 가능한 기간이 지나 리뷰를 작성할 수 없습니다."),
     UNREGISTER_UNAVAILABLE(CONFLICT, "현재 팀장인 상태에서 회원탈퇴를 할 수 없습니다."),
+    CURRENTLY_UNAVAILABLE(CONFLICT, "현재 동시 요청이 많아 잠시 뒤에 다시 시도해 주세요."),
 
     /**
      * 413 Payload too large

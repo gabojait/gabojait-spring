@@ -41,8 +41,6 @@ public enum SuccessCode {
     TEAM_DECIDED_OFFER(OK, "팀이 받은 제안을 결정했습니다."),
     OFFER_CANCEL_BY_USER(OK, "회원이 보낸 제안을 취소했습니다."),
     OFFER_CANCEL_BY_TEAM(OK, "팀이 보낸 제안을 취소했습니다."),
-    OFFER_TO_TEAM_FOUND(OK, "회원이 팀에게 보낸 제안 전체 조회를 했습니다."),
-    OFFER_TO_USER_FOUND(OK, "팀이 회원에게 보낸 제안 전체 조회를 했습니다."),
 
     // 201 Created
     OFFERED_BY_USER(CREATED, "팀에 지원을 했습니다."),
@@ -103,7 +101,6 @@ public enum SuccessCode {
     USER_LOGIN(OK, "회원이 로그인을 했습니다."),
     USER_LOGOUT(OK, "회원 로그아웃을 했습니다."),
     SELF_USER_FOUND(OK, "본인을 조회 했습니다."),
-    USER_FOUND(OK, "회원을 조회 했습니다."),
     TOKEN_RENEWED(OK, "토큰을 재발급 했습니다."),
     USERNAME_EMAIL_SENT(OK, "이메일로 아이디를 전송 했습니다."),
     PASSWORD_EMAIL_SENT(OK, "이메일로 임시 비밀번호를 전송 했습니다."),
