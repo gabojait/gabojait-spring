@@ -1,10 +1,11 @@
 package com.gabojait.gabojaitspring.api.controller.user;
 
-import com.gabojait.gabojaitspring.api.dto.common.ValidationSequence;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultNoResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultSingleResponse;
 import com.gabojait.gabojaitspring.api.dto.user.request.*;
-import com.gabojait.gabojaitspring.api.dto.user.response.UserDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.user.response.UserFindMyselfResponse;
+import com.gabojait.gabojaitspring.api.dto.user.response.UserLoginResponse;
+import com.gabojait.gabojaitspring.api.dto.user.response.UserRegisterResponse;
 import com.gabojait.gabojaitspring.api.service.user.UserService;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import io.swagger.annotations.Api;
@@ -21,9 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.GroupSequence;
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -35,10 +34,6 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "회원")
 @Validated
-@GroupSequence({UserController.class,
-        ValidationSequence.Blank.class,
-        ValidationSequence.Size.class,
-        ValidationSequence.Format.class})
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
@@ -49,10 +44,10 @@ public class UserController {
 
     @ApiOperation(value = "아이디 중복여부 확인",
             notes = "<검증>\n" +
-                    "- username = NotBlank && Size(min = 5, max = 15) && Pattern(regex = ^(?=.-[a-z0-9])[a-z0-9]+$)\n\n" +
+                    "- username = Size(min = 5, max = 15) && Pattern(regex = ^(?=.-[a-z0-9])[a-z0-9]+$)\n\n" +
                     "<응답 코드>\n" +
                     "- 200 = USERNAME_AVAILABLE\n" +
-                    "- 400 = USERNAME_FIELD_REQUIRED || USERNAME_LENGTH_INVALID || USERNAME_FORMAT_INVALID\n" +
+                    "- 400 = USERNAME_LENGTH_INVALID || USERNAME_FORMAT_INVALID\n" +
                     "- 409 = UNAVAILABLE_USERNAME || EXISTING_USERNAME\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
@@ -67,11 +62,8 @@ public class UserController {
     @GetMapping("/username")
     public ResponseEntity<DefaultNoResponse> duplicateUsername(
             @RequestParam(value = "username", required = false)
-            @NotBlank(message = "아이디는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-            @Size(min = 5, max = 15, message = "아이디는 5~15자만 가능합니다.", groups = ValidationSequence.Size.class)
-            @Pattern(regexp = "^(?=.*[a-z0-9])[a-z0-9]+$",
-                    message = "아이디는 소문자 영어와 숫자의 조합으로 입력해 주세요.",
-                    groups = ValidationSequence.Format.class)
+            @Size(min = 5, max = 15, message = "아이디는 5~15자만 가능합니다.")
+            @Pattern(regexp = "^(?=.*[a-z0-9])[a-z0-9]+$", message = "아이디는 소문자 영어와 숫자의 조합으로 입력해 주세요.")
             String username
     ) {
         userService.validateUsername(username);
@@ -85,10 +77,10 @@ public class UserController {
 
     @ApiOperation(value = "닉네임 중복여부 확인",
             notes = "<검증>\n" +
-                    "- nickname = NotBlank && Size(min = 2, max = 8) && Pattern(regex = ^[가-힣]+$)\n\n" +
+                    "- nickname = Size(min = 2, max = 8) && Pattern(regex = ^[가-힣]+$)\n\n" +
                     "<응답 코드>\n" +
                     "- 200 = NICKNAME_AVAILABLE\n" +
-                    "- 400 = NICKNAME_FIELD_REQUIRED || NICKNAME_LENGTH_INVALID || NICKNAME_FORMAT_INVALID\n" +
+                    "- 400 = NICKNAME_LENGTH_INVALID || NICKNAME_FORMAT_INVALID\n" +
                     "- 409 = UNAVAILABLE_NICKNAME || EXISTING_NICKNAME\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
@@ -103,10 +95,8 @@ public class UserController {
     @GetMapping("/nickname")
     public ResponseEntity<DefaultNoResponse> duplicateNickname(
             @RequestParam(value = "nickname", required = false)
-            @NotBlank(message = "닉네임은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-            @Size(min = 2, max = 8, message = "닉네임은 2~8자만 가능합니다.", groups = ValidationSequence.Size.class)
-            @Pattern(regexp = "^[가-힣]+$", message = "닉네임은 한글 조합으로 입력해 주세요.",
-                    groups = ValidationSequence.Format.class)
+            @Size(min = 2, max = 8, message = "닉네임은 2~8자만 가능합니다.")
+            @Pattern(regexp = "^[가-힣]+$", message = "닉네임은 한글 조합으로 입력해 주세요.")
             String nickname
     ) {
         userService.validateNickname(nickname);
@@ -121,12 +111,11 @@ public class UserController {
     @ApiOperation(value = "회원 가입",
             notes = "<응답 코드>\n" +
                     "- 201 = USER_REGISTERED\n" +
-                    "- 400 = USERNAME_FIELD_REQUIRED || PASSWORD_FIELD_REQUIRED || " +
-                    "PASSWORD_RE_ENTERED_FIELD_REQUIRED || NICKNAME_FIELD_REQUIRED || GENDER_FIELD_REQUIRED || " +
-                    "EMAIL_FIELD_REQUIRED || VERIFICATION_CODE_FIELD_REQUIRED || USERNAME_LENGTH_INVALID || " +
-                    "PASSWORD_LENGTH_INVALID || NICKNAME_LENGTH_INVALID || USERNAME_FORMAT_INVALID || " +
-                    "PASSWORD_FORMAT_INVALID || NICKNAME_FORMAT_INVALID || GENDER_TYPE_INVALID || " +
-                    "EMAIL_FORMAT_INVALID || PASSWORD_MATCH_INVALID || VERIFICATION_CODE_INVALID\n" +
+                    "- 400 = PASSWORD_RE_ENTERED_FIELD_REQUIRED || EMAIL_FIELD_REQUIRED || " +
+                    "VERIFICATION_CODE_FIELD_REQUIRED || USERNAME_LENGTH_INVALID || PASSWORD_LENGTH_INVALID || " +
+                    "NICKNAME_LENGTH_INVALID || USERNAME_FORMAT_INVALID || PASSWORD_FORMAT_INVALID || " +
+                    "NICKNAME_FORMAT_INVALID || GENDER_TYPE_INVALID || EMAIL_FORMAT_INVALID || " +
+                    "PASSWORD_MATCH_INVALID || VERIFICATION_CODE_INVALID\n" +
                     "- 404 = EMAIL_NOT_FOUND\n" +
                     "- 409 = UNAVAILABLE_USERNAME || EXISTING_USERNAME || UNAVAILABLE_NICKNAME || " +
                     "EXISTING_NICKNAME || EXISTING_CONTACT\n" +
@@ -134,7 +123,7 @@ public class UserController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "CREATED",
-                    content = @Content(schema = @Schema(implementation = UserDefaultResponse.class))),
+                    content = @Content(schema = @Schema(implementation = UserRegisterResponse.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "409", description = "CONFLICT"),
@@ -144,7 +133,7 @@ public class UserController {
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping
     public ResponseEntity<DefaultSingleResponse<Object>> register(@RequestBody @Valid UserRegisterRequest request) {
-        UserDefaultResponse response = userService.register(request, LocalDateTime.now());
+        UserRegisterResponse response = userService.register(request, LocalDateTime.now());
 
         HttpHeaders headers = jwtProvider.createJwt(response.getUsername());
 
@@ -167,7 +156,7 @@ public class UserController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = UserDefaultResponse.class))),
+                    content = @Content(schema = @Schema(implementation = UserLoginResponse.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR"),
@@ -175,7 +164,7 @@ public class UserController {
     })
     @PostMapping("/login")
     public ResponseEntity<DefaultSingleResponse<Object>> login(@RequestBody @Valid UserLoginRequest request) {
-        UserDefaultResponse response = userService.login(request, LocalDateTime.now());
+        UserLoginResponse response = userService.login(request, LocalDateTime.now());
 
         HttpHeaders headers = jwtProvider.createJwt(response.getUsername());
 
@@ -229,7 +218,7 @@ public class UserController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = UserDefaultResponse.class))),
+                    content = @Content(schema = @Schema(implementation = UserFindMyselfResponse.class))),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "404", description = "NOT FOUND"),
@@ -240,7 +229,7 @@ public class UserController {
     public ResponseEntity<DefaultSingleResponse<Object>> findMyself(HttpServletRequest servletRequest) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        UserDefaultResponse response = userService.findUserInfo(username);
+        UserFindMyselfResponse response = userService.findUserInfo(username);
 
         return ResponseEntity.status(SELF_USER_FOUND.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -460,8 +449,7 @@ public class UserController {
     })
     @PatchMapping("/notified")
     public ResponseEntity<DefaultNoResponse> updateIsNotified(HttpServletRequest servletRequest,
-                                                              @RequestBody @Valid
-                                                              UserIsNotifiedUpdateRequest request) {
+                                                              @RequestBody @Valid UserIsNotifiedUpdateRequest request) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         userService.updateIsNotified(username, request.getIsNotified());
@@ -493,10 +481,10 @@ public class UserController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping
-    public ResponseEntity<DefaultNoResponse> deactivate(HttpServletRequest servletRequest) {
+    public ResponseEntity<DefaultNoResponse> withdrawal(HttpServletRequest servletRequest) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        userService.deleteAccount(username);
+        userService.withdrawal(username);
 
         return ResponseEntity.status(USER_DELETED.getHttpStatus())
                 .body(DefaultNoResponse.noDataBuilder()

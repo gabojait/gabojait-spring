@@ -3,7 +3,9 @@ package com.gabojait.gabojaitspring.api.service.user;
 import com.gabojait.gabojaitspring.api.dto.user.request.UserFindPasswordRequest;
 import com.gabojait.gabojaitspring.api.dto.user.request.UserLoginRequest;
 import com.gabojait.gabojaitspring.api.dto.user.request.UserRegisterRequest;
-import com.gabojait.gabojaitspring.api.dto.user.response.UserDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.user.response.UserFindMyselfResponse;
+import com.gabojait.gabojaitspring.api.dto.user.response.UserLoginResponse;
+import com.gabojait.gabojaitspring.api.dto.user.response.UserRegisterResponse;
 import com.gabojait.gabojaitspring.common.util.EmailUtility;
 import com.gabojait.gabojaitspring.common.util.PasswordUtility;
 import com.gabojait.gabojaitspring.domain.notification.Fcm;
@@ -86,7 +88,7 @@ public class UserService {
      * @return 회원 기본 응답
      */
     @Transactional
-    public UserDefaultResponse register(UserRegisterRequest request, LocalDateTime lastRequestAt) {
+    public UserRegisterResponse register(UserRegisterRequest request, LocalDateTime lastRequestAt) {
         validateUsername(request.getUsername());
         validateNickname(request.getNickname());
         validatePassword(request.getPassword(), request.getPasswordReEntered());
@@ -99,7 +101,7 @@ public class UserService {
         createUserRole(user, Role.USER);
         createFcm(user, request.getFcmToken());
 
-        return new UserDefaultResponse(user);
+        return new UserRegisterResponse(user);
     }
 
     /**
@@ -111,7 +113,7 @@ public class UserService {
      * @return 회원 기본 응답
      */
     @Transactional
-    public UserDefaultResponse login(UserLoginRequest request, LocalDateTime lastRequestAt) {
+    public UserLoginResponse login(UserLoginRequest request, LocalDateTime lastRequestAt) {
         User user = findUser(request.getUsername());
 
         boolean isValid = passwordUtility.verifyPassword(user, request.getPassword());
@@ -122,7 +124,7 @@ public class UserService {
         user.updateLastRequestAt(lastRequestAt);
         createFcm(user, request.getFcmToken());
 
-        return new UserDefaultResponse(user);
+        return new UserLoginResponse(user);
     }
 
     /**
@@ -179,10 +181,10 @@ public class UserService {
      * @param username 아이디
      * @return 회원 기본 응답
      */
-    public UserDefaultResponse findUserInfo(String username) {
+    public UserFindMyselfResponse findUserInfo(String username) {
         User user = findUser(username);
 
-        return new UserDefaultResponse(user);
+        return new UserFindMyselfResponse(user);
     }
 
     /**
@@ -311,7 +313,7 @@ public class UserService {
      * @param username 아이디
      */
     @Transactional
-    public void deleteAccount(String username) {
+    public void withdrawal(String username) {
         User user = findUser(username);
 
         fcmRepository.deleteAll(fcmRepository.findAllByUser(user));

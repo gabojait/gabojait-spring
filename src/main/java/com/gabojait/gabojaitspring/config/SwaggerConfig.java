@@ -13,8 +13,7 @@ import com.gabojait.gabojaitspring.api.dto.team.response.TeamAbstractResponse;
 import com.gabojait.gabojaitspring.api.dto.team.response.TeamDefaultResponse;
 import com.gabojait.gabojaitspring.api.dto.team.response.TeamMemberDefaultResponse;
 import com.gabojait.gabojaitspring.api.dto.team.response.TeamOfferFavoriteResponse;
-import com.gabojait.gabojaitspring.api.dto.user.response.ContactDefaultResponse;
-import com.gabojait.gabojaitspring.api.dto.user.response.UserDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.user.response.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,8 +48,10 @@ public class SwaggerConfig {
                 .additionalModels(typeResolver.resolve(DefaultMultiResponse.class))
                 .additionalModels(typeResolver.resolve(PageData.class))
                 .additionalModels(typeResolver.resolve(ExceptionResponse.class))
-                .additionalModels(typeResolver.resolve(ContactDefaultResponse.class))
-                .additionalModels(typeResolver.resolve(UserDefaultResponse.class))
+                .additionalModels(typeResolver.resolve(UserRegisterResponse.class))
+                .additionalModels(typeResolver.resolve(UserLoginResponse.class))
+                .additionalModels(typeResolver.resolve(UserFindMyselfResponse.class))
+                .additionalModels(typeResolver.resolve(UserContactResponse.class))
                 .additionalModels(typeResolver.resolve(EducationDefaultResponse.class))
                 .additionalModels(typeResolver.resolve(PortfolioDefaultResponse.class))
                 .additionalModels(typeResolver.resolve(PortfolioUrlResponse.class))

@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @ToString
-@ApiModel(value = "회원 기본 응답")
-public class UserDefaultResponse {
+@ApiModel(value = "회원 로그인 응답")
+public class UserLoginResponse {
 
     @ApiModelProperty(position = 1, required = true, value = "회원 식별자")
     private Long userId;
@@ -37,7 +37,7 @@ public class UserDefaultResponse {
     private Boolean isNotified;
 
     @ApiModelProperty(position = 7, required = true, value = "연락처")
-    private ContactDefaultResponse contact;
+    private UserContactResponse contact;
 
     @ApiModelProperty(position = 8, required = true, value = "생성일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
@@ -47,34 +47,34 @@ public class UserDefaultResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    public UserDefaultResponse(User user) {
+    public UserLoginResponse(User user) {
         this.userId = user.getId();
         this.username = user.getUsername();
         this.nickname = user.getNickname();
         this.gender = user.getGender();
         this.birthdate = user.getBirthdate();
         this.isNotified = user.getIsNotified();
-        this.contact = new ContactDefaultResponse(user.getContact());
+        this.contact = new UserContactResponse(user.getContact());
         this.createdAt = user.getCreatedAt();
         this.updatedAt = user.getUpdatedAt();
     }
 
     @Builder
-    private UserDefaultResponse(long id,
-                                String username,
-                                String nickname,
-                                Gender gender,
-                                LocalDate birthdate,
-                                boolean isNotified,
-                                LocalDateTime now,
-                                String email) {
+    private UserLoginResponse(long id,
+                                 String username,
+                                 String nickname,
+                                 Gender gender,
+                                 LocalDate birthdate,
+                                 boolean isNotified,
+                                 LocalDateTime now,
+                                 String email) {
         this.userId = id;
         this.username = username;
         this.nickname = nickname;
         this.gender = gender;
         this.birthdate = birthdate;
         this.isNotified = isNotified;
-        this.contact = ContactDefaultResponse.builder()
+        this.contact = UserContactResponse.builder()
                 .id(id)
                 .email(email)
                 .now(now)

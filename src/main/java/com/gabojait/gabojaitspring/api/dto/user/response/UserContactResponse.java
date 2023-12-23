@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @ToString
-@ApiModel(value = "연락처 기본 응답")
-public class ContactDefaultResponse {
+@ApiModel(value = "회원 연락처 응답")
+public class UserContactResponse {
 
     @ApiModelProperty(position = 1, required = true, value = "연락처 식별자")
     private Long contactId;
@@ -29,7 +29,7 @@ public class ContactDefaultResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    public ContactDefaultResponse(Contact contact) {
+    public UserContactResponse(Contact contact) {
         this.contactId = contact.getId();
         this.email = contact.getEmail();
         this.createdAt = contact.getCreatedAt();
@@ -37,7 +37,7 @@ public class ContactDefaultResponse {
     }
 
     @Builder
-    private ContactDefaultResponse(long id, String email, LocalDateTime now) {
+    private UserContactResponse(long id, String email, LocalDateTime now) {
         this.contactId = id;
         this.email = email;
         this.createdAt = now;

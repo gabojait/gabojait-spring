@@ -2,7 +2,6 @@ package com.gabojait.gabojaitspring.api.controller.develop;
 
 import com.gabojait.gabojaitspring.api.dto.common.ValidationSequence;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultNoResponse;
-import com.gabojait.gabojaitspring.api.dto.user.response.UserDefaultResponse;
 import com.gabojait.gabojaitspring.api.service.develop.DevelopService;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
@@ -116,9 +115,9 @@ public class DevelopController {
             @Positive(message = "테스터 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
             Long testerId
     ) {
-        UserDefaultResponse response = developService.findTester(testerId);
+        String username = developService.findTester(testerId);
 
-        HttpHeaders headers = jwtProvider.createJwt(response.getUsername());
+        HttpHeaders headers = jwtProvider.createJwt(username);
 
         return ResponseEntity.status(TESTER_TOKEN_ISSUED.getHttpStatus())
                 .headers(headers)

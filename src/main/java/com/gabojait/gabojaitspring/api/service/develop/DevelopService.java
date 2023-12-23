@@ -1,6 +1,5 @@
 package com.gabojait.gabojaitspring.api.service.develop;
 
-import com.gabojait.gabojaitspring.api.dto.user.response.UserDefaultResponse;
 import com.gabojait.gabojaitspring.common.util.PasswordUtility;
 import com.gabojait.gabojaitspring.domain.profile.*;
 import com.gabojait.gabojaitspring.domain.review.Review;
@@ -78,10 +77,10 @@ public class DevelopService {
      * @param testerId 테스터 식별자
      * @return 회원 기본 응답
      */
-    public UserDefaultResponse findTester(long testerId) {
+    public String findTester(long testerId) {
         User user = findUser("tester" + testerId);
 
-        return new UserDefaultResponse(user);
+        return user.getUsername();
     }
 
     /**
