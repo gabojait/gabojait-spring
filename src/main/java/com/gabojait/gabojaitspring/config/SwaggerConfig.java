@@ -9,10 +9,11 @@ import com.gabojait.gabojaitspring.api.dto.offer.response.OfferAbstractResponse;
 import com.gabojait.gabojaitspring.api.dto.offer.response.OfferDefaultResponse;
 import com.gabojait.gabojaitspring.api.dto.profile.response.*;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewDefaultResponse;
-import com.gabojait.gabojaitspring.api.dto.team.response.TeamAbstractResponse;
-import com.gabojait.gabojaitspring.api.dto.team.response.TeamDefaultResponse;
-import com.gabojait.gabojaitspring.api.dto.team.response.TeamMemberDefaultResponse;
-import com.gabojait.gabojaitspring.api.dto.team.response.TeamOfferFavoriteResponse;
+import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindAllTeamResponse;
+import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindTeamResponse;
+import com.gabojait.gabojaitspring.api.dto.review.response.ReviewPageResponse;
+import com.gabojait.gabojaitspring.api.dto.team.request.TeamUpdateRequest;
+import com.gabojait.gabojaitspring.api.dto.team.response.*;
 import com.gabojait.gabojaitspring.api.dto.user.response.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,11 +62,16 @@ public class SwaggerConfig {
                 .additionalModels(typeResolver.resolve(ProfileDefaultResponse.class))
                 .additionalModels(typeResolver.resolve(ProfileDetailResponse.class))
                 .additionalModels(typeResolver.resolve(ProfileOfferResponse.class))
-                .additionalModels(typeResolver.resolve(TeamAbstractResponse.class))
-                .additionalModels(typeResolver.resolve(TeamDefaultResponse.class))
-                .additionalModels(typeResolver.resolve(TeamOfferFavoriteResponse.class))
-                .additionalModels(typeResolver.resolve(TeamMemberDefaultResponse.class))
+                .additionalModels(typeResolver.resolve(TeamCreateResponse.class))
+                .additionalModels(typeResolver.resolve(TeamFindResponse.class))
+                .additionalModels(typeResolver.resolve(TeamMemberResponse.class))
+                .additionalModels(typeResolver.resolve(TeamMyCurrentResponse.class))
+                .additionalModels(typeResolver.resolve(TeamPageResponse.class))
+                .additionalModels(typeResolver.resolve(TeamUpdateRequest.class))
                 .additionalModels(typeResolver.resolve(ReviewDefaultResponse.class))
+                .additionalModels(typeResolver.resolve(ReviewFindAllTeamResponse.class))
+                .additionalModels(typeResolver.resolve(ReviewFindTeamResponse.class))
+                .additionalModels(typeResolver.resolve(ReviewPageResponse.class))
                 .additionalModels(typeResolver.resolve(OfferAbstractResponse.class))
                 .additionalModels(typeResolver.resolve(OfferDefaultResponse.class))
                 .additionalModels(typeResolver.resolve(NotificationDefaultResponse.class))

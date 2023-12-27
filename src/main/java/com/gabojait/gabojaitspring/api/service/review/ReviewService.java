@@ -3,7 +3,9 @@ package com.gabojait.gabojaitspring.api.service.review;
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.review.request.ReviewCreateRequest;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewDefaultResponse;
-import com.gabojait.gabojaitspring.api.dto.team.response.TeamAbstractResponse;
+import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindAllTeamResponse;
+import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindTeamResponse;
+import com.gabojait.gabojaitspring.api.dto.review.response.ReviewPageResponse;
 import com.gabojait.gabojaitspring.domain.review.Review;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
 import com.gabojait.gabojaitspring.domain.team.TeamMemberStatus;
@@ -38,16 +40,16 @@ public class ReviewService {
      * 404(USER_NOT_FOUND)
      * @param username 회원 아이디
      * @param now 현재 시간
-     * @return 팀 요약 응답들
+     * @return 리뷰 가능한 전체 팀 응답들
      */
-    public PageData<List<TeamAbstractResponse>> findAllReviewableTeams(String username, LocalDateTime now) {
+    public PageData<List<ReviewFindAllTeamResponse>> findAllReviewableTeams(String username, LocalDateTime now) {
         User user = findUser(username);
 
         List<TeamMember> teamMembers = teamMemberRepository.findAllReviewableFetchTeam(user.getId(), now);
 
         return new PageData<>(teamMembers.stream()
                 .map(TeamMember::getTeam)
-                .map(TeamAbstractResponse::new)
+                .map(ReviewFindAllTeamResponse::new)
                 .collect(Collectors.toList()),
                 teamMembers.size());
     }
@@ -58,13 +60,13 @@ public class ReviewService {
      * @param username 회원 아이디
      * @param teamId 팀 식별자
      * @param now 현재 시간
-     * @return 팀 요약 응답
+     * @return 리뷰 가능한 팀 응답
      */
-    public TeamAbstractResponse findReviewableTeam(String username, long teamId, LocalDateTime now) {
+    public ReviewFindTeamResponse findReviewableTeam(String username, long teamId, LocalDateTime now) {
         User user = findUser(username);
         TeamMember teamMember = findCompleteTeamMember(user.getId(), teamId, now);
 
-        return new TeamAbstractResponse(teamMember.getTeam());
+        return new ReviewFindTeamResponse(teamMember.getTeam());
     }
 
     /**
@@ -98,14 +100,14 @@ public class ReviewService {
      * @param userId 회원 식별자
      * @param pageFrom 페이지 시작점
      * @param pageSize 페이지 크기
-     * @return 리뷰 기본 응답들
+     * @return 리뷰 페이징 응답들
      */
-    public PageData<List<ReviewDefaultResponse>> findPageReviews(long userId, long pageFrom, int pageSize) {
+    public PageData<List<ReviewPageResponse>> findPageReviews(long userId, long pageFrom, int pageSize) {
         Page<Review> reviews = reviewRepository.findPage(userId, pageFrom, pageSize);
         long reviewCnt = reviewRepository.countPrevious(userId, pageFrom);
 
-        List<ReviewDefaultResponse> responses = IntStream.range(0, Math.min(pageSize, reviews.getContent().size()))
-                .mapToObj(i -> new ReviewDefaultResponse(reviews.getContent().get(i), (int) (reviewCnt - i)))
+        List<ReviewPageResponse> responses = IntStream.range(0, Math.min(pageSize, reviews.getContent().size()))
+                .mapToObj(i -> new ReviewPageResponse(reviews.getContent().get(i), (int) (reviewCnt - i)))
                 .collect(Collectors.toList());
 
         return new PageData<>(responses, reviews.getTotalElements());

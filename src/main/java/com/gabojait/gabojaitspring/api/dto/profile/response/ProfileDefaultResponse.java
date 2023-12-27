@@ -1,20 +1,13 @@
 package com.gabojait.gabojaitspring.api.dto.profile.response;
 
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewDefaultResponse;
-import com.gabojait.gabojaitspring.api.dto.team.response.TeamAbstractResponse;
 import com.gabojait.gabojaitspring.api.vo.profile.ProfileVO;
-import com.gabojait.gabojaitspring.domain.profile.Education;
-import com.gabojait.gabojaitspring.domain.profile.Portfolio;
 import com.gabojait.gabojaitspring.domain.profile.Skill;
-import com.gabojait.gabojaitspring.domain.profile.Work;
-import com.gabojait.gabojaitspring.domain.review.Review;
-import com.gabojait.gabojaitspring.domain.team.TeamMember;
 import com.gabojait.gabojaitspring.domain.user.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.ToString;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,10 +37,10 @@ public class ProfileDefaultResponse extends ProfileAbstractResponse {
     private List<WorkDefaultResponse> works;
 
     @ApiModelProperty(position = 16, required = true, value = "완료한 팀")
-    private List<TeamAbstractResponse> completedTeams;
+    private List<ProfileTeamResponse> completedTeams;
 
     @ApiModelProperty(position = 17, required = true, value = "현재 팀")
-    private TeamAbstractResponse currentTeam;
+    private ProfileTeamResponse currentTeam;
 
     @ApiModelProperty(position = 18, required = true, value = "리뷰")
     private List<ReviewDefaultResponse> reviews;
@@ -72,14 +65,14 @@ public class ProfileDefaultResponse extends ProfileAbstractResponse {
 
         this.completedTeams = profile.getTeamMembers().stream()
                 .filter(tm -> tm.getTeam().getCompletedAt() != null)
-                .map(tm -> new TeamAbstractResponse(tm.getTeam()))
+                .map(tm -> new ProfileTeamResponse(tm.getTeam()))
                 .collect(Collectors.toList());
         this.isLeader = false;
         profile.getTeamMembers().stream()
                 .filter(tm -> tm.getTeam().getCompletedAt() == null)
                 .findFirst()
                 .ifPresent(tm -> {
-                    this.currentTeam = new TeamAbstractResponse(tm.getTeam());
+                    this.currentTeam = new ProfileTeamResponse(tm.getTeam());
                     this.isLeader = tm.getIsLeader();
                 });
 

@@ -4,8 +4,6 @@ import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.favorite.request.FavoriteDefaultRequest;
 import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteTeamResponse;
 import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteUserResponse;
-import com.gabojait.gabojaitspring.api.dto.profile.response.ProfileAbstractResponse;
-import com.gabojait.gabojaitspring.api.dto.team.response.TeamAbstractResponse;
 import com.gabojait.gabojaitspring.domain.favorite.Favorite;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.user.Contact;

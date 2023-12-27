@@ -1,4 +1,4 @@
-package com.gabojait.gabojaitspring.api.dto.team.response;
+package com.gabojait.gabojaitspring.api.dto.review.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.gabojait.gabojaitspring.domain.team.Team;
@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @ToString
-@ApiModel(value = "팀 요약 응답")
-public class TeamAbstractResponse {
+@ApiModel(value = "리뷰 가능한 팀 응답")
+public class ReviewFindTeamResponse {
 
     @ApiModelProperty(position = 1, required = true, value = "팀 식별자")
     private Long teamId;
@@ -52,7 +52,7 @@ public class TeamAbstractResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    public TeamAbstractResponse(Team team) {
+    public ReviewFindTeamResponse(Team team) {
         this.teamId = team.getId();
         this.projectName = team.getProjectName();
         this.designerCurrentCnt = team.getDesignerCurrentCnt();

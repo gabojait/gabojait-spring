@@ -1,10 +1,9 @@
 package com.gabojait.gabojaitspring.api.service.team;
 
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
-import com.gabojait.gabojaitspring.api.dto.team.request.TeamDefaultRequest;
-import com.gabojait.gabojaitspring.api.dto.team.response.TeamAbstractResponse;
-import com.gabojait.gabojaitspring.api.dto.team.response.TeamDefaultResponse;
-import com.gabojait.gabojaitspring.api.dto.team.response.TeamOfferFavoriteResponse;
+import com.gabojait.gabojaitspring.api.dto.team.request.TeamCreateRequest;
+import com.gabojait.gabojaitspring.api.dto.team.request.TeamUpdateRequest;
+import com.gabojait.gabojaitspring.api.dto.team.response.*;
 import com.gabojait.gabojaitspring.api.service.notification.NotificationService;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
 import com.gabojait.gabojaitspring.domain.team.Team;
@@ -46,11 +45,11 @@ public class TeamService {
      * 404(USER_NOT_FOUND)
      * 409(EXISTING_CURRENT_TEAM / NON_EXISTING_POSITION / TEAM_POSITION_UNAVAILABLE)
      * @param username 회원 아이디
-     * @param request 팀 기본 요청
-     * @return 팀 기본 응답
+     * @param request 팀 생성 요청
+     * @return 팀 생성 응답
      */
     @Transactional
-    public TeamDefaultResponse createTeam(String username, TeamDefaultRequest request) {
+    public TeamCreateResponse createTeam(String username, TeamCreateRequest request) {
         User user = findUser(username);
 
         validateHasNoCurrentTeam(user.getId());
@@ -62,7 +61,7 @@ public class TeamService {
         TeamMember teamMember = request.toTeamMemberEntity(user, team);
         teamMemberRepository.save(teamMember);
 
-        return new TeamDefaultResponse(team, List.of(teamMember));
+        return new TeamCreateResponse(team, teamMember);
     }
 
     /**
@@ -72,11 +71,11 @@ public class TeamService {
      * 409(DESIGNER_CNT_UPDATE_UNAVAILABLE / BACKEND_CNT_UPDATE_UNAVAILABLE / FRONTEND_CNT_UPDATE_UNAVAILABLE /
      * MANAGER_CNT_UPDATE_UNAVAILABLE)
      * @param username 회원 아이디
-     * @param request 팀 기본 요청
-     * @return 팀 기본 응답
+     * @param request 팀 수정 요청
+     * @return 팀 수정 응답
      */
     @Transactional
-    public TeamDefaultResponse updateTeam(String username, TeamDefaultRequest request) {
+    public TeamUpdateResponse updateTeam(String username, TeamUpdateRequest request) {
         User user = findUser(username);
 
         TeamMember teamMember = findCurrentTeamMemberFetchTeam(user.getId());
@@ -91,23 +90,23 @@ public class TeamService {
 
         List<TeamMember> teamMembers = teamMemberRepository.findAllCurrentFetchUser(team.getId());
 
-        return new TeamDefaultResponse(team, teamMembers);
+        return new TeamUpdateResponse(team, teamMembers);
     }
 
     /**
      * 현재 팀 조회 |
      * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND)
      * @param username 회원 아이디
-     * @return 회원 기본 응답
+     * @return 팀 현재 본인 조회 응답
      */
-    public TeamDefaultResponse findCurrentTeam(String username) {
+    public TeamMyCurrentResponse findCurrentTeam(String username) {
         User user = findUser(username);
 
         TeamMember teamMember = findCurrentTeamMemberFetchTeam(user.getId());
 
         List<TeamMember> teamMembers = teamMemberRepository.findAllCurrentFetchUser(teamMember.getTeam().getId());
 
-        return new TeamDefaultResponse(teamMember.getTeam(), teamMembers);
+        return new TeamMyCurrentResponse(teamMember.getTeam(), teamMembers);
     }
 
     /**
@@ -115,10 +114,10 @@ public class TeamService {
      * 404(USER_NOT_FOUND / TEAM_NOT_FOUND)
      * @param username 회원 아이디
      * @param teamId 팀 식별자
-     * @return 팀과 제안 및 찜 응답
+     * @return 팀 단건 조회 응답
      */
     @Transactional
-    public TeamOfferFavoriteResponse findOtherTeam(String username, long teamId) {
+    public TeamFindResponse findOtherTeam(String username, long teamId) {
         User user = findUser(username);
         Team team = findTeam(teamId);
         List<TeamMember> teamMembers = teamMemberRepository.findAllCurrentFetchUser(team.getId());
@@ -132,7 +131,7 @@ public class TeamService {
             offers = offerRepository.findAllByTeamId(user.getId(), team.getId());
         }
 
-        return new TeamOfferFavoriteResponse(team, teamMembers, offers, isFavorite);
+        return new TeamFindResponse(team, teamMembers, offers, isFavorite);
     }
 
     /**
@@ -142,19 +141,19 @@ public class TeamService {
      * @param pageSize 페이지 크기
      * @return 팀 기본 응답들
      */
-    public PageData<List<TeamAbstractResponse>> findPageTeam(Position position, long pageFrom, int pageSize) {
+    public PageData<List<TeamPageResponse>> findPageTeam(Position position, long pageFrom, int pageSize) {
         PageData<List<Team>> teams = teamRepository.findPage(position, pageFrom, pageSize);
 
-        List<TeamAbstractResponse> responses = teams.getData()
+        List<TeamPageResponse> responses = teams.getData()
                 .stream()
-                .map(TeamAbstractResponse::new)
+                .map(TeamPageResponse::new)
                 .collect(Collectors.toList());
 
         return new PageData<>(responses, teams.getTotal());
     }
 
     /**
-     * 팀원 모집 여부 업데이트
+     * 팀원 모집 여부 업데이트 |
      * 403(REQUEST_FORBIDDEN)
      * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND)
      * @param username 회원 아이디

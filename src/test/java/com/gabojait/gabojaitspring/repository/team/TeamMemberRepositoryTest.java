@@ -36,7 +36,7 @@ class TeamMemberRepositoryTest {
     @Autowired private TeamRepository teamRepository;
 
     @Test
-    @DisplayName("현재까지 완료 또는 진행중인 모든 팀원 정보를 조회한다.")
+    @DisplayName("현재까지 완료된 또는 진행중인 모든 팀원 정보를 조회한다.")
     void findAllFetchTeam() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -133,17 +133,19 @@ class TeamMemberRepositoryTest {
         teamMemberRepository.save(teamMember);
 
         // when
-        Optional<TeamMember> foundTeamMember = teamMemberRepository.findCurrentFetchTeam(user.getId());
+        TeamMember foundTeamMember = teamMemberRepository.findCurrentFetchTeam(user.getId()).get();
 
         // then
-        assertThat(foundTeamMember.get())
-                .extracting("id", "position", "isLeader", "teamMemberStatus", "isDeleted", "createdAt", "updatedAt")
-                .containsExactly(teamMember.getId(), teamMember.getPosition(), teamMember.getIsLeader(),
-                        teamMember.getTeamMemberStatus(), teamMember.getIsDeleted(), teamMember.getCreatedAt(),
-                        teamMember.getUpdatedAt());
-
-        assertThat(foundTeamMember.get().getTeam().getId()).isEqualTo(team.getId());
-        assertThat(foundTeamMember.get().getUser().getId()).isEqualTo(user.getId());
+        assertThat(foundTeamMember).isEqualTo(teamMember);
+        assertAll(
+                () -> assertThat(foundTeamMember)
+                        .extracting("id", "position", "isLeader", "teamMemberStatus", "isDeleted", "createdAt", "updatedAt")
+                        .containsExactly(teamMember.getId(), teamMember.getPosition(), teamMember.getIsLeader(),
+                                teamMember.getTeamMemberStatus(), teamMember.getIsDeleted(), teamMember.getCreatedAt(),
+                                teamMember.getUpdatedAt()),
+                () -> assertThat(foundTeamMember.getTeam().getId()).isEqualTo(team.getId()),
+                () -> assertThat(foundTeamMember.getUser().getId()).isEqualTo(user.getId())
+        );
     }
 
     @Test
@@ -179,10 +181,10 @@ class TeamMemberRepositoryTest {
         TeamMemberStatus teamMemberStatus = TeamMemberStatus.PROGRESS;
 
         // when
-        Optional<TeamMember> foundTeamMember = teamMemberRepository.find(user.getId(), team.getId(), teamMemberStatus);
+        TeamMember foundTeamMember = teamMemberRepository.find(user.getId(), team.getId(), teamMemberStatus).get();
 
         // then
-        assertThat(foundTeamMember.get())
+        assertThat(foundTeamMember)
                 .extracting("id", "position", "teamMemberStatus", "isLeader", "isDeleted", "createdAt", "updatedAt")
                 .containsExactly(teamMember.getId(), teamMember.getPosition(), teamMember.getTeamMemberStatus(),
                         teamMember.getIsLeader(), teamMember.getIsDeleted(), teamMember.getCreatedAt(),
@@ -224,10 +226,10 @@ class TeamMemberRepositoryTest {
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3));
 
         // when
-        Optional<TeamMember> teamMember = teamMemberRepository.findLeaderFetchUser(team.getId());
+        TeamMember teamMember = teamMemberRepository.findLeaderFetchUser(team.getId()).get();
 
         // then
-        assertThat(teamMember.get())
+        assertThat(teamMember)
                 .extracting("id", "position", "teamMemberStatus", "isLeader", "isDeleted", "createdAt", "updatedAt")
                 .containsExactly(teamMember1.getId(), teamMember1.getPosition(),
                         teamMember1.getTeamMemberStatus(), teamMember1.getIsLeader(), teamMember1.getIsDeleted(),
@@ -392,10 +394,10 @@ class TeamMemberRepositoryTest {
         teamMemberRepository.save(teamMember);
 
         // when
-        Optional<TeamMember> foundTeamMember = teamMemberRepository.findReviewableFetchTeam(user.getId(), team.getId(), now);
+        TeamMember foundTeamMember = teamMemberRepository.findReviewableFetchTeam(user.getId(), team.getId(), now).get();
 
         // then
-        assertThat(foundTeamMember.get())
+        assertThat(foundTeamMember)
                 .extracting("id", "position", "teamMemberStatus", "isLeader", "isDeleted", "createdAt", "updatedAt")
                 .containsExactly(teamMember.getId(), teamMember.getPosition(), teamMember.getTeamMemberStatus(),
                         teamMember.getIsLeader(), teamMember.getIsDeleted(), teamMember.getCreatedAt(),

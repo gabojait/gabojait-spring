@@ -3,8 +3,9 @@ package com.gabojait.gabojaitspring.api.service.review;
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.review.request.ReviewCreateRequest;
 import com.gabojait.gabojaitspring.api.dto.review.request.ReviewDefaultRequest;
-import com.gabojait.gabojaitspring.api.dto.review.response.ReviewDefaultResponse;
-import com.gabojait.gabojaitspring.api.dto.team.response.TeamAbstractResponse;
+import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindAllTeamResponse;
+import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindTeamResponse;
+import com.gabojait.gabojaitspring.api.dto.review.response.ReviewPageResponse;
 import com.gabojait.gabojaitspring.domain.review.Review;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
@@ -70,7 +71,7 @@ class ReviewServiceTest {
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3));
 
         // when
-        PageData<List<TeamAbstractResponse>> responses = reviewService.findAllReviewableTeams(user.getUsername(), now);
+        PageData<List<ReviewFindAllTeamResponse>> responses = reviewService.findAllReviewableTeams(user.getUsername(), now);
 
         // then
         assertThat(responses.getData())
@@ -116,7 +117,8 @@ class ReviewServiceTest {
         teamMemberRepository.save(teamMember);
 
         // when
-        TeamAbstractResponse response = reviewService.findReviewableTeam(user.getUsername(), team.getId(), now);
+        ReviewFindTeamResponse response = reviewService.findReviewableTeam(user.getUsername(), team.getId(),
+                now);
 
         // then
         assertThat(response)
@@ -253,7 +255,7 @@ class ReviewServiceTest {
         int pageSize = 2;
 
         // when
-        PageData<List<ReviewDefaultResponse>> responses = reviewService.findPageReviews(user1.getId(), pageFrom, pageSize);
+        PageData<List<ReviewPageResponse>> responses = reviewService.findPageReviews(user1.getId(), pageFrom, pageSize);
 
         // then
         assertThat(responses.getData())

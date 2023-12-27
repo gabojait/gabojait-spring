@@ -1,9 +1,7 @@
 package com.gabojait.gabojaitspring.api.controller.team;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gabojait.gabojaitspring.api.dto.team.request.TeamCompleteRequest;
-import com.gabojait.gabojaitspring.api.dto.team.request.TeamDefaultRequest;
-import com.gabojait.gabojaitspring.api.dto.team.request.TeamIsRecruitingUpdateRequest;
+import com.gabojait.gabojaitspring.api.dto.team.request.*;
 import com.gabojait.gabojaitspring.api.service.team.TeamService;
 import com.gabojait.gabojaitspring.auth.CustomAuthenticationEntryPoint;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
@@ -40,7 +38,7 @@ class TeamControllerTest {
     @DisplayName("팀 생성을 하면 201을 반환한다.")
     void givenValid_whenCreateTeam_thenReturn201() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest();
 
         // when
         ResultActions actions = mockMvc.perform(
@@ -59,102 +57,10 @@ class TeamControllerTest {
     }
 
     @Test
-    @DisplayName("프로젝트명 미입력시 팀 생성을 하면 400을 반환한다.")
-    void givenBlankProjectName_whenCreateTeam_thenReturn400() throws Exception {
-        // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
-        request.setProjectName("");
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                post("/api/v1/team")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(PROJECT_NAME_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(PROJECT_NAME_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
-    @DisplayName("프로젝트 설명 미입력시 팀 생성을 하면 400을 반환한다.")
-    void givenBlankProjectDescription_whenCreateTeam_thenReturn400() throws Exception {
-        // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
-        request.setProjectDescription("");
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                post("/api/v1/team")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(PROJECT_DESCRIPTION_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(PROJECT_DESCRIPTION_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
-    @DisplayName("바라는 점 미입력시 팀 생성을 하면 400을 반환한다.")
-    void givenBlankExpectation_whenCreateTeam_thenReturn400() throws Exception {
-        // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
-        request.setExpectation("");
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                post("/api/v1/team")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(EXPECTATION_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(EXPECTATION_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
-    @DisplayName("오픈 채팅 링크 미입력시 팀 생성을 하면 400을 반환한다.")
-    void givenBlankOpenChatUrl_whenCreateTeam_thenReturn400() throws Exception {
-        // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
-        request.setOpenChatUrl("");
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                post("/api/v1/team")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(OPEN_CHAT_URL_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(OPEN_CHAT_URL_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
     @DisplayName("디자이너 최대 수 미입력시 팀 생성을 하면 400을 반환한다.")
     void givenBlankDesignerMaxCnt_whenCreateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest();
         request.setDesignerMaxCnt(null);
 
         // when
@@ -177,7 +83,7 @@ class TeamControllerTest {
     @DisplayName("백엔드 최대 수 미입력시 팀 생성을 하면 400을 반환한다.")
     void givenBlankBackendMaxCnt_whenCreateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest();
         request.setBackendMaxCnt(null);
 
         // when
@@ -200,7 +106,7 @@ class TeamControllerTest {
     @DisplayName("프런트 최대 수 미입력시 팀 생성을 하면 400을 반환한다.")
     void givenBlankFrontendMaxCnt_whenCreateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest();
         request.setFrontendMaxCnt(null);
 
         // when
@@ -223,7 +129,7 @@ class TeamControllerTest {
     @DisplayName("매니저 최대 수 미입력시 팀 생성을 하면 400을 반환한다.")
     void givenBlankManagerMaxCnt_whenCreateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest();
         request.setManagerMaxCnt(null);
 
         // when
@@ -246,7 +152,7 @@ class TeamControllerTest {
     @DisplayName("프로젝트명 20자 초과일시 팀 생성을 하면 400을 반환한다.")
     void givenGreaterThan20SizeProjectName_whenCreateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest();
         request.setProjectName("가".repeat(21));
 
         // when
@@ -269,7 +175,7 @@ class TeamControllerTest {
     @DisplayName("프로젝트 설명 500자 초과일시 팀 생성을 하면 400을 반환한다.")
     void givenGreaterThan500SizeProjectDescription_whenCreateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest();
         request.setProjectDescription("가".repeat(501));
 
         // when
@@ -292,7 +198,7 @@ class TeamControllerTest {
     @DisplayName("바라는 점 200자 초과일시 팀 생성을 하면 400을 반환한다.")
     void givenGreaterThan200SizeExpectation_whenCreateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest();
         request.setExpectation("가".repeat(201));
 
         // when
@@ -315,7 +221,7 @@ class TeamControllerTest {
     @DisplayName("오픈 채팅 링크 25자 미만일시 팀 생성을 하면 400을 반환한다.")
     void givenLessThan25penChatUrl_whenCreateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest();
         request.setOpenChatUrl("kakao.com");
 
         // when
@@ -338,7 +244,7 @@ class TeamControllerTest {
     @DisplayName("오픈 채팅 링크 100자 초과일시 팀 생성을 하면 400을 반환한다.")
     void givenGreaterThan100SizeOpenChatUrl_whenCreateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest();
         request.setOpenChatUrl("https://open.kakao.com/o/" + "a".repeat(76));
 
         // when
@@ -361,7 +267,7 @@ class TeamControllerTest {
     @DisplayName("디자이너 최대 수가 음수일시 팀 생성을 하면 400을 반환한다.")
     void givenNegativeDesignerMaxCnt_whenCreateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest();
         request.setDesignerMaxCnt((byte) -1);
 
         // when
@@ -384,7 +290,7 @@ class TeamControllerTest {
     @DisplayName("백엔드 최대 수가 음수일시 팀 생성을 하면 400을 반환한다.")
     void givenNegativeBackendMaxCnt_whenCreateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest();
         request.setBackendMaxCnt((byte) -1);
 
         // when
@@ -407,7 +313,7 @@ class TeamControllerTest {
     @DisplayName("프런트 최대 수가 음수일시 팀 생성을 하면 400을 반환한다.")
     void givenNegativeFrontendMaxCnt_whenCreateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest();
         request.setFrontendMaxCnt((byte) -1);
 
         // when
@@ -430,7 +336,7 @@ class TeamControllerTest {
     @DisplayName("매니저 최대 수가 음수일시 팀 생성을 하면 400을 반환한다.")
     void givenNegativeManagerMaxCnt_whenCreateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest();
         request.setManagerMaxCnt((byte) -1);
 
         // when
@@ -453,7 +359,7 @@ class TeamControllerTest {
     @DisplayName("팀 수정을 하면 200을 반환한다.")
     void givenValid_whenUpdateTeam_thenReturn200() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
 
         // when
         ResultActions actions = mockMvc.perform(
@@ -472,102 +378,10 @@ class TeamControllerTest {
     }
 
     @Test
-    @DisplayName("프로젝트명 미입력시 팀 수정을 하면 400을 반환한다.")
-    void givenBlankProjectName_whenUpdateTeam_thenReturn400() throws Exception {
-        // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
-        request.setProjectName("");
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                put("/api/v1/team")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(PROJECT_NAME_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(PROJECT_NAME_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
-    @DisplayName("프로젝트 설명 미입력시 팀 수정을 하면 400을 반환한다.")
-    void givenBlankProjectDescription_whenUpdateTeam_thenReturn400() throws Exception {
-        // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
-        request.setProjectDescription("");
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                put("/api/v1/team")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(PROJECT_DESCRIPTION_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(PROJECT_DESCRIPTION_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
-    @DisplayName("바라는 점 미입력시 팀 수정을 하면 400을 반환한다.")
-    void givenBlankExpectation_whenUpdateTeam_thenReturn400() throws Exception {
-        // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
-        request.setExpectation("");
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                put("/api/v1/team")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(EXPECTATION_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(EXPECTATION_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
-    @DisplayName("오픈 채팅 링크 미입력시 팀 수정을 하면 400을 반환한다.")
-    void givenBlankOpenChatUrl_whenUpdateTeam_thenReturn400() throws Exception {
-        // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
-        request.setOpenChatUrl("");
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                put("/api/v1/team")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(OPEN_CHAT_URL_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(OPEN_CHAT_URL_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
     @DisplayName("디자이너 최대 수 미입력시 팀 수정을 하면 400을 반환한다.")
     void givenBlankDesignerMaxCnt_whenUpdateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setDesignerMaxCnt(null);
 
         // when
@@ -590,7 +404,7 @@ class TeamControllerTest {
     @DisplayName("백엔드 최대 수 미입력시 팀 수정을 하면 400을 반환한다.")
     void givenBlankBackendMaxCnt_whenUpdateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setBackendMaxCnt(null);
 
         // when
@@ -613,7 +427,7 @@ class TeamControllerTest {
     @DisplayName("프런트 최대 수 미입력시 팀 수정을 하면 400을 반환한다.")
     void givenBlankFrontendMaxCnt_whenUpdateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setFrontendMaxCnt(null);
 
         // when
@@ -636,7 +450,7 @@ class TeamControllerTest {
     @DisplayName("매니저 최대 수 미입력시 팀 수정을 하면 400을 반환한다.")
     void givenBlankManagerMaxCnt_whenUpdateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setManagerMaxCnt(null);
 
         // when
@@ -659,7 +473,7 @@ class TeamControllerTest {
     @DisplayName("프로젝트명 20자 초과일시 팀 수정을 하면 400을 반환한다.")
     void givenGreaterThan20SizeProjectName_whenUpdateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setProjectName("가".repeat(21));
 
         // when
@@ -682,7 +496,7 @@ class TeamControllerTest {
     @DisplayName("프로젝트 설명 500자 초과일시 팀 수정을 하면 400을 반환한다.")
     void givenGreaterThan500SizeProjectDescription_whenUpdateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setProjectDescription("가".repeat(501));
 
         // when
@@ -705,7 +519,7 @@ class TeamControllerTest {
     @DisplayName("바라는 점 200자 초과일시 팀 수정을 하면 400을 반환한다.")
     void givenGreaterThan200SizeExpectation_whenUpdateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setExpectation("가".repeat(201));
 
         // when
@@ -728,7 +542,7 @@ class TeamControllerTest {
     @DisplayName("오픈 채팅 링크 25자 미만일시 팀 수정을 하면 400을 반환한다.")
     void givenLessThan25penChatUrl_whenUpdateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setOpenChatUrl("kakao.com");
 
         // when
@@ -751,7 +565,7 @@ class TeamControllerTest {
     @DisplayName("오픈 채팅 링크 100자 초과일시 팀 수정을 하면 400을 반환한다.")
     void givenGreaterThan100penChatUrl_whenUpdateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setOpenChatUrl("https://open.kakao.com/o/" + "a".repeat(76));
 
         // when
@@ -774,7 +588,7 @@ class TeamControllerTest {
     @DisplayName("디자이너 최대 수가 음수일시 팀 수정을 하면 400을 반환한다.")
     void givenNegativeDesignerMaxCnt_whenUpdateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setDesignerMaxCnt((byte) -1);
 
         // when
@@ -797,7 +611,7 @@ class TeamControllerTest {
     @DisplayName("백엔드 최대 수가 음수일시 팀 수정을 하면 400을 반환한다.")
     void givenNegativeBackendMaxCnt_whenUpdateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setBackendMaxCnt((byte) -1);
 
         // when
@@ -820,7 +634,7 @@ class TeamControllerTest {
     @DisplayName("프런트 최대 수가 음수일시 팀 수정을 하면 400을 반환한다.")
     void givenNegativeFrontendMaxCnt_whenUpdateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setFrontendMaxCnt((byte) -1);
 
         // when
@@ -843,7 +657,7 @@ class TeamControllerTest {
     @DisplayName("매니저 최대 수가 음수일시 팀 수정을 하면 400을 반환한다.")
     void givenNegativeManagerMaxCnt_whenUpdateTeam_thenReturn400() throws Exception {
         // given
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setManagerMaxCnt((byte) -1);
 
         // when
@@ -863,8 +677,8 @@ class TeamControllerTest {
     }
 
     @Test
-    @DisplayName("현재 팀을 조회하면 200을 반환한다.")
-    void givenValid_whenFindCurrentTeam_thenReturn200() throws Exception {
+    @DisplayName("본인 현재 팀을 조회하면 200을 반환한다.")
+    void givenValid_whenFindMyCurrentTeam_thenReturn200() throws Exception {
         // given & when
         ResultActions actions = mockMvc.perform(
                 get("/api/v1/user/team")
@@ -1196,8 +1010,21 @@ class TeamControllerTest {
                 .build();
     }
 
-    private TeamDefaultRequest createValidTeamDefaultRequest() {
-        return TeamDefaultRequest.builder()
+    private TeamCreateRequest createValidTeamCreateRequest() {
+        return TeamCreateRequest.builder()
+                .projectName("가보자잇")
+                .projectDescription("프로젝트 설명입니다.")
+                .expectation("바라는 점입니다.")
+                .openChatUrl("https://open.kakao.com/o/gabojait")
+                .designerMaxCnt((byte) 2)
+                .backendMaxCnt((byte) 2)
+                .frontendMaxCnt((byte) 2)
+                .managerMaxCnt((byte) 2)
+                .build();
+    }
+
+    private TeamUpdateRequest createValidTeamUpdateRequest() {
+        return TeamUpdateRequest.builder()
                 .projectName("가보자잇")
                 .projectDescription("프로젝트 설명입니다.")
                 .expectation("바라는 점입니다.")

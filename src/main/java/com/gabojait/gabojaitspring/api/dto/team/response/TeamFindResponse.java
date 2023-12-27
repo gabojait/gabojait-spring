@@ -1,19 +1,24 @@
-package com.gabojait.gabojaitspring.api.dto.favorite.response;
+package com.gabojait.gabojaitspring.api.dto.team.response;
+
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.gabojait.gabojaitspring.domain.favorite.Favorite;
+import com.gabojait.gabojaitspring.api.dto.offer.response.OfferAbstractResponse;
+import com.gabojait.gabojaitspring.domain.offer.Offer;
 import com.gabojait.gabojaitspring.domain.team.Team;
+import com.gabojait.gabojaitspring.domain.team.TeamMember;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @ToString
-@ApiModel(value = "찜한 팀 응답")
-public class FavoriteTeamResponse {
+@ApiModel(value = "팀 단건 조회 응답")
+public class TeamFindResponse {
 
     @ApiModelProperty(position = 1, required = true, value = "팀 식별자")
     private Long teamId;
@@ -45,20 +50,33 @@ public class FavoriteTeamResponse {
     @ApiModelProperty(position = 10, required = true, value = "매니저 최대 수")
     private Byte managerMaxCnt;
 
-    @ApiModelProperty(position = 11, required = true, value = "생성일")
+    @ApiModelProperty(position = 11, required = true, value = "프로젝트 설명")
+    private String projectDescription;
+
+    @ApiModelProperty(position = 12, required = true, value = "오픈 채팅 URL")
+    private String openChatUrl;
+
+    @ApiModelProperty(position = 13, required = true, value = "바라는 점")
+    private String expectation;
+
+    @ApiModelProperty(position = 14, required = true, value = "팀원")
+    private List<TeamMemberResponse> teamMembers;
+
+    @ApiModelProperty(position = 15, required = true, value = "제안들")
+    private List<OfferAbstractResponse> offers;
+
+    @ApiModelProperty(position = 16, required = true, value = "찜 여부")
+    private Boolean isFavorite;
+
+    @ApiModelProperty(position = 17, required = true, value = "생성일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
-    @ApiModelProperty(position = 12, required = true, value = "수정일")
+    @ApiModelProperty(position = 18, required = true, value = "수정일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    @ApiModelProperty(position = 13, required = true, value = "찜 식별자")
-    private Long favoriteId;
-
-    public FavoriteTeamResponse(Favorite favorite) {
-        Team team = favorite.getFavoriteTeam();
-
+    public TeamFindResponse(Team team, List<TeamMember> teamMembers, List<Offer> offers, boolean isFavorite) {
         this.teamId = team.getId();
         this.projectName = team.getProjectName();
         this.designerCurrentCnt = team.getDesignerCurrentCnt();
@@ -69,8 +87,18 @@ public class FavoriteTeamResponse {
         this.backendMaxCnt = team.getBackendMaxCnt();
         this.frontendMaxCnt = team.getFrontendMaxCnt();
         this.managerMaxCnt = team.getManagerMaxCnt();
+        this.projectDescription = team.getProjectDescription();
+        this.openChatUrl = team.getOpenChatUrl();
+        this.expectation = team.getExpectation();
+        this.isFavorite = isFavorite;
         this.createdAt = team.getCreatedAt();
         this.updatedAt = team.getUpdatedAt();
-        this.favoriteId = favorite.getId();
+
+        this.teamMembers = teamMembers.stream()
+                .map(TeamMemberResponse::new)
+                .collect(Collectors.toList());
+        this.offers = offers.stream()
+                .map(OfferAbstractResponse::new)
+                .collect(Collectors.toList());
     }
 }

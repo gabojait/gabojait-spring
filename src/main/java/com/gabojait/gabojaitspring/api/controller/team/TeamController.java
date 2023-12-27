@@ -1,16 +1,11 @@
 package com.gabojait.gabojaitspring.api.controller.team;
 
-import com.gabojait.gabojaitspring.api.dto.common.ValidationSequence;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultMultiResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultNoResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultSingleResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
-import com.gabojait.gabojaitspring.api.dto.team.request.TeamCompleteRequest;
-import com.gabojait.gabojaitspring.api.dto.team.request.TeamDefaultRequest;
-import com.gabojait.gabojaitspring.api.dto.team.request.TeamIsRecruitingUpdateRequest;
-import com.gabojait.gabojaitspring.api.dto.team.response.TeamAbstractResponse;
-import com.gabojait.gabojaitspring.api.dto.team.response.TeamDefaultResponse;
-import com.gabojait.gabojaitspring.api.dto.team.response.TeamOfferFavoriteResponse;
+import com.gabojait.gabojaitspring.api.dto.team.request.*;
+import com.gabojait.gabojaitspring.api.dto.team.response.*;
 import com.gabojait.gabojaitspring.api.service.team.TeamService;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.domain.user.Position;
@@ -27,7 +22,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.GroupSequence;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
@@ -40,10 +34,6 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "팀")
 @Validated
-@GroupSequence({TeamController.class,
-        ValidationSequence.Blank.class,
-        ValidationSequence.Size.class,
-        ValidationSequence.Format.class})
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -55,12 +45,10 @@ public class TeamController {
     @ApiOperation(value = "팀 생성",
             notes = "<응답 코드>\n" +
                     "- 201 = TEAM_CREATED\n" +
-                    "- 400 = PROJECT_NAME_FIELD_REQUIRED || PROJECT_DESCRIPTION_FIELD_REQUIRED || " +
-                    "EXPECTATION_FIELD_REQUIRED || OPEN_CHAT_URL_FIELD_REQUIRED || DESIGNER_MAX_CNT_FIELD_REQUIRED || " +
-                    "BACKEND_MAX_CNT_FIELD_REQUIRED || FRONTEND_MAX_CNT_FIELD_REQUIRED || " +
-                    "MANAGER_MAX_CNT_FIELD_REQUIRED || PROJECT_NAME_LENGTH_INVALID || " +
-                    "PROJECT_DESCRIPTION_LENGTH_INVALID || EXPECTATION_LENGTH_INVALID || " +
-                    "OPEN_CHAT_URL_LENGTH_INVALID || OPEN_CHAT_URL_FORMAT_INVALID || " +
+                    "- 400 = DESIGNER_MAX_CNT_FIELD_REQUIRED || BACKEND_MAX_CNT_FIELD_REQUIRED || " +
+                    "FRONTEND_MAX_CNT_FIELD_REQUIRED || MANAGER_MAX_CNT_FIELD_REQUIRED || " +
+                    "PROJECT_NAME_LENGTH_INVALID || PROJECT_DESCRIPTION_LENGTH_INVALID || " +
+                    "EXPECTATION_LENGTH_INVALID || OPEN_CHAT_URL_LENGTH_INVALID || OPEN_CHAT_URL_FORMAT_INVALID || " +
                     "DESIGNER_MAX_CNT_POSITIVE_OR_ZERO_ONLY || BACKEND_MAX_CNT_POSITIVE_OR_ZERO_ONLY || " +
                     "FRONTEND_MAX_CNT_POSITIVE_OR_ZERO_ONLY || MANAGER_MAX_CNT_POSITIVE_OR_ZERO_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
@@ -71,7 +59,7 @@ public class TeamController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "CREATED",
-                    content = @Content(schema = @Schema(implementation = TeamDefaultResponse.class))),
+                    content = @Content(schema = @Schema(implementation = TeamCreateResponse.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -83,10 +71,10 @@ public class TeamController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/team")
     public ResponseEntity<DefaultSingleResponse<Object>> createTeam(HttpServletRequest servletRequest,
-                                                                    @RequestBody @Valid TeamDefaultRequest request) {
+                                                                    @RequestBody @Valid TeamCreateRequest request) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        TeamDefaultResponse response = teamService.createTeam(username, request);
+        TeamCreateResponse response = teamService.createTeam(username, request);
 
         return ResponseEntity.status(TEAM_CREATED.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -99,12 +87,10 @@ public class TeamController {
     @ApiOperation(value = "팀 수정",
             notes = "<응답 코드>\n" +
                     "- 200 = TEAM_UPDATED\n" +
-                    "- 400 = PROJECT_NAME_FIELD_REQUIRED || PROJECT_DESCRIPTION_FIELD_REQUIRED || " +
-                    "EXPECTATION_FIELD_REQUIRED || OPEN_CHAT_URL_FIELD_REQUIRED || DESIGNER_MAX_CNT_FIELD_REQUIRED || " +
-                    "BACKEND_MAX_CNT_FIELD_REQUIRED || FRONTEND_MAX_CNT_FIELD_REQUIRED || " +
-                    "MANAGER_MAX_CNT_FIELD_REQUIRED || PROJECT_NAME_LENGTH_INVALID || " +
-                    "PROJECT_DESCRIPTION_LENGTH_INVALID || EXPECTATION_LENGTH_INVALID || " +
-                    "OPEN_CHAT_URL_LENGTH_INVALID || OPEN_CHAT_URL_FORMAT_INVALID || " +
+                    "- 400 = DESIGNER_MAX_CNT_FIELD_REQUIRED || BACKEND_MAX_CNT_FIELD_REQUIRED || " +
+                    "FRONTEND_MAX_CNT_FIELD_REQUIRED || MANAGER_MAX_CNT_FIELD_REQUIRED || " +
+                    "PROJECT_NAME_LENGTH_INVALID || PROJECT_DESCRIPTION_LENGTH_INVALID || " +
+                    "EXPECTATION_LENGTH_INVALID || OPEN_CHAT_URL_LENGTH_INVALID || OPEN_CHAT_URL_FORMAT_INVALID || " +
                     "DESIGNER_MAX_CNT_POSITIVE_OR_ZERO_ONLY || BACKEND_MAX_CNT_POSITIVE_OR_ZERO_ONLY || " +
                     "FRONTEND_MAX_CNT_POSITIVE_OR_ZERO_ONLY || MANAGER_MAX_CNT_POSITIVE_OR_ZERO_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
@@ -116,7 +102,7 @@ public class TeamController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = TeamDefaultResponse.class))),
+                    content = @Content(schema = @Schema(implementation = TeamUpdateResponse.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -127,10 +113,10 @@ public class TeamController {
     })
     @PutMapping("/team")
     public ResponseEntity<DefaultSingleResponse<Object>> updateTeam(HttpServletRequest servletRequest,
-                                                                    @RequestBody @Valid TeamDefaultRequest request) {
+                                                                    @RequestBody @Valid TeamUpdateRequest request) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        TeamDefaultResponse response = teamService.updateTeam(username, request);
+        TeamUpdateResponse response = teamService.updateTeam(username, request);
 
         return ResponseEntity.status(TEAM_UPDATED.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -150,7 +136,7 @@ public class TeamController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = TeamDefaultResponse.class))),
+                    content = @Content(schema = @Schema(implementation = TeamMyCurrentResponse.class))),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "404", description = "NOT FOUND"),
@@ -158,10 +144,10 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/user/team")
-    public ResponseEntity<DefaultSingleResponse<Object>> findCurrentTeam(HttpServletRequest servletRequest) {
+    public ResponseEntity<DefaultSingleResponse<Object>> findMyCurrentTeam(HttpServletRequest servletRequest) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        TeamDefaultResponse response = teamService.findCurrentTeam(username);
+        TeamMyCurrentResponse response = teamService.findCurrentTeam(username);
 
         return ResponseEntity.status(SELF_TEAM_FOUND.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -172,7 +158,9 @@ public class TeamController {
     }
 
     @ApiOperation(value = "팀 단건 조회",
-            notes = "<응답 코드>\n" +
+            notes = "<검증>\n" +
+                    "- team-id = Positive\n\n" +
+                    "<응답 코드>\n" +
                     "- 200 = TEAM_FOUND\n" +
                     "- 400 = TEAM_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
@@ -182,7 +170,7 @@ public class TeamController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = TeamOfferFavoriteResponse.class))),
+                    content = @Content(schema = @Schema(implementation = TeamFindResponse.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -191,15 +179,13 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/team/{team-id}")
-    public ResponseEntity<DefaultSingleResponse<Object>> findTeam(
-            HttpServletRequest servletRequest,
-            @PathVariable(value = "team-id")
-            @Positive(message = "팀 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-            Long teamId
-    ) {
+    public ResponseEntity<DefaultSingleResponse<Object>> findTeam(HttpServletRequest servletRequest,
+                                                                  @PathVariable(value = "team-id")
+                                                                  @Positive(message = "팀 식별자는 양수만 가능합니다.")
+                                                                  Long teamId) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        TeamOfferFavoriteResponse response = teamService.findOtherTeam(username, teamId);
+        TeamFindResponse response = teamService.findOtherTeam(username, teamId);
 
         return ResponseEntity.status(TEAM_FOUND.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -211,9 +197,9 @@ public class TeamController {
 
     @ApiOperation(value = "팀원을 찾는 팀 페이징 조회",
             notes = "<검증>\n" +
-                    "- position[default: NONE] = NotBlank && Pattern(regex = ^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE))\n" +
+                    "- position[default: NONE] = Pattern(regex = ^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE))\n" +
                     "- page-from[default: 9223372036854775806] = Positive\n" +
-                    "- page-size[default: 20] = Positive && Max(value= 100)\n\n" +
+                    "- page-size[default: 20] = Positive && Max(value = 100)\n\n" +
                     "<응답 코드>\n" +
                     "- 200 = TEAMS_RECRUITING_USERS_FOUND\n" +
                     "- 400 = POSITION_TYPE_INVALID || PAGE_FROM_POSITIVE_ONLY || PAGE_SIZE_POSITIVE_ONLY || " +
@@ -224,7 +210,7 @@ public class TeamController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = TeamAbstractResponse.class))),
+                    content = @Content(schema = @Schema(implementation = TeamPageResponse.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -235,18 +221,17 @@ public class TeamController {
     public ResponseEntity<DefaultMultiResponse<Object>> findTeamsLookingForUsers(
             @RequestParam(value = "position", required = false, defaultValue = "NONE")
             @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE)",
-                    message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다.",
-                    groups = ValidationSequence.Format.class)
+                    message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다.")
             String position,
             @RequestParam(value = "page-from", required = false, defaultValue = "9223372036854775806")
-            @Positive(message = "페이지 시작점은 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 시작점은 양수만 가능합니다.")
             Long pageFrom,
             @RequestParam(value = "page-size", required = false, defaultValue = "20")
-            @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
+            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.")
             Integer pageSize
     ) {
-        PageData<List<TeamAbstractResponse>> responses = teamService.findPageTeam(Position.valueOf(position),
+        PageData<List<TeamPageResponse>> responses = teamService.findPageTeam(Position.valueOf(position),
                 pageFrom, pageSize);
 
         return ResponseEntity.status(TEAMS_RECRUITING_USERS_FOUND.getHttpStatus())
@@ -342,7 +327,7 @@ public class TeamController {
     })
     @PatchMapping("/team/complete")
     public ResponseEntity<DefaultNoResponse> quitCompleteProject(HttpServletRequest servletRequest,
-                                                                @RequestBody @Valid TeamCompleteRequest request) {
+                                                                 @RequestBody @Valid TeamCompleteRequest request) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         teamService.endProject(username, request.getProjectUrl(), LocalDateTime.now());
@@ -355,7 +340,9 @@ public class TeamController {
     }
 
     @ApiOperation(value = "팀원 추방",
-            notes = "<응답 코드>\n" +
+            notes = "<검증>\n" +
+                    "- user-id = Positive\n\n" +
+                    "<응답 코드>\n" +
                     "- 200 = TEAMMATE_FIRED\n" +
                     "- 400 = USER_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
@@ -376,12 +363,10 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/team/user/{user-id}/fire")
-    public ResponseEntity<DefaultNoResponse> fireTeamMember(
-            HttpServletRequest servletRequest,
-            @PathVariable(value = "user-id")
-            @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-            Long userId
-    ) {
+    public ResponseEntity<DefaultNoResponse> fireTeamMember(HttpServletRequest servletRequest,
+                                                            @PathVariable(value = "user-id")
+                                                            @Positive(message = "회원 식별자는 양수만 가능합니다.")
+                                                            Long userId) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         teamService.fire(username, userId);

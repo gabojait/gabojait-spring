@@ -9,8 +9,8 @@ import lombok.ToString;
 
 @Getter
 @ToString
-@ApiModel(value = "팀원 기본 응답")
-public class TeamMemberDefaultResponse {
+@ApiModel(value = "팀원 응답")
+public class TeamMemberResponse {
 
     @ApiModelProperty(position = 1, required = true, value = "회원 식별자")
     private Long userId;
@@ -28,7 +28,7 @@ public class TeamMemberDefaultResponse {
     @ApiModelProperty(position = 5, required = true, value = "리더 여부")
     private Boolean isLeader;
 
-    public TeamMemberDefaultResponse(TeamMember teamMember) {
+    public TeamMemberResponse(TeamMember teamMember) {
         this.userId = teamMember.getUser().getId();
         this.username = teamMember.getUser().getUsername();
         this.nickname = teamMember.getUser().getNickname();

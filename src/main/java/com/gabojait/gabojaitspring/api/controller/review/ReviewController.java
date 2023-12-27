@@ -7,7 +7,9 @@ import com.gabojait.gabojaitspring.api.dto.common.response.DefaultSingleResponse
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.review.request.ReviewCreateRequest;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewDefaultResponse;
-import com.gabojait.gabojaitspring.api.dto.team.response.TeamAbstractResponse;
+import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindAllTeamResponse;
+import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindTeamResponse;
+import com.gabojait.gabojaitspring.api.dto.review.response.ReviewPageResponse;
 import com.gabojait.gabojaitspring.api.service.review.ReviewService;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import io.swagger.annotations.Api;
@@ -60,7 +62,7 @@ public class ReviewController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = TeamAbstractResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ReviewFindAllTeamResponse.class))),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "404", description = "NOT FOUND"),
@@ -71,7 +73,7 @@ public class ReviewController {
     public ResponseEntity<DefaultMultiResponse<Object>> findAllReviewableTeams(HttpServletRequest servletRequest) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        PageData<List<TeamAbstractResponse>> responses = reviewService.findAllReviewableTeams(username,
+        PageData<List<ReviewFindAllTeamResponse>> responses = reviewService.findAllReviewableTeams(username,
                 LocalDateTime.now());
 
         return ResponseEntity.status(REVIEWABLE_TEAMS_FOUND.getHttpStatus())
@@ -95,7 +97,7 @@ public class ReviewController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = TeamAbstractResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ReviewFindTeamResponse.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -112,7 +114,7 @@ public class ReviewController {
     ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        TeamAbstractResponse response = reviewService.findReviewableTeam(username, teamId, LocalDateTime.now());
+        ReviewFindTeamResponse response = reviewService.findReviewableTeam(username, teamId, LocalDateTime.now());
 
         return ResponseEntity.status(REVIEWABLE_TEAM_FOUND.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -177,7 +179,7 @@ public class ReviewController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = ReviewDefaultResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ReviewPageResponse.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -197,7 +199,7 @@ public class ReviewController {
             @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.", groups = ValidationSequence.Format.class)
             Integer pageSize
     ) {
-        PageData<List<ReviewDefaultResponse>> responses = reviewService.findPageReviews(userId, pageFrom, pageSize);
+        PageData<List<ReviewPageResponse>> responses = reviewService.findPageReviews(userId, pageFrom, pageSize);
 
         return ResponseEntity.status(USER_REVIEWS_FOUND.getHttpStatus())
                 .body(DefaultMultiResponse.multiDataBuilder()

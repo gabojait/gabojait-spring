@@ -1,10 +1,9 @@
 package com.gabojait.gabojaitspring.api.service.team;
 
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
-import com.gabojait.gabojaitspring.api.dto.team.request.TeamDefaultRequest;
-import com.gabojait.gabojaitspring.api.dto.team.response.TeamAbstractResponse;
-import com.gabojait.gabojaitspring.api.dto.team.response.TeamDefaultResponse;
-import com.gabojait.gabojaitspring.api.dto.team.response.TeamOfferFavoriteResponse;
+import com.gabojait.gabojaitspring.api.dto.team.request.TeamCreateRequest;
+import com.gabojait.gabojaitspring.api.dto.team.request.TeamUpdateRequest;
+import com.gabojait.gabojaitspring.api.dto.team.response.*;
 import com.gabojait.gabojaitspring.domain.favorite.Favorite;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
 import com.gabojait.gabojaitspring.domain.offer.OfferedBy;
@@ -59,10 +58,10 @@ class TeamServiceTest {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
 
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest();
 
         // when
-        TeamDefaultResponse response = teamService.createTeam(user.getUsername(), request);
+        TeamCreateResponse response = teamService.createTeam(user.getUsername(), request);
 
         // then
         assertThat(response)
@@ -87,7 +86,7 @@ class TeamServiceTest {
         // given
         String username = "tester";
 
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest();
 
         // when & then
         assertThatThrownBy(() -> teamService.createTeam(username, request))
@@ -104,7 +103,7 @@ class TeamServiceTest {
         Team team = createSavedTeam();
         TeamMember teamMember = createdSavedTeamMember(true, user, team);
 
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest();
 
         // when & then
         assertThatThrownBy(() -> teamService.createTeam(user.getUsername(), request))
@@ -121,7 +120,7 @@ class TeamServiceTest {
         user.updatePosition(Position.NONE);
         userRepository.save(user);
 
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest();
 
         // when & then
         assertThatThrownBy(() -> teamService.createTeam(user.getUsername(), request))
@@ -136,7 +135,7 @@ class TeamServiceTest {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
 
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest();
         request.setBackendMaxCnt((byte) 0);
 
         // when & then
@@ -154,10 +153,10 @@ class TeamServiceTest {
         Team team = createSavedTeam();
         TeamMember teamMember = createdSavedTeamMember(true, user, team);
 
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
 
         // when
-        TeamDefaultResponse response = teamService.updateTeam(user.getUsername(), request);
+        TeamUpdateResponse response = teamService.updateTeam(user.getUsername(), request);
 
         // then
         assertThat(response)
@@ -188,7 +187,7 @@ class TeamServiceTest {
         createdSavedTeamMember(true, user1, team);
         createdSavedTeamMember(false, user2, team);
 
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
 
         // when & then
         assertThatThrownBy(() -> teamService.updateTeam(user2.getUsername(), request))
@@ -203,7 +202,7 @@ class TeamServiceTest {
         // given
         String username = "tester";
 
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
 
         // when & then
         assertThatThrownBy(() -> teamService.updateTeam(username, request))
@@ -218,7 +217,7 @@ class TeamServiceTest {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
 
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
 
         // when & then
         assertThatThrownBy(() -> teamService.updateTeam(user.getUsername(), request))
@@ -236,7 +235,7 @@ class TeamServiceTest {
         Team team = createSavedTeam();
         createdSavedTeamMember(true, user, team);
 
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setDesignerMaxCnt((byte) 0);
 
         // when & then
@@ -255,7 +254,7 @@ class TeamServiceTest {
         Team team = createSavedTeam();
         createdSavedTeamMember(true, user, team);
 
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setBackendMaxCnt((byte) 0);
 
         // when & then
@@ -274,7 +273,7 @@ class TeamServiceTest {
         Team team = createSavedTeam();
         createdSavedTeamMember(true, user, team);
 
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setFrontendMaxCnt((byte) 0);
 
         // when & then
@@ -293,7 +292,7 @@ class TeamServiceTest {
         Team team = createSavedTeam();
         createdSavedTeamMember(true, user, team);
 
-        TeamDefaultRequest request = createValidTeamDefaultRequest();
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setManagerMaxCnt((byte) 0);
 
         // when & then
@@ -304,7 +303,7 @@ class TeamServiceTest {
     }
 
     @Test
-    @DisplayName("현재 팀 조회를 한다.")
+    @DisplayName("현재 본인 팀 조회를 한다.")
     void givenValid_whenFindCurrentTeam_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.MANAGER);
@@ -313,7 +312,7 @@ class TeamServiceTest {
         TeamMember teamMember = createdSavedTeamMember(true, user, team);
 
         // when
-        TeamDefaultResponse response = teamService.findCurrentTeam(user.getUsername());
+        TeamMyCurrentResponse response = teamService.findCurrentTeam(user.getUsername());
 
         // then
         assertThat(response)
@@ -361,15 +360,15 @@ class TeamServiceTest {
     }
 
     @Test
-    @DisplayName("내 팀으로 다른 팀 단건 조회를 한다.")
-    void givenMyTeam_whenFindOtherTeam_thenReturn() {
+    @DisplayName("내 팀 단건 조회를 한다.")
+    void givenMyTeam_whenFindTeam_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
         Team team = createSavedTeam();
         TeamMember teamMember = createdSavedTeamMember(true, user, team);
 
         // when
-        TeamOfferFavoriteResponse response = teamService.findOtherTeam(user.getUsername(), team.getId());
+        TeamFindResponse response = teamService.findOtherTeam(user.getUsername(), team.getId());
 
         // then
         assertThat(team.getVisitedCnt()).isEqualTo(0L);
@@ -396,8 +395,8 @@ class TeamServiceTest {
     }
 
     @Test
-    @DisplayName("내 팀이 아닌 다른 팀 단건 조회를 한다.")
-    void givenNotMyTeam_whenFindOtherTeam_thenReturn() {
+    @DisplayName("내 팀이 아닌 팀 단건 조회를 한다.")
+    void givenNotMyTeam_whenFindTeam_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일", Position.BACKEND);
         User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이", Position.BACKEND);
@@ -409,7 +408,7 @@ class TeamServiceTest {
         Offer offer = createSavedOffer(team, user2, Position.MANAGER);
 
         // when
-        TeamOfferFavoriteResponse response = teamService.findOtherTeam(user2.getUsername(), team.getId());
+        TeamFindResponse response = teamService.findOtherTeam(user2.getUsername(), team.getId());
 
         // then
         assertThat(team.getVisitedCnt()).isEqualTo(1L);
@@ -442,7 +441,7 @@ class TeamServiceTest {
 
     @Test
     @DisplayName("존재하지 않은 회원 아이디로 다른 팀 단건 조회시 예외가 발생한다.")
-    void givenNonExistingUser_whenFindOtherTeam_thenThrow() {
+    void givenNonExistingUser_whenFindTeam_thenThrow() {
         // given
         String username = "tester";
         Team team = createSavedTeam();
@@ -456,7 +455,7 @@ class TeamServiceTest {
 
     @Test
     @DisplayName("존재하지 않은 팀 식별자로 다른 팀 단건 조회시 예외가 발생한다.")
-    void givenNonExistingTeam_whenFindOtherTeam_thenThrow() {
+    void givenNonExistingTeam_whenFindTeam_thenThrow() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
         long teamId = 1L;
@@ -481,7 +480,7 @@ class TeamServiceTest {
         int pageSize = 2;
 
         // when
-        PageData<List<TeamAbstractResponse>> teams = teamService.findPageTeam(position, pageFrom, pageSize);
+        PageData<List<TeamPageResponse>> teams = teamService.findPageTeam(position, pageFrom, pageSize);
 
         // then
         assertThat(teams.getData())
@@ -739,8 +738,21 @@ class TeamServiceTest {
                 .isEqualTo(TEAM_LEADER_UNAVAILABLE);
     }
 
-    private TeamDefaultRequest createValidTeamDefaultRequest() {
-        return TeamDefaultRequest.builder()
+    private TeamCreateRequest createValidTeamCreateRequest() {
+        return TeamCreateRequest.builder()
+                .projectName("가볼까잇")
+                .projectDescription("가볼까잇 설명입니다.")
+                .expectation("열정적인 팀원을 구해요.")
+                .openChatUrl("kakao.com/o/gabojait")
+                .designerMaxCnt((byte) 5)
+                .backendMaxCnt((byte) 5)
+                .frontendMaxCnt((byte) 5)
+                .managerMaxCnt((byte) 5)
+                .build();
+    }
+
+    private TeamUpdateRequest createValidTeamUpdateRequest() {
+        return TeamUpdateRequest.builder()
                 .projectName("가볼까잇")
                 .projectDescription("가볼까잇 설명입니다.")
                 .expectation("열정적인 팀원을 구해요.")

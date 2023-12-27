@@ -1,7 +1,6 @@
-package com.gabojait.gabojaitspring.api.dto.favorite.response;
+package com.gabojait.gabojaitspring.api.dto.team.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.gabojait.gabojaitspring.domain.favorite.Favorite;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -12,8 +11,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @ToString
-@ApiModel(value = "찜한 팀 응답")
-public class FavoriteTeamResponse {
+@ApiModel(value = "팀 페이징 응답")
+public class TeamPageResponse {
 
     @ApiModelProperty(position = 1, required = true, value = "팀 식별자")
     private Long teamId;
@@ -53,12 +52,7 @@ public class FavoriteTeamResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    @ApiModelProperty(position = 13, required = true, value = "찜 식별자")
-    private Long favoriteId;
-
-    public FavoriteTeamResponse(Favorite favorite) {
-        Team team = favorite.getFavoriteTeam();
-
+    public TeamPageResponse(Team team) {
         this.teamId = team.getId();
         this.projectName = team.getProjectName();
         this.designerCurrentCnt = team.getDesignerCurrentCnt();
@@ -71,6 +65,5 @@ public class FavoriteTeamResponse {
         this.managerMaxCnt = team.getManagerMaxCnt();
         this.createdAt = team.getCreatedAt();
         this.updatedAt = team.getUpdatedAt();
-        this.favoriteId = favorite.getId();
     }
 }
