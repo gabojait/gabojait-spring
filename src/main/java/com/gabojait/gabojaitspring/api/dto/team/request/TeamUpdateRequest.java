@@ -29,7 +29,7 @@ public class TeamUpdateRequest {
     private String expectation;
 
     @ApiModelProperty(position = 4, required = true, value = "오픈 채팅 링크", example = "https://open.kakao.com/o/test")
-    @Size(min = 25, max = 100, message = "오픈 채팅 URL은 25~100자만 가능합니다.")
+    @Size(min = 26, max = 100, message = "오픈 채팅 URL은 26~100자만 가능합니다.")
     @Pattern(regexp = "^https\\:\\/\\/open\\.kakao\\.com\\/.+$", message = "오픈 채팅 URL은 카카오 오픈 채팅 형식만 가능합니다.")
     private String openChatUrl;
 

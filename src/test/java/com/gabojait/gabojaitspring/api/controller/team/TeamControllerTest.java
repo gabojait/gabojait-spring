@@ -218,11 +218,11 @@ class TeamControllerTest {
     }
 
     @Test
-    @DisplayName("오픈 채팅 링크 25자 미만일시 팀 생성을 하면 400을 반환한다.")
-    void givenLessThan25penChatUrl_whenCreateTeam_thenReturn400() throws Exception {
+    @DisplayName("오픈 채팅 링크 26자 미만일시 팀 생성을 하면 400을 반환한다.")
+    void givenLessThan26SizeOpenChatUrl_whenCreateTeam_thenReturn400() throws Exception {
         // given
         TeamCreateRequest request = createValidTeamCreateRequest();
-        request.setOpenChatUrl("kakao.com");
+        request.setOpenChatUrl("https://open.kakao.com/o/");
 
         // when
         ResultActions actions = mockMvc.perform(
@@ -539,11 +539,11 @@ class TeamControllerTest {
     }
 
     @Test
-    @DisplayName("오픈 채팅 링크 25자 미만일시 팀 수정을 하면 400을 반환한다.")
-    void givenLessThan25penChatUrl_whenUpdateTeam_thenReturn400() throws Exception {
+    @DisplayName("오픈 채팅 링크 26자 미만일시 팀 수정을 하면 400을 반환한다.")
+    void givenLessThan26SizeOpenChatUrl_whenUpdateTeam_thenReturn400() throws Exception {
         // given
         TeamUpdateRequest request = createValidTeamUpdateRequest();
-        request.setOpenChatUrl("kakao.com");
+        request.setOpenChatUrl("https://open.kakao.com/o/");
 
         // when
         ResultActions actions = mockMvc.perform(
@@ -563,7 +563,7 @@ class TeamControllerTest {
 
     @Test
     @DisplayName("오픈 채팅 링크 100자 초과일시 팀 수정을 하면 400을 반환한다.")
-    void givenGreaterThan100penChatUrl_whenUpdateTeam_thenReturn400() throws Exception {
+    void givenGreaterThan100SizeOpenChatUrl_whenUpdateTeam_thenReturn400() throws Exception {
         // given
         TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setOpenChatUrl("https://open.kakao.com/o/" + "a".repeat(76));
