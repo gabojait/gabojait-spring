@@ -131,7 +131,7 @@ class TeamServiceTest {
 
     @Test
     @DisplayName("불가능한 포지션으로 팀 생성시 예외가 발생한다.")
-    void givenUnavailablePosition_whenCreateTeam_thenThrow() {
+    void givenUnavailableTeamLeaderPosition_whenCreateTeam_thenThrow() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
 
@@ -142,7 +142,7 @@ class TeamServiceTest {
         assertThatThrownBy(() -> teamService.createTeam(user.getUsername(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
-                .isEqualTo(TEAM_POSITION_UNAVAILABLE);
+                .isEqualTo(TEAM_LEADER_POSITION_UNAVAILABLE);
     }
 
     @Test
