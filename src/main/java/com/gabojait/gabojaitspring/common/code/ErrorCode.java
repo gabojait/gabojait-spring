@@ -170,6 +170,7 @@ public enum ErrorCode {
     TEAM_LEADER_UNAVAILABLE(CONFLICT, "팀장은 할 수 없는 행동입니다."),
     UNREGISTER_UNAVAILABLE(CONFLICT, "현재 팀장인 상태에서 회원탈퇴를 할 수 없습니다."),
     CURRENTLY_UNAVAILABLE(CONFLICT, "현재 동시 요청이 많아 잠시 뒤에 다시 시도해 주세요."),
+    TEAM_LEADER_POSITION_UNAVAILABLE(CONFLICT, "팀장의 포지션은 1 이상이여야 됩니다."),
 
     /**
      * 413 Payload too large

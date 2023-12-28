@@ -54,7 +54,7 @@ public class TeamController {
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = USER_NOT_FOUND\n" +
-                    "- 409 = EXISTING_CURRENT_TEAM || NON_EXISTING_POSITION\n" +
+                    "- 409 = EXISTING_CURRENT_TEAM || NON_EXISTING_POSITION || TEAM_LEADER_POSITION_UNAVAILABLE\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {

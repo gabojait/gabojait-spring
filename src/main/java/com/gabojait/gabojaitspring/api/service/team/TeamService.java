@@ -43,7 +43,7 @@ public class TeamService {
     /**
      * 팀 생성 |
      * 404(USER_NOT_FOUND)
-     * 409(EXISTING_CURRENT_TEAM / NON_EXISTING_POSITION / TEAM_POSITION_UNAVAILABLE)
+     * 409(EXISTING_CURRENT_TEAM / NON_EXISTING_POSITION / TEAM_LEADER_POSITION_UNAVAILABLE)
      * @param username 회원 아이디
      * @param request 팀 생성 요청
      * @return 팀 생성 응답
@@ -54,6 +54,7 @@ public class TeamService {
 
         validateHasNoCurrentTeam(user.getId());
         validateHasPosition(user);
+        validateLeaderPosition(request, user);
 
         Team team = request.toTeamEntity();
         teamRepository.save(team);
@@ -318,5 +319,28 @@ public class TeamService {
     private void validateLeader(TeamMember teamMember) {
         if (!teamMember.getIsLeader())
             throw new CustomException(REQUEST_FORBIDDEN);
+    }
+
+    /**
+     * 현재 팀장 포지션으로 팀원수 검증 |
+     * 409(TEAM_LEADER_POSITION_UNAVAILABLE)
+     * @param request 생성 요청
+     * @param user 회원
+     */
+    private void validateLeaderPosition(TeamCreateRequest request, User user) {
+        switch (user.getPosition()) {
+            case DESIGNER:
+                if (request.getDesignerMaxCnt() <= 0)
+                    throw new CustomException(TEAM_LEADER_POSITION_UNAVAILABLE);
+            case BACKEND:
+                if (request.getBackendMaxCnt() <= 0)
+                    throw new CustomException(TEAM_LEADER_POSITION_UNAVAILABLE);
+            case FRONTEND:
+                if (request.getFrontendMaxCnt() <= 0)
+                    throw new CustomException(TEAM_LEADER_POSITION_UNAVAILABLE);
+            case MANAGER:
+                if (request.getManagerMaxCnt() <= 0)
+                    throw new CustomException(TEAM_LEADER_POSITION_UNAVAILABLE);
+        }
     }
 }
