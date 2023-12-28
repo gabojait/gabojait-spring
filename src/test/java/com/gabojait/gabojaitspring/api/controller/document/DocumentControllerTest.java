@@ -33,7 +33,7 @@ class DocumentControllerTest {
     void givenValid_whenPrivacy_thenReturn200() throws Exception {
         // given & when
         ResultActions actions = mockMvc.perform(
-                get("/docs/privacy.html")
+                get("/docs/privacy")
         );
 
         // then
@@ -46,7 +46,7 @@ class DocumentControllerTest {
     void givenValid_whenService_thenReturn200() throws Exception {
         // given & when
         ResultActions actions = mockMvc.perform(
-                get("/docs/service.html")
+                get("/docs/service")
         );
 
         // then
