@@ -413,7 +413,7 @@ class ProfileControllerTest {
     }
 
     @Test
-    @DisplayName("학교명 입력시 프로필 업데이트를 하면 400을 반환한다.")
+    @DisplayName("학교명 미입력시 프로필 업데이트를 하면 400을 반환한다.")
     void givenBlankInstitutionName_whenUpdateProfile_thenReturn400() throws Exception {
         // given
         ProfileDefaultRequest request = createValidProfileDefaultRequest();
@@ -479,6 +479,29 @@ class ProfileControllerTest {
                         .value(INSTITUTION_NAME_LENGTH_INVALID.name()))
                 .andExpect(jsonPath("$.responseMessage")
                         .value(INSTITUTION_NAME_LENGTH_INVALID.getMessage()));
+    }
+
+    @Test
+    @DisplayName("시작일 미입력시 프로필 업데이트를 하면 400을 반환한다.")
+    void givenBlankStartedAt_whenUpdateProfile_thenReturn400() throws Exception {
+        // given
+        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        request.getEducations().get(0).setStartedAt(null);
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                post("/api/v1/user/profile")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(STARTED_AT_FIELD_REQUIRED.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(STARTED_AT_FIELD_REQUIRED.getMessage()));
     }
 
     @Test
