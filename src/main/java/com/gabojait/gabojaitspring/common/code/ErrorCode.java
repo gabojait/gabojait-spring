@@ -47,7 +47,6 @@ public enum ErrorCode {
     IS_ACCEPTED_FIELD_REQUIRED(BAD_REQUEST, "수락 여부는 필수 입력입니다."),
     TEAM_MEMBER_ID_FIELD_REQUIRED(BAD_REQUEST, "팀원 식별자는 필수 입력입니다."),
     RATING_FIELD_REQUIRED(BAD_REQUEST, "평점은 필수 입력입니다."),
-    POST_FIELD_REQUIRED(BAD_REQUEST, "후기는 필수 입력입니다."),
     OFFER_ID_FIELD_REQUIRED(BAD_REQUEST, "제안 식별자는 필수 입력입니다."),
     OFFER_POSITION_FIELD_REQUIRED(BAD_REQUEST, "제안할 포지션은 필수 입력입니다."),
     BIRTHDATE_FIELD_REQUIRED(BAD_REQUEST, "생년월일은 필수 입력입니다."),

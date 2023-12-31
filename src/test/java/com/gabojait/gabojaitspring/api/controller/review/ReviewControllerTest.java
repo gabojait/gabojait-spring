@@ -1,8 +1,8 @@
 package com.gabojait.gabojaitspring.api.controller.review;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gabojait.gabojaitspring.api.dto.review.request.ReviewCreateRequest;
-import com.gabojait.gabojaitspring.api.dto.review.request.ReviewDefaultRequest;
+import com.gabojait.gabojaitspring.api.dto.review.request.ReviewCreateManyRequest;
+import com.gabojait.gabojaitspring.api.dto.review.request.ReviewCreateOneRequest;
 import com.gabojait.gabojaitspring.api.service.review.ReviewService;
 import com.gabojait.gabojaitspring.auth.CustomAuthenticationEntryPoint;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -101,7 +100,7 @@ class ReviewControllerTest {
     @DisplayName("리뷰 작성을 하면 201을 반환한다.")
     void givenValid_whenCreateReview_thenReturn201() throws Exception {
         // given
-        ReviewCreateRequest request = createValidReviewCreateRequest(List.of(1L, 2L, 3L));
+        ReviewCreateManyRequest request = createValidReviewCreateManyRequest(List.of(1L, 2L, 3L));
         long teamId = 1L;
 
         // when
@@ -124,7 +123,7 @@ class ReviewControllerTest {
     @DisplayName("팀원 식별자 미입력시 리뷰 작성을 하면 400을 반환한다.")
     void givenBlankTeamMemberId_whenCreateReview_thenReturn400() throws Exception {
         // given
-        ReviewCreateRequest request = createValidReviewCreateRequest(List.of(1L, 2L, 3L));
+        ReviewCreateManyRequest request = createValidReviewCreateManyRequest(List.of(1L, 2L, 3L));
         request.getReviews().get(0).setTeamMemberId(null);
         long teamId = 1L;
 
@@ -148,7 +147,7 @@ class ReviewControllerTest {
     @DisplayName("평점 미입력시 리뷰 작성을 하면 400을 반환한다.")
     void givenBlankRating_whenCreateReview_thenReturn400() throws Exception {
         // given
-        ReviewCreateRequest request = createValidReviewCreateRequest(List.of(1L, 2L, 3L));
+        ReviewCreateManyRequest request = createValidReviewCreateManyRequest(List.of(1L, 2L, 3L));
         request.getReviews().get(0).setRating(null);
         long teamId = 1L;
 
@@ -169,34 +168,10 @@ class ReviewControllerTest {
     }
 
     @Test
-    @DisplayName("후기 미입력시 리뷰 작성을 하면 400을 반환한다.")
-    void givenBlankPost_whenCreateReview_thenReturn400() throws Exception {
-        // given
-        ReviewCreateRequest request = createValidReviewCreateRequest(List.of(1L, 2L, 3L));
-        request.getReviews().get(0).setPost("");
-        long teamId = 1L;
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                post("/api/v1/user/team/{team-id}/review", teamId)
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(POST_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(POST_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
     @DisplayName("후기 200자 초과일시 리뷰 작성을 하면 400을 반환한다.")
     void givenGreaterThan200SizePost_whenCreateReview_thenReturn400() throws Exception {
         // given
-        ReviewCreateRequest request = createValidReviewCreateRequest(List.of(1L, 2L, 3L));
+        ReviewCreateManyRequest request = createValidReviewCreateManyRequest(List.of(1L, 2L, 3L));
         request.getReviews().get(0).setPost("가".repeat(201));
         long teamId = 1L;
 
@@ -220,7 +195,7 @@ class ReviewControllerTest {
     @DisplayName("팀원 식별자가 양수가 아닐시 리뷰 작성을 하면 400을 반환한다.")
     void givenNonPositiveTeamMemberId_whenCreateReview_thenReturn400() throws Exception {
         // given
-        ReviewCreateRequest request = createValidReviewCreateRequest(List.of(1L, 2L, 3L));
+        ReviewCreateManyRequest request = createValidReviewCreateManyRequest(List.of(1L, 2L, 3L));
         request.getReviews().get(0).setTeamMemberId(0L);
         long teamId = 1L;
 
@@ -244,7 +219,7 @@ class ReviewControllerTest {
     @DisplayName("평점이 1 미만일시 리뷰 작성을 하면 400을 반환한다.")
     void givenLessThan1Rating_whenCreateReview_thenReturn400() throws Exception {
         // given
-        ReviewCreateRequest request = createValidReviewCreateRequest(List.of(1L, 2L, 3L));
+        ReviewCreateManyRequest request = createValidReviewCreateManyRequest(List.of(1L, 2L, 3L));
         request.getReviews().get(0).setRating((byte) 0);
         long teamId = 1L;
 
@@ -268,7 +243,7 @@ class ReviewControllerTest {
     @DisplayName("평점이 5 초과일시 리뷰 작성을 하면 400을 반환한다.")
     void givenGreaterThan5Rating_whenCreateReview_thenReturn400() throws Exception {
         // given
-        ReviewCreateRequest request = createValidReviewCreateRequest(List.of(1L, 2L, 3L));
+        ReviewCreateManyRequest request = createValidReviewCreateManyRequest(List.of(1L, 2L, 3L));
         request.getReviews().get(0).setRating((byte) 6);
         long teamId = 1L;
 
@@ -292,7 +267,7 @@ class ReviewControllerTest {
     @DisplayName("팀 식별자가 양수가 아닐시 리뷰 작성을 하면 400을 반환한다.")
     void givenNonPositiveTeamId_whenCreateReview_thenReturn400() throws Exception {
         // given
-        ReviewCreateRequest request = createValidReviewCreateRequest(List.of(1L, 2L, 3L));
+        ReviewCreateManyRequest request = createValidReviewCreateManyRequest(List.of(1L, 2L, 3L));
         long teamId = 0L;
 
         // when
@@ -417,16 +392,16 @@ class ReviewControllerTest {
                         .value(PAGE_SIZE_RANGE_INVALID.getMessage()));
     }
 
-    private ReviewCreateRequest createValidReviewCreateRequest(List<Long> revieweeMemberIds) {
-        List<ReviewDefaultRequest> reviews = revieweeMemberIds.stream()
-                .map(revieweeMemberId -> ReviewDefaultRequest.builder()
+    private ReviewCreateManyRequest createValidReviewCreateManyRequest(List<Long> revieweeMemberIds) {
+        List<ReviewCreateOneRequest> reviews = revieweeMemberIds.stream()
+                .map(revieweeMemberId -> ReviewCreateOneRequest.builder()
                         .teamMemberId(revieweeMemberId)
                         .rating((byte) 3)
                         .post("열정적인 팀원입니다.")
                         .build())
                 .collect(Collectors.toList());
 
-        return ReviewCreateRequest.builder()
+        return ReviewCreateManyRequest.builder()
                 .reviews(reviews)
                 .build();
     }

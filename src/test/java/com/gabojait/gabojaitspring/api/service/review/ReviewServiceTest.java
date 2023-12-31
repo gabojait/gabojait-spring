@@ -1,8 +1,8 @@
 package com.gabojait.gabojaitspring.api.service.review;
 
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
-import com.gabojait.gabojaitspring.api.dto.review.request.ReviewCreateRequest;
-import com.gabojait.gabojaitspring.api.dto.review.request.ReviewDefaultRequest;
+import com.gabojait.gabojaitspring.api.dto.review.request.ReviewCreateManyRequest;
+import com.gabojait.gabojaitspring.api.dto.review.request.ReviewCreateOneRequest;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindAllTeamResponse;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindTeamResponse;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewPageResponse;
@@ -182,7 +182,7 @@ class ReviewServiceTest {
         teamMember3.complete("github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3));
 
-        ReviewCreateRequest request = createValidReviewCreateRequest(
+        ReviewCreateManyRequest request = createValidReviewCreateManyRequest(
                 List.of(teamMember1.getId(), teamMember2.getId(), teamMember3.getId())
         );
 
@@ -200,7 +200,7 @@ class ReviewServiceTest {
         // given
         String username = "tester";
         long teamId = 1L;
-        ReviewCreateRequest request = createValidReviewCreateRequest(List.of(1L));
+        ReviewCreateManyRequest request = createValidReviewCreateManyRequest(List.of(1L));
 
         // when & then
         assertThatThrownBy(() -> reviewService.createReview(username, teamId, request))
@@ -215,7 +215,7 @@ class ReviewServiceTest {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.MANAGER);
         long teamId = 1L;
-        ReviewCreateRequest request = createValidReviewCreateRequest(List.of(1L));
+        ReviewCreateManyRequest request = createValidReviewCreateManyRequest(List.of(1L));
 
         // when & then
         assertThatThrownBy(() -> reviewService.createReview(user.getUsername(), teamId, request))
@@ -270,16 +270,16 @@ class ReviewServiceTest {
         assertEquals(3L, responses.getTotal());
     }
 
-    private ReviewCreateRequest createValidReviewCreateRequest(List<Long> revieweeMemberIds) {
-        List<ReviewDefaultRequest> reviews = revieweeMemberIds.stream()
-                .map(revieweeMemberId -> ReviewDefaultRequest.builder()
+    private ReviewCreateManyRequest createValidReviewCreateManyRequest(List<Long> revieweeMemberIds) {
+        List<ReviewCreateOneRequest> reviews = revieweeMemberIds.stream()
+                .map(revieweeMemberId -> ReviewCreateOneRequest.builder()
                         .teamMemberId(revieweeMemberId)
                         .rating((byte) 3)
                         .post("열정적인 팀원입니다.")
                         .build())
                 .collect(Collectors.toList());
 
-        return ReviewCreateRequest.builder()
+        return ReviewCreateManyRequest.builder()
                 .reviews(reviews)
                 .build();
     }

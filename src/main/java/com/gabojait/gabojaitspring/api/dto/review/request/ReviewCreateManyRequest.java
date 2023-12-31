@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
-import javax.validation.GroupSequence;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,16 +12,15 @@ import java.util.List;
 @Setter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@GroupSequence({ReviewCreateRequest.class})
-@ApiModel(value = "리뷰 생성 요청")
-public class ReviewCreateRequest {
+@ApiModel(value = "리뷰 다건 생성 요청")
+public class ReviewCreateManyRequest {
 
     @ApiModelProperty(position = 1, required = true, value = "리뷰들")
     @Valid
-    List<ReviewDefaultRequest> reviews = new ArrayList<>();
+    List<ReviewCreateOneRequest> reviews = new ArrayList<>();
 
     @Builder
-    private ReviewCreateRequest(List<ReviewDefaultRequest> reviews) {
+    private ReviewCreateManyRequest(List<ReviewCreateOneRequest> reviews) {
         this.reviews = reviews;
     }
 }

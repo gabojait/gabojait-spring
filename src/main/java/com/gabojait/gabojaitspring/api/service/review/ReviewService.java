@@ -1,8 +1,7 @@
 package com.gabojait.gabojaitspring.api.service.review;
 
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
-import com.gabojait.gabojaitspring.api.dto.review.request.ReviewCreateRequest;
-import com.gabojait.gabojaitspring.api.dto.review.response.ReviewDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.review.request.ReviewCreateManyRequest;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindAllTeamResponse;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindTeamResponse;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewPageResponse;
@@ -74,10 +73,10 @@ public class ReviewService {
      * 404(USER_NOT_FOUND / TEAM_MEMBER_NOT_FOUND)
      * @param username 회원 아이디
      * @param teamId 팀 식별자
-     * @param request 리뷰 생성 요청
+     * @param request 리뷰 다건 생성 요청
      */
     @Transactional
-    public void createReview(String username, long teamId, ReviewCreateRequest request) {
+    public void createReview(String username, long teamId, ReviewCreateManyRequest request) {
         User user = findUser(username);
 
         boolean isExist = reviewRepository.exists(user.getId(), teamId);

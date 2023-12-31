@@ -1,12 +1,10 @@
 package com.gabojait.gabojaitspring.api.controller.review;
 
-import com.gabojait.gabojaitspring.api.dto.common.ValidationSequence;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultMultiResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultNoResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultSingleResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
-import com.gabojait.gabojaitspring.api.dto.review.request.ReviewCreateRequest;
-import com.gabojait.gabojaitspring.api.dto.review.response.ReviewDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.review.request.ReviewCreateManyRequest;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindAllTeamResponse;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindTeamResponse;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewPageResponse;
@@ -25,7 +23,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.GroupSequence;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Positive;
@@ -38,10 +35,6 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "리뷰")
 @Validated
-@GroupSequence({ReviewController.class,
-        ValidationSequence.Blank.class,
-        ValidationSequence.Size.class,
-        ValidationSequence.Format.class})
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -109,7 +102,7 @@ public class ReviewController {
     public ResponseEntity<DefaultSingleResponse<Object>> findReviewableTeam(
             HttpServletRequest servletRequest,
             @PathVariable(value = "team-id")
-            @Positive(message = "팀 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "팀 식별자는 양수만 가능합니다.")
             Long teamId
     ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
@@ -127,9 +120,8 @@ public class ReviewController {
     @ApiOperation(value = "리뷰 작성",
             notes = "<응답 코드>\n" +
                     "- 201 = USER_REVIEWED\n" +
-                    "- 400 = TEAM_MEMBER_ID_FIELD_REQUIRED || RATING_FIELD_REQUIRED || POST_FIELD_REQUIRED || " +
-                    "POST_LENGTH_INVALID || TEAM_MEMBER_ID_POSITIVE_ONLY || RATING_RANGE_INVALID || " +
-                    "TEAM_ID_POSITIVE_ONLY\n" +
+                    "- 400 = TEAM_MEMBER_ID_FIELD_REQUIRED || RATING_FIELD_REQUIRED || POST_LENGTH_INVALID || " +
+                    "TEAM_MEMBER_ID_POSITIVE_ONLY || RATING_RANGE_INVALID || TEAM_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = USER_NOT_FOUND || TEAM_MEMBER_NOT_FOUND\n" +
@@ -147,13 +139,11 @@ public class ReviewController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/user/team/{team-id}/review")
-    public ResponseEntity<DefaultNoResponse> createReview(
-            HttpServletRequest servletRequest,
-            @PathVariable(value = "team-id")
-            @Positive(message = "팀 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-            Long teamId,
-            @RequestBody @Valid ReviewCreateRequest request
-    ) {
+    public ResponseEntity<DefaultNoResponse> createReview(HttpServletRequest servletRequest,
+                                                          @PathVariable(value = "team-id")
+                                                          @Positive(message = "팀 식별자는 양수만 가능합니다.")
+                                                          Long teamId,
+                                                          @RequestBody @Valid ReviewCreateManyRequest request) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         reviewService.createReview(username, teamId, request);
@@ -189,14 +179,14 @@ public class ReviewController {
     @GetMapping("/user/{user-id}/review")
     public ResponseEntity<DefaultMultiResponse<Object>> findPageReview(
             @PathVariable(value = "user-id")
-            @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "회원 식별자는 양수만 가능합니다.")
             Long userId,
             @RequestParam(value = "page-from", required = false, defaultValue = "9223372036854775806")
-            @Positive(message = "페이지 시작점은 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 시작점은 양수만 가능합니다.")
             Long pageFrom,
             @RequestParam(value = "page-size", required = false, defaultValue = "20")
-            @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
+            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.")
             Integer pageSize
     ) {
         PageData<List<ReviewPageResponse>> responses = reviewService.findPageReviews(userId, pageFrom, pageSize);

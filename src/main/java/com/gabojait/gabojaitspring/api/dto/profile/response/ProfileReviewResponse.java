@@ -1,4 +1,4 @@
-package com.gabojait.gabojaitspring.api.dto.review.response;
+package com.gabojait.gabojaitspring.api.dto.profile.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.gabojait.gabojaitspring.domain.review.Review;
@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @ToString
-@ApiModel(value = "리뷰 기본 응답")
-public class ReviewDefaultResponse {
+@ApiModel(value = "프로필 리뷰 응답")
+public class ProfileReviewResponse {
 
     @ApiModelProperty(position = 1, required = true, value = "리뷰 식별자")
     private Long reviewId;
@@ -34,7 +34,7 @@ public class ReviewDefaultResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    public ReviewDefaultResponse(Review review, int reviewerNum) {
+    public ProfileReviewResponse(Review review, int reviewerNum) {
         this.reviewId = review.getId();
         this.reviewer = "익명" + reviewerNum;
         this.rating = review.getRating();

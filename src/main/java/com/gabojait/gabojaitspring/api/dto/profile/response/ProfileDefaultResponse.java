@@ -1,6 +1,5 @@
 package com.gabojait.gabojaitspring.api.dto.profile.response;
 
-import com.gabojait.gabojaitspring.api.dto.review.response.ReviewDefaultResponse;
 import com.gabojait.gabojaitspring.api.vo.profile.ProfileVO;
 import com.gabojait.gabojaitspring.domain.profile.Skill;
 import com.gabojait.gabojaitspring.domain.user.User;
@@ -43,7 +42,7 @@ public class ProfileDefaultResponse extends ProfileAbstractResponse {
     private ProfileTeamResponse currentTeam;
 
     @ApiModelProperty(position = 18, required = true, value = "리뷰")
-    private List<ReviewDefaultResponse> reviews;
+    private List<ProfileReviewResponse> reviews;
 
     public ProfileDefaultResponse(User user,
                                   List<Skill> skills,
@@ -78,7 +77,7 @@ public class ProfileDefaultResponse extends ProfileAbstractResponse {
 
         this.reviews = IntStream.range(0, profile.getReviews().getContent().size())
                 .mapToObj(i ->
-                        new ReviewDefaultResponse(profile.getReviews().getContent().get(i), (int) (profile.getReviewCnt() - i)))
+                        new ProfileReviewResponse(profile.getReviews().getContent().get(i), (int) (profile.getReviewCnt() - i)))
                 .collect(Collectors.toList());
     }
 }
