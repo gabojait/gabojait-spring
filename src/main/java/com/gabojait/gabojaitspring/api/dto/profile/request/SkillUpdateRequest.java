@@ -33,7 +33,6 @@ public class SkillUpdateRequest {
     private Boolean isExperienced;
 
     @ApiModelProperty(position = 4, required = true, value = "레벨", example = "LOW", allowableValues = "LOW, MID, HIGH")
-    @NotBlank(message = "레벨은 필수 입력입니다.")
     @Pattern(regexp = "^(LOW|MID|HIGH)", message = "레벨은 'LOW', 'MID', 또는 'HIGH' 중 하나여야 됩니다.")
     private String level;
 

@@ -27,12 +27,10 @@ public class PortfolioUpdateRequest {
     private String portfolioName;
 
     @ApiModelProperty(position = 2, required = true, value = "포트폴리오 URL", example = "github.com/gabojait")
-    @NotBlank(message = "포트폴리오 URL은 필수 입력입니다.")
     @Size(min = 1, max = 1000, message = "URL은 1~1000자만 가능합니다.")
     private String portfolioUrl;
 
     @ApiModelProperty(position = 3, required = true, value = "미디어", example = "LINK")
-    @NotBlank(message = "미디어는 필수 입력입니다.")
     @Pattern(regexp = "^(LINK|FILE)", message = "미디어는 'LINK' 또는 'FILE'  중 하나여야 됩니다.")
     private String media;
 

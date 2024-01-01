@@ -321,29 +321,6 @@ class ProfileControllerTest {
     }
 
     @Test
-    @DisplayName("레벨 미입력시 프로필 업데이트를 하면 400을 반환한다.")
-    void givenBlankLevel_whenUpdateProfile_thenReturn400() throws Exception {
-        // given
-        ProfileUpdateRequest request = createValidProfileUpdateRequest();
-        request.getSkills().get(0).setLevel(null);
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                post("/api/v1/user/profile")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(LEVEL_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(LEVEL_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
     @DisplayName("올바르지 않은 레벨로 프로필 업데이트를 하면 400을 반환한다.")
     void givenFormatLevel_whenUpdateProfile_thenReturn400() throws Exception {
         // given
