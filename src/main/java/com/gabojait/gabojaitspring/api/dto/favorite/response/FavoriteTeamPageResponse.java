@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @ToString
-@ApiModel(value = "찜한 팀 응답")
-public class FavoriteTeamResponse {
+@ApiModel(value = "찜한 팀 페이지 응답")
+public class FavoriteTeamPageResponse {
 
     @ApiModelProperty(position = 1, required = true, value = "팀 식별자")
     private Long teamId;
@@ -56,7 +56,7 @@ public class FavoriteTeamResponse {
     @ApiModelProperty(position = 13, required = true, value = "찜 식별자")
     private Long favoriteId;
 
-    public FavoriteTeamResponse(Favorite favorite) {
+    public FavoriteTeamPageResponse(Favorite favorite) {
         Team team = favorite.getFavoriteTeam();
 
         this.teamId = team.getId();

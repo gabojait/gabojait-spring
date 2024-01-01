@@ -2,8 +2,8 @@ package com.gabojait.gabojaitspring.api.service.favorite;
 
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.favorite.request.FavoriteDefaultRequest;
-import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteTeamResponse;
-import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteUserResponse;
+import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteTeamPageResponse;
+import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteUserPageResponse;
 import com.gabojait.gabojaitspring.domain.favorite.Favorite;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.user.Contact;
@@ -210,7 +210,7 @@ class FavoriteServiceTest {
         int pageSize = 2;
 
         // when
-        PageData<List<FavoriteUserResponse>> responses = favoriteService.findPageFavoriteUser(user1.getUsername(),
+        PageData<List<FavoriteUserPageResponse>> responses = favoriteService.findPageFavoriteUser(user1.getUsername(),
                 pageFrom, pageSize);
 
         // then
@@ -261,7 +261,7 @@ class FavoriteServiceTest {
         int pageSize = 2;
 
         // when
-        PageData<List<FavoriteTeamResponse>> responses = favoriteService.findPageFavoriteTeam(user.getUsername(),
+        PageData<List<FavoriteTeamPageResponse>> responses = favoriteService.findPageFavoriteTeam(user.getUsername(),
                 pageFrom, pageSize);
 
         // then

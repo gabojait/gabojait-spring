@@ -2,10 +2,7 @@ package com.gabojait.gabojaitspring.api.service.profile;
 
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.profile.request.*;
-import com.gabojait.gabojaitspring.api.dto.profile.response.PortfolioUrlResponse;
-import com.gabojait.gabojaitspring.api.dto.profile.response.ProfileDefaultResponse;
-import com.gabojait.gabojaitspring.api.dto.profile.response.ProfileDetailResponse;
-import com.gabojait.gabojaitspring.api.dto.profile.response.ProfileOfferResponse;
+import com.gabojait.gabojaitspring.api.dto.profile.response.*;
 import com.gabojait.gabojaitspring.common.util.FileUtility;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
 import com.gabojait.gabojaitspring.domain.offer.OfferedBy;
@@ -13,7 +10,6 @@ import com.gabojait.gabojaitspring.domain.profile.*;
 import com.gabojait.gabojaitspring.domain.review.Review;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
-import com.gabojait.gabojaitspring.domain.team.TeamMemberStatus;
 import com.gabojait.gabojaitspring.domain.user.*;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.offer.OfferRepository;
@@ -112,7 +108,7 @@ class ProfileServiceTest {
         teamMemberRepository.save(currentTeamMember);
 
         // when
-        ProfileDefaultResponse response = profileService.findMyProfile(user2.getUsername());
+        ProfileFindMyselfResponse response = profileService.findMyProfile(user2.getUsername());
 
         // then
         assertThat(userRepository.findById(user2.getId()).get().getVisitedCnt())
@@ -258,7 +254,7 @@ class ProfileServiceTest {
         teamMemberRepository.save(currentTeamMember);
 
         // when
-        ProfileDetailResponse response = profileService.findOtherProfile(user1.getUsername(), user2.getId());
+        ProfileFindOtherResponse response = profileService.findOtherProfile(user1.getUsername(), user2.getId());
 
         // then
         assertThat(userRepository.findById(user2.getId()).get().getVisitedCnt())
@@ -407,7 +403,7 @@ class ProfileServiceTest {
         teamMemberRepository.save(currentTeamMember);
 
         // when
-        ProfileDetailResponse response = profileService.findOtherProfile(user2.getUsername(), user2.getId());
+        ProfileFindOtherResponse response = profileService.findOtherProfile(user2.getUsername(), user2.getId());
 
         // then
         assertThat(userRepository.findById(user2.getId()).get().getVisitedCnt())
@@ -550,7 +546,7 @@ class ProfileServiceTest {
         MultipartFile image = new MockMultipartFile("data", "filename.txt", "image/png", "image".getBytes());
 
         // when
-        ProfileDefaultResponse response = profileService.uploadProfileImage(user.getUsername(), image);
+        ProfileImageResponse response = profileService.uploadProfileImage(user.getUsername(), image);
 
         // then
         assertThat(response.getImageUrl()).isNotBlank();
@@ -608,7 +604,7 @@ class ProfileServiceTest {
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
         // when
-        ProfileDefaultResponse response = profileService.deleteProfileImage(user.getUsername());
+        ProfileImageResponse response = profileService.deleteProfileImage(user.getUsername());
 
         // then
         assertThat(response.getImageUrl()).isNull();
@@ -698,15 +694,15 @@ class ProfileServiceTest {
         Education education3 = createEducation("가보자잇대", LocalDate.of(2002, 1, 1), user);
         educationRepository.saveAll(List.of(education1, education2, education3));
 
-        EducationDefaultRequest request1 = createEducationDefaultRequest(education2.getId(),
+        EducationUpdateRequest request1 = createEducationUpdateRequest(education2.getId(),
                 education2.getInstitutionName(), education2.getStartedAt(), education2.getEndedAt(),
                 education2.getIsCurrent());
-        EducationDefaultRequest request2 = createEducationDefaultRequest(education3.getId(), "가볼까잇대",
+        EducationUpdateRequest request2 = createEducationUpdateRequest(education3.getId(), "가볼까잇대",
                 LocalDate.of(2003, 1, 1), LocalDate.of(2004, 1, 1), false);
-        EducationDefaultRequest request3 = createEducationDefaultRequest(null, "가보자잇대학원",
+        EducationUpdateRequest request3 = createEducationUpdateRequest(null, "가보자잇대학원",
                 LocalDate.of(2004, 1, 1), null, true);
 
-        List<EducationDefaultRequest> requests = new ArrayList<>(List.of(request1, request2, request3));
+        List<EducationUpdateRequest> requests = new ArrayList<>(List.of(request1, request2, request3));
 
         // when
         profileService.updateEducations(user, requests);
@@ -737,14 +733,14 @@ class ProfileServiceTest {
         Portfolio portfolio3 = createPortfolio("포트폴리오3", user);
         portfolioRepository.saveAll(List.of(portfolio1, portfolio2, portfolio3));
 
-        PortfolioDefaultRequest request1 = createPortfolioDefaultRequest(portfolio2.getId(),
+        PortfolioUpdateRequest request1 = createPortfolioUpdateRequest(portfolio2.getId(),
                 portfolio2.getPortfolioName(), portfolio2.getPortfolioUrl(), portfolio2.getMedia().toString());
-        PortfolioDefaultRequest request2 = createPortfolioDefaultRequest(portfolio3.getId(), "포트폴리오4",
+        PortfolioUpdateRequest request2 = createPortfolioUpdateRequest(portfolio3.getId(), "포트폴리오4",
                 "github.com/gabojait1", Media.FILE.toString());
-        PortfolioDefaultRequest request3 = createPortfolioDefaultRequest(null, "포트폴리오5",
+        PortfolioUpdateRequest request3 = createPortfolioUpdateRequest(null, "포트폴리오5",
                 "github.com/gabojait2", Media.LINK.toString());
 
-        List<PortfolioDefaultRequest> requests = new ArrayList<>(List.of(request1, request2, request3));
+        List<PortfolioUpdateRequest> requests = new ArrayList<>(List.of(request1, request2, request3));
 
         // when
         profileService.updatePortfolios(user, requests);
@@ -772,12 +768,12 @@ class ProfileServiceTest {
         Skill skill3 = createSkill("스킬3", user);
         skillRepository.saveAll(List.of(skill1, skill2, skill3));
 
-        SkillDefaultRequest request1 = createSkillDefaultRequest(skill2.getId(), skill2.getSkillName(),
+        SkillUpdateRequest request1 = createSkillUpdateRequest(skill2.getId(), skill2.getSkillName(),
                 skill2.getIsExperienced(), skill2.getLevel().toString());
-        SkillDefaultRequest request2 = createSkillDefaultRequest(skill3.getId(), "스킬4", false, Level.LOW.toString());
-        SkillDefaultRequest request3 = createSkillDefaultRequest(null, "스킬4", true, Level.HIGH.toString());
+        SkillUpdateRequest request2 = createSkillUpdateRequest(skill3.getId(), "스킬4", false, Level.LOW.toString());
+        SkillUpdateRequest request3 = createSkillUpdateRequest(null, "스킬4", true, Level.HIGH.toString());
 
-        List<SkillDefaultRequest> requests = new ArrayList<>(List.of(request1, request2, request3));
+        List<SkillUpdateRequest> requests = new ArrayList<>(List.of(request1, request2, request3));
 
         // when
         profileService.updateSkills(user, requests);
@@ -805,14 +801,14 @@ class ProfileServiceTest {
         Work work3 = createWork("경력3", LocalDate.of(2002, 1, 1), user);
         workRepository.saveAll(List.of(work1, work2, work3));
 
-        WorkDefaultRequest request1 = createWorkDefaultRequest(work2.getId(), work2.getCorporationName(),
+        WorkUpdateRequest request1 = createWorkUpdateRequest(work2.getId(), work2.getCorporationName(),
                 work2.getWorkDescription(), work2.getStartedAt(), work2.getEndedAt(), work2.getIsCurrent());
-        WorkDefaultRequest request2 = createWorkDefaultRequest(work3.getId(), "경력4", "경력4", LocalDate.of(2003, 1, 1),
+        WorkUpdateRequest request2 = createWorkUpdateRequest(work3.getId(), "경력4", "경력4", LocalDate.of(2003, 1, 1),
                 LocalDate.of(2004, 1, 1), false);
-        WorkDefaultRequest request3 = createWorkDefaultRequest(null, "경력5", "경력5", LocalDate.of(2004, 1, 1),
+        WorkUpdateRequest request3 = createWorkUpdateRequest(null, "경력5", "경력5", LocalDate.of(2004, 1, 1),
                 LocalDate.of(2005, 1, 1), false);
 
-        List<WorkDefaultRequest> requests = new ArrayList<>(List.of(request1, request2, request3));
+        List<WorkUpdateRequest> requests = new ArrayList<>(List.of(request1, request2, request3));
 
         // when
         profileService.updateWorks(user, requests);
@@ -838,10 +834,10 @@ class ProfileServiceTest {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
-        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
 
         // when
-        ProfileDefaultResponse response = profileService.updateProfile(user.getUsername(), request);
+        ProfileUpdateResponse response = profileService.updateProfile(user.getUsername(), request);
 
         // then
         assertThat(response.getPosition().toString()).isEqualTo(request.getPosition());
@@ -888,7 +884,7 @@ class ProfileServiceTest {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
-        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getEducations().get(0).setStartedAt(LocalDate.of(2001, 1, 1));
         request.getEducations().get(0).setEndedAt(LocalDate.of(2000, 1, 1));
         request.getEducations().get(0).setIsCurrent(false);
@@ -906,7 +902,7 @@ class ProfileServiceTest {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
-        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getEducations().get(0).setStartedAt(LocalDate.of(2001, 1, 1));
         request.getEducations().get(0).setEndedAt(null);
         request.getEducations().get(0).setIsCurrent(false);
@@ -924,7 +920,7 @@ class ProfileServiceTest {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
-        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getWorks().get(0).setStartedAt(LocalDate.of(2001, 1, 1));
         request.getWorks().get(0).setEndedAt(LocalDate.of(2000, 1, 1));
         request.getWorks().get(0).setIsCurrent(false);
@@ -942,7 +938,7 @@ class ProfileServiceTest {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
-        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getWorks().get(0).setStartedAt(LocalDate.of(2001, 1, 1));
         request.getWorks().get(0).setEndedAt(null);
         request.getWorks().get(0).setIsCurrent(false);
@@ -960,7 +956,7 @@ class ProfileServiceTest {
         // given
         String username = "tester";
 
-        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
 
         // when & then
         assertThatThrownBy(() -> profileService.updateProfile(username, request))
@@ -1053,7 +1049,7 @@ class ProfileServiceTest {
         int pageSize = 2;
 
         // when
-        PageData<List<ProfileOfferResponse>> users = profileService.findPageUser(user1.getUsername(), position,
+        PageData<List<ProfilePageResponse>> users = profileService.findPageUser(user1.getUsername(), position,
                 pageFrom, pageSize);
 
         // then
@@ -1097,16 +1093,16 @@ class ProfileServiceTest {
                 .isEqualTo(USER_NOT_FOUND);
     }
 
-    private ProfileDefaultRequest createValidProfileDefaultRequest() {
-        EducationDefaultRequest educationRequest = createEducationDefaultRequest(null, "가보자잇대",
+    private ProfileUpdateRequest createValidProfileUpdateRequest() {
+        EducationUpdateRequest educationRequest = createEducationUpdateRequest(null, "가보자잇대",
                 LocalDate.of(2004, 1, 1), null, true);
-        PortfolioDefaultRequest portfolioRequest = createPortfolioDefaultRequest(null, "포트폴리오",
+        PortfolioUpdateRequest portfolioRequest = createPortfolioUpdateRequest(null, "포트폴리오",
                 "github.com/gabojait", Media.LINK.toString());
-        SkillDefaultRequest skillRequest = createSkillDefaultRequest(null, "스킬", true, Level.HIGH.toString());
-        WorkDefaultRequest workRequest = createWorkDefaultRequest(null, "경력", "경력", LocalDate.of(2004, 1, 1),
+        SkillUpdateRequest skillRequest = createSkillUpdateRequest(null, "스킬", true, Level.HIGH.toString());
+        WorkUpdateRequest workRequest = createWorkUpdateRequest(null, "경력", "경력", LocalDate.of(2004, 1, 1),
                 LocalDate.of(2005, 1, 1), false);
 
-        return ProfileDefaultRequest.builder()
+        return ProfileUpdateRequest.builder()
                 .position(Position.DESIGNER.toString())
                 .educations(List.of(educationRequest))
                 .portfolios(List.of(portfolioRequest))
@@ -1115,13 +1111,13 @@ class ProfileServiceTest {
                 .build();
     }
 
-    private WorkDefaultRequest createWorkDefaultRequest(Long workId,
-                                                        String corporationName,
-                                                        String workDescription,
-                                                        LocalDate startedAt,
-                                                        LocalDate endedAt,
-                                                        Boolean isCurrent) {
-        return WorkDefaultRequest.builder()
+    private WorkUpdateRequest createWorkUpdateRequest(Long workId,
+                                                      String corporationName,
+                                                      String workDescription,
+                                                      LocalDate startedAt,
+                                                      LocalDate endedAt,
+                                                      Boolean isCurrent) {
+        return WorkUpdateRequest.builder()
                 .workId(workId)
                 .corporationName(corporationName)
                 .workDescription(workDescription)
@@ -1131,11 +1127,11 @@ class ProfileServiceTest {
                 .build();
     }
 
-    private SkillDefaultRequest createSkillDefaultRequest(Long skillId,
-                                                          String skillName,
-                                                          Boolean isExperienced,
-                                                          String level) {
-        return SkillDefaultRequest.builder()
+    private SkillUpdateRequest createSkillUpdateRequest(Long skillId,
+                                                        String skillName,
+                                                        Boolean isExperienced,
+                                                        String level) {
+        return SkillUpdateRequest.builder()
                 .skillId(skillId)
                 .skillName(skillName)
                 .isExperienced(isExperienced)
@@ -1143,11 +1139,11 @@ class ProfileServiceTest {
                 .build();
     }
 
-    private PortfolioDefaultRequest createPortfolioDefaultRequest(Long portfolioId,
-                                                                  String portfolioName,
-                                                                  String portfolioUrl,
-                                                                  String media) {
-        return PortfolioDefaultRequest.builder()
+    private PortfolioUpdateRequest createPortfolioUpdateRequest(Long portfolioId,
+                                                                String portfolioName,
+                                                                String portfolioUrl,
+                                                                String media) {
+        return PortfolioUpdateRequest.builder()
                 .portfolioId(portfolioId)
                 .portfolioName(portfolioName)
                 .portfolioUrl(portfolioUrl)
@@ -1155,12 +1151,12 @@ class ProfileServiceTest {
                 .build();
     }
 
-    private EducationDefaultRequest createEducationDefaultRequest(Long educationId,
-                                                                  String institutionName,
-                                                                  LocalDate startedAt,
-                                                                  LocalDate endedAt,
-                                                                  Boolean isCurrent) {
-        return EducationDefaultRequest.builder()
+    private EducationUpdateRequest createEducationUpdateRequest(Long educationId,
+                                                                String institutionName,
+                                                                LocalDate startedAt,
+                                                                LocalDate endedAt,
+                                                                Boolean isCurrent) {
+        return EducationUpdateRequest.builder()
                 .educationId(educationId)
                 .institutionName(institutionName)
                 .startedAt(startedAt)

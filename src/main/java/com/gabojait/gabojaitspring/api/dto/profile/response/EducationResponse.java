@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @ToString
-@ApiModel(value = "학력 기본 응답")
-public class EducationDefaultResponse {
+@ApiModel(value = "학력 응답")
+public class EducationResponse {
 
     @ApiModelProperty(position = 1, required = true, value = "학력 식별자")
     private Long educationId;
@@ -40,7 +40,7 @@ public class EducationDefaultResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    public EducationDefaultResponse(Education education) {
+    public EducationResponse(Education education) {
         this.educationId = education.getId();
         this.institutionName = education.getInstitutionName();
         this.startedAt = education.getStartedAt();

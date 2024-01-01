@@ -1,7 +1,6 @@
 package com.gabojait.gabojaitspring.api.dto.offer.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.gabojait.gabojaitspring.api.dto.profile.response.ProfileAbstractResponse;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
 import com.gabojait.gabojaitspring.domain.offer.OfferedBy;
 import com.gabojait.gabojaitspring.domain.profile.Skill;
@@ -41,7 +40,7 @@ public class OfferDefaultResponse {
     private LocalDateTime updatedAt;
 
     @ApiModelProperty(position = 7, required = true, value = "회원")
-    private ProfileAbstractResponse user;
+    private OfferUserResponse user;
 
     @ApiModelProperty(position = 8, required = true, value = "팀")
     private OfferTeamResponse team;
@@ -54,7 +53,7 @@ public class OfferDefaultResponse {
         this.createdAt = offer.getCreatedAt();
         this.updatedAt = offer.getUpdatedAt();
 
-        this.user = new ProfileAbstractResponse(offer.getUser(), skills);
+        this.user = new OfferUserResponse(offer.getUser(), skills);
         this.team = new OfferTeamResponse(offer.getTeam());
     }
 }

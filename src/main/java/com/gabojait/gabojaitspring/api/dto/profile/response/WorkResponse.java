@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @ToString
-@ApiModel(value = "경력 기본 응답")
-public class WorkDefaultResponse {
+@ApiModel(value = "경력 응답")
+public class WorkResponse {
 
     @ApiModelProperty(position = 1, required = true, value = "경력 식별자")
     private Long workId;
@@ -43,7 +43,7 @@ public class WorkDefaultResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    public WorkDefaultResponse(Work work) {
+    public WorkResponse(Work work) {
         this.workId = work.getId();
         this.corporationName = work.getCorporationName();
         this.workDescription = work.getWorkDescription();

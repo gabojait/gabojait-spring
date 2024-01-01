@@ -1,13 +1,12 @@
 package com.gabojait.gabojaitspring.api.dto.profile.request;
 
-import com.gabojait.gabojaitspring.api.dto.common.ValidationSequence;
 import com.gabojait.gabojaitspring.domain.profile.Level;
 import com.gabojait.gabojaitspring.domain.profile.Skill;
 import com.gabojait.gabojaitspring.domain.user.User;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
-import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -18,29 +17,24 @@ import java.util.Objects;
 @Setter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@GroupSequence({SkillDefaultRequest.class,
-        ValidationSequence.Blank.class,
-        ValidationSequence.Size.class,
-        ValidationSequence.Format.class})
-public class SkillDefaultRequest {
+@ApiModel(value = "기술 업데이트 요청")
+public class SkillUpdateRequest {
 
     @ApiModelProperty(position = 1, required = true, value = "기술 식별자")
     private Long skillId;
 
     @ApiModelProperty(position = 2, required = true, value = "기술명", example = "스프링")
-    @NotBlank(message = "기술명은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-    @Size(min = 1, max = 20, message = "기술명은 1~20자만 가능합니다.", groups = ValidationSequence.Size.class)
+    @Size(min = 1, max = 20, message = "기술명은 1~20자만 가능합니다.")
     private String skillName;
 
     @ApiModelProperty(position = 3, required = true, value = "경험 여부", example = "true",
             allowableValues = "true, false")
-    @NotNull(message = "경험 여부는 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+    @NotNull(message = "경험 여부는 필수 입력입니다.")
     private Boolean isExperienced;
 
     @ApiModelProperty(position = 4, required = true, value = "레벨", example = "LOW", allowableValues = "LOW, MID, HIGH")
-    @NotBlank(message = "레벨은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
-    @Pattern(regexp = "^(LOW|MID|HIGH)", message = "레벨은 'LOW', 'MID', 또는 'HIGH' 중 하나여야 됩니다.",
-            groups = ValidationSequence.Format.class)
+    @NotBlank(message = "레벨은 필수 입력입니다.")
+    @Pattern(regexp = "^(LOW|MID|HIGH)", message = "레벨은 'LOW', 'MID', 또는 'HIGH' 중 하나여야 됩니다.")
     private String level;
 
     public Skill toEntity(User user) {
@@ -53,7 +47,7 @@ public class SkillDefaultRequest {
     }
 
     @Builder
-    private SkillDefaultRequest(Long skillId, String skillName, Boolean isExperienced, String level) {
+    private SkillUpdateRequest(Long skillId, String skillName, Boolean isExperienced, String level) {
         this.skillId = skillId;
         this.skillName = skillName;
         this.isExperienced = isExperienced;
@@ -64,7 +58,7 @@ public class SkillDefaultRequest {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        SkillDefaultRequest that = (SkillDefaultRequest) o;
+        SkillUpdateRequest that = (SkillUpdateRequest) o;
         return Objects.equals(skillId, that.skillId)
                 && Objects.equals(skillName, that.skillName)
                 && level == that.level

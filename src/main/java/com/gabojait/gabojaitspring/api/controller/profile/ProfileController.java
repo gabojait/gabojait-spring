@@ -1,17 +1,13 @@
 package com.gabojait.gabojaitspring.api.controller.profile;
 
-import com.gabojait.gabojaitspring.api.dto.common.ValidationSequence;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultMultiResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultNoResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultSingleResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
-import com.gabojait.gabojaitspring.api.dto.profile.request.ProfileDefaultRequest;
-import com.gabojait.gabojaitspring.api.dto.profile.request.ProfileDescriptionUpdateRequest;
+import com.gabojait.gabojaitspring.api.dto.profile.request.ProfileDescriptionRequest;
 import com.gabojait.gabojaitspring.api.dto.profile.request.ProfileIsSeekRequest;
-import com.gabojait.gabojaitspring.api.dto.profile.response.PortfolioUrlResponse;
-import com.gabojait.gabojaitspring.api.dto.profile.response.ProfileDefaultResponse;
-import com.gabojait.gabojaitspring.api.dto.profile.response.ProfileDetailResponse;
-import com.gabojait.gabojaitspring.api.dto.profile.response.ProfileOfferResponse;
+import com.gabojait.gabojaitspring.api.dto.profile.request.ProfileUpdateRequest;
+import com.gabojait.gabojaitspring.api.dto.profile.response.*;
 import com.gabojait.gabojaitspring.api.service.profile.ProfileService;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.domain.user.Position;
@@ -30,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.GroupSequence;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
@@ -41,10 +36,6 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "프로필")
 @Validated
-@GroupSequence({ProfileController.class,
-        ValidationSequence.Blank.class,
-        ValidationSequence.Size.class,
-        ValidationSequence.Format.class})
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
@@ -63,7 +54,7 @@ public class ProfileController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = ProfileDefaultResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ProfileFindMyselfResponse.class))),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "404", description = "NOT FOUND"),
@@ -74,7 +65,7 @@ public class ProfileController {
     public ResponseEntity<DefaultSingleResponse<Object>> findMyself(HttpServletRequest servletRequest) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        ProfileDefaultResponse response = profileService.findMyProfile(username);
+        ProfileFindMyselfResponse response = profileService.findMyProfile(username);
 
         return ResponseEntity.status(SELF_PROFILE_FOUND.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -97,7 +88,7 @@ public class ProfileController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = ProfileDetailResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ProfileFindOtherResponse.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -109,12 +100,12 @@ public class ProfileController {
     public ResponseEntity<DefaultSingleResponse<Object>> findOther(
             HttpServletRequest servletRequest,
             @PathVariable(value = "user-id")
-            @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "회원 식별자는 양수만 가능합니다.")
             Long userId
     ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        ProfileDetailResponse response = profileService.findOtherProfile(username, userId);
+        ProfileFindOtherResponse response = profileService.findOtherProfile(username, userId);
 
         return ResponseEntity.status(PROFILE_FOUND.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -139,7 +130,7 @@ public class ProfileController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = ProfileDefaultResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ProfileImageResponse.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -152,12 +143,14 @@ public class ProfileController {
     @PostMapping(value = "/image",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DefaultSingleResponse<Object>> uploadProfileImage(HttpServletRequest servletRequest,
-                                                                          @RequestPart(value = "image", required = false)
-                                                                          MultipartFile image) {
+    public ResponseEntity<DefaultSingleResponse<Object>> uploadProfileImage(
+            HttpServletRequest servletRequest,
+            @RequestPart(value = "image", required = false)
+            MultipartFile image
+    ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        ProfileDefaultResponse response = profileService.uploadProfileImage(username, image);
+        ProfileImageResponse response = profileService.uploadProfileImage(username, image);
 
         return ResponseEntity.status(PROFILE_IMAGE_UPLOADED.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -177,7 +170,7 @@ public class ProfileController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = ProfileDefaultResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ProfileImageResponse.class))),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
             @ApiResponse(responseCode = "404", description = "NOT FOUND"),
@@ -188,7 +181,7 @@ public class ProfileController {
     public ResponseEntity<DefaultSingleResponse<Object>> deleteProfileImage(HttpServletRequest servletRequest) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        ProfileDefaultResponse response = profileService.deleteProfileImage(username);
+        ProfileImageResponse response = profileService.deleteProfileImage(username);
 
         return ResponseEntity.status(PROFILE_IMAGE_DELETED.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -254,7 +247,7 @@ public class ProfileController {
     @PatchMapping("/description")
     public ResponseEntity<DefaultNoResponse> updateDescription(HttpServletRequest servletRequest,
                                                                 @RequestBody @Valid
-                                                                ProfileDescriptionUpdateRequest request) {
+                                                                ProfileDescriptionRequest request) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         profileService.updateProfileDescription(username, request.getProfileDescription());
@@ -269,12 +262,10 @@ public class ProfileController {
     @ApiOperation(value = "프로필 업데이트",
             notes = "<응답 코드>\n" +
                     "- 200 = PROFILE_UPDATED\n" +
-                    "- 400 = POSITION_FIELD_REQUIRED || POSITION_TYPE_INVALID || SKILL_NAME_FIELD_REQUIRED || " +
-                    "SKILL_NAME_LENGTH_INVALID || IS_EXPERIENCED_FIELD_REQUIRED || LEVEL_FIELD_REQUIRED || " +
-                    "LEVEL_TYPE_INVALID || INSTITUTION_NAME_FIELD_REQUIRED || INSTITUTION_NAME_LENGTH_INVALID || " +
-                    "STARTED_AT_FIELD_REQUIRED || IS_CURRENT_FIELD_REQUIRED || CORPORATION_NAME_FIELD_REQUIRED || " +
-                    "CORPORATION_NAME_LENGTH_INVALID || WORK_DESCRIPTION_LENGTH_INVALID || " +
-                    "PORTFOLIO_NAME_FIELD_REQUIRED || PORTFOLIO_NAME_LENGTH_INVALID || " +
+                    "- 400 = POSITION_TYPE_INVALID || SKILL_NAME_LENGTH_INVALID || IS_EXPERIENCED_FIELD_REQUIRED || " +
+                    "LEVEL_FIELD_REQUIRED || LEVEL_TYPE_INVALID || INSTITUTION_NAME_LENGTH_INVALID || " +
+                    "STARTED_AT_FIELD_REQUIRED || IS_CURRENT_FIELD_REQUIRED || CORPORATION_NAME_LENGTH_INVALID || " +
+                    "WORK_DESCRIPTION_LENGTH_INVALID || PORTFOLIO_NAME_LENGTH_INVALID || " +
                     "PORTFOLIO_URL_FIELD_REQUIRED || PORTFOLIO_URL_LENGTH_INVALID || MEDIA_FIELD_REQUIRED || " +
                     "MEDIA_TYPE_INVALID || EDUCATION_DATE_INVALID || EDUCATION_ENDED_AT_FIELD_REQUIRED || " +
                     "WORK_DATE_INVALID || WORK_ENDED_AT_FIELD_REQUIRED\n" +
@@ -285,7 +276,7 @@ public class ProfileController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = ProfileDefaultResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ProfileUpdateResponse.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -296,10 +287,10 @@ public class ProfileController {
     @PostMapping("/profile")
     public ResponseEntity<DefaultSingleResponse<Object>> updateProfile(HttpServletRequest servletRequest,
                                                                        @RequestBody @Valid
-                                                                       ProfileDefaultRequest request) {
+                                                                       ProfileUpdateRequest request) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        ProfileDefaultResponse response = profileService.updateProfile(username, request);
+        ProfileUpdateResponse response = profileService.updateProfile(username, request);
 
         return ResponseEntity.status(PROFILE_UPDATED.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -336,9 +327,11 @@ public class ProfileController {
     @PostMapping(value = "/portfolio/file",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DefaultSingleResponse<Object>> uploadPortfolioFile(HttpServletRequest servletRequest,
-                                                                             @RequestPart(value = "file", required = false)
-                                                                             MultipartFile file) {
+    public ResponseEntity<DefaultSingleResponse<Object>> uploadPortfolioFile(
+            HttpServletRequest servletRequest,
+            @RequestPart(value = "file", required = false)
+            MultipartFile file
+    ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
         PortfolioUrlResponse response = profileService.uploadPortfolioFile(username, file);
@@ -367,7 +360,7 @@ public class ProfileController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = ProfileOfferResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ProfilePageResponse.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -380,20 +373,19 @@ public class ProfileController {
             HttpServletRequest servletRequest,
             @RequestParam(value = "position", required = false, defaultValue = "NONE")
             @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE)",
-                    message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다.",
-                    groups = ValidationSequence.Format.class)
+                    message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다.")
             String position,
             @RequestParam(value = "page-from", required = false, defaultValue = "9223372036854775806")
-            @Positive(message = "페이지 시작점은 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 시작점은 양수만 가능합니다.")
             Long pageFrom,
             @RequestParam(value = "page-size", required = false, defaultValue = "20")
-            @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
+            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.")
             Integer pageSize
     ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        PageData<List<ProfileOfferResponse>> responses = profileService.findPageUser(username, Position.valueOf(position),
+        PageData<List<ProfilePageResponse>> responses = profileService.findPageUser(username, Position.valueOf(position),
                  pageFrom, pageSize);
 
         return ResponseEntity.status(USERS_SEEKING_TEAM_FOUND.getHttpStatus())

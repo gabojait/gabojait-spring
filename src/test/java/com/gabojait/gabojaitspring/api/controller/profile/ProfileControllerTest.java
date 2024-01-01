@@ -188,7 +188,7 @@ class ProfileControllerTest {
     @DisplayName("자기소개 업데이트를 하면 200을 반환한다.")
     void givenValid_whenUpdateDescription_thenReturn200() throws Exception {
         // given
-        ProfileDescriptionUpdateRequest request = createValidProfileDescriptionUpdateRequest();
+        ProfileDescriptionRequest request = createValidProfileDescriptionRequest();
 
         // when
         ResultActions actions = mockMvc.perform(
@@ -210,7 +210,7 @@ class ProfileControllerTest {
     @DisplayName("자기소개 200자 초과일시 자기소개 업데이트를 하면 400을 반환한다.")
     void givenMoreThan200SizeProfileDescription_whenUpdateDescription_thenReturn400() throws Exception {
         // given
-        ProfileDescriptionUpdateRequest request = createValidProfileDescriptionUpdateRequest();
+        ProfileDescriptionRequest request = createValidProfileDescriptionRequest();
         request.setProfileDescription("가".repeat(200));
 
         // when
@@ -233,7 +233,7 @@ class ProfileControllerTest {
     @DisplayName("프로필 업데이트를 하면 200을 반환한다.")
     void givenValid_whenUpdateProfile_thenReturn200() throws Exception {
         // given
-        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
 
         // when
         ResultActions actions = mockMvc.perform(
@@ -252,33 +252,10 @@ class ProfileControllerTest {
     }
 
     @Test
-    @DisplayName("포지션 미입력시 프로필 업데이트를 하면 400을 반환한다.")
-    void givenBlankPosition_whenUpdateProfile_thenReturn400() throws Exception {
-        // given
-        ProfileDefaultRequest request = createValidProfileDefaultRequest();
-        request.setPosition("");
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                post("/api/v1/user/profile")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(POSITION_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(POSITION_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
     @DisplayName("잘못된 포지션 타입일시 프로필 업데이트를 하면 400을 반환한다.")
     void givenFormatPosition_whenUpdateProfile_thenReturn400() throws Exception {
         // given
-        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.setPosition("OPERATOR");
 
         // when
@@ -298,33 +275,10 @@ class ProfileControllerTest {
     }
 
     @Test
-    @DisplayName("기술명 미입력시 프로필 업데이트를 하면 400을 반환한다.")
-    void givenBlankSkillName_whenUpdateProfile_thenReturn400() throws Exception {
-        // given
-        ProfileDefaultRequest request = createValidProfileDefaultRequest();
-        request.getSkills().get(0).setSkillName("");
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                post("/api/v1/user/profile")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(SKILL_NAME_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(SKILL_NAME_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
     @DisplayName("기술명 20자 초과일시 프로필 업데이트를 하면 400을 반환한다.")
     void givenGreaterThan20SkillName_whenUpdateProfile_thenReturn400() throws Exception {
         // given
-        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getSkills().get(0).setSkillName("가".repeat(21));
 
         // when
@@ -347,7 +301,7 @@ class ProfileControllerTest {
     @DisplayName("경험 여부 미입력시 프로필 업데이트를 하면 400을 반환한다.")
     void givenBlankIsExperienced_whenUpdateProfile_thenReturn400() throws Exception {
         // given
-        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getSkills().get(0).setIsExperienced(null);
 
         // when
@@ -370,7 +324,7 @@ class ProfileControllerTest {
     @DisplayName("레벨 미입력시 프로필 업데이트를 하면 400을 반환한다.")
     void givenBlankLevel_whenUpdateProfile_thenReturn400() throws Exception {
         // given
-        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getSkills().get(0).setLevel(null);
 
         // when
@@ -390,10 +344,10 @@ class ProfileControllerTest {
     }
 
     @Test
-    @DisplayName("올바르지 않은 레벨로로 프로필 업데이트를 하면 400을 반환한다.")
+    @DisplayName("올바르지 않은 레벨로 프로필 업데이트를 하면 400을 반환한다.")
     void givenFormatLevel_whenUpdateProfile_thenReturn400() throws Exception {
         // given
-        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getSkills().get(0).setLevel("GOOD");
 
         // when
@@ -413,33 +367,10 @@ class ProfileControllerTest {
     }
 
     @Test
-    @DisplayName("학교명 미입력시 프로필 업데이트를 하면 400을 반환한다.")
-    void givenBlankInstitutionName_whenUpdateProfile_thenReturn400() throws Exception {
-        // given
-        ProfileDefaultRequest request = createValidProfileDefaultRequest();
-        request.getEducations().get(0).setInstitutionName("");
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                post("/api/v1/user/profile")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(INSTITUTION_NAME_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(INSTITUTION_NAME_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
     @DisplayName("학교명 3자 미만일시 프로필 업데이트를 하면 400을 반환한다.")
     void givenLessThan3InstitutionName_whenUpdateProfile_thenReturn400() throws Exception {
         // given
-        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getEducations().get(0).setInstitutionName("대학");
 
         // when
@@ -462,7 +393,7 @@ class ProfileControllerTest {
     @DisplayName("학교명 3자 미만일시 프로필 업데이트를 하면 400을 반환한다.")
     void givenGreaterThan20InstitutionName_whenUpdateProfile_thenReturn400() throws Exception {
         // given
-        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getEducations().get(0).setInstitutionName("대".repeat(21));
 
         // when
@@ -485,7 +416,7 @@ class ProfileControllerTest {
     @DisplayName("시작일 미입력시 프로필 업데이트를 하면 400을 반환한다.")
     void givenBlankStartedAt_whenUpdateProfile_thenReturn400() throws Exception {
         // given
-        ProfileDefaultRequest request = createValidProfileDefaultRequest();
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getEducations().get(0).setStartedAt(null);
 
         // when
@@ -627,18 +558,18 @@ class ProfileControllerTest {
                         .value(PAGE_SIZE_RANGE_INVALID.getMessage()));
     }
 
-    private ProfileDefaultRequest createValidProfileDefaultRequest() {
-        return ProfileDefaultRequest.builder()
+    private ProfileUpdateRequest createValidProfileUpdateRequest() {
+        return ProfileUpdateRequest.builder()
                 .position(Position.BACKEND.toString())
-                .educations(List.of(createValidEducationDefaultRequest()))
-                .portfolios(List.of(createValidPortfolioDefaultRequest()))
-                .skills(List.of(createValidSkillDefaultRequest()))
-                .works(List.of(createValidWorkDefaultRequest()))
+                .educations(List.of(createValidEducationUpdateRequest()))
+                .portfolios(List.of(createValidPortfolioUpdateRequest()))
+                .skills(List.of(createValidSkillUpdateRequest()))
+                .works(List.of(createValidWorkUpdateRequest()))
                 .build();
     }
 
-    private EducationDefaultRequest createValidEducationDefaultRequest() {
-        return EducationDefaultRequest.builder()
+    private EducationUpdateRequest createValidEducationUpdateRequest() {
+        return EducationUpdateRequest.builder()
                 .institutionName("가보자잇대")
                 .startedAt(LocalDate.of(2000, 1, 1))
                 .endedAt(LocalDate.of(2001, 1, 1))
@@ -646,24 +577,24 @@ class ProfileControllerTest {
                 .build();
     }
 
-    private PortfolioDefaultRequest createValidPortfolioDefaultRequest() {
-        return PortfolioDefaultRequest.builder()
+    private PortfolioUpdateRequest createValidPortfolioUpdateRequest() {
+        return PortfolioUpdateRequest.builder()
                 .portfolioName("깃허브")
                 .portfolioUrl("github.com/gabojait")
                 .media(Media.LINK.toString())
                 .build();
     }
 
-    private SkillDefaultRequest createValidSkillDefaultRequest() {
-        return SkillDefaultRequest.builder()
+    private SkillUpdateRequest createValidSkillUpdateRequest() {
+        return SkillUpdateRequest.builder()
                 .skillName("스프링")
                 .isExperienced(true)
                 .level(Level.HIGH.toString())
                 .build();
     }
 
-    private WorkDefaultRequest createValidWorkDefaultRequest() {
-        return WorkDefaultRequest.builder()
+    private WorkUpdateRequest createValidWorkUpdateRequest() {
+        return WorkUpdateRequest.builder()
                 .corporationName("가보자잇사")
                 .workDescription("백엔드 개발")
                 .startedAt(LocalDate.of(2000, 1, 1))
@@ -672,8 +603,8 @@ class ProfileControllerTest {
                 .build();
     }
 
-    private ProfileDescriptionUpdateRequest createValidProfileDescriptionUpdateRequest() {
-        return ProfileDescriptionUpdateRequest.builder()
+    private ProfileDescriptionRequest createValidProfileDescriptionRequest() {
+        return ProfileDescriptionRequest.builder()
                 .profileDescription("안녕하세요.")
                 .build();
     }

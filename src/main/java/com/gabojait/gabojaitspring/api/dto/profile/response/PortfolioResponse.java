@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @ToString
-@ApiModel(value = "포트폴리오 기본 응답")
-public class PortfolioDefaultResponse {
+@ApiModel(value = "포트폴리오 응답")
+public class PortfolioResponse {
 
     @ApiModelProperty(position = 1, required = true, value = "포트폴리오 식별자")
     private Long portfolioId;
@@ -35,7 +35,7 @@ public class PortfolioDefaultResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    public PortfolioDefaultResponse(Portfolio portfolio) {
+    public PortfolioResponse(Portfolio portfolio) {
         this.portfolioId = portfolio.getId();
         this.portfolioName = portfolio.getPortfolioName();
         this.portfolioUrl = portfolio.getPortfolioUrl();

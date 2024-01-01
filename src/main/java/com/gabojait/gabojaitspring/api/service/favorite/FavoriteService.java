@@ -2,8 +2,8 @@ package com.gabojait.gabojaitspring.api.service.favorite;
 
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.favorite.request.FavoriteDefaultRequest;
-import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteTeamResponse;
-import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteUserResponse;
+import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteTeamPageResponse;
+import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteUserPageResponse;
 import com.gabojait.gabojaitspring.domain.favorite.Favorite;
 import com.gabojait.gabojaitspring.domain.profile.Skill;
 import com.gabojait.gabojaitspring.domain.team.Team;
@@ -94,9 +94,9 @@ public class FavoriteService {
      * @param username 회원 아이디
      * @param pageFrom 페이지 시작점
      * @param pageSize 페이지 크기
-     * @return 찜한 회원 응답들
+     * @return 찜한 회원 페이지 응답들
      */
-    public PageData<List<FavoriteUserResponse>> findPageFavoriteUser(String username, long pageFrom, int pageSize) {
+    public PageData<List<FavoriteUserPageResponse>> findPageFavoriteUser(String username, long pageFrom, int pageSize) {
         User user = findUser(username);
 
         Page<Favorite> favorites = favoriteRepository.findPageUser(user.getId(), pageFrom, pageSize);
@@ -106,8 +106,9 @@ public class FavoriteService {
         Map<Long, List<Skill>> sMap = skills.stream()
                 .collect(Collectors.groupingBy(s -> s.getUser().getId()));
 
-        List<FavoriteUserResponse> responses = favorites.stream()
-                .map(f -> new FavoriteUserResponse(f, sMap.getOrDefault(f.getFavoriteUser().getId(), Collections.emptyList())))
+        List<FavoriteUserPageResponse> responses = favorites.stream()
+                .map(f -> new FavoriteUserPageResponse(f,
+                        sMap.getOrDefault(f.getFavoriteUser().getId(), Collections.emptyList())))
                 .collect(Collectors.toList());
 
         return new PageData<>(responses, favorites.getTotalElements());
@@ -119,15 +120,15 @@ public class FavoriteService {
      * @param username 회원 아이디
      * @param pageFrom 페이지 시작점
      * @param pageSize 페이지 크기
-     * @return 찜한 팀 응답들
+     * @return 찜한 팀 페이지 응답들
      */
-    public PageData<List<FavoriteTeamResponse>> findPageFavoriteTeam(String username, long pageFrom, int pageSize) {
+    public PageData<List<FavoriteTeamPageResponse>> findPageFavoriteTeam(String username, long pageFrom, int pageSize) {
         User user = findUser(username);
 
         Page<Favorite> favorites = favoriteRepository.findPageTeam(user.getId(), pageFrom, pageSize);
 
-        List<FavoriteTeamResponse> responses = favorites.stream()
-                .map(FavoriteTeamResponse::new)
+        List<FavoriteTeamPageResponse> responses = favorites.stream()
+                .map(FavoriteTeamPageResponse::new)
                 .collect(Collectors.toList());
 
         return new PageData<>(responses, favorites.getTotalElements());

@@ -5,9 +5,8 @@ import com.gabojait.gabojaitspring.api.dto.common.response.DefaultMultiResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultNoResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.favorite.request.FavoriteDefaultRequest;
-import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteTeamResponse;
-import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteUserResponse;
-import com.gabojait.gabojaitspring.api.dto.profile.response.ProfileAbstractResponse;
+import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteTeamPageResponse;
+import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteUserPageResponse;
 import com.gabojait.gabojaitspring.api.service.favorite.FavoriteService;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import io.swagger.annotations.Api;
@@ -156,7 +155,7 @@ public class FavoriteController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = ProfileAbstractResponse.class))),
+                    content = @Content(schema = @Schema(implementation = FavoriteUserPageResponse.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -177,7 +176,7 @@ public class FavoriteController {
     ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        PageData<List<FavoriteUserResponse>> responses = favoriteService.findPageFavoriteUser(username, pageFrom,
+        PageData<List<FavoriteUserPageResponse>> responses = favoriteService.findPageFavoriteUser(username, pageFrom,
                 pageSize);
 
         return ResponseEntity.status(FAVORITE_USERS_FOUND.getHttpStatus())
@@ -202,7 +201,7 @@ public class FavoriteController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = ProfileAbstractResponse.class))),
+                    content = @Content(schema = @Schema(implementation = FavoriteTeamPageResponse.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -223,7 +222,7 @@ public class FavoriteController {
     ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        PageData<List<FavoriteTeamResponse>> responses = favoriteService.findPageFavoriteTeam(username, pageFrom,
+        PageData<List<FavoriteTeamPageResponse>> responses = favoriteService.findPageFavoriteTeam(username, pageFrom,
                 pageSize);
 
         return ResponseEntity.status(FAVORITE_TEAMS_FOUND.getHttpStatus())

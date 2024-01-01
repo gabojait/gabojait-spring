@@ -2,8 +2,9 @@ package com.gabojait.gabojaitspring.config;
 
 import com.fasterxml.classmate.TypeResolver;
 import com.gabojait.gabojaitspring.api.dto.common.response.*;
-import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteTeamResponse;
-import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteUserResponse;
+import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteSkillResponse;
+import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteTeamPageResponse;
+import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteUserPageResponse;
 import com.gabojait.gabojaitspring.api.dto.notification.response.NotificationDefaultResponse;
 import com.gabojait.gabojaitspring.api.dto.offer.response.OfferAbstractResponse;
 import com.gabojait.gabojaitspring.api.dto.offer.response.OfferDefaultResponse;
@@ -11,7 +12,6 @@ import com.gabojait.gabojaitspring.api.dto.profile.response.*;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindAllTeamResponse;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindTeamResponse;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewPageResponse;
-import com.gabojait.gabojaitspring.api.dto.team.request.TeamUpdateRequest;
 import com.gabojait.gabojaitspring.api.dto.team.response.*;
 import com.gabojait.gabojaitspring.api.dto.user.response.*;
 import org.springframework.context.annotation.Bean;
@@ -52,30 +52,34 @@ public class SwaggerConfig {
                 .additionalModels(typeResolver.resolve(UserLoginResponse.class))
                 .additionalModels(typeResolver.resolve(UserFindMyselfResponse.class))
                 .additionalModels(typeResolver.resolve(UserContactResponse.class))
-                .additionalModels(typeResolver.resolve(EducationDefaultResponse.class))
-                .additionalModels(typeResolver.resolve(PortfolioDefaultResponse.class))
-                .additionalModels(typeResolver.resolve(PortfolioUrlResponse.class))
-                .additionalModels(typeResolver.resolve(SkillDefaultResponse.class))
-                .additionalModels(typeResolver.resolve(WorkDefaultResponse.class))
-                .additionalModels(typeResolver.resolve(ProfileAbstractResponse.class))
-                .additionalModels(typeResolver.resolve(ProfileDefaultResponse.class))
-                .additionalModels(typeResolver.resolve(ProfileDetailResponse.class))
-                .additionalModels(typeResolver.resolve(ProfileOfferResponse.class))
+                .additionalModels(typeResolver.resolve(EducationResponse.class))
+                .additionalModels(typeResolver.resolve(PortfolioResponse.class))
+                .additionalModels(typeResolver.resolve(SkillResponse.class))
+                .additionalModels(typeResolver.resolve(WorkResponse.class))
+                .additionalModels(typeResolver.resolve(PortfolioResponse.class))
                 .additionalModels(typeResolver.resolve(ProfileReviewResponse.class))
+                .additionalModels(typeResolver.resolve(ProfileTeamResponse.class))
+                .additionalModels(typeResolver.resolve(ProfileOfferResponse.class))
+                .additionalModels(typeResolver.resolve(PortfolioUrlResponse.class))
+                .additionalModels(typeResolver.resolve(ProfileFindMyselfResponse.class))
+                .additionalModels(typeResolver.resolve(ProfileFindOtherResponse.class))
+                .additionalModels(typeResolver.resolve(ProfileImageResponse.class))
+                .additionalModels(typeResolver.resolve(ProfileUpdateResponse.class))
                 .additionalModels(typeResolver.resolve(TeamCreateResponse.class))
                 .additionalModels(typeResolver.resolve(TeamFindResponse.class))
                 .additionalModels(typeResolver.resolve(TeamMemberResponse.class))
                 .additionalModels(typeResolver.resolve(TeamMyCurrentResponse.class))
                 .additionalModels(typeResolver.resolve(TeamPageResponse.class))
-                .additionalModels(typeResolver.resolve(TeamUpdateRequest.class))
+                .additionalModels(typeResolver.resolve(TeamUpdateResponse.class))
                 .additionalModels(typeResolver.resolve(ReviewFindAllTeamResponse.class))
                 .additionalModels(typeResolver.resolve(ReviewFindTeamResponse.class))
                 .additionalModels(typeResolver.resolve(ReviewPageResponse.class))
                 .additionalModels(typeResolver.resolve(OfferAbstractResponse.class))
                 .additionalModels(typeResolver.resolve(OfferDefaultResponse.class))
                 .additionalModels(typeResolver.resolve(NotificationDefaultResponse.class))
-                .additionalModels(typeResolver.resolve(FavoriteTeamResponse.class))
-                .additionalModels(typeResolver.resolve(FavoriteUserResponse.class))
+                .additionalModels(typeResolver.resolve(FavoriteTeamPageResponse.class))
+                .additionalModels(typeResolver.resolve(FavoriteUserPageResponse.class))
+                .additionalModels(typeResolver.resolve(FavoriteSkillResponse.class))
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo())
                 .securityContexts(Collections.singletonList(securityContext()))
