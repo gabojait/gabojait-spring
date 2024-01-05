@@ -275,8 +275,8 @@ class ProfileControllerTest {
     }
 
     @Test
-    @DisplayName("기술명 20자 초과일시 프로필 업데이트를 하면 400을 반환한다.")
-    void givenGreaterThan20SkillName_whenUpdateProfile_thenReturn400() throws Exception {
+    @DisplayName("기술에 기술명 20자 초과일시 프로필 업데이트를 하면 400을 반환한다.")
+    void givenGreaterThan20SkillSkillName_whenUpdateProfile_thenReturn400() throws Exception {
         // given
         ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getSkills().get(0).setSkillName("가".repeat(21));
@@ -298,8 +298,8 @@ class ProfileControllerTest {
     }
 
     @Test
-    @DisplayName("경험 여부 미입력시 프로필 업데이트를 하면 400을 반환한다.")
-    void givenBlankIsExperienced_whenUpdateProfile_thenReturn400() throws Exception {
+    @DisplayName("기술에 경험 여부 미입력시 프로필 업데이트를 하면 400을 반환한다.")
+    void givenBlankSkillIsExperienced_whenUpdateProfile_thenReturn400() throws Exception {
         // given
         ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getSkills().get(0).setIsExperienced(null);
@@ -321,8 +321,8 @@ class ProfileControllerTest {
     }
 
     @Test
-    @DisplayName("올바르지 않은 레벨로 프로필 업데이트를 하면 400을 반환한다.")
-    void givenFormatLevel_whenUpdateProfile_thenReturn400() throws Exception {
+    @DisplayName("기술에 올바르지 않은 레벨로 프로필 업데이트를 하면 400을 반환한다.")
+    void givenFormatSkillLevel_whenUpdateProfile_thenReturn400() throws Exception {
         // given
         ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getSkills().get(0).setLevel("GOOD");
@@ -344,8 +344,8 @@ class ProfileControllerTest {
     }
 
     @Test
-    @DisplayName("학교명 3자 미만일시 프로필 업데이트를 하면 400을 반환한다.")
-    void givenLessThan3InstitutionName_whenUpdateProfile_thenReturn400() throws Exception {
+    @DisplayName("학력에 학교명 3자 미만일시 프로필 업데이트를 하면 400을 반환한다.")
+    void givenLessThan3EducationInstitutionName_whenUpdateProfile_thenReturn400() throws Exception {
         // given
         ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getEducations().get(0).setInstitutionName("대학");
@@ -367,8 +367,8 @@ class ProfileControllerTest {
     }
 
     @Test
-    @DisplayName("학교명 3자 미만일시 프로필 업데이트를 하면 400을 반환한다.")
-    void givenGreaterThan20InstitutionName_whenUpdateProfile_thenReturn400() throws Exception {
+    @DisplayName("학력에 학교명 3자 미만일시 프로필 업데이트를 하면 400을 반환한다.")
+    void givenGreaterThan20EducationInstitutionName_whenUpdateProfile_thenReturn400() throws Exception {
         // given
         ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getEducations().get(0).setInstitutionName("대".repeat(21));
@@ -390,8 +390,8 @@ class ProfileControllerTest {
     }
 
     @Test
-    @DisplayName("시작일 미입력시 프로필 업데이트를 하면 400을 반환한다.")
-    void givenBlankStartedAt_whenUpdateProfile_thenReturn400() throws Exception {
+    @DisplayName("학력에 시작일 미입력시 프로필 업데이트를 하면 400을 반환한다.")
+    void givenBlankEducationStartedAt_whenUpdateProfile_thenReturn400() throws Exception {
         // given
         ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getEducations().get(0).setStartedAt(null);
@@ -413,8 +413,8 @@ class ProfileControllerTest {
     }
 
     @Test
-    @DisplayName("현재 여부 미입력시 프로필 업데이트를 하면 400을 반환한다.")
-    void givenBlankIsCurrent_whenUpdateProfile_thenReturn400() throws Exception {
+    @DisplayName("학력에 현재 여부 미입력시 프로필 업데이트를 하면 400을 반환한다.")
+    void givenBlankEducationIsCurrent_whenUpdateProfile_thenReturn400() throws Exception {
         // given
         ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getEducations().get(0).setIsCurrent(null);
