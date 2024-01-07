@@ -482,6 +482,29 @@ class ProfileControllerTest {
     }
 
     @Test
+    @DisplayName("포트폴리오에 포트폴리오 URL이 1자 미만일시 프로필 업데이트를 하면 400을 반환한다.")
+    void givenPortfolioLessThan1PortfolioUrl_whenUpdateProfile_thenReturn400() throws Exception {
+        // given
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
+        request.getPortfolios().get(0).setPortfolioUrl("");
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                post("/api/v1/user/profile")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(PORTFOLIO_URL_LENGTH_INVALID.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(PORTFOLIO_URL_LENGTH_INVALID.getMessage()));
+    }
+
+    @Test
     @DisplayName("파일 포트폴리오를 하면 200을 반환한다.")
     void givenValid_whenUploadPortfolioFile_thenReturn200() throws Exception {
         // given
