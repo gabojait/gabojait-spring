@@ -12,8 +12,12 @@ import com.gabojait.gabojaitspring.api.dto.profile.response.*;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindAllTeamResponse;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindTeamResponse;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewPageResponse;
+import com.gabojait.gabojaitspring.api.dto.review.response.ReviewTeamMemberResponse;
 import com.gabojait.gabojaitspring.api.dto.team.response.*;
-import com.gabojait.gabojaitspring.api.dto.user.response.*;
+import com.gabojait.gabojaitspring.api.dto.user.response.UserContactResponse;
+import com.gabojait.gabojaitspring.api.dto.user.response.UserFindMyselfResponse;
+import com.gabojait.gabojaitspring.api.dto.user.response.UserLoginResponse;
+import com.gabojait.gabojaitspring.api.dto.user.response.UserRegisterResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RestController;
@@ -73,6 +77,7 @@ public class SwaggerConfig {
                 .additionalModels(typeResolver.resolve(TeamUpdateResponse.class))
                 .additionalModels(typeResolver.resolve(ReviewFindAllTeamResponse.class))
                 .additionalModels(typeResolver.resolve(ReviewFindTeamResponse.class))
+                .additionalModels(typeResolver.resolve(ReviewTeamMemberResponse.class))
                 .additionalModels(typeResolver.resolve(ReviewPageResponse.class))
                 .additionalModels(typeResolver.resolve(OfferAbstractResponse.class))
                 .additionalModels(typeResolver.resolve(OfferDefaultResponse.class))

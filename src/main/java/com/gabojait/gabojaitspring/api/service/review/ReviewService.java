@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
+import static com.gabojait.gabojaitspring.common.code.ErrorCode.TEAM_MEMBER_NOT_FOUND;
+import static com.gabojait.gabojaitspring.common.code.ErrorCode.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -64,8 +65,10 @@ public class ReviewService {
     public ReviewFindTeamResponse findReviewableTeam(String username, long teamId, LocalDateTime now) {
         User user = findUser(username);
         TeamMember teamMember = findCompleteTeamMember(user.getId(), teamId, now);
+        List<TeamMember> teamMembers = teamMemberRepository.findAllCompleteFetchTeam(teamId);
+        teamMembers.remove(teamMember);
 
-        return new ReviewFindTeamResponse(teamMember.getTeam());
+        return new ReviewFindTeamResponse(teamMember.getTeam(), teamMembers);
     }
 
     /**

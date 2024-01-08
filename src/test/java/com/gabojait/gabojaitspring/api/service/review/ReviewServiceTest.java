@@ -35,8 +35,7 @@ import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -107,30 +106,37 @@ class ReviewServiceTest {
     @DisplayName("리뷰 가능한 팀 조회를 한다.")
     void givenValid_whenFindReviewableTeam_thenReturn() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.MANAGER);
+        User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일", Position.MANAGER);
+        User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이", Position.BACKEND);
+        User user3 = createSavedDefaultUser("tester3@gabojait.com", "tester3", "테스터삼", Position.FRONTEND);
         LocalDateTime now = LocalDateTime.now();
 
         Team team = createSavedTeam("가보자잇");
         teamRepository.save(team);
-        TeamMember teamMember = createSavedTeamMember(true, user, team);
-        teamMember.complete("github.com/gabojait", now);
-        teamMemberRepository.save(teamMember);
+        TeamMember teamMember1 = createSavedTeamMember(true, user1, team);
+        TeamMember teamMember2 = createSavedTeamMember(false, user2, team);
+        TeamMember teamMember3 = createSavedTeamMember(false, user3, team);
+        teamMember1.complete("github.com/gabojait", now);
+        teamMember2.complete("github.com/gabojait", now);
+        teamMember3.complete("github.com/gabojait", now);
+        teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3));
 
         // when
-        ReviewFindTeamResponse response = reviewService.findReviewableTeam(user.getUsername(), team.getId(),
-                now);
+        ReviewFindTeamResponse response = reviewService.findReviewableTeam(user1.getUsername(), team.getId(), now);
 
         // then
-        assertThat(response)
-                .extracting("teamId", "projectName", "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt",
-                        "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt",
-                        "createdAt", "updatedAt")
-                .containsExactly(
-                        team.getId(), team.getProjectName(), team.getDesignerCurrentCnt(), team.getBackendCurrentCnt(),
-                        team.getFrontendCurrentCnt(), team.getManagerCurrentCnt(), team.getDesignerMaxCnt(),
-                        team.getBackendMaxCnt(), team.getFrontendMaxCnt(), team.getManagerMaxCnt(), team.getCreatedAt(),
-                        team.getUpdatedAt()
-                );
+        assertAll(() -> assertThat(response)
+                        .extracting("teamId", "projectName")
+                        .containsExactly(team.getId(), team.getProjectName()),
+                () -> assertThat(response.getTeamMembers())
+                        .extracting("userId", "username", "nickname", "position", "isLeader")
+                        .containsExactly(
+                                tuple(user3.getId(), user3.getUsername(), user3.getNickname(),
+                                        teamMember3.getPosition(), teamMember3.getIsLeader()),
+                                tuple(user2.getId(), user2.getUsername(), user2.getNickname(),
+                                        teamMember2.getPosition(), teamMember2.getIsLeader())
+                        )
+        );
     }
 
     @Test
