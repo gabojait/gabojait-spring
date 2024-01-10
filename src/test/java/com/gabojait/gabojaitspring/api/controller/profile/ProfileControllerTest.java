@@ -276,7 +276,7 @@ class ProfileControllerTest {
 
     @Test
     @DisplayName("기술에 기술명 20자 초과일시 프로필 업데이트를 하면 400을 반환한다.")
-    void givenSkillGreaterThan20SkillName_whenUpdateProfile_thenReturn400() throws Exception {
+    void givenSkillGreaterThan20SizeSkillName_whenUpdateProfile_thenReturn400() throws Exception {
         // given
         ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getSkills().get(0).setSkillName("가".repeat(21));
@@ -345,7 +345,7 @@ class ProfileControllerTest {
 
     @Test
     @DisplayName("학력에 학교명 3자 미만일시 프로필 업데이트를 하면 400을 반환한다.")
-    void givenEducationLessThan3InstitutionName_whenUpdateProfile_thenReturn400() throws Exception {
+    void givenEducationLessThan3SizeInstitutionName_whenUpdateProfile_thenReturn400() throws Exception {
         // given
         ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getEducations().get(0).setInstitutionName("대학");
@@ -368,7 +368,7 @@ class ProfileControllerTest {
 
     @Test
     @DisplayName("학력에 학교명 3자 미만일시 프로필 업데이트를 하면 400을 반환한다.")
-    void givenEducationGreaterThan20InstitutionName_whenUpdateProfile_thenReturn400() throws Exception {
+    void givenEducationGreaterThan20SizeInstitutionName_whenUpdateProfile_thenReturn400() throws Exception {
         // given
         ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getEducations().get(0).setInstitutionName("대".repeat(21));
@@ -437,7 +437,7 @@ class ProfileControllerTest {
 
     @Test
     @DisplayName("포트폴리오에 포트폴리오명이 1자 미만일시 프로필 업데이트를 하면 400을 반환한다.")
-    void givenPortfolioLessThan1PortfolioName_whenUpdateProfile_thenReturn400() throws Exception {
+    void givenPortfolioLessThan1SizePortfolioName_whenUpdateProfile_thenReturn400() throws Exception {
         // given
         ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getPortfolios().get(0).setPortfolioName("");
@@ -460,7 +460,7 @@ class ProfileControllerTest {
 
     @Test
     @DisplayName("포트폴리오에 포트폴리오명이 10자 초과일시 프로필 업데이트를 하면 400을 반환한다.")
-    void givenPortfolioGreaterThan10PortfolioName_whenUpdateProfile_thenReturn400() throws Exception {
+    void givenPortfolioGreaterThan10SizePortfolioName_whenUpdateProfile_thenReturn400() throws Exception {
         // given
         ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getPortfolios().get(0).setPortfolioName("a".repeat(11));
@@ -483,10 +483,33 @@ class ProfileControllerTest {
 
     @Test
     @DisplayName("포트폴리오에 포트폴리오 URL이 1자 미만일시 프로필 업데이트를 하면 400을 반환한다.")
-    void givenPortfolioLessThan1PortfolioUrl_whenUpdateProfile_thenReturn400() throws Exception {
+    void givenPortfolioLessThan1SizePortfolioUrl_whenUpdateProfile_thenReturn400() throws Exception {
         // given
         ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getPortfolios().get(0).setPortfolioUrl("");
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                post("/api/v1/user/profile")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(PORTFOLIO_URL_LENGTH_INVALID.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(PORTFOLIO_URL_LENGTH_INVALID.getMessage()));
+    }
+
+    @Test
+    @DisplayName("포트폴리오에 포트폴리오 URL이 1000자 초과일시 프로필 업데이트를 하면 400을 반환한다.")
+    void givenPortfolioGreaterThan1000SizePortfolioUrl_whenUpdateProfile_thenReturn400() throws Exception {
+        // given
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
+        request.getPortfolios().get(0).setPortfolioUrl("a".repeat(1001));
 
         // when
         ResultActions actions = mockMvc.perform(
