@@ -31,7 +31,7 @@ public class PortfolioUpdateRequest {
     private String portfolioUrl;
 
     @ApiModelProperty(position = 3, required = true, value = "미디어", example = "LINK")
-    @Pattern(regexp = "^(LINK|FILE)", message = "미디어는 'LINK' 또는 'FILE'  중 하나여야 됩니다.")
+    @Pattern(regexp = "^(LINK|FILE)", message = "미디어는 'LINK' 또는 'FILE' 중 하나여야 됩니다.")
     private String media;
 
     public Portfolio toEntity(User user) {
