@@ -3,7 +3,7 @@ package com.gabojait.gabojaitspring.api.service.offer;
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.offer.request.OfferCreateRequest;
 import com.gabojait.gabojaitspring.api.dto.offer.request.OfferDecideRequest;
-import com.gabojait.gabojaitspring.api.dto.offer.response.OfferDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.offer.response.OfferPageResponse;
 import com.gabojait.gabojaitspring.api.service.notification.NotificationService;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
 import com.gabojait.gabojaitspring.domain.offer.OfferedBy;
@@ -95,18 +95,18 @@ public class OfferService {
      * @param offeredBy 제안자
      * @param pageFrom 페이지 시작점
      * @param pageSize 페이지 크기
-     * @return 제안 기본 응답들
+     * @return 제안 페이지 응답들
      */
-    public PageData<List<OfferDefaultResponse>> findPageUserOffer(String username,
-                                                                  OfferedBy offeredBy,
-                                                                  long pageFrom,
-                                                                  int pageSize) {
+    public PageData<List<OfferPageResponse>> findPageUserOffer(String username,
+                                                               OfferedBy offeredBy,
+                                                               long pageFrom,
+                                                               int pageSize) {
         User user = findUser(username);
 
         Page<Offer> offers = offerRepository.findPageFetchUser(user.getId(), offeredBy, pageFrom, pageSize);
 
-        List<OfferDefaultResponse> responses = offers.stream()
-                .map(o -> new OfferDefaultResponse(o, List.of()))
+        List<OfferPageResponse> responses = offers.stream()
+                .map(o -> new OfferPageResponse(o, List.of()))
                 .collect(Collectors.toList());
 
         return new PageData<>(responses, offers.getTotalElements());
@@ -121,9 +121,9 @@ public class OfferService {
      * @param offeredBy 제안자
      * @param pageFrom 페이지 시작점
      * @param pageSize 페이지 크기
-     * @return 제안 기본 응답들
+     * @return 제안 페이지 응답들
      */
-    public PageData<List<OfferDefaultResponse>> findPageTeamOffer(String username,
+    public PageData<List<OfferPageResponse>> findPageTeamOffer(String username,
                                                                   Position position,
                                                                   OfferedBy offeredBy,
                                                                   long pageFrom,
@@ -141,9 +141,8 @@ public class OfferService {
         Map<Long, List<Skill>> sMap = skills.stream()
                 .collect(Collectors.groupingBy(s -> s.getUser().getId()));
 
-
-        List<OfferDefaultResponse> responses = offers.stream()
-                .map(o -> new OfferDefaultResponse(o, sMap.getOrDefault(o.getUser().getId(), Collections.emptyList())))
+        List<OfferPageResponse> responses = offers.stream()
+                .map(o -> new OfferPageResponse(o, sMap.getOrDefault(o.getUser().getId(), Collections.emptyList())))
                 .collect(Collectors.toList());
 
         return new PageData<>(responses, offers.getTotalElements());

@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -58,30 +57,6 @@ class OfferControllerTest {
                         .value(OFFERED_BY_USER.name()))
                 .andExpect(jsonPath("$.responseMessage")
                         .value(OFFERED_BY_USER.getMessage()));
-    }
-
-    @Test
-    @DisplayName("포지션 미입력시 회원이 팀에 지원을 하면 400을 반환한다.")
-    void givenBlankPosition_whenUserOffer_thenReturn400() throws Exception {
-        // given
-        OfferCreateRequest request = createValidOfferCreateRequest();
-        request.setOfferPosition("");
-        long teamId = 1L;
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                post("/api/v1/user/team/{team-id}/offer", teamId)
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(OFFER_POSITION_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(OFFER_POSITION_FIELD_REQUIRED.getMessage()));
     }
 
     @Test
@@ -152,30 +127,6 @@ class OfferControllerTest {
                         .value(OFFERED_BY_TEAM.name()))
                 .andExpect(jsonPath("$.responseMessage")
                         .value(OFFERED_BY_TEAM.getMessage()));
-    }
-
-    @Test
-    @DisplayName("포지션 미입력시 팀이 회원에게 스카웃을 하면 400을 반환한다.")
-    void givenBlankPosition_whenTeamOffer_thenReturn400() throws Exception {
-        // given
-        OfferCreateRequest request = createValidOfferCreateRequest();
-        request.setOfferPosition("");
-        long userId = 1L;
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                post("/api/v1/team/user/{user-id}/offer", userId)
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(OFFER_POSITION_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(OFFER_POSITION_FIELD_REQUIRED.getMessage()));
     }
 
     @Test
@@ -324,23 +275,6 @@ class OfferControllerTest {
                         .value(TEAM_RECEIVED_OFFER_FOUND.name()))
                 .andExpect(jsonPath("$.responseMessage")
                         .value(TEAM_RECEIVED_OFFER_FOUND.getMessage()));
-    }
-
-    @Test
-    @DisplayName("포지션 미입력시 팀이 받은 제안 페이징 조회를 하면 400을 반환한다.")
-    void givenBlankPosition_whenFindPageTeamReceivedOffer_thenReturn400() throws Exception {
-        // given & when
-        ResultActions actions = mockMvc.perform(
-                get("/api/v1/team/offer/received")
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(OFFER_POSITION_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(OFFER_POSITION_FIELD_REQUIRED.getMessage()));
     }
 
     @Test
@@ -532,23 +466,6 @@ class OfferControllerTest {
                         .value(TEAM_SENT_OFFER_FOUND.name()))
                 .andExpect(jsonPath("$.responseMessage")
                         .value(TEAM_SENT_OFFER_FOUND.getMessage()));
-    }
-
-    @Test
-    @DisplayName("포지션 미입력시 팀이 보낸 제안 페이징 조회를 하면 400을 반환한다.")
-    void givenBlankPosition_whenFindPageTeamSentOffer_thenReturn400() throws Exception {
-        // given & when
-        ResultActions actions = mockMvc.perform(
-                get("/api/v1/team/offer/sent")
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(OFFER_POSITION_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(OFFER_POSITION_FIELD_REQUIRED.getMessage()));
     }
 
     @Test

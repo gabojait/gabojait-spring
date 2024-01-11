@@ -3,7 +3,7 @@ package com.gabojait.gabojaitspring.api.service.offer;
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.offer.request.OfferCreateRequest;
 import com.gabojait.gabojaitspring.api.dto.offer.request.OfferDecideRequest;
-import com.gabojait.gabojaitspring.api.dto.offer.response.OfferDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.offer.response.OfferPageResponse;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
 import com.gabojait.gabojaitspring.domain.offer.OfferedBy;
 import com.gabojait.gabojaitspring.domain.team.Team;
@@ -34,7 +34,7 @@ import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -251,7 +251,7 @@ class OfferServiceTest {
         int pageSize = 1;
 
         // when
-        PageData<List<OfferDefaultResponse>> responses = offerService.findPageUserOffer(user3.getUsername(), offeredBy,
+        PageData<List<OfferPageResponse>> responses = offerService.findPageUserOffer(user3.getUsername(), offeredBy,
                 pageFrom, pageSize);
 
         // then
@@ -300,7 +300,7 @@ class OfferServiceTest {
         int pageSize = 1;
 
         // when
-        PageData<List<OfferDefaultResponse>> responses = offerService.findPageUserOffer(user3.getUsername(), offeredBy,
+        PageData<List<OfferPageResponse>> responses = offerService.findPageUserOffer(user3.getUsername(), offeredBy,
                 pageFrom, pageSize);
 
         // then
@@ -365,7 +365,7 @@ class OfferServiceTest {
         int pageSize = 1;
 
         // when
-        PageData<List<OfferDefaultResponse>> responses = offerService.findPageTeamOffer(user1.getUsername(), position,
+        PageData<List<OfferPageResponse>> responses = offerService.findPageTeamOffer(user1.getUsername(), position,
                 offeredBy, pageFrom, pageSize);
 
         // then
@@ -413,7 +413,7 @@ class OfferServiceTest {
         int pageSize = 1;
 
         // when
-        PageData<List<OfferDefaultResponse>> responses = offerService.findPageTeamOffer(user1.getUsername(), position,
+        PageData<List<OfferPageResponse>> responses = offerService.findPageTeamOffer(user1.getUsername(), position,
                 offeredBy, pageFrom, pageSize);
 
         // then

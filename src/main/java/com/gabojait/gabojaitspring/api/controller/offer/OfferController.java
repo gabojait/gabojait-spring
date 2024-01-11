@@ -1,12 +1,11 @@
 package com.gabojait.gabojaitspring.api.controller.offer;
 
-import com.gabojait.gabojaitspring.api.dto.common.ValidationSequence;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultMultiResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultNoResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.offer.request.OfferCreateRequest;
 import com.gabojait.gabojaitspring.api.dto.offer.request.OfferDecideRequest;
-import com.gabojait.gabojaitspring.api.dto.offer.response.OfferDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.offer.response.OfferPageResponse;
 import com.gabojait.gabojaitspring.api.service.offer.OfferService;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import com.gabojait.gabojaitspring.domain.offer.OfferedBy;
@@ -24,7 +23,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.GroupSequence;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
@@ -36,10 +34,6 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "제안")
 @Validated
-@GroupSequence({OfferController.class,
-        ValidationSequence.Blank.class,
-        ValidationSequence.Size.class,
-        ValidationSequence.Format.class})
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -51,7 +45,7 @@ public class OfferController {
     @ApiOperation(value = "회원이 팀에 지원",
             notes = "<응답 코드>\n" +
                     "- 201 = OFFERED_BY_USER\n" +
-                    "- 400 = OFFER_POSITION_FIELD_REQUIRED || OFFER_POSITION_TYPE_INVALID || TEAM_ID_POSITIVE_ONLY\n" +
+                    "- 400 = OFFER_POSITION_TYPE_INVALID || TEAM_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
                     "- 404 = USER_NOT_FOUND || TEAM_NOT_FOUND\n" +
@@ -74,7 +68,7 @@ public class OfferController {
     public ResponseEntity<DefaultNoResponse> userOffer(
             HttpServletRequest servletRequest,
             @PathVariable(value = "team-id")
-            @Positive(message = "팀 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "팀 식별자는 양수만 가능합니다.")
             Long teamId,
             @RequestBody @Valid OfferCreateRequest request
     ) {
@@ -92,7 +86,7 @@ public class OfferController {
     @ApiOperation(value = "팀이 회원에게 스카웃",
             notes = "<응답 코드>\n" +
                     "- 201 = OFFERED_BY_TEAM\n" +
-                    "- 400 = OFFER_POSITION_FIELD_REQUIRED || OFFER_POSITION_TYPE_INVALID || USER_ID_POSITIVE_ONLY\n" +
+                    "- 400 = OFFER_POSITION_TYPE_INVALID || USER_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED || REQUEST_FORBIDDEN\n" +
                     "- 404 = USER_NOT_FOUND || CURRENT_TEAM_NOT_FOUND\n" +
@@ -115,7 +109,7 @@ public class OfferController {
     public ResponseEntity<DefaultNoResponse> teamOffer(
             HttpServletRequest servletRequest,
             @PathVariable(value = "user-id")
-            @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "회원 식별자는 양수만 가능합니다.")
             Long userId,
             @RequestBody @Valid OfferCreateRequest request
     ) {
@@ -144,7 +138,7 @@ public class OfferController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = OfferDefaultResponse.class))),
+                    content = @Content(schema = @Schema(implementation = OfferPageResponse.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -156,16 +150,16 @@ public class OfferController {
     public ResponseEntity<DefaultMultiResponse<Object>> findPageUserReceivedOffer(
             HttpServletRequest servletRequest,
             @RequestParam(value = "page-from", required = false, defaultValue = "9223372036854775806")
-            @Positive(message = "페이지 시작점은 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 시작점은 양수만 가능합니다.")
             Long pageFrom,
             @RequestParam(value = "page-size", required = false, defaultValue = "20")
-            @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
+            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.")
             Integer pageSize
     ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        PageData<List<OfferDefaultResponse>> responses = offerService.findPageUserOffer(username, OfferedBy.LEADER,
+        PageData<List<OfferPageResponse>> responses = offerService.findPageUserOffer(username, OfferedBy.LEADER,
                 pageFrom, pageSize);
 
         return ResponseEntity.status(USER_RECEIVED_OFFER_FOUND.getHttpStatus())
@@ -194,7 +188,7 @@ public class OfferController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = OfferDefaultResponse.class))),
+                    content = @Content(schema = @Schema(implementation = OfferPageResponse.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -206,22 +200,21 @@ public class OfferController {
     public ResponseEntity<DefaultMultiResponse<Object>> findPageTeamReceivedOffer(
             HttpServletRequest servletRequest,
             @RequestParam(value = "page-from", required = false, defaultValue = "9223372036854775806")
-            @Positive(message = "페이지 시작점은 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 시작점은 양수만 가능합니다.")
             Long pageFrom,
             @RequestParam(value = "page-size", required = false, defaultValue = "20")
-            @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
+            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.")
             Integer pageSize,
             @RequestParam(value = "position", required = false)
-            @NotBlank(message = "제안할 포지션은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @NotBlank(message = "제안할 포지션은 필수 입력입니다.")
             @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER)",
-                    message = "제안할 포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 또는 'MANAGER' 중 하나여야 됩니다.",
-                    groups = ValidationSequence.Format.class)
+                    message = "제안할 포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 또는 'MANAGER' 중 하나여야 됩니다.")
             String offerPosition
     ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        PageData<List<OfferDefaultResponse>> responses = offerService.findPageTeamOffer(username,
+        PageData<List<OfferPageResponse>> responses = offerService.findPageTeamOffer(username,
                 Position.valueOf(offerPosition), OfferedBy.USER, pageFrom, pageSize);
 
         return ResponseEntity.status(TEAM_RECEIVED_OFFER_FOUND.getHttpStatus())
@@ -246,7 +239,7 @@ public class OfferController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = OfferDefaultResponse.class))),
+                    content = @Content(schema = @Schema(implementation = OfferPageResponse.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -258,16 +251,16 @@ public class OfferController {
     public ResponseEntity<DefaultMultiResponse<Object>> findPageUserSentOffer(
             HttpServletRequest servletRequest,
             @RequestParam(value = "page-from", required = false, defaultValue = "9223372036854775806")
-            @Positive(message = "페이지 시작점은 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 시작점은 양수만 가능합니다.")
             Long pageFrom,
             @RequestParam(value = "page-size", required = false, defaultValue = "20")
-            @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
+            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.")
             Integer pageSize
     ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        PageData<List<OfferDefaultResponse>> responses = offerService.findPageUserOffer(username, OfferedBy.USER,
+        PageData<List<OfferPageResponse>> responses = offerService.findPageUserOffer(username, OfferedBy.USER,
                 pageFrom, pageSize);
 
         return ResponseEntity.status(USER_SENT_OFFER_FOUND.getHttpStatus())
@@ -296,7 +289,7 @@ public class OfferController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = OfferDefaultResponse.class))),
+                    content = @Content(schema = @Schema(implementation = OfferPageResponse.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -307,22 +300,21 @@ public class OfferController {
     public ResponseEntity<DefaultMultiResponse<Object>> findPageTeamSentOffer(
             HttpServletRequest servletRequest,
             @RequestParam(value = "page-from", required = false, defaultValue = "9223372036854775806")
-            @Positive(message = "페이지 시작점은 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 시작점은 양수만 가능합니다.")
             Long pageFrom,
             @RequestParam(value = "page-size", required = false, defaultValue = "20")
-            @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
+            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.")
             Integer pageSize,
             @RequestParam(value = "position", required = false)
-            @NotBlank(message = "제안할 포지션은 필수 입력입니다.", groups = ValidationSequence.Blank.class)
+            @NotBlank(message = "제안할 포지션은 필수 입력입니다.")
             @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER)",
-                    message = "제안할 포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 또는 'MANAGER' 중 하나여야 됩니다.",
-                    groups = ValidationSequence.Format.class)
+                    message = "제안할 포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 또는 'MANAGER' 중 하나여야 됩니다.")
             String offerPosition
     ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        PageData<List<OfferDefaultResponse>> responses = offerService.findPageTeamOffer(username,
+        PageData<List<OfferPageResponse>> responses = offerService.findPageTeamOffer(username,
                 Position.valueOf(offerPosition), OfferedBy.LEADER, pageFrom, pageSize);
 
         return ResponseEntity.status(TEAM_SENT_OFFER_FOUND.getHttpStatus())
@@ -358,7 +350,7 @@ public class OfferController {
     public ResponseEntity<DefaultNoResponse> userDecideOffer(
             HttpServletRequest servletRequest,
             @PathVariable(value = "offer-id")
-            @Positive(message = "제안 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "제안 식별자는 양수만 가능합니다.")
             Long offerId,
             @RequestBody @Valid
             OfferDecideRequest request
@@ -397,7 +389,7 @@ public class OfferController {
     public ResponseEntity<DefaultNoResponse> teamDecideOffer(
             HttpServletRequest servletRequest,
             @PathVariable(value = "offer-id")
-            @Positive(message = "제안 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "제안 식별자는 양수만 가능합니다.")
             Long offerId,
             @RequestBody @Valid
             OfferDecideRequest request
@@ -436,7 +428,7 @@ public class OfferController {
     public ResponseEntity<DefaultNoResponse> cancelUserOffer(
             HttpServletRequest servletRequest,
             @PathVariable(value = "offer-id")
-            @Positive(message = "제안 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "제안 식별자는 양수만 가능합니다.")
             Long offerId
     ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
@@ -473,7 +465,7 @@ public class OfferController {
     public ResponseEntity<DefaultNoResponse> cancelTeamOffer(
             HttpServletRequest servletRequest,
             @PathVariable(value = "offer-id")
-            @Positive(message = "제안 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "제안 식별자는 양수만 가능합니다.")
             Long offerId
     ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
