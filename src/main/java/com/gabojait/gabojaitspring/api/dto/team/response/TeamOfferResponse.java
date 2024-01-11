@@ -1,9 +1,8 @@
-package com.gabojait.gabojaitspring.api.dto.offer.response;
+package com.gabojait.gabojaitspring.api.dto.team.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
 import com.gabojait.gabojaitspring.domain.offer.OfferedBy;
-import com.gabojait.gabojaitspring.domain.profile.Skill;
 import com.gabojait.gabojaitspring.domain.user.Position;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -11,12 +10,11 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @ToString
-@ApiModel(value = "제안 기본 응답")
-public class OfferDefaultResponse {
+@ApiModel(value = "팀 제안 응답")
+public class TeamOfferResponse {
 
     @ApiModelProperty(position = 1, required = true, value = "제안 식별자")
     private Long offerId;
@@ -39,21 +37,12 @@ public class OfferDefaultResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    @ApiModelProperty(position = 7, required = true, value = "회원")
-    private OfferUserResponse user;
-
-    @ApiModelProperty(position = 8, required = true, value = "팀")
-    private OfferTeamResponse team;
-
-    public OfferDefaultResponse(Offer offer, List<Skill> skills) {
+    public TeamOfferResponse(Offer offer) {
         this.offerId = offer.getId();
         this.position = offer.getPosition();
         this.isAccepted = offer.getIsAccepted();
         this.offeredBy = offer.getOfferedBy();
         this.createdAt = offer.getCreatedAt();
         this.updatedAt = offer.getUpdatedAt();
-
-        this.user = new OfferUserResponse(offer.getUser(), skills);
-        this.team = new OfferTeamResponse(offer.getTeam());
     }
 }

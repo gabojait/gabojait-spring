@@ -1,7 +1,6 @@
 package com.gabojait.gabojaitspring.api.dto.profile.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.gabojait.gabojaitspring.api.dto.offer.response.OfferAbstractResponse;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
 import com.gabojait.gabojaitspring.domain.profile.Skill;
 import com.gabojait.gabojaitspring.domain.user.Position;
@@ -43,7 +42,7 @@ public class ProfilePageResponse {
     private List<SkillResponse> skills;
 
     @ApiModelProperty(position = 8, required = true, value = "제안들")
-    private List<OfferAbstractResponse> offers;
+    private List<ProfileOfferResponse> offers;
 
     @ApiModelProperty(position = 9, required = true, value = "생성일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
@@ -65,7 +64,7 @@ public class ProfilePageResponse {
                 .map(SkillResponse::new)
                 .collect(Collectors.toList());
         this.offers = offers.stream()
-                .map(OfferAbstractResponse::new)
+                .map(ProfileOfferResponse::new)
                 .collect(Collectors.toList());
 
         this.createdAt = user.getCreatedAt();

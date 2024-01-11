@@ -2,7 +2,6 @@ package com.gabojait.gabojaitspring.api.dto.team.response;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.gabojait.gabojaitspring.api.dto.offer.response.OfferAbstractResponse;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
@@ -63,7 +62,7 @@ public class TeamFindResponse {
     private List<TeamMemberResponse> teamMembers;
 
     @ApiModelProperty(position = 15, required = true, value = "제안들")
-    private List<OfferAbstractResponse> offers;
+    private List<TeamOfferResponse> offers;
 
     @ApiModelProperty(position = 16, required = true, value = "찜 여부")
     private Boolean isFavorite;
@@ -98,7 +97,7 @@ public class TeamFindResponse {
                 .map(TeamMemberResponse::new)
                 .collect(Collectors.toList());
         this.offers = offers.stream()
-                .map(OfferAbstractResponse::new)
+                .map(TeamOfferResponse::new)
                 .collect(Collectors.toList());
     }
 }

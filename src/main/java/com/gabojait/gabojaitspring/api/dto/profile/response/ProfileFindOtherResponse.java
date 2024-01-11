@@ -1,7 +1,6 @@
 package com.gabojait.gabojaitspring.api.dto.profile.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.gabojait.gabojaitspring.api.dto.offer.response.OfferAbstractResponse;
 import com.gabojait.gabojaitspring.api.vo.profile.ProfileVO;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
 import com.gabojait.gabojaitspring.domain.profile.Skill;
@@ -72,7 +71,7 @@ public class ProfileFindOtherResponse {
     private List<ProfileReviewResponse> reviews;
 
     @ApiModelProperty(position = 17, required = true, value = "제안들")
-    private List<OfferAbstractResponse> offers;
+    private List<ProfileOfferResponse> offers;
 
     @ApiModelProperty(position = 18, required = true, value = "찜 여부", allowableValues = "true, false, null")
     private Boolean isFavorite;
@@ -132,7 +131,7 @@ public class ProfileFindOtherResponse {
         this.isFavorite = isFavorite;
 
         this.offers = offers.stream()
-                .map(OfferAbstractResponse::new)
+                .map(ProfileOfferResponse::new)
                 .collect(Collectors.toList());
 
         this.createdAt = user.getCreatedAt();
