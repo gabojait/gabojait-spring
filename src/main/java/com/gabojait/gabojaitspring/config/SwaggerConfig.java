@@ -73,6 +73,7 @@ public class SwaggerConfig {
                 .additionalModels(typeResolver.resolve(TeamMyCurrentResponse.class))
                 .additionalModels(typeResolver.resolve(TeamPageResponse.class))
                 .additionalModels(typeResolver.resolve(TeamUpdateResponse.class))
+                .additionalModels(typeResolver.resolve(TeamOfferResponse.class))
                 .additionalModels(typeResolver.resolve(ReviewFindAllTeamResponse.class))
                 .additionalModels(typeResolver.resolve(ReviewFindTeamResponse.class))
                 .additionalModels(typeResolver.resolve(ReviewTeamMemberResponse.class))
