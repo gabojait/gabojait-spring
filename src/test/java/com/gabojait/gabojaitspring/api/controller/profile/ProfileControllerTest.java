@@ -505,6 +505,29 @@ class ProfileControllerTest {
     }
 
     @Test
+    @DisplayName("포트폴리오에 잘못된 미디어 입력시 프로필 업데이트를 하면 400을 반환한다.")
+    void givenPortfolioFormatMedia_whenUpdateProfile_thenReturn400() throws Exception {
+        // given
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
+        request.getPortfolios().get(0).setMedia("WRONG");
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                post("/api/v1/user/profile")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(MEDIA_TYPE_INVALID.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(MEDIA_TYPE_INVALID.getMessage()));
+    }
+
+    @Test
     @DisplayName("포트폴리오에 포트폴리오 URL이 1000자 초과일시 프로필 업데이트를 하면 400을 반환한다.")
     void givenPortfolioGreaterThan1000SizePortfolioUrl_whenUpdateProfile_thenReturn400() throws Exception {
         // given
