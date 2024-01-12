@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @ToString
-@ApiModel(value = "알림 기본 응답")
-public class NotificationDefaultResponse {
+@ApiModel(value = "알림 페이지 응답")
+public class NotificationPageResponse {
 
     @ApiModelProperty(position = 1, required = true, value = "알림 식별자")
     private Long notificationId;
@@ -38,7 +38,7 @@ public class NotificationDefaultResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    public NotificationDefaultResponse(Notification notification) {
+    public NotificationPageResponse(Notification notification) {
         this.notificationId = notification.getId();
         this.notificationType = notification.getNotificationType();
         this.title = notification.getTitle();

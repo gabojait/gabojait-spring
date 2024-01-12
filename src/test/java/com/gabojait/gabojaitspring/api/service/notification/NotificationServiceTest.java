@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.api.service.notification;
 
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
-import com.gabojait.gabojaitspring.api.dto.notification.response.NotificationDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.notification.response.NotificationPageResponse;
 import com.gabojait.gabojaitspring.domain.notification.Notification;
 import com.gabojait.gabojaitspring.domain.notification.NotificationType;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
@@ -32,7 +32,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -61,7 +61,7 @@ class NotificationServiceTest {
         int pageSize = 2;
 
         // when
-        PageData<List<NotificationDefaultResponse>> responses =
+        PageData<List<NotificationPageResponse>> responses =
                 notificationService.findPageNotifications(user.getUsername(), pageFrom, pageSize);
 
         // then
@@ -449,6 +449,7 @@ class NotificationServiceTest {
 
         return offerRepository.save(offer);
     }
+
     private void createSavedTeamMember(Position position, boolean isLeader, User user, Team team) {
         TeamMember teamMember = TeamMember.builder()
                 .position(position)
@@ -475,6 +476,7 @@ class NotificationServiceTest {
 
         return teamRepository.save(team);
     }
+
     private User createSavedDefaultUser(String email, String username, String nickname) {
         Contact contact = Contact.builder()
                 .email(email)

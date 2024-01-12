@@ -5,7 +5,7 @@ import com.gabojait.gabojaitspring.api.dto.common.response.*;
 import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteSkillResponse;
 import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteTeamPageResponse;
 import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteUserPageResponse;
-import com.gabojait.gabojaitspring.api.dto.notification.response.NotificationDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.notification.response.NotificationPageResponse;
 import com.gabojait.gabojaitspring.api.dto.profile.response.*;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindAllTeamResponse;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindTeamResponse;
@@ -78,7 +78,7 @@ public class SwaggerConfig {
                 .additionalModels(typeResolver.resolve(ReviewFindTeamResponse.class))
                 .additionalModels(typeResolver.resolve(ReviewTeamMemberResponse.class))
                 .additionalModels(typeResolver.resolve(ReviewPageResponse.class))
-                .additionalModels(typeResolver.resolve(NotificationDefaultResponse.class))
+                .additionalModels(typeResolver.resolve(NotificationPageResponse.class))
                 .additionalModels(typeResolver.resolve(FavoriteTeamPageResponse.class))
                 .additionalModels(typeResolver.resolve(FavoriteUserPageResponse.class))
                 .additionalModels(typeResolver.resolve(FavoriteSkillResponse.class))

@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.api.service.notification;
 
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
-import com.gabojait.gabojaitspring.api.dto.notification.response.NotificationDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.notification.response.NotificationPageResponse;
 import com.gabojait.gabojaitspring.domain.notification.Notification;
 import com.gabojait.gabojaitspring.domain.notification.NotificationType;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
@@ -44,13 +44,13 @@ public class NotificationService {
      * @param pageSize 페이지 크기
      * @return 알림 기본 응답들
      */
-    public PageData<List<NotificationDefaultResponse>> findPageNotifications(String username,
-                                                                             long pageFrom,
-                                                                             int pageSize) {
+    public PageData<List<NotificationPageResponse>> findPageNotifications(String username,
+                                                                          long pageFrom,
+                                                                          int pageSize) {
         Page<Notification> notifications = notificationRepository.findPage(username, pageFrom, pageSize);
 
-        List<NotificationDefaultResponse> responses = notifications.stream()
-                .map(NotificationDefaultResponse::new)
+        List<NotificationPageResponse> responses = notifications.stream()
+                .map(NotificationPageResponse::new)
                 .collect(Collectors.toList());
 
         return new PageData<>(responses, notifications.getTotalElements());

@@ -1,10 +1,9 @@
 package com.gabojait.gabojaitspring.api.controller.notification;
 
-import com.gabojait.gabojaitspring.api.dto.common.ValidationSequence;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultMultiResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultNoResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
-import com.gabojait.gabojaitspring.api.dto.notification.response.NotificationDefaultResponse;
+import com.gabojait.gabojaitspring.api.dto.notification.response.NotificationPageResponse;
 import com.gabojait.gabojaitspring.api.service.notification.NotificationService;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
 import io.swagger.annotations.Api;
@@ -19,10 +18,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.GroupSequence;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Positive;
-
 import java.util.List;
 
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.NOTIFICATIONS_FOUND;
@@ -31,10 +28,6 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "알림")
 @Validated
-@GroupSequence({NotificationController.class,
-        ValidationSequence.Blank.class,
-        ValidationSequence.Size.class,
-        ValidationSequence.Format.class})
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -58,7 +51,7 @@ public class NotificationController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema =  @Schema(implementation = NotificationDefaultResponse.class))),
+                    content = @Content(schema =  @Schema(implementation = NotificationPageResponse.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -70,16 +63,16 @@ public class NotificationController {
     public ResponseEntity<DefaultMultiResponse<Object>> findPageNotification(
             HttpServletRequest servletRequest,
             @RequestParam(value = "page-from", required = false, defaultValue = "9223372036854775806")
-            @Positive(message = "페이지 시작점은 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 시작점은 양수만 가능합니다.")
             Long pageFrom,
             @RequestParam(value = "page-size", required = false, defaultValue = "20")
-            @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
+            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.")
             Integer pageSize
     ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
-        PageData<List<NotificationDefaultResponse>> responses = notificationService.findPageNotifications(username,
+        PageData<List<NotificationPageResponse>> responses = notificationService.findPageNotifications(username,
                 pageFrom, pageSize);
 
         return ResponseEntity.status(NOTIFICATIONS_FOUND.getHttpStatus())
@@ -90,8 +83,7 @@ public class NotificationController {
                         .build());
     }
 
-    @ApiOperation(
-            value = "알림 읽기",
+    @ApiOperation(value = "알림 읽기",
             notes = "<응답 코드>\n" +
                     "- 200 = NOTIFICATION_READ\n" +
                     "- 400 = NOTIFICATION_ID_POSITIVE_ONLY\n" +
@@ -102,7 +94,7 @@ public class NotificationController {
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema =  @Schema(implementation = NotificationDefaultResponse.class))),
+                    content = @Content(schema =  @Schema(implementation = Object.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN"),
@@ -114,7 +106,7 @@ public class NotificationController {
     public ResponseEntity<DefaultNoResponse> readNotification(
             HttpServletRequest servletRequest,
             @PathVariable(value = "notification-id")
-            @Positive(message = "알림 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "알림 식별자는 양수만 가능합니다.")
             Long notificationId
     ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
