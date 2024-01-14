@@ -1,6 +1,5 @@
 package com.gabojait.gabojaitspring.api.controller.develop;
 
-import com.gabojait.gabojaitspring.api.dto.common.ValidationSequence;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultNoResponse;
 import com.gabojait.gabojaitspring.api.service.develop.DevelopService;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
@@ -17,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.GroupSequence;
 import javax.validation.constraints.Positive;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.SERVER_ERROR;
@@ -25,10 +23,6 @@ import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 
 @Api(tags = "개발")
 @Validated
-@GroupSequence({DevelopController.class,
-        ValidationSequence.Blank.class,
-        ValidationSequence.Size.class,
-        ValidationSequence.Format.class})
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -112,7 +106,7 @@ public class DevelopController {
     @GetMapping("/test/user/{tester-id}")
     public ResponseEntity<DefaultNoResponse> testDataToken(
             @PathVariable(value = "tester-id")
-            @Positive(message = "테스터 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "테스터 식별자는 양수만 가능합니다.")
             Long testerId
     ) {
         String username = developService.findTester(testerId);
