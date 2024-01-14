@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.api.service.favorite;
 
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
-import com.gabojait.gabojaitspring.api.dto.favorite.request.FavoriteDefaultRequest;
+import com.gabojait.gabojaitspring.api.dto.favorite.request.FavoriteUpdateRequest;
 import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteTeamPageResponse;
 import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteUserPageResponse;
 import com.gabojait.gabojaitspring.domain.favorite.Favorite;
@@ -51,7 +51,7 @@ class FavoriteServiceTest {
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일", Position.BACKEND);
         User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이", Position.BACKEND);
 
-        FavoriteDefaultRequest request = createValidFavoriteDefaultRequest(true);
+        FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(true);
 
         // when
         favoriteService.updateFavoriteUser(user1.getUsername(), user2.getId(), request);
@@ -70,7 +70,7 @@ class FavoriteServiceTest {
         User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이", Position.BACKEND);
         createSavedFavorite(user1, user2, null);
 
-        FavoriteDefaultRequest request = createValidFavoriteDefaultRequest(true);
+        FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(true);
 
         // when
         favoriteService.updateFavoriteUser(user1.getUsername(), user2.getId(), request);
@@ -89,7 +89,7 @@ class FavoriteServiceTest {
         User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이", Position.BACKEND);
         createSavedFavorite(user1, user2, null);
 
-        FavoriteDefaultRequest request = createValidFavoriteDefaultRequest(false);
+        FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(false);
 
         // when
         favoriteService.updateFavoriteUser(user1.getUsername(), user2.getId(), request);
@@ -108,7 +108,7 @@ class FavoriteServiceTest {
         User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이", Position.BACKEND);
         createSavedFavorite(user1, user2, null);
 
-        FavoriteDefaultRequest request = createValidFavoriteDefaultRequest(false);
+        FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(false);
 
         // when
         favoriteService.updateFavoriteUser(user1.getUsername(), user2.getId(), request);
@@ -126,7 +126,7 @@ class FavoriteServiceTest {
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
         Team team = createSavedTeam("가보자잇", (byte) 1);
 
-        FavoriteDefaultRequest request = createValidFavoriteDefaultRequest(true);
+        FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(true);
 
         // when
         favoriteService.updateFavoriteTeam(user.getUsername(), team.getId(), request);
@@ -145,7 +145,7 @@ class FavoriteServiceTest {
         Team team = createSavedTeam("가보자잇", (byte) 1);
         createSavedFavorite(user, null, team);
 
-        FavoriteDefaultRequest request = createValidFavoriteDefaultRequest(true);
+        FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(true);
 
         // when
         favoriteService.updateFavoriteTeam(user.getUsername(), team.getId(), request);
@@ -164,7 +164,7 @@ class FavoriteServiceTest {
         Team team = createSavedTeam("가보자잇", (byte) 1);
         createSavedFavorite(user, null, team);
 
-        FavoriteDefaultRequest request = createValidFavoriteDefaultRequest(false);
+        FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(false);
 
         // when
         favoriteService.updateFavoriteTeam(user.getUsername(), team.getId(), request);
@@ -182,7 +182,7 @@ class FavoriteServiceTest {
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
         Team team = createSavedTeam("가보자잇", (byte) 1);
 
-        FavoriteDefaultRequest request = createValidFavoriteDefaultRequest(false);
+        FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(false);
 
         // when
         favoriteService.updateFavoriteTeam(user.getUsername(), team.getId(), request);
@@ -286,8 +286,8 @@ class FavoriteServiceTest {
         assertEquals(3L, responses.getTotal());
     }
 
-    private FavoriteDefaultRequest createValidFavoriteDefaultRequest(boolean isAddFavorite) {
-        return FavoriteDefaultRequest.builder()
+    private FavoriteUpdateRequest createValidFavoriteUpdateRequest(boolean isAddFavorite) {
+        return FavoriteUpdateRequest.builder()
                 .isAddFavorite(isAddFavorite)
                 .build();
     }

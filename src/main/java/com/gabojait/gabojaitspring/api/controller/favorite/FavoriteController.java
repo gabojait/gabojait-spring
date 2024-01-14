@@ -1,10 +1,9 @@
 package com.gabojait.gabojaitspring.api.controller.favorite;
 
-import com.gabojait.gabojaitspring.api.dto.common.ValidationSequence;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultMultiResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultNoResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
-import com.gabojait.gabojaitspring.api.dto.favorite.request.FavoriteDefaultRequest;
+import com.gabojait.gabojaitspring.api.dto.favorite.request.FavoriteUpdateRequest;
 import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteTeamPageResponse;
 import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteUserPageResponse;
 import com.gabojait.gabojaitspring.api.service.favorite.FavoriteService;
@@ -21,11 +20,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.GroupSequence;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Positive;
-
 import java.util.List;
 
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
@@ -33,10 +30,6 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "찜")
 @Validated
-@GroupSequence({FavoriteController.class,
-        ValidationSequence.Blank.class,
-        ValidationSequence.Size.class,
-        ValidationSequence.Format.class})
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/favorite")
@@ -70,10 +63,10 @@ public class FavoriteController {
     public ResponseEntity<DefaultNoResponse> updateFavoriteUser(
             HttpServletRequest servletRequest,
             @PathVariable(value = "user-id")
-            @Positive(message = "회원 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "회원 식별자는 양수만 가능합니다.")
             Long userId,
             @RequestBody @Valid
-            FavoriteDefaultRequest request
+            FavoriteUpdateRequest request
     ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
@@ -118,10 +111,10 @@ public class FavoriteController {
     public ResponseEntity<DefaultNoResponse> updateFavoriteTeam(
             HttpServletRequest servletRequest,
             @PathVariable(value = "team-id")
-            @Positive(message = "팀 식별자는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "팀 식별자는 양수만 가능합니다.")
             Long teamId,
             @RequestBody @Valid
-            FavoriteDefaultRequest request
+            FavoriteUpdateRequest request
     ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
 
@@ -167,11 +160,11 @@ public class FavoriteController {
     public ResponseEntity<DefaultMultiResponse<Object>> findPageFavoriteUser(
             HttpServletRequest servletRequest,
             @RequestParam(value = "page-from", required = false, defaultValue = "9223372036854775806")
-            @Positive(message = "페이지 시작점은 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 시작점은 양수만 가능합니다.")
             Long pageFrom,
             @RequestParam(value = "page-size", required = false, defaultValue = "20")
-            @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
+            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.")
             Integer pageSize
     ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
@@ -213,11 +206,11 @@ public class FavoriteController {
     public ResponseEntity<DefaultMultiResponse<Object>> findPageFavoriteTeam(
             HttpServletRequest servletRequest,
             @RequestParam(value = "page-from", required = false, defaultValue = "9223372036854775806")
-            @Positive(message = "페이지 시작점은 양수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 시작점은 양수만 가능합니다.")
             Long pageFrom,
             @RequestParam(value = "page-size", required = false, defaultValue = "20")
-            @Positive(message = "페이지 사이즈는 양수만 가능합니다.", groups = ValidationSequence.Format.class)
-            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.", groups = ValidationSequence.Format.class)
+            @Positive(message = "페이지 사이즈는 양수만 가능합니다.")
+            @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.")
             Integer pageSize
     ) {
         String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));

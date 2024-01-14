@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.api.service.favorite;
 
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
-import com.gabojait.gabojaitspring.api.dto.favorite.request.FavoriteDefaultRequest;
+import com.gabojait.gabojaitspring.api.dto.favorite.request.FavoriteUpdateRequest;
 import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteTeamPageResponse;
 import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteUserPageResponse;
 import com.gabojait.gabojaitspring.domain.favorite.Favorite;
@@ -44,7 +44,7 @@ public class FavoriteService {
      * @param request 찜 기본 요청
      */
     @Transactional
-    public void updateFavoriteUser(String username, long userId, FavoriteDefaultRequest request) {
+    public void updateFavoriteUser(String username, long userId, FavoriteUpdateRequest request) {
         User user = findUser(username);
         User favoriteUser = findUser(userId);
 
@@ -70,7 +70,7 @@ public class FavoriteService {
      * @param request 찜 기본 요청
      */
     @Transactional
-    public void updateFavoriteTeam(String username, long teamId, FavoriteDefaultRequest request) {
+    public void updateFavoriteTeam(String username, long teamId, FavoriteUpdateRequest request) {
         User user = findUser(username);
         Team favoriteTeam = findTeam(teamId);
 

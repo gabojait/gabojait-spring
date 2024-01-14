@@ -1,7 +1,8 @@
 package com.gabojait.gabojaitspring.api.controller.favorite;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gabojait.gabojaitspring.api.dto.favorite.request.FavoriteDefaultRequest;
+import com.gabojait.gabojaitspring.api.dto.favorite.request.FavoriteUpdateRequest;
+import com.gabojait.gabojaitspring.api.dto.favorite.request.FavoriteUpdateRequest;
 import com.gabojait.gabojaitspring.api.service.favorite.FavoriteService;
 import com.gabojait.gabojaitspring.auth.CustomAuthenticationEntryPoint;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
@@ -40,7 +41,7 @@ class FavoriteControllerTest {
     void givenAdd_whenUpdateFavoriteUser_thenReturn201() throws Exception {
         // given
         long userId = 1L;
-        FavoriteDefaultRequest request = createValidFavoriteDefaultRequest(true);
+        FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(true);
 
         // when
         ResultActions actions = mockMvc.perform(
@@ -63,7 +64,7 @@ class FavoriteControllerTest {
     void givenDelete_whenUpdateFavoriteUser_thenReturn200() throws Exception {
         // given
         long userId = 1L;
-        FavoriteDefaultRequest request = createValidFavoriteDefaultRequest(false);
+        FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(false);
 
         // when
         ResultActions actions = mockMvc.perform(
@@ -86,7 +87,7 @@ class FavoriteControllerTest {
     void givenBlankIsAddFavorite_whenUpdateFavoriteUser_thenReturn400() throws Exception {
         // given
         long userId = 1L;
-        FavoriteDefaultRequest request = createValidFavoriteDefaultRequest(true);
+        FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(true);
         request.setIsAddFavorite(null);
 
         // when
@@ -110,7 +111,7 @@ class FavoriteControllerTest {
     void givenNonPositiveUserId_whenUpdateFavoriteUser_thenReturn400() throws Exception {
         // given
         long userId = 0L;
-        FavoriteDefaultRequest request = createValidFavoriteDefaultRequest(true);
+        FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(true);
 
         // when
         ResultActions actions = mockMvc.perform(
@@ -133,7 +134,7 @@ class FavoriteControllerTest {
     void givenAdd_whenUpdateFavoriteTeam_thenReturn201() throws Exception {
         // given
         long teamId = 1L;
-        FavoriteDefaultRequest request = createValidFavoriteDefaultRequest(true);
+        FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(true);
 
         // when
         ResultActions actions = mockMvc.perform(
@@ -156,7 +157,7 @@ class FavoriteControllerTest {
     void givenDelete_whenUpdateFavoriteTeam_thenReturn200() throws Exception {
         // given
         long teamId = 1L;
-        FavoriteDefaultRequest request = createValidFavoriteDefaultRequest(false);
+        FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(false);
 
         // when
         ResultActions actions = mockMvc.perform(
@@ -179,7 +180,7 @@ class FavoriteControllerTest {
     void givenBlankIsAddFavorite_whenUpdateFavoriteTeam_thenReturn400() throws Exception {
         // given
         long teamId = 1L;
-        FavoriteDefaultRequest request = createValidFavoriteDefaultRequest(true);
+        FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(true);
         request.setIsAddFavorite(null);
 
         // when
@@ -203,7 +204,7 @@ class FavoriteControllerTest {
     void givenNonPositiveTeamId_whenUpdateFavoriteTeam_thenReturn400() throws Exception {
         // given
         long teamId = 0L;
-        FavoriteDefaultRequest request = createValidFavoriteDefaultRequest(true);
+        FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(true);
 
         // when
         ResultActions actions = mockMvc.perform(
@@ -381,8 +382,8 @@ class FavoriteControllerTest {
                         .value(PAGE_SIZE_RANGE_INVALID.getMessage()));
     }
 
-    private FavoriteDefaultRequest createValidFavoriteDefaultRequest(boolean isAddFavorite) {
-        return FavoriteDefaultRequest.builder()
+    private FavoriteUpdateRequest createValidFavoriteUpdateRequest(boolean isAddFavorite) {
+        return FavoriteUpdateRequest.builder()
                 .isAddFavorite(isAddFavorite)
                 .build();
     }
