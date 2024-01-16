@@ -19,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Positive;
@@ -61,16 +60,15 @@ public class FavoriteController {
     })
     @PostMapping(value = "/user/{user-id}")
     public ResponseEntity<DefaultNoResponse> updateFavoriteUser(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @PathVariable(value = "user-id")
             @Positive(message = "회원 식별자는 양수만 가능합니다.")
             Long userId,
-            @RequestBody @Valid
-            FavoriteUpdateRequest request
+            @RequestBody @Valid FavoriteUpdateRequest request
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long myUserId = jwtProvider.getUserId(authorization);
 
-        favoriteService.updateFavoriteUser(username, userId, request);
+        favoriteService.updateFavoriteUser(myUserId, userId, request);
 
         if (request.getIsAddFavorite())
             return ResponseEntity.status(FAVORITE_USER_ADDED.getHttpStatus())
@@ -109,16 +107,15 @@ public class FavoriteController {
     })
     @PostMapping(value = "/team/{team-id}")
     public ResponseEntity<DefaultNoResponse> updateFavoriteTeam(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @PathVariable(value = "team-id")
             @Positive(message = "팀 식별자는 양수만 가능합니다.")
             Long teamId,
-            @RequestBody @Valid
-            FavoriteUpdateRequest request
+            @RequestBody @Valid FavoriteUpdateRequest request
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getUserId(authorization);
 
-        favoriteService.updateFavoriteTeam(username, teamId, request);
+        favoriteService.updateFavoriteTeam(userId, teamId, request);
 
         if (request.getIsAddFavorite())
             return ResponseEntity.status(FAVORITE_TEAM_ADDED.getHttpStatus())
@@ -158,7 +155,7 @@ public class FavoriteController {
     })
     @GetMapping("/user")
     public ResponseEntity<DefaultMultiResponse<Object>> findPageFavoriteUser(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @RequestParam(value = "page-from", required = false, defaultValue = "9223372036854775806")
             @Positive(message = "페이지 시작점은 양수만 가능합니다.")
             Long pageFrom,
@@ -167,9 +164,9 @@ public class FavoriteController {
             @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.")
             Integer pageSize
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getUserId(authorization);
 
-        PageData<List<FavoriteUserPageResponse>> responses = favoriteService.findPageFavoriteUser(username, pageFrom,
+        PageData<List<FavoriteUserPageResponse>> responses = favoriteService.findPageFavoriteUser(userId, pageFrom,
                 pageSize);
 
         return ResponseEntity.status(FAVORITE_USERS_FOUND.getHttpStatus())
@@ -204,7 +201,7 @@ public class FavoriteController {
     })
     @GetMapping("/team")
     public ResponseEntity<DefaultMultiResponse<Object>> findPageFavoriteTeam(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @RequestParam(value = "page-from", required = false, defaultValue = "9223372036854775806")
             @Positive(message = "페이지 시작점은 양수만 가능합니다.")
             Long pageFrom,
@@ -213,9 +210,9 @@ public class FavoriteController {
             @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.")
             Integer pageSize
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getUserId(authorization);
 
-        PageData<List<FavoriteTeamPageResponse>> responses = favoriteService.findPageFavoriteTeam(username, pageFrom,
+        PageData<List<FavoriteTeamPageResponse>> responses = favoriteService.findPageFavoriteTeam(userId, pageFrom,
                 pageSize);
 
         return ResponseEntity.status(FAVORITE_TEAMS_FOUND.getHttpStatus())

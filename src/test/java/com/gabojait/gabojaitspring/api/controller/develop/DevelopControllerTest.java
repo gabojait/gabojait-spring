@@ -98,7 +98,7 @@ class DevelopControllerTest {
         // given
         long testerId = 1;
 
-        when(jwtProvider.createJwt(anyString()))
+        when(jwtProvider.createJwt(anyLong()))
                 .thenReturn(HttpHeaders.EMPTY);
 
         when(developService.findTester(anyLong()))

@@ -63,13 +63,51 @@ class CustomUserDetailsServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 아이디로 회원 상세 정보를 조회하면 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원 식별자로 회원 상세 정보를 조회하면 예외가 발생한다.")
     void givenNonExistingUser_whenLoadUserByUsername_thenThrow() {
         // given
         String username = "tester";
 
         // when & then
         assertThatThrownBy(() -> customUserDetailsService.loadUserByUsername(username))
+                .isInstanceOf(CustomException.class)
+                .extracting("errorCode")
+                .isEqualTo(USER_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("회원 식별자로 회원 상세 정보를 조회한다")
+    void givenValid_whenLoadUserByUserId_thenReturn() {
+        // given
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
+        Role role1 = Role.USER;
+        UserRole userRole1 = createUserRole(user, role1);
+        Role role2 = Role.ADMIN;
+        UserRole userRole2 = createUserRole(user, role2);
+        userRoleRepository.saveAll(List.of(userRole1, userRole2));
+
+        // when
+        UserDetails userDetails = customUserDetailsService.loadUserByUserId(user.getId());
+
+        // then
+        assertAll(
+                () -> assertThat(userDetails)
+                        .extracting("username", "password")
+                        .containsExactly(user.getUsername(), user.getPassword()),
+                () -> assertThat(userDetails.getAuthorities())
+                        .extracting("authority")
+                        .containsExactlyInAnyOrder(role1.name(), role2.name())
+        );
+    }
+
+    @Test
+    @DisplayName("존재하지 않은 회원 식별자로 회원 상세 정보를 조회하면 예외가 발생한다.")
+    void givenNonExistingUser_whenLoadUserByUserId_thenThrow() {
+        // given
+        long userId = 1L;
+
+        // when & then
+        assertThatThrownBy(() -> customUserDetailsService.loadUserByUserId(userId))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);

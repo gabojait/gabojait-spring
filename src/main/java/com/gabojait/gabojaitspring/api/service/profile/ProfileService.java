@@ -58,11 +58,11 @@ public class ProfileService {
     /**
      * 내 프로필 조회 |
      * 404(USER_NOT_FOUND)
-     * @param username 회원 아이디
+     * @param userId 회원 식별자
      * @return 프로필 본인 조회 응답
      */
-    public ProfileFindMyselfResponse findMyProfile(String username) {
-        User user = findUser(username);
+    public ProfileFindMyselfResponse findMyProfile(long userId) {
+        User user = findUser(userId);
         List<Skill> skills = skillRepository.findAll(user.getId());
         ProfileVO profile = findProfileInfo(user);
 
@@ -72,29 +72,29 @@ public class ProfileService {
     /**
      * 다른 프로필 조회 |
      * 404(USER_NOT_FOUND)
-     * @param username 내 회원 아이디
-     * @param userId 타겟 회원 식별자
+     * @param myUserId 내 회원 아이디
+     * @param otherUserId 다른 회원 식별자
      * @return 프로필 단건 조회 응답
      */
     @Transactional
-    public ProfileFindOtherResponse findOtherProfile(String username, long userId) {
-        User targetUser = findUser(userId);
+    public ProfileFindOtherResponse findOtherProfile(long myUserId, long otherUserId) {
+        User otherUser = findUser(otherUserId);
 
-        List<Skill> skills = skillRepository.findAll(targetUser.getId());
-        ProfileVO profile = findProfileInfo(targetUser);
+        List<Skill> skills = skillRepository.findAll(otherUserId);
+        ProfileVO profile = findProfileInfo(otherUser);
         List<Offer> offers = new ArrayList<>();
         Boolean isFavorite = null;
 
-        if (!username.equals(targetUser.getUsername())) {
-            User user = findUser(username);
+        if (myUserId != otherUserId) {
+            User myUser = findUser(myUserId);
 
-            offers = offerRepository.findAllByUserId(targetUser.getId(), user.getId());
-            isFavorite = favoriteRepository.existsUser(user.getId(), targetUser.getId());
+            offers = offerRepository.findAllByUserId(otherUserId, myUserId);
+            isFavorite = favoriteRepository.existsUser(myUserId, otherUserId);
 
-            targetUser.visit();
+            otherUser.visit();
         }
 
-        return new ProfileFindOtherResponse(targetUser, skills, profile, offers, isFavorite);
+        return new ProfileFindOtherResponse(otherUser, skills, profile, offers, isFavorite);
     }
 
     /**
@@ -103,13 +103,13 @@ public class ProfileService {
      * 404(USER_NOT_FOUND)
      * 415(IMAGE_TYPE_UNSUPPORTED)
      * 500(SERVER_ERROR)
-     * @param username 회원 아이디
+     * @param userId 회원 식별자
      * @param image 프로필 이미지
      * @return 프로필 이미지 응답
      */
     @Transactional
-    public ProfileImageResponse uploadProfileImage(String username, MultipartFile image) {
-        User user = findUser(username);
+    public ProfileImageResponse uploadProfileImage(long userId, MultipartFile image) {
+        User user = findUser(userId);
 
         String url = fileUtility.upload(profileImgBucketName, user.getId().toString(), UUID.randomUUID().toString(),
                 image, true);
@@ -125,12 +125,12 @@ public class ProfileService {
     /**
      * 프로필 이미지 삭제 |
      * 404(USER_NOT_FOUND)
-     * @param username 회원 아이디
+     * @param userId 회원 식별자
      * @return 프로필 이미지 응답
      */
     @Transactional
-    public ProfileImageResponse deleteProfileImage(String username) {
-        User user = findUser(username);
+    public ProfileImageResponse deleteProfileImage(long userId) {
+        User user = findUser(userId);
 
         user.updateImageUrl(null);
 
@@ -143,12 +143,12 @@ public class ProfileService {
     /**
      * 팀 찾기 여부 업데이트 |
      * 404(USER_NOT_FOUND)
-     * @param username 회원 아이디
+     * @param userId 회원 식별자
      * @param isSeekingTeam 팀 찾기 여부
      */
     @Transactional
-    public void updateIsSeekingTeam(String username, boolean isSeekingTeam) {
-        User user = findUser(username);
+    public void updateIsSeekingTeam(long userId, boolean isSeekingTeam) {
+        User user = findUser(userId);
 
         user.updateIsSeekingTeam(isSeekingTeam);
     }
@@ -157,13 +157,13 @@ public class ProfileService {
      * 프로필 업데이트 |
      * 400(EDUCATION_DATE_INVALID / EDUCATION_ENDED_AT_FIELD_REQUIRED / WORK_DATE_INVALID / WORK_ENDED_AT_FIELD_REQUIRED)
      * 404(USER_NOT_FOUND)
-     * @param username 회원 아이디
+     * @param userId 회원 식별자
      * @param request 프로필 업데이트 요청
      * @return 프로필 업데이트 응답
      */
     @Transactional
-    public ProfileUpdateResponse updateProfile(String username, ProfileUpdateRequest request) {
-        User user = findUser(username);
+    public ProfileUpdateResponse updateProfile(long userId, ProfileUpdateRequest request) {
+        User user = findUser(userId);
 
         validateDate(request.getEducations(), request.getWorks());
 
@@ -350,12 +350,12 @@ public class ProfileService {
     /**
      * 자기소개 업데이트 |
      * 404(USER_NOT_FOUND)
-     * @param username 회원 아이디
+     * @param userId 회원 식별자
      * @param profileDescription 자기 소개
      */
     @Transactional
-    public void updateProfileDescription(String username, String profileDescription) {
-        User user = findUser(username);
+    public void updateProfileDescription(long userId, String profileDescription) {
+        User user = findUser(userId);
 
         user.updateProfileDescription(profileDescription);
     }
@@ -365,12 +365,12 @@ public class ProfileService {
      * 400(FILE_FIELD_REQUIRED)
      * 404(USER_NOT_FOUND)
      * 415(FILE_TYPE_UNSUPPORTED)
-     * @param username 회원 아이디
+     * @param userId 회원 식별자
      * @param file 포트폴리오 파일
      * @return 포트폴리오 URL 응답
      */
-    public PortfolioUrlResponse uploadPortfolioFile(String username, MultipartFile file) {
-        User user = findUser(username);
+    public PortfolioUrlResponse uploadPortfolioFile(long userId, MultipartFile file) {
+        User user = findUser(userId);
 
         String portfolioUrl = fileUtility.upload(portfolioBucketName, user.getId().toString(),
                 UUID.randomUUID().toString(), file, false);
@@ -381,14 +381,17 @@ public class ProfileService {
     /**
      * 프로필 페이징 조회 |
      * 404(USER_NOT_FOUND)
-     * @param username 회원 아이디
+     * @param userId 회원 식별자
      * @param position 포지션
      * @param pageFrom 페이지 시작점
      * @param pageSize 페이지 크기
      * @return 프로필 제안 응답들
      */
-    public PageData<List<ProfilePageResponse>> findPageUser(String username, Position position, long pageFrom, int pageSize) {
-        User user = findUser(username);
+    public PageData<List<ProfilePageResponse>> findPageUser(long userId,
+                                                            Position position,
+                                                            long pageFrom,
+                                                            int pageSize) {
+        User user = findUser(userId);
 
         PageData<List<User>> users = userRepository.findPage(position, pageFrom, pageSize);
         List<Skill> skills = skillRepository.findAllInFetchUser(users.getData()

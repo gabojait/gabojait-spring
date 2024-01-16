@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -47,7 +47,7 @@ class UserControllerTest {
 
     @BeforeEach
     void setup() {
-        when(jwtProvider.createJwt(anyString()))
+        when(jwtProvider.createJwt(anyLong()))
                 .thenReturn(HttpHeaders.EMPTY);
 
         when(userService.register(any(), any()))

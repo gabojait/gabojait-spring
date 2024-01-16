@@ -70,7 +70,7 @@ class ReviewServiceTest {
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3));
 
         // when
-        PageData<List<ReviewFindAllTeamResponse>> responses = reviewService.findAllReviewableTeams(user.getUsername(), now);
+        PageData<List<ReviewFindAllTeamResponse>> responses = reviewService.findAllReviewableTeams(user.getId(), now);
 
         // then
         assertThat(responses.getData())
@@ -86,20 +86,6 @@ class ReviewServiceTest {
                 );
 
         assertEquals(1L, responses.getTotal());
-    }
-
-    @Test
-    @DisplayName("존재하지 않은 회원으로 리뷰 가능한 팀 전체 조회를 하면 예외가 발생한다.")
-    void givenNonExistingUser_whenFindAllReviewableTeams_thenThrow() {
-        // given
-        String username = "tester";
-        LocalDateTime now = LocalDateTime.now();
-
-        // when & then
-        assertThatThrownBy(() -> reviewService.findAllReviewableTeams(username, now))
-                .isInstanceOf(CustomException.class)
-                .extracting("errorCode")
-                .isEqualTo(USER_NOT_FOUND);
     }
 
     @Test
@@ -122,7 +108,7 @@ class ReviewServiceTest {
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3));
 
         // when
-        ReviewFindTeamResponse response = reviewService.findReviewableTeam(user1.getUsername(), team.getId(), now);
+        ReviewFindTeamResponse response = reviewService.findReviewableTeam(user1.getId(), team.getId(), now);
 
         // then
         assertAll(() -> assertThat(response)
@@ -137,36 +123,6 @@ class ReviewServiceTest {
                                         teamMember2.getPosition(), teamMember2.getIsLeader())
                         )
         );
-    }
-
-    @Test
-    @DisplayName("존재하지 않은 팀원으로 리뷰 가능한 팀 조회를 하면 예외가 발생한다.")
-    void givenNonExistingTeamMember_whenFindReviewableTeam_thenThrow() {
-        // given
-        String username = "tester";
-        long teamId = 1L;
-        LocalDateTime now = LocalDateTime.now();
-
-        // when
-        assertThatThrownBy(() -> reviewService.findReviewableTeam(username, teamId, now))
-                .isInstanceOf(CustomException.class)
-                .extracting("errorCode")
-                .isEqualTo(USER_NOT_FOUND);
-    }
-
-    @Test
-    @DisplayName("존재하지 않은 회원으로 리뷰 가능한 팀 조회를 하면 예외가 발생한다.")
-    void givenNonExistingUser_whenFindReviewableTeam_thenThrow() {
-        // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.MANAGER);
-        long teamId = 1L;
-        LocalDateTime now = LocalDateTime.now();
-
-        // when
-        assertThatThrownBy(() -> reviewService.findReviewableTeam(user.getUsername(), teamId, now))
-                .isInstanceOf(CustomException.class)
-                .extracting("errorCode")
-                .isEqualTo(TEAM_MEMBER_NOT_FOUND);
     }
 
     @Test
@@ -193,26 +149,11 @@ class ReviewServiceTest {
         );
 
         // when
-        reviewService.createReview(user1.getUsername(), team.getId(), request);
+        reviewService.createReview(user1.getId(), team.getId(), request);
 
         // then
         boolean exists = reviewRepository.exists(user1.getId(), team.getId());
         assertTrue(exists);
-    }
-
-    @Test
-    @DisplayName("존재하지 않은 회원으로 리뷰 생성을 하면 예외가 발생한다.")
-    void givenNonExistingUser_whenCreateReview_thenThrow() {
-        // given
-        String username = "tester";
-        long teamId = 1L;
-        ReviewCreateManyRequest request = createValidReviewCreateManyRequest(List.of(1L));
-
-        // when & then
-        assertThatThrownBy(() -> reviewService.createReview(username, teamId, request))
-                .isInstanceOf(CustomException.class)
-                .extracting("errorCode")
-                .isEqualTo(USER_NOT_FOUND);
     }
 
     @Test
@@ -224,7 +165,7 @@ class ReviewServiceTest {
         ReviewCreateManyRequest request = createValidReviewCreateManyRequest(List.of(1L));
 
         // when & then
-        assertThatThrownBy(() -> reviewService.createReview(user.getUsername(), teamId, request))
+        assertThatThrownBy(() -> reviewService.createReview(user.getId(), teamId, request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(TEAM_MEMBER_NOT_FOUND);

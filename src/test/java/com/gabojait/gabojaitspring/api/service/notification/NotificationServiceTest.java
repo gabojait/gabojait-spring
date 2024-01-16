@@ -62,7 +62,7 @@ class NotificationServiceTest {
 
         // when
         PageData<List<NotificationPageResponse>> responses =
-                notificationService.findPageNotifications(user.getUsername(), pageFrom, pageSize);
+                notificationService.findPageNotifications(user.getId(), pageFrom, pageSize);
 
         // then
         assertThat(responses.getData())
@@ -89,10 +89,10 @@ class NotificationServiceTest {
         Notification notification = createSavedNotification(user, NotificationType.NONE, "알림 제목", "알림이 왔습니다.");
 
         // when
-        notificationService.readNotification(user.getUsername(), notification.getId());
+        notificationService.readNotification(user.getId(), notification.getId());
 
         // then
-        Optional<Notification> foundNotification = notificationRepository.findUnread(user.getUsername(),
+        Optional<Notification> foundNotification = notificationRepository.findUnread(user.getId(),
                 notification.getId());
 
         assertThat(foundNotification).isEmpty();
@@ -109,11 +109,10 @@ class NotificationServiceTest {
         notificationRepository.save(notification);
 
         // when
-        notificationService.readNotification(user.getUsername(), notification.getId());
+        notificationService.readNotification(user.getId(), notification.getId());
 
         // then
-        Optional<Notification> foundNotification = notificationRepository.findUnread(user.getUsername(),
-                notification.getId());
+        Optional<Notification> foundNotification = notificationRepository.findUnread(user.getId(), notification.getId());
 
         assertThat(foundNotification).isEmpty();
     }

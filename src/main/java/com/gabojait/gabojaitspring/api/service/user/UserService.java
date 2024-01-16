@@ -130,12 +130,12 @@ public class UserService {
     /**
      * 회원 로그아웃 |
      * 404(USER_NOT_FOUND)
-     * @param username 아이디
+     * @param userId 회원 식별자
      * @param fcmToken FCM 토큰
      */
     @Transactional
-    public void logout(String username, String fcmToken) {
-        User user = findUser(username);
+    public void logout(long userId, String fcmToken) {
+        User user = findUser(userId);
 
         findFcm(user, fcmToken).ifPresent(fcmRepository::delete);
     }
@@ -178,11 +178,11 @@ public class UserService {
     /**
      * 회원 정보 조회 |
      * 404(USER_NOT_FOUND)
-     * @param username 아이디
+     * @param userId 회원 식별자
      * @return 회원 본인 조회 응답
      */
-    public UserFindMyselfResponse findUserInfo(String username) {
-        User user = findUser(username);
+    public UserFindMyselfResponse findUserInfo(long userId) {
+        User user = findUser(userId);
 
         return new UserFindMyselfResponse(user);
     }
@@ -190,12 +190,13 @@ public class UserService {
     /**
      * FCM 토큰 업데이트 |
      * 404(USER_NOT_FOUND)
-     * @param username 아이디
+     * @param userId 회원 식별자
      * @param fcmToken FCM 토큰
+     * @param lastRequestAt 마지막 요청일
      */
     @Transactional
-    public void updateFcmToken(String username, String fcmToken, LocalDateTime lastRequestAt) {
-        User user = findUser(username);
+    public void updateFcmToken(long userId, String fcmToken, LocalDateTime lastRequestAt) {
+        User user = findUser(userId);
 
         user.updateLastRequestAt(lastRequestAt);
         createFcm(user, fcmToken);
@@ -247,11 +248,11 @@ public class UserService {
      * 비밀번호 검증 |
      * 401(PASSWORD_UNAUTHENTICATED)
      * 404(USER_NOT_FOUND)
-     * @param username 아이디
+     * @param userId 회원 식별자
      * @param password 비밀번호
      */
-    public void verifyPassword(String username, String password) {
-        User user = findUser(username);
+    public void verifyPassword(long userId, String password) {
+        User user = findUser(userId);
 
         boolean isVerified = passwordUtility.verifyPassword(user, password);
 
@@ -263,12 +264,12 @@ public class UserService {
      * 닉네임 업데이트 |
      * 404(USER_NOT_FOUND)
      * 409(UNAVAILABLE_NICKNAME / EXISTING_NICKNAME)
-     * @param username 아이디
+     * @param userId 회원 식별자
      * @param nickname 닉네임
      */
     @Transactional
-    public void updateNickname(String username, String nickname) {
-        User user = findUser(username);
+    public void updateNickname(long userId, String nickname) {
+        User user = findUser(userId);
 
         validateNickname(nickname);
 
@@ -279,13 +280,13 @@ public class UserService {
      * 비밀번호 업데이트 |
      * 400(PASSWORD_MATCH_INVALID)
      * 404(USER_NOT_FOUND)
-     * @param username 아이디
+     * @param userId 회원 식별자
      * @param password 비밀번호
      * @param passwordReEntered 비밀번호 재입력
      */
     @Transactional
-    public void updatePassword(String username, String password, String passwordReEntered) {
-        User user = findUser(username);
+    public void updatePassword(long userId, String password, String passwordReEntered) {
+        User user = findUser(userId);
 
         validatePassword(password, passwordReEntered);
 
@@ -296,12 +297,12 @@ public class UserService {
     /**
      * 알림 여부 업데이트 |
      * 404(USER_NOT_FOUND)
-     * @param username 아이디
+     * @param userId 회원 식별자
      * @param isNotified 알림 여부
      */
     @Transactional
-    public void updateIsNotified(String username, boolean isNotified) {
-        User user = findUser(username);
+    public void updateIsNotified(long userId, boolean isNotified) {
+        User user = findUser(userId);
 
         user.updateIsNotified(isNotified);
     }
@@ -310,15 +311,15 @@ public class UserService {
      * 회원 탈퇴 |
      * 404(USER_NOT_FOUND)
      * 409(UNREGISTER_UNAVAILABLE)
-     * @param username 아이디
+     * @param userId 회원 식별자
      */
     @Transactional
-    public void withdrawal(String username) {
-        User user = findUser(username);
+    public void withdrawal(long userId) {
+        User user = findUser(userId);
 
         fcmRepository.deleteAll(fcmRepository.findAllByUser(user));
         notificationRepository.deleteAll(notificationRepository.findAllByUser(user));
-        userRoleRepository.deleteAll(userRoleRepository.findAll(username));
+        userRoleRepository.deleteAll(userRoleRepository.findAll(userId));
 
         educationRepository.deleteAll(educationRepository.findAll(user.getId()));
         portfolioRepository.deleteAll(portfolioRepository.findAll(user.getId()));
@@ -338,6 +339,19 @@ public class UserService {
      */
     private User findUser(String username) {
         return userRepository.findByUsername(username)
+                .orElseThrow(() -> {
+                    throw new CustomException(USER_NOT_FOUND);
+                });
+    }
+
+    /**
+     * 회원 단건 조회 |
+     * 404(USER_NOT_FOUND)
+     * @param userId 회원 식별자
+     * @return 회원
+     */
+    private User findUser(long userId) {
+        return userRepository.findById(userId)
                 .orElseThrow(() -> {
                     throw new CustomException(USER_NOT_FOUND);
                 });

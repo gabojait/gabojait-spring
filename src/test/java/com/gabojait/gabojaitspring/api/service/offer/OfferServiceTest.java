@@ -60,7 +60,7 @@ class OfferServiceTest {
         OfferCreateRequest request = createValidOfferCreateRequest();
 
         // when
-        offerService.offerByUser(user2.getUsername(), team.getId(), request);
+        offerService.offerByUser(user2.getId(), team.getId(), request);
 
         // then
         List<Offer> offers = offerRepository.findAllByUserId(user2.getId(), user1.getId());
@@ -76,13 +76,13 @@ class OfferServiceTest {
     @DisplayName("존재하지 않은 회원으로 팀에 제안시 예외가 발생한다.")
     void givenNonExistingUser_whenOfferByUser_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
         long teamId = 1L;
 
         OfferCreateRequest request = createValidOfferCreateRequest();
 
         // when & then
-        assertThatThrownBy(() -> offerService.offerByUser(username, teamId, request))
+        assertThatThrownBy(() -> offerService.offerByUser(userId, teamId, request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -98,7 +98,7 @@ class OfferServiceTest {
         OfferCreateRequest request = createValidOfferCreateRequest();
 
         // when & then
-        assertThatThrownBy(() -> offerService.offerByUser(user.getUsername(), teamId, request))
+        assertThatThrownBy(() -> offerService.offerByUser(user.getId(), teamId, request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(TEAM_NOT_FOUND);
@@ -114,7 +114,7 @@ class OfferServiceTest {
         OfferCreateRequest request = createValidOfferCreateRequest();
 
         // when & then
-        assertThatThrownBy(() -> offerService.offerByUser(user.getUsername(), team.getId(), request))
+        assertThatThrownBy(() -> offerService.offerByUser(user.getId(), team.getId(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(TEAM_POSITION_UNAVAILABLE);
@@ -132,7 +132,7 @@ class OfferServiceTest {
         OfferCreateRequest request = createValidOfferCreateRequest();
 
         // when
-        offerService.offerByTeam(user1.getUsername(), user2.getId(), request);
+        offerService.offerByTeam(user1.getId(), user2.getId(), request);
 
         // then
         List<Offer> offers = offerRepository.findAllByUserId(user2.getId(), user1.getId());
@@ -156,7 +156,7 @@ class OfferServiceTest {
         OfferCreateRequest request = createValidOfferCreateRequest();
 
         // when & then
-        assertThatThrownBy(() -> offerService.offerByTeam(user1.getUsername(), user2.getId(), request))
+        assertThatThrownBy(() -> offerService.offerByTeam(user1.getId(), user2.getId(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(REQUEST_FORBIDDEN);
@@ -172,45 +172,26 @@ class OfferServiceTest {
         OfferCreateRequest request = createValidOfferCreateRequest();
 
         // when & then
-        assertThatThrownBy(() -> offerService.offerByTeam(user1.getUsername(), user2.getId(), request))
+        assertThatThrownBy(() -> offerService.offerByTeam(user1.getId(), user2.getId(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(CURRENT_TEAM_NOT_FOUND);
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원에게 팀이 회원에 제안을 하면 예외가 발생한다.")
-    void givenToNonExistingUser_whenOfferByTeam_thenThrow() {
-        //  given
-        User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일", Position.BACKEND);
-        Team team = createSavedTeam((byte) 2);
-        TeamMember teamMember = createdSavedTeamMember(true, user1, team);
-
-        long userId = 2L;
-
-        OfferCreateRequest request = createValidOfferCreateRequest();
-
-        // when & then
-        assertThatThrownBy(() -> offerService.offerByTeam(user1.getUsername(), userId, request))
-                .isInstanceOf(CustomException.class)
-                .extracting("errorCode")
-                .isEqualTo(USER_NOT_FOUND);
-    }
-
-    @Test
     @DisplayName("존재하지 않은 팀으로 팀이 회원에 제안을 하면 예외가 발생한다.")
     void givenNonExisingTeam_whenOfferByTeam_thenThrow() {
         //  given
-        String username = "tester1";
+        long userId = 2L;
         User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이", Position.FRONTEND);
 
         OfferCreateRequest request = createValidOfferCreateRequest();
 
         // when & then
-        assertThatThrownBy(() -> offerService.offerByTeam(username, user2.getId(), request))
+        assertThatThrownBy(() -> offerService.offerByTeam(userId, user2.getId(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
-                .isEqualTo(USER_NOT_FOUND);
+                .isEqualTo(CURRENT_TEAM_NOT_FOUND);
     }
 
     @Test
@@ -225,7 +206,7 @@ class OfferServiceTest {
         OfferCreateRequest request = createValidOfferCreateRequest();
 
         // when & then
-        assertThatThrownBy(() -> offerService.offerByTeam(user1.getUsername(), user2.getId(), request))
+        assertThatThrownBy(() -> offerService.offerByTeam(user1.getId(), user2.getId(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(TEAM_POSITION_UNAVAILABLE);
@@ -251,7 +232,7 @@ class OfferServiceTest {
         int pageSize = 1;
 
         // when
-        PageData<List<OfferPageResponse>> responses = offerService.findPageUserOffer(user3.getUsername(), offeredBy,
+        PageData<List<OfferPageResponse>> responses = offerService.findPageUserOffer(user3.getId(), offeredBy,
                 pageFrom, pageSize);
 
         // then
@@ -300,7 +281,7 @@ class OfferServiceTest {
         int pageSize = 1;
 
         // when
-        PageData<List<OfferPageResponse>> responses = offerService.findPageUserOffer(user3.getUsername(), offeredBy,
+        PageData<List<OfferPageResponse>> responses = offerService.findPageUserOffer(user3.getId(), offeredBy,
                 pageFrom, pageSize);
 
         // then
@@ -330,23 +311,6 @@ class OfferServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원으로 팀에게 받은 제안 페이징 조회를 하면 예외가 발생한다.")
-    void givenNonExistingUser_whenFindPageUserOffer_thenThrow() {
-        // given
-        String username = "tester";
-
-        OfferedBy offeredBy = OfferedBy.LEADER;
-        long pageFrom = Long.MAX_VALUE;
-        int pageSize = 1;
-
-        // when & then
-        assertThatThrownBy(() -> offerService.findPageUserOffer(username, offeredBy, pageFrom, pageSize))
-                .isInstanceOf(CustomException.class)
-                .extracting("errorCode")
-                .isEqualTo(USER_NOT_FOUND);
-    }
-
-    @Test
     @DisplayName("팀이 받은 팀 관련 제안 페이징 조회를 한다.")
     void givenOfferedByUser_whenFindPageTeamOffer_thenReturn() {
         // given
@@ -365,7 +329,7 @@ class OfferServiceTest {
         int pageSize = 1;
 
         // when
-        PageData<List<OfferPageResponse>> responses = offerService.findPageTeamOffer(user1.getUsername(), position,
+        PageData<List<OfferPageResponse>> responses = offerService.findPageTeamOffer(user1.getId(), position,
                 offeredBy, pageFrom, pageSize);
 
         // then
@@ -413,7 +377,7 @@ class OfferServiceTest {
         int pageSize = 1;
 
         // when
-        PageData<List<OfferPageResponse>> responses = offerService.findPageTeamOffer(user1.getUsername(), position,
+        PageData<List<OfferPageResponse>> responses = offerService.findPageTeamOffer(user1.getId(), position,
                 offeredBy, pageFrom, pageSize);
 
         // then
@@ -456,7 +420,7 @@ class OfferServiceTest {
         int pageSize = 1;
 
         // when
-        assertThatThrownBy(() -> offerService.findPageTeamOffer(user.getUsername(), position, offeredBy, pageFrom, pageSize))
+        assertThatThrownBy(() -> offerService.findPageTeamOffer(user.getId(), position, offeredBy, pageFrom, pageSize))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(REQUEST_FORBIDDEN);
@@ -466,7 +430,7 @@ class OfferServiceTest {
     @DisplayName("존재하지 않은 회원으로 회원에게 받은 제안 페이징 조회를 하면 예외가 발생한다.")
     void givenNonExistingUser_whenFindPageTeamOffer_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
 
         OfferedBy offeredBy = OfferedBy.LEADER;
         Position position = Position.DESIGNER;
@@ -474,7 +438,7 @@ class OfferServiceTest {
         int pageSize = 1;
 
         // when
-        assertThatThrownBy(() -> offerService.findPageTeamOffer(username, position, offeredBy, pageFrom, pageSize))
+        assertThatThrownBy(() -> offerService.findPageTeamOffer(userId, position, offeredBy, pageFrom, pageSize))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -492,7 +456,7 @@ class OfferServiceTest {
         int pageSize = 1;
 
         // when
-        assertThatThrownBy(() -> offerService.findPageTeamOffer(user.getUsername(), position, offeredBy, pageFrom, pageSize))
+        assertThatThrownBy(() -> offerService.findPageTeamOffer(user.getId(), position, offeredBy, pageFrom, pageSize))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(CURRENT_TEAM_NOT_FOUND);
@@ -514,7 +478,7 @@ class OfferServiceTest {
         OfferDecideRequest request = createValidOfferDecideRequest(true);
 
         // when
-        offerService.userDecideOffer(user2.getUsername(), offer1.getId(), request);
+        offerService.userDecideOffer(user2.getId(), offer1.getId(), request);
 
         // then
         TeamMember teamMember = teamMemberRepository.findCurrentFetchTeam(user2.getId()).get();
@@ -548,27 +512,12 @@ class OfferServiceTest {
         OfferDecideRequest request = createValidOfferDecideRequest(false);
 
         // when
-        offerService.userDecideOffer(user2.getUsername(), offer.getId(), request);
+        offerService.userDecideOffer(user2.getId(), offer.getId(), request);
 
         // then
         assertThat(offer)
                 .extracting("isAccepted", "isDeleted")
                 .containsExactly(false, true);
-    }
-
-    @Test
-    @DisplayName("존재하지 않은 회원이 받은 제안 결정을 하면 예외가 발생한다.")
-    void givenNonExistingUser_whenUserDecideOffer_thenThrow() {
-        // given
-        String username = "tester";
-        long offerId = 1L;
-        OfferDecideRequest request = createValidOfferDecideRequest(true);
-
-        // when & then
-        assertThatThrownBy(() -> offerService.userDecideOffer(username, offerId, request))
-                .isInstanceOf(CustomException.class)
-                .extracting("errorCode")
-                .isEqualTo(USER_NOT_FOUND);
     }
 
     @Test
@@ -580,7 +529,7 @@ class OfferServiceTest {
         OfferDecideRequest request = createValidOfferDecideRequest(true);
 
         // when & then
-        assertThatThrownBy(() -> offerService.userDecideOffer(user.getUsername(), offerId, request))
+        assertThatThrownBy(() -> offerService.userDecideOffer(user.getId(), offerId, request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(OFFER_NOT_FOUND);
@@ -602,7 +551,7 @@ class OfferServiceTest {
         OfferDecideRequest request = createValidOfferDecideRequest(true);
 
         // when
-        offerService.teamDecideOffer(user1.getUsername(), offer1.getId(), request);
+        offerService.teamDecideOffer(user1.getId(), offer1.getId(), request);
 
         // then
         TeamMember teamMember = teamMemberRepository.findCurrentFetchTeam(user2.getId()).get();
@@ -636,7 +585,7 @@ class OfferServiceTest {
         OfferDecideRequest request = createValidOfferDecideRequest(false);
 
         // when
-        offerService.teamDecideOffer(user1.getUsername(), offer.getId(), request);
+        offerService.teamDecideOffer(user1.getId(), offer.getId(), request);
 
         // then
         assertThat(offer)
@@ -658,25 +607,10 @@ class OfferServiceTest {
         OfferDecideRequest request = createValidOfferDecideRequest(true);
 
         // when & then
-        assertThatThrownBy(() -> offerService.teamDecideOffer(user1.getUsername(), offer.getId(), request))
+        assertThatThrownBy(() -> offerService.teamDecideOffer(user1.getId(), offer.getId(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(REQUEST_FORBIDDEN);
-    }
-
-    @Test
-    @DisplayName("존재하지 회원으로 팀이 받은 제안을 결정하면 예외가 발생한다.")
-    void givenNonExistingUser_whenTeamDecideOffer_thenThrow() {
-        // given
-        String username = "tester";
-        long offerId = 1L;
-        OfferDecideRequest request = createValidOfferDecideRequest(true);
-
-        // when & then
-        assertThatThrownBy(() -> offerService.teamDecideOffer(username, offerId, request))
-                .isInstanceOf(CustomException.class)
-                .extracting("errorCode")
-                .isEqualTo(USER_NOT_FOUND);
     }
 
     @Test
@@ -689,7 +623,7 @@ class OfferServiceTest {
         OfferDecideRequest request = createValidOfferDecideRequest(true);
 
         // when & then
-        assertThatThrownBy(() -> offerService.teamDecideOffer(user.getUsername(), offerId, request))
+        assertThatThrownBy(() -> offerService.teamDecideOffer(user.getId(), offerId, request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(CURRENT_TEAM_NOT_FOUND);
@@ -707,7 +641,7 @@ class OfferServiceTest {
         OfferDecideRequest request = createValidOfferDecideRequest(true);
 
         // when & then
-        assertThatThrownBy(() -> offerService.teamDecideOffer(user.getUsername(), offerId, request))
+        assertThatThrownBy(() -> offerService.teamDecideOffer(user.getId(), offerId, request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(OFFER_NOT_FOUND);
@@ -725,26 +659,12 @@ class OfferServiceTest {
         Offer offer = createSavedOffer(team, user2, OfferedBy.USER, Position.DESIGNER);
 
         // when
-        offerService.cancelByUser(user2.getUsername(), offer.getId());
+        offerService.cancelByUser(user2.getId(), offer.getId());
 
         // then
         assertThat(offer)
                 .extracting("isAccepted", "isDeleted")
                 .containsExactly(null, true);
-    }
-
-    @Test
-    @DisplayName("존재하지 않은 회원이 보낸 제안을 취소하면 예외가 발생한다.")
-    void givenNonExistingUser_whenCancelByUser_thenThrow() {
-        // given
-        String username = "tester";
-        long offerId = 1L;
-
-        // when & then
-        assertThatThrownBy(() -> offerService.cancelByUser(username, offerId))
-                .isInstanceOf(CustomException.class)
-                .extracting("errorCode")
-                .isEqualTo(USER_NOT_FOUND);
     }
 
     @Test
@@ -755,7 +675,7 @@ class OfferServiceTest {
         long offerId = 1L;
 
         // when & then
-        assertThatThrownBy(() -> offerService.cancelByUser(user.getUsername(), offerId))
+        assertThatThrownBy(() -> offerService.cancelByUser(user.getId(), offerId))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(OFFER_NOT_FOUND);
@@ -773,7 +693,7 @@ class OfferServiceTest {
         Offer offer = createSavedOffer(team, user2, OfferedBy.LEADER, Position.DESIGNER);
 
         // when
-        offerService.cancelByTeam(user1.getUsername(), offer.getId());
+        offerService.cancelByTeam(user1.getId(), offer.getId());
 
         // then
         assertThat(offer)
@@ -793,24 +713,10 @@ class OfferServiceTest {
         Offer offer = createSavedOffer(team, user2, OfferedBy.LEADER, Position.DESIGNER);
 
         // when & then
-        assertThatThrownBy(() -> offerService.cancelByTeam(user1.getUsername(), offer.getId()))
+        assertThatThrownBy(() -> offerService.cancelByTeam(user1.getId(), offer.getId()))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(REQUEST_FORBIDDEN);
-    }
-
-    @Test
-    @DisplayName("존재하지 않은 회원이 팀이 보낸 제안을 취소하면 예외가 발생한다.")
-    void givenNonExistingUser_whenCancelByTeam_thenThrow() {
-        // given
-        String username = "tester";
-        long offerId = 1L;
-
-        // when & then
-        assertThatThrownBy(() -> offerService.cancelByTeam(username, offerId))
-                .isInstanceOf(CustomException.class)
-                .extracting("errorCode")
-                .isEqualTo(USER_NOT_FOUND);
     }
 
     @Test
@@ -821,7 +727,7 @@ class OfferServiceTest {
         long offerId = 1L;
 
         // when & then
-        assertThatThrownBy(() -> offerService.cancelByTeam(user.getUsername(), offerId))
+        assertThatThrownBy(() -> offerService.cancelByTeam(user.getId(), offerId))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(CURRENT_TEAM_NOT_FOUND);
@@ -837,7 +743,7 @@ class OfferServiceTest {
         long offerId = 1L;
 
         // when & then
-        assertThatThrownBy(() -> offerService.cancelByTeam(user.getUsername(), offerId))
+        assertThatThrownBy(() -> offerService.cancelByTeam(user.getId(), offerId))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(OFFER_NOT_FOUND);

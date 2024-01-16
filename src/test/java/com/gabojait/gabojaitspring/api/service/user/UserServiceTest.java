@@ -321,7 +321,7 @@ class UserServiceTest {
         String fcmToken = "fcm-token";
 
         // when
-        userService.logout(user.getUsername(), fcmToken);
+        userService.logout(user.getId(), fcmToken);
 
         // then
         Optional<Fcm> fcm = fcmRepository.findByUserAndFcmToken(user, fcmToken);
@@ -332,11 +332,11 @@ class UserServiceTest {
     @DisplayName("존재하지 않은 회원으로 로그아웃시 예외가 발생한다.")
     void givenNonExistingUser_whenLogout_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
         String fcmToken = "fcm-token";
         
         // when & then
-        assertThatThrownBy(() -> userService.logout(username, fcmToken))
+        assertThatThrownBy(() -> userService.logout(userId, fcmToken))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -354,7 +354,7 @@ class UserServiceTest {
         userRepository.save(user);
 
         // when
-        UserFindMyselfResponse response = userService.findUserInfo(user.getUsername());
+        UserFindMyselfResponse response = userService.findUserInfo(user.getId());
 
         // then
         assertThat(response)
@@ -374,10 +374,10 @@ class UserServiceTest {
     @DisplayName("존재하지 않은 회원 정보 조회를 한다.")
     void givenNonExistingUsername_whenFindUserInfo_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
 
         // when & then
-        assertThatThrownBy(() -> userService.findUserInfo(username))
+        assertThatThrownBy(() -> userService.findUserInfo(userId))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -401,7 +401,7 @@ class UserServiceTest {
         LocalDateTime lastRequestAt = LocalDateTime.now();
 
         // when
-        userService.updateFcmToken(user.getUsername(), fcmToken, lastRequestAt);
+        userService.updateFcmToken(user.getId(), fcmToken, lastRequestAt);
 
         // then
         Optional<Fcm> foundFcm = fcmRepository.findByUserAndFcmToken(user, fcmToken);
@@ -426,7 +426,7 @@ class UserServiceTest {
         LocalDateTime lastRequestAt = LocalDateTime.now();
 
         // when
-        userService.updateFcmToken(user.getUsername(), fcmToken, lastRequestAt);
+        userService.updateFcmToken(user.getId(), fcmToken, lastRequestAt);
 
         // then
         Optional<Fcm> fcm = fcmRepository.findByUserAndFcmToken(user, fcmToken);
@@ -440,12 +440,12 @@ class UserServiceTest {
     @DisplayName("존재하지 않은 회원의 FCM 토큰을 업데이트시 예외가 발생한다.")
     void givenNonExistingUser_whenUpdateFcmToken_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
         String fcmToken = "fcm-token";
         LocalDateTime lastRequestAt = LocalDateTime.now();
 
         // when & then
-        assertThatThrownBy(() -> userService.updateFcmToken(username, fcmToken, lastRequestAt))
+        assertThatThrownBy(() -> userService.updateFcmToken(userId, fcmToken, lastRequestAt))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -544,7 +544,7 @@ class UserServiceTest {
         String password = "password1!";
 
         // when & then
-        userService.verifyPassword(user.getUsername(), password);
+        userService.verifyPassword(user.getId(), password);
     }
 
     @Test
@@ -561,7 +561,7 @@ class UserServiceTest {
         String password = "password2!";
 
         // when & then
-        assertThatThrownBy(() -> userService.verifyPassword(user.getUsername(), password))
+        assertThatThrownBy(() -> userService.verifyPassword(user.getId(), password))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(PASSWORD_UNAUTHENTICATED);
@@ -571,11 +571,11 @@ class UserServiceTest {
     @DisplayName("존재하지 않은 회원으로 비밀번호 검증시 예외가 발생한다.")
     void givenNonExistingUser_whenVerifyPassword_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
         String password = "password1!";
 
         // when & then
-        assertThatThrownBy(() -> userService.verifyPassword(username, password))
+        assertThatThrownBy(() -> userService.verifyPassword(userId, password))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -595,7 +595,7 @@ class UserServiceTest {
         String nickname = "테스터이";
 
         // when
-        userService.updateNickname(user.getUsername(), nickname);
+        userService.updateNickname(user.getId(), nickname);
 
         // then
         assertEquals(nickname, user.getNickname());
@@ -605,11 +605,11 @@ class UserServiceTest {
     @DisplayName("존재하지 않은 회원으로 닉네임 업데이트를 하면 예외가 발생한다.")
     void givenNonExistingUser_whenUpdateNickname_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
         String nickname = "테스터";
 
         // when & then
-        assertThatThrownBy(() -> userService.updateNickname(username, nickname))
+        assertThatThrownBy(() -> userService.updateNickname(userId, nickname))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -629,7 +629,7 @@ class UserServiceTest {
         String nickname = "가보자잇크루";
 
         // when & then
-        assertThatThrownBy(() -> userService.updateNickname(user.getUsername(), nickname))
+        assertThatThrownBy(() -> userService.updateNickname(user.getId(), nickname))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(UNAVAILABLE_NICKNAME);
@@ -647,7 +647,7 @@ class UserServiceTest {
         userRepository.save(user);
 
         // when & then
-        assertThatThrownBy(() -> userService.updateNickname(user.getUsername(), user.getNickname()))
+        assertThatThrownBy(() -> userService.updateNickname(user.getId(), user.getNickname()))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(EXISTING_NICKNAME);
@@ -667,7 +667,7 @@ class UserServiceTest {
         String password = "password2!";
 
         // when & then
-        userService.updatePassword(user.getUsername(), password, password);
+        userService.updatePassword(user.getId(), password, password);
     }
 
     @Test
@@ -686,7 +686,7 @@ class UserServiceTest {
 
         // when & then
         assertThatThrownBy(() ->
-                userService.updatePassword(user.getUsername(), password, passwordReEntered))
+                userService.updatePassword(user.getId(), password, passwordReEntered))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(PASSWORD_MATCH_INVALID);
@@ -696,12 +696,12 @@ class UserServiceTest {
     @DisplayName("존재하지 않은 회원으로 비밀번호 업데이트를 하면 예외가 발생한다.")
     void givenNonExistingUser_whenUpdatePassword_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
         String password = "password1!";
 
         // when & then
         assertThatThrownBy(() ->
-                userService.updatePassword(username, password, password))
+                userService.updatePassword(userId, password, password))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -721,7 +721,7 @@ class UserServiceTest {
         boolean isNotified = false;
 
         // when
-        userService.updateIsNotified(user.getUsername(), isNotified);
+        userService.updateIsNotified(user.getId(), isNotified);
 
         // then
         assertFalse(user.getIsNotified());
@@ -731,11 +731,11 @@ class UserServiceTest {
     @DisplayName("존재하지 않은 회원으로 알림 여부 업데이트를 하면 예외가 발생한다.")
     void givenNonExistingUser_whenUpdateIsNotified_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
         boolean isNotified = false;
 
         // when & then
-        assertThatThrownBy(() -> userService.updateIsNotified(username, isNotified))
+        assertThatThrownBy(() -> userService.updateIsNotified(userId, isNotified))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -769,7 +769,7 @@ class UserServiceTest {
 
 
         // when
-        userService.withdrawal(user.getUsername());
+        userService.withdrawal(user.getId());
 
         // then
         assertThat(userRepository.findByUsername(username)).isEmpty();
@@ -788,10 +788,10 @@ class UserServiceTest {
     @DisplayName("존재하지 않은 회원으로 회원 탈퇴를 하면 예외가 발생한다.")
     void givenNonExistingUser_whenWithdrawal_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
 
         // when & then
-        assertThatThrownBy(() -> userService.withdrawal(username))
+        assertThatThrownBy(() -> userService.withdrawal(userId))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);

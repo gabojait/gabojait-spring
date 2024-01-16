@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles("test")
@@ -25,8 +26,8 @@ class UserRoleRepositoryTest {
     @Autowired private ContactRepository contactRepository;
 
     @Test
-    @DisplayName("존재하는 회원 아이디로 전체 권한 조회를 한다.")
-    void givenExisting_whenFindAll_thenReturn() {
+    @DisplayName("회원 아이디로 전체 권한 조회를 한다.")
+    void givenUsername_whenFindAll_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
         Role role = Role.USER;
@@ -44,16 +45,27 @@ class UserRoleRepositoryTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 아이디로 전체 권한 조회를 한다.")
-    void givenNonExisting_whenFindAll_thenReturn() {
+    @DisplayName("회원 식별자로 전체 권한 조회를 한다.")
+    void givenUserId_findAll_thenReturn() {
         // given
-        String username = "tester";
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
+        Role role = Role.USER;
+        UserRole userRole = createUserRole(user, role);
+        userRoleRepository.save(userRole);
 
         // when
-        List<UserRole> userRoles = userRoleRepository.findAll(username);
+        List<UserRole> userRoles = userRoleRepository.findAll(user.getId());
 
         // then
-        assertThat(userRoles).isEmpty();
+        assertAll(
+                () -> assertThat(userRoles)
+                        .extracting("id", "role", "createdAt", "updatedAt")
+                        .containsExactlyInAnyOrder(
+                                tuple(userRole.getId(), userRole.getRole(), userRole.getCreatedAt(),
+                                        userRole.getUpdatedAt())
+                        ),
+                () -> assertThat(userRoles).extracting("user").containsExactlyInAnyOrder(user)
+        );
     }
 
     private UserRole createUserRole(User user, Role role) {

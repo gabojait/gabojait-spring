@@ -17,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Positive;
 import java.util.List;
@@ -61,7 +60,7 @@ public class NotificationController {
     })
     @GetMapping("/user/notification")
     public ResponseEntity<DefaultMultiResponse<Object>> findPageNotification(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @RequestParam(value = "page-from", required = false, defaultValue = "9223372036854775806")
             @Positive(message = "페이지 시작점은 양수만 가능합니다.")
             Long pageFrom,
@@ -70,9 +69,9 @@ public class NotificationController {
             @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.")
             Integer pageSize
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getUserId(authorization);
 
-        PageData<List<NotificationPageResponse>> responses = notificationService.findPageNotifications(username,
+        PageData<List<NotificationPageResponse>> responses = notificationService.findPageNotifications(userId,
                 pageFrom, pageSize);
 
         return ResponseEntity.status(NOTIFICATIONS_FOUND.getHttpStatus())
@@ -104,14 +103,14 @@ public class NotificationController {
     })
     @PatchMapping("/user/notification/{notification-id}")
     public ResponseEntity<DefaultNoResponse> readNotification(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @PathVariable(value = "notification-id")
             @Positive(message = "알림 식별자는 양수만 가능합니다.")
             Long notificationId
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getUserId(authorization);
 
-        notificationService.readNotification(username, notificationId);
+        notificationService.readNotification(userId, notificationId);
 
         return ResponseEntity.status(NOTIFICATION_READ.getHttpStatus())
                 .body(DefaultNoResponse.noDataBuilder()

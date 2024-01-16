@@ -54,7 +54,7 @@ class FavoriteServiceTest {
         FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(true);
 
         // when
-        favoriteService.updateFavoriteUser(user1.getUsername(), user2.getId(), request);
+        favoriteService.updateFavoriteUser(user1.getId(), user2.getId(), request);
 
         // then
         Optional<Favorite> favorite = favoriteRepository.findUser(user1.getId(), user2.getId());
@@ -73,7 +73,7 @@ class FavoriteServiceTest {
         FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(true);
 
         // when
-        favoriteService.updateFavoriteUser(user1.getUsername(), user2.getId(), request);
+        favoriteService.updateFavoriteUser(user1.getId(), user2.getId(), request);
 
         // then
         Optional<Favorite> foundFavorite = favoriteRepository.findUser(user1.getId(), user2.getId());
@@ -92,7 +92,7 @@ class FavoriteServiceTest {
         FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(false);
 
         // when
-        favoriteService.updateFavoriteUser(user1.getUsername(), user2.getId(), request);
+        favoriteService.updateFavoriteUser(user1.getId(), user2.getId(), request);
 
         // then
         Optional<Favorite> foundFavorite = favoriteRepository.findUser(user1.getId(), user2.getId());
@@ -111,7 +111,7 @@ class FavoriteServiceTest {
         FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(false);
 
         // when
-        favoriteService.updateFavoriteUser(user1.getUsername(), user2.getId(), request);
+        favoriteService.updateFavoriteUser(user1.getId(), user2.getId(), request);
 
         // then
         Optional<Favorite> foundFavorite = favoriteRepository.findUser(user1.getId(), user2.getId());
@@ -129,7 +129,7 @@ class FavoriteServiceTest {
         FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(true);
 
         // when
-        favoriteService.updateFavoriteTeam(user.getUsername(), team.getId(), request);
+        favoriteService.updateFavoriteTeam(user.getId(), team.getId(), request);
 
         // then
         Optional<Favorite> favorite = favoriteRepository.findTeam(user.getId(), team.getId());
@@ -148,7 +148,7 @@ class FavoriteServiceTest {
         FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(true);
 
         // when
-        favoriteService.updateFavoriteTeam(user.getUsername(), team.getId(), request);
+        favoriteService.updateFavoriteTeam(user.getId(), team.getId(), request);
 
         // then
         Optional<Favorite> foundFavorite = favoriteRepository.findTeam(user.getId(), team.getId());
@@ -167,7 +167,7 @@ class FavoriteServiceTest {
         FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(false);
 
         // when
-        favoriteService.updateFavoriteTeam(user.getUsername(), team.getId(), request);
+        favoriteService.updateFavoriteTeam(user.getId(), team.getId(), request);
 
         // then
         Optional<Favorite> foundFavorite = favoriteRepository.findTeam(user.getId(), team.getId());
@@ -185,7 +185,7 @@ class FavoriteServiceTest {
         FavoriteUpdateRequest request = createValidFavoriteUpdateRequest(false);
 
         // when
-        favoriteService.updateFavoriteTeam(user.getUsername(), team.getId(), request);
+        favoriteService.updateFavoriteTeam(user.getId(), team.getId(), request);
 
         // then
         Optional<Favorite> foundFavorite = favoriteRepository.findTeam(user.getId(), team.getId());
@@ -210,7 +210,7 @@ class FavoriteServiceTest {
         int pageSize = 2;
 
         // when
-        PageData<List<FavoriteUserPageResponse>> responses = favoriteService.findPageFavoriteUser(user1.getUsername(),
+        PageData<List<FavoriteUserPageResponse>> responses = favoriteService.findPageFavoriteUser(user1.getId(),
                 pageFrom, pageSize);
 
         // then
@@ -232,13 +232,13 @@ class FavoriteServiceTest {
     @DisplayName("존재하지 않은 회원으로 찜한 회원 페이징 조회를 하면 예외가 발생한다.")
     void givenNonExistingUser_whenFindPageFavoriteUser_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
 
         long pageFrom = Long.MAX_VALUE;
         int pageSize = 2;
 
         // when & then
-        assertThatThrownBy(() -> favoriteService.findPageFavoriteUser(username, pageFrom, pageSize))
+        assertThatThrownBy(() -> favoriteService.findPageFavoriteUser(userId, pageFrom, pageSize))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -261,7 +261,7 @@ class FavoriteServiceTest {
         int pageSize = 2;
 
         // when
-        PageData<List<FavoriteTeamPageResponse>> responses = favoriteService.findPageFavoriteTeam(user.getUsername(),
+        PageData<List<FavoriteTeamPageResponse>> responses = favoriteService.findPageFavoriteTeam(user.getId(),
                 pageFrom, pageSize);
 
         // then

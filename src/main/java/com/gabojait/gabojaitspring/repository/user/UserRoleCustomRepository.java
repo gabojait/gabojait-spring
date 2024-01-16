@@ -7,4 +7,6 @@ import java.util.List;
 public interface UserRoleCustomRepository {
 
     List<UserRole> findAll(String username);
+
+    List<UserRole> findAll(long userId);
 }

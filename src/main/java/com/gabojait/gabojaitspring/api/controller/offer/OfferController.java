@@ -22,14 +22,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.validation.constraints.*;
-
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
-import static com.gabojait.gabojaitspring.common.code.SuccessCode.USER_RECEIVED_OFFER_FOUND;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "제안")
@@ -66,15 +66,15 @@ public class OfferController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/user/team/{team-id}/offer")
     public ResponseEntity<DefaultNoResponse> userOffer(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @PathVariable(value = "team-id")
             @Positive(message = "팀 식별자는 양수만 가능합니다.")
             Long teamId,
             @RequestBody @Valid OfferCreateRequest request
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getUserId(authorization);
 
-        offerService.offerByUser(username, teamId, request);
+        offerService.offerByUser(userId, teamId, request);
 
         return ResponseEntity.status(OFFERED_BY_USER.getHttpStatus())
                 .body(DefaultNoResponse.noDataBuilder()
@@ -107,15 +107,15 @@ public class OfferController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/team/user/{user-id}/offer")
     public ResponseEntity<DefaultNoResponse> teamOffer(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @PathVariable(value = "user-id")
             @Positive(message = "회원 식별자는 양수만 가능합니다.")
             Long userId,
             @RequestBody @Valid OfferCreateRequest request
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long myUserId = jwtProvider.getUserId(authorization);
 
-        offerService.offerByTeam(username, userId, request);
+        offerService.offerByTeam(myUserId, userId, request);
 
         return ResponseEntity.status(OFFERED_BY_TEAM.getHttpStatus())
                 .body(DefaultNoResponse.noDataBuilder()
@@ -148,7 +148,7 @@ public class OfferController {
     })
     @GetMapping("/user/offer/received")
     public ResponseEntity<DefaultMultiResponse<Object>> findPageUserReceivedOffer(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @RequestParam(value = "page-from", required = false, defaultValue = "9223372036854775806")
             @Positive(message = "페이지 시작점은 양수만 가능합니다.")
             Long pageFrom,
@@ -157,9 +157,9 @@ public class OfferController {
             @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.")
             Integer pageSize
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getUserId(authorization);
 
-        PageData<List<OfferPageResponse>> responses = offerService.findPageUserOffer(username, OfferedBy.LEADER,
+        PageData<List<OfferPageResponse>> responses = offerService.findPageUserOffer(userId, OfferedBy.LEADER,
                 pageFrom, pageSize);
 
         return ResponseEntity.status(USER_RECEIVED_OFFER_FOUND.getHttpStatus())
@@ -198,7 +198,7 @@ public class OfferController {
     })
     @GetMapping("/team/offer/received")
     public ResponseEntity<DefaultMultiResponse<Object>> findPageTeamReceivedOffer(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @RequestParam(value = "page-from", required = false, defaultValue = "9223372036854775806")
             @Positive(message = "페이지 시작점은 양수만 가능합니다.")
             Long pageFrom,
@@ -212,9 +212,9 @@ public class OfferController {
                     message = "제안할 포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 또는 'MANAGER' 중 하나여야 됩니다.")
             String offerPosition
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getUserId(authorization);
 
-        PageData<List<OfferPageResponse>> responses = offerService.findPageTeamOffer(username,
+        PageData<List<OfferPageResponse>> responses = offerService.findPageTeamOffer(userId,
                 Position.valueOf(offerPosition), OfferedBy.USER, pageFrom, pageSize);
 
         return ResponseEntity.status(TEAM_RECEIVED_OFFER_FOUND.getHttpStatus())
@@ -249,7 +249,7 @@ public class OfferController {
     })
     @GetMapping("/user/offer/sent")
     public ResponseEntity<DefaultMultiResponse<Object>> findPageUserSentOffer(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @RequestParam(value = "page-from", required = false, defaultValue = "9223372036854775806")
             @Positive(message = "페이지 시작점은 양수만 가능합니다.")
             Long pageFrom,
@@ -258,9 +258,9 @@ public class OfferController {
             @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.")
             Integer pageSize
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getUserId(authorization);
 
-        PageData<List<OfferPageResponse>> responses = offerService.findPageUserOffer(username, OfferedBy.USER,
+        PageData<List<OfferPageResponse>> responses = offerService.findPageUserOffer(userId, OfferedBy.USER,
                 pageFrom, pageSize);
 
         return ResponseEntity.status(USER_SENT_OFFER_FOUND.getHttpStatus())
@@ -298,7 +298,7 @@ public class OfferController {
     })
     @GetMapping("/team/offer/sent")
     public ResponseEntity<DefaultMultiResponse<Object>> findPageTeamSentOffer(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @RequestParam(value = "page-from", required = false, defaultValue = "9223372036854775806")
             @Positive(message = "페이지 시작점은 양수만 가능합니다.")
             Long pageFrom,
@@ -312,9 +312,9 @@ public class OfferController {
                     message = "제안할 포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 또는 'MANAGER' 중 하나여야 됩니다.")
             String offerPosition
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getUserId(authorization);
 
-        PageData<List<OfferPageResponse>> responses = offerService.findPageTeamOffer(username,
+        PageData<List<OfferPageResponse>> responses = offerService.findPageTeamOffer(userId,
                 Position.valueOf(offerPosition), OfferedBy.LEADER, pageFrom, pageSize);
 
         return ResponseEntity.status(TEAM_SENT_OFFER_FOUND.getHttpStatus())
@@ -348,16 +348,15 @@ public class OfferController {
     })
     @PatchMapping("/user/offer/{offer-id}")
     public ResponseEntity<DefaultNoResponse> userDecideOffer(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @PathVariable(value = "offer-id")
             @Positive(message = "제안 식별자는 양수만 가능합니다.")
             Long offerId,
-            @RequestBody @Valid
-            OfferDecideRequest request
+            @RequestBody @Valid OfferDecideRequest request
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getUserId(authorization);
 
-        offerService.userDecideOffer(username, offerId, request);
+        offerService.userDecideOffer(userId, offerId, request);
 
         return ResponseEntity.status(USER_DECIDED_OFFER.getHttpStatus())
                 .body(DefaultNoResponse.noDataBuilder()
@@ -387,16 +386,15 @@ public class OfferController {
     })
     @PatchMapping("/team/offer/{offer-id}")
     public ResponseEntity<DefaultNoResponse> teamDecideOffer(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @PathVariable(value = "offer-id")
             @Positive(message = "제안 식별자는 양수만 가능합니다.")
             Long offerId,
-            @RequestBody @Valid
-            OfferDecideRequest request
+            @RequestBody @Valid OfferDecideRequest request
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getUserId(authorization);
 
-        offerService.teamDecideOffer(username, offerId, request);
+        offerService.teamDecideOffer(userId, offerId, request);
 
         return ResponseEntity.status(TEAM_DECIDED_OFFER.getHttpStatus())
                 .body(DefaultNoResponse.noDataBuilder()
@@ -426,14 +424,14 @@ public class OfferController {
     })
     @DeleteMapping("/user/offer/{offer-id}")
     public ResponseEntity<DefaultNoResponse> cancelUserOffer(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @PathVariable(value = "offer-id")
             @Positive(message = "제안 식별자는 양수만 가능합니다.")
             Long offerId
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getUserId(authorization);
 
-        offerService.cancelByUser(username, offerId);
+        offerService.cancelByUser(userId, offerId);
 
         return ResponseEntity.status(OFFER_CANCEL_BY_USER.getHttpStatus())
                 .body(DefaultNoResponse.noDataBuilder()
@@ -463,14 +461,14 @@ public class OfferController {
     })
     @DeleteMapping("/team/offer/{offer-id}")
     public ResponseEntity<DefaultNoResponse> cancelTeamOffer(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @PathVariable(value = "offer-id")
             @Positive(message = "제안 식별자는 양수만 가능합니다.")
             Long offerId
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getUserId(authorization);
 
-        offerService.cancelByTeam(username, offerId);
+        offerService.cancelByTeam(userId, offerId);
 
         return ResponseEntity.status(OFFER_CANCEL_BY_TEAM.getHttpStatus())
                 .body(DefaultNoResponse.noDataBuilder()

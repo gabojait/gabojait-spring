@@ -44,13 +44,13 @@ public class TeamService {
      * 팀 생성 |
      * 404(USER_NOT_FOUND)
      * 409(EXISTING_CURRENT_TEAM / NON_EXISTING_POSITION / TEAM_LEADER_POSITION_UNAVAILABLE)
-     * @param username 회원 아이디
+     * @param userId 회원 식별자
      * @param request 팀 생성 요청
      * @return 팀 생성 응답
      */
     @Transactional
-    public TeamCreateResponse createTeam(String username, TeamCreateRequest request) {
-        User user = findUser(username);
+    public TeamCreateResponse createTeam(long userId, TeamCreateRequest request) {
+        User user = findUser(userId);
 
         validateHasNoCurrentTeam(user.getId());
         validateHasPosition(user);
@@ -68,18 +68,16 @@ public class TeamService {
     /**
      * 팀 수정 |
      * 403(REQUEST_FORBIDDEN)
-     * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND)
+     * 404(CURRENT_TEAM_NOT_FOUND)
      * 409(DESIGNER_CNT_UPDATE_UNAVAILABLE / BACKEND_CNT_UPDATE_UNAVAILABLE / FRONTEND_CNT_UPDATE_UNAVAILABLE /
      * MANAGER_CNT_UPDATE_UNAVAILABLE)
-     * @param username 회원 아이디
+     * @param userId 회원 식별자
      * @param request 팀 수정 요청
      * @return 팀 수정 응답
      */
     @Transactional
-    public TeamUpdateResponse updateTeam(String username, TeamUpdateRequest request) {
-        User user = findUser(username);
-
-        TeamMember teamMember = findCurrentTeamMemberFetchTeam(user.getId());
+    public TeamUpdateResponse updateTeam(long userId, TeamUpdateRequest request) {
+        TeamMember teamMember = findCurrentTeamMemberFetchTeam(userId);
         validateLeader(teamMember);
         Team team = teamMember.getTeam();
 
@@ -96,14 +94,12 @@ public class TeamService {
 
     /**
      * 현재 팀 조회 |
-     * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND)
-     * @param username 회원 아이디
+     * 404(CURRENT_TEAM_NOT_FOUND)
+     * @param userId 회원 식별자
      * @return 팀 현재 본인 조회 응답
      */
-    public TeamMyCurrentResponse findCurrentTeam(String username) {
-        User user = findUser(username);
-
-        TeamMember teamMember = findCurrentTeamMemberFetchTeam(user.getId());
+    public TeamMyCurrentResponse findCurrentTeam(long userId) {
+        TeamMember teamMember = findCurrentTeamMemberFetchTeam(userId);
 
         List<TeamMember> teamMembers = teamMemberRepository.findAllCurrentFetchUser(teamMember.getTeam().getId());
 
@@ -112,24 +108,23 @@ public class TeamService {
 
     /**
      * 다른 팀 단건 조회 |
-     * 404(USER_NOT_FOUND / TEAM_NOT_FOUND)
-     * @param username 회원 아이디
+     * 404(TEAM_NOT_FOUND)
+     * @param userId 회원 식별자
      * @param teamId 팀 식별자
      * @return 팀 단건 조회 응답
      */
     @Transactional
-    public TeamFindResponse findOtherTeam(String username, long teamId) {
-        User user = findUser(username);
+    public TeamFindResponse findOtherTeam(long userId, long teamId) {
         Team team = findTeam(teamId);
         List<TeamMember> teamMembers = teamMemberRepository.findAllCurrentFetchUser(team.getId());
-        boolean isFavorite = favoriteRepository.existsTeam(user.getId(), team.getId());
-        List<Offer> offers = new ArrayList<>();
+        boolean isFavorite = favoriteRepository.existsTeam(userId, team.getId());
 
-        boolean isTeamMember = teamMemberRepository.exists(user.getId(), team.getId());
+        List<Offer> offers = new ArrayList<>();
+        boolean isTeamMember = teamMemberRepository.exists(userId, team.getId());
         if (!isTeamMember) {
             team.visit();
 
-            offers = offerRepository.findAllByTeamId(user.getId(), team.getId());
+            offers = offerRepository.findAllByTeamId(userId, team.getId());
         }
 
         return new TeamFindResponse(team, teamMembers, offers, isFavorite);
@@ -156,15 +151,13 @@ public class TeamService {
     /**
      * 팀원 모집 여부 업데이트 |
      * 403(REQUEST_FORBIDDEN)
-     * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND)
-     * @param username 회원 아이디
+     * 404(CURRENT_TEAM_NOT_FOUND)
+     * @param userId 회원 식별자
      * @param isRecruiting 팀원 모집 여부
      */
     @Transactional
-    public void updateIsRecruiting(String username, boolean isRecruiting) {
-        User user = findUser(username);
-
-        TeamMember teamMember = findCurrentTeamMemberFetchTeam(user.getId());
+    public void updateIsRecruiting(long userId, boolean isRecruiting) {
+        TeamMember teamMember = findCurrentTeamMemberFetchTeam(userId);
         validateLeader(teamMember);
 
         teamMember.getTeam().updateIsRecruiting(isRecruiting);
@@ -173,16 +166,14 @@ public class TeamService {
     /**
      * 프로젝트 종료 |
      * 403(REQUEST_FORBIDDEN)
-     * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND)
-     * @param username 회원 아이디
+     * 404(CURRENT_TEAM_NOT_FOUND)
+     * @param userId 회원 식별자
      * @param projectUrl 프로젝트 URL
      * @param completedAt 완료일
      */
     @Transactional
-    public void endProject(String username, String projectUrl, LocalDateTime completedAt) {
-        User user = findUser(username);
-
-        TeamMember teamMember = findCurrentTeamMemberFetchTeam(user.getId());
+    public void endProject(long userId, String projectUrl, LocalDateTime completedAt) {
+        TeamMember teamMember = findCurrentTeamMemberFetchTeam(userId);
         validateLeader(teamMember);
 
         List<TeamMember> teamMembers = teamMemberRepository.findAllCurrentFetchUser(teamMember.getTeam().getId());
@@ -201,19 +192,17 @@ public class TeamService {
     /**
      * 팀원 추방 |
      * 403(REQUEST_FORBIDDEN)
-     * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND)
+     * 404(CURRENT_TEAM_NOT_FOUND)
      * 409(TEAM_LEADER_UNAVAILABLE)
-     * @param username 팀장 회원 아이디
-     * @param userId 팀원 회원 식별자
+     * @param teamLeaderUserId 팀장 회원 아이디
+     * @param teamMemberUserId 팀원 회원 식별자
      */
     @Transactional
-    public void fire(String username, long userId) {
-        User user = findUser(username);
-
-        TeamMember teamLeader = findCurrentTeamMemberFetchTeam(user.getId());
+    public void fire(long teamLeaderUserId, long teamMemberUserId) {
+        TeamMember teamLeader = findCurrentTeamMemberFetchTeam(teamLeaderUserId);
         validateLeader(teamLeader);
 
-        TeamMember teamMember = findCurrentTeamMember(userId, teamLeader.getTeam().getId());
+        TeamMember teamMember = findCurrentTeamMember(teamMemberUserId, teamLeader.getTeam().getId());
         teamMember.fire();
 
         notificationService.sendTeamMemberFired(teamMember.getUser(), teamLeader.getTeam());
@@ -223,11 +212,11 @@ public class TeamService {
      * 팀 나가기 |
      * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND)
      * 409(TEAM_LEADER_UNAVAILABLE)
-     * @param username 회원 아이디
+     * @param userId 회원 식별자
      */
     @Transactional
-    public void leave(String username) {
-        User user = findUser(username);
+    public void leave(long userId) {
+        User user = findUser(userId);
 
         TeamMember teamMember = findCurrentTeamMemberFetchTeam(user.getId());
 
@@ -239,11 +228,11 @@ public class TeamService {
     /**
      * 회원 단건 조회 |
      * 404(USER_NOT_FOUND)
-     * @param username 회원 아이디
+     * @param userId 회원 식별자
      * @return 회원
      */
-    private User findUser(String username) {
-        return userRepository.findByUsername(username)
+    private User findUser(long userId) {
+        return userRepository.findById(userId)
                 .orElseThrow(() -> {
                     throw new CustomException(USER_NOT_FOUND);
                 });

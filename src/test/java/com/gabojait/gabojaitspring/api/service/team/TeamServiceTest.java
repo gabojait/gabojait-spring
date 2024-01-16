@@ -61,7 +61,7 @@ class TeamServiceTest {
         TeamCreateRequest request = createValidTeamCreateRequest();
 
         // when
-        TeamCreateResponse response = teamService.createTeam(user.getUsername(), request);
+        TeamCreateResponse response = teamService.createTeam(user.getId(), request);
 
         // then
         assertThat(response)
@@ -81,15 +81,15 @@ class TeamServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 아이디로 팀을 생성시 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원 식별자로 팀을 생성시 예외가 발생한다.")
     void givenNonExistingUser_whenCreateTeam_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
 
         TeamCreateRequest request = createValidTeamCreateRequest();
 
         // when & then
-        assertThatThrownBy(() -> teamService.createTeam(username, request))
+        assertThatThrownBy(() -> teamService.createTeam(userId, request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -106,7 +106,7 @@ class TeamServiceTest {
         TeamCreateRequest request = createValidTeamCreateRequest();
 
         // when & then
-        assertThatThrownBy(() -> teamService.createTeam(user.getUsername(), request))
+        assertThatThrownBy(() -> teamService.createTeam(user.getId(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(EXISTING_CURRENT_TEAM);
@@ -123,7 +123,7 @@ class TeamServiceTest {
         TeamCreateRequest request = createValidTeamCreateRequest();
 
         // when & then
-        assertThatThrownBy(() -> teamService.createTeam(user.getUsername(), request))
+        assertThatThrownBy(() -> teamService.createTeam(user.getId(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(NON_EXISTING_POSITION);
@@ -139,7 +139,7 @@ class TeamServiceTest {
         request.setBackendMaxCnt((byte) 0);
 
         // when & then
-        assertThatThrownBy(() -> teamService.createTeam(user.getUsername(), request))
+        assertThatThrownBy(() -> teamService.createTeam(user.getId(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(TEAM_LEADER_POSITION_UNAVAILABLE);
@@ -156,7 +156,7 @@ class TeamServiceTest {
         TeamUpdateRequest request = createValidTeamUpdateRequest();
 
         // when
-        TeamUpdateResponse response = teamService.updateTeam(user.getUsername(), request);
+        TeamUpdateResponse response = teamService.updateTeam(user.getId(), request);
 
         // then
         assertThat(response)
@@ -190,25 +190,10 @@ class TeamServiceTest {
         TeamUpdateRequest request = createValidTeamUpdateRequest();
 
         // when & then
-        assertThatThrownBy(() -> teamService.updateTeam(user2.getUsername(), request))
+        assertThatThrownBy(() -> teamService.updateTeam(user2.getId(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(REQUEST_FORBIDDEN);
-    }
-
-    @Test
-    @DisplayName("존재하지 않은 회원 아이디로 팀 수정시 예외가 발생한다.")
-    void givenNonExistingUser_whenUpdateTeam_thenThrow() {
-        // given
-        String username = "tester";
-
-        TeamUpdateRequest request = createValidTeamUpdateRequest();
-
-        // when & then
-        assertThatThrownBy(() -> teamService.updateTeam(username, request))
-                .isInstanceOf(CustomException.class)
-                .extracting("errorCode")
-                .isEqualTo(USER_NOT_FOUND);
     }
 
     @Test
@@ -220,7 +205,7 @@ class TeamServiceTest {
         TeamUpdateRequest request = createValidTeamUpdateRequest();
 
         // when & then
-        assertThatThrownBy(() -> teamService.updateTeam(user.getUsername(), request))
+        assertThatThrownBy(() -> teamService.updateTeam(user.getId(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(CURRENT_TEAM_NOT_FOUND);
@@ -239,7 +224,7 @@ class TeamServiceTest {
         request.setDesignerMaxCnt((byte) 0);
 
         // when & then
-        assertThatThrownBy(() -> teamService.updateTeam(user.getUsername(), request))
+        assertThatThrownBy(() -> teamService.updateTeam(user.getId(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(DESIGNER_CNT_UPDATE_UNAVAILABLE);
@@ -258,7 +243,7 @@ class TeamServiceTest {
         request.setBackendMaxCnt((byte) 0);
 
         // when & then
-        assertThatThrownBy(() -> teamService.updateTeam(user.getUsername(), request))
+        assertThatThrownBy(() -> teamService.updateTeam(user.getId(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(BACKEND_CNT_UPDATE_UNAVAILABLE);
@@ -277,7 +262,7 @@ class TeamServiceTest {
         request.setFrontendMaxCnt((byte) 0);
 
         // when & then
-        assertThatThrownBy(() -> teamService.updateTeam(user.getUsername(), request))
+        assertThatThrownBy(() -> teamService.updateTeam(user.getId(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(FRONTEND_CNT_UPDATE_UNAVAILABLE);
@@ -296,7 +281,7 @@ class TeamServiceTest {
         request.setManagerMaxCnt((byte) 0);
 
         // when & then
-        assertThatThrownBy(() -> teamService.updateTeam(user.getUsername(), request))
+        assertThatThrownBy(() -> teamService.updateTeam(user.getId(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(MANAGER_CNT_UPDATE_UNAVAILABLE);
@@ -312,7 +297,7 @@ class TeamServiceTest {
         TeamMember teamMember = createdSavedTeamMember(true, user, team);
 
         // when
-        TeamMyCurrentResponse response = teamService.findCurrentTeam(user.getUsername());
+        TeamMyCurrentResponse response = teamService.findCurrentTeam(user.getId());
 
         // then
         assertThat(response)
@@ -339,24 +324,10 @@ class TeamServiceTest {
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.MANAGER);
 
         // when & then
-        assertThatThrownBy(() -> teamService.findCurrentTeam(user.getUsername()))
+        assertThatThrownBy(() -> teamService.findCurrentTeam(user.getId()))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(CURRENT_TEAM_NOT_FOUND);
-    }
-
-    @Test
-    @DisplayName("존재하지 않은 회원 아이디로 현재 팀 조회시 예외가 발생한다.")
-    void givenNonExistingUser_whenFindCurrentTeam_thenThrow() {
-        // given
-        String username = "tester";
-
-
-        // when & then
-        assertThatThrownBy(() -> teamService.findCurrentTeam(username))
-                .isInstanceOf(CustomException.class)
-                .extracting("errorCode")
-                .isEqualTo(USER_NOT_FOUND);
     }
 
     @Test
@@ -368,7 +339,7 @@ class TeamServiceTest {
         TeamMember teamMember = createdSavedTeamMember(true, user, team);
 
         // when
-        TeamFindResponse response = teamService.findOtherTeam(user.getUsername(), team.getId());
+        TeamFindResponse response = teamService.findOtherTeam(user.getId(), team.getId());
 
         // then
         assertThat(team.getVisitedCnt()).isEqualTo(0L);
@@ -408,7 +379,7 @@ class TeamServiceTest {
         Offer offer = createSavedOffer(team, user2, Position.MANAGER);
 
         // when
-        TeamFindResponse response = teamService.findOtherTeam(user2.getUsername(), team.getId());
+        TeamFindResponse response = teamService.findOtherTeam(user2.getId(), team.getId());
 
         // then
         assertThat(team.getVisitedCnt()).isEqualTo(1L);
@@ -440,20 +411,6 @@ class TeamServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 아이디로 다른 팀 단건 조회시 예외가 발생한다.")
-    void givenNonExistingUser_whenFindTeam_thenThrow() {
-        // given
-        String username = "tester";
-        Team team = createSavedTeam();
-
-        // when & then
-        assertThatThrownBy(() -> teamService.findOtherTeam(username, team.getId()))
-                .isInstanceOf(CustomException.class)
-                .extracting("errorCode")
-                .isEqualTo(USER_NOT_FOUND);
-    }
-
-    @Test
     @DisplayName("존재하지 않은 팀 식별자로 다른 팀 단건 조회시 예외가 발생한다.")
     void givenNonExistingTeam_whenFindTeam_thenThrow() {
         // given
@@ -461,7 +418,7 @@ class TeamServiceTest {
         long teamId = 1L;
 
         // when & then
-        assertThatThrownBy(() -> teamService.findOtherTeam(user.getUsername(), teamId))
+        assertThatThrownBy(() -> teamService.findOtherTeam(user.getId(), teamId))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(TEAM_NOT_FOUND);
@@ -515,7 +472,7 @@ class TeamServiceTest {
         boolean isRecruiting = false;
 
         // when
-        teamService.updateIsRecruiting(user.getUsername(), isRecruiting);
+        teamService.updateIsRecruiting(user.getId(), isRecruiting);
 
         // then
         assertFalse(team.getIsRecruiting());
@@ -532,25 +489,10 @@ class TeamServiceTest {
         boolean isRecruiting = false;
 
         // when & then
-        assertThatThrownBy(() -> teamService.updateIsRecruiting(user.getUsername(), isRecruiting))
+        assertThatThrownBy(() -> teamService.updateIsRecruiting(user.getId(), isRecruiting))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(REQUEST_FORBIDDEN);
-    }
-
-    @Test
-    @DisplayName("존재하지 않은 회원으로 팀원 모집 여부 업데이트를 하면 예외가 발생한다.")
-    void givenNonExistingUsername_whenUpdateIsRecruiting_thenThrow() {
-        // given
-        String username = "tester";
-
-        boolean isRecruiting = false;
-
-        // when & then
-        assertThatThrownBy(() -> teamService.updateIsRecruiting(username, isRecruiting))
-                .isInstanceOf(CustomException.class)
-                .extracting("errorCode")
-                .isEqualTo(USER_NOT_FOUND);
     }
 
     @Test
@@ -562,7 +504,7 @@ class TeamServiceTest {
         boolean isRecruiting = false;
 
         // when & then
-        assertThatThrownBy(() -> teamService.updateIsRecruiting(user.getUsername(), isRecruiting))
+        assertThatThrownBy(() -> teamService.updateIsRecruiting(user.getId(), isRecruiting))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(CURRENT_TEAM_NOT_FOUND);
@@ -580,7 +522,7 @@ class TeamServiceTest {
         LocalDateTime completeAt = LocalDateTime.now();
 
         // when
-        teamService.endProject(user.getUsername(), "", completeAt);
+        teamService.endProject(user.getId(), "", completeAt);
 
         // then
         assertThat(teamMember)
@@ -601,7 +543,7 @@ class TeamServiceTest {
         LocalDateTime completeAt = LocalDateTime.now();
 
         // when
-        teamService.endProject(user.getUsername(), projectUrl, completeAt);
+        teamService.endProject(user.getId(), projectUrl, completeAt);
 
         // then
         assertThat(teamMember)
@@ -621,7 +563,7 @@ class TeamServiceTest {
         createdSavedTeamMember(false, user2, team);
 
         // when
-        teamService.fire(user1.getUsername(), user2.getId());
+        teamService.fire(user1.getId(), user2.getId());
 
         // then
         Optional<TeamMember> foundTeamMember = teamMemberRepository.find(user2.getId(), team.getId(),
@@ -642,26 +584,10 @@ class TeamServiceTest {
         createdSavedTeamMember(false, user2, team);
 
         // when & then
-        assertThatThrownBy(() -> teamService.fire(user1.getUsername(), user2.getId()))
+        assertThatThrownBy(() -> teamService.fire(user1.getId(), user2.getId()))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(REQUEST_FORBIDDEN);
-    }
-
-    @Test
-    @DisplayName("존재하지 않은 회원 아이디로 팀원 추방을 하면 예외가 발생한다.")
-    void givenNonExistingUsername_whenFire_thenThrow() {
-        // given
-        String username = "tester2";
-        User user = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터1", Position.BACKEND);
-        Team team = createSavedTeam();
-        createdSavedTeamMember(false, user, team);
-
-        // when & then
-        assertThatThrownBy(() -> teamService.fire(username, user.getId()))
-                .isInstanceOf(CustomException.class)
-                .extracting("errorCode")
-                .isEqualTo(USER_NOT_FOUND);
     }
 
     @Test
@@ -672,7 +598,7 @@ class TeamServiceTest {
         User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터2", Position.DESIGNER);
 
         // when & then
-        assertThatThrownBy(() -> teamService.fire(user1.getUsername(), user2.getId()))
+        assertThatThrownBy(() -> teamService.fire(user1.getId(), user2.getId()))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(CURRENT_TEAM_NOT_FOUND);
@@ -688,7 +614,7 @@ class TeamServiceTest {
         TeamMember teamMember = createdSavedTeamMember(false, user, team);
 
         // when
-        teamService.leave(user.getUsername());
+        teamService.leave(user.getId());
 
         // then
         assertThat(teamMember)
@@ -700,10 +626,10 @@ class TeamServiceTest {
     @DisplayName("존재하지 않은 회원으로 팀을 나가면 예외가 발생한다.")
     void givenNonExistingUser_whenLeave_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
 
         // when & then
-        assertThatThrownBy(() -> teamService.leave(username))
+        assertThatThrownBy(() -> teamService.leave(userId))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -716,7 +642,7 @@ class TeamServiceTest {
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
 
         // when & then
-        assertThatThrownBy(() -> teamService.leave(user.getUsername()))
+        assertThatThrownBy(() -> teamService.leave(user.getId()))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(CURRENT_TEAM_NOT_FOUND);
@@ -732,7 +658,7 @@ class TeamServiceTest {
         createdSavedTeamMember(true, user, team);
 
         // when & then
-        assertThatThrownBy(() -> teamService.leave(user.getUsername()))
+        assertThatThrownBy(() -> teamService.leave(user.getId()))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(TEAM_LEADER_UNAVAILABLE);

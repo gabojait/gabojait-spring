@@ -101,7 +101,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 아이디로 회원 존재 여부를 확인한다.")
+    @DisplayName("존재하지 않은 회원 식별자로 회원 존재 여부를 확인한다.")
     void givenNonExisting_whenExistsByUsername_thenReturn() {
         // given
         String username = "tester";

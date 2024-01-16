@@ -32,20 +32,16 @@ import static com.gabojait.gabojaitspring.common.code.ErrorCode.USER_NOT_FOUND;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final UserRepository userRepository;
     private final TeamMemberRepository teamMemberRepository;
 
     /**
      * 리뷰 가능한 팀 전체 조회 |
-     * 404(USER_NOT_FOUND)
-     * @param username 회원 아이디
+     * @param userId 회원 식별자
      * @param now 현재 시간
      * @return 리뷰 가능한 전체 팀 응답들
      */
-    public PageData<List<ReviewFindAllTeamResponse>> findAllReviewableTeams(String username, LocalDateTime now) {
-        User user = findUser(username);
-
-        List<TeamMember> teamMembers = teamMemberRepository.findAllReviewableFetchTeam(user.getId(), now);
+    public PageData<List<ReviewFindAllTeamResponse>> findAllReviewableTeams(long userId, LocalDateTime now) {
+        List<TeamMember> teamMembers = teamMemberRepository.findAllReviewableFetchTeam(userId, now);
 
         return new PageData<>(teamMembers.stream()
                 .map(TeamMember::getTeam)
@@ -56,15 +52,14 @@ public class ReviewService {
 
     /**
      * 리뷰 가능한 팀 조회 |
-     * 404(USER_NOT_FOUND / TEAM_MEMBER_NOT_FOUND)
-     * @param username 회원 아이디
+     * 404(TEAM_MEMBER_NOT_FOUND)
+     * @param userId 회원 식별자
      * @param teamId 팀 식별자
      * @param now 현재 시간
      * @return 리뷰 가능한 팀 응답
      */
-    public ReviewFindTeamResponse findReviewableTeam(String username, long teamId, LocalDateTime now) {
-        User user = findUser(username);
-        TeamMember teamMember = findCompleteTeamMember(user.getId(), teamId, now);
+    public ReviewFindTeamResponse findReviewableTeam(long userId, long teamId, LocalDateTime now) {
+        TeamMember teamMember = findCompleteTeamMember(userId, teamId, now);
         List<TeamMember> teamMembers = teamMemberRepository.findAllCompleteFetchTeam(teamId);
         teamMembers.remove(teamMember);
 
@@ -73,19 +68,17 @@ public class ReviewService {
 
     /**
      * 리뷰 생성 |
-     * 404(USER_NOT_FOUND / TEAM_MEMBER_NOT_FOUND)
-     * @param username 회원 아이디
+     * 404(TEAM_MEMBER_NOT_FOUND)
+     * @param userId 회원 식별자
      * @param teamId 팀 식별자
      * @param request 리뷰 다건 생성 요청
      */
     @Transactional
-    public void createReview(String username, long teamId, ReviewCreateManyRequest request) {
-        User user = findUser(username);
-
-        boolean isExist = reviewRepository.exists(user.getId(), teamId);
+    public void createReview(long userId, long teamId, ReviewCreateManyRequest request) {
+        boolean isExist = reviewRepository.exists(userId, teamId);
         if (isExist) return;
 
-        TeamMember reviewer = findCompleteTeamMember(user.getId(), teamId);
+        TeamMember reviewer = findCompleteTeamMember(userId, teamId);
         List<TeamMember> teamMembers = teamMemberRepository.findAllCompleteFetchTeam(teamId);
 
         List<Review> reviews = request.getReviews().stream()
@@ -113,19 +106,6 @@ public class ReviewService {
                 .collect(Collectors.toList());
 
         return new PageData<>(responses, reviews.getTotalElements());
-    }
-
-    /**
-     * 회원 단건 조회 |
-     * 404(USER_NOT_FOUND)
-     * @param username 회원 아이디
-     * @return 회원
-     */
-    private User findUser(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> {
-                    throw new CustomException(USER_NOT_FOUND);
-                });
     }
 
     /**

@@ -19,12 +19,12 @@ public class NotificationRepositoryImpl implements NotificationCustomRepository 
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Notification> findPage(String username, long pageFrom, int pageSize) {
+    public Page<Notification> findPage(long userId, long pageFrom, int pageSize) {
         Long count = queryFactory
                 .select(notification.id.count())
                 .from(notification)
                 .where(
-                        notification.user.username.eq(username)
+                        notification.user.id.eq(userId)
                 ).fetchOne();
 
         Pageable pageable = Pageable.ofSize(pageSize);
@@ -38,7 +38,7 @@ public class NotificationRepositoryImpl implements NotificationCustomRepository 
                 .leftJoin(notification.user, user)
                 .where(
                         notification.id.lt(pageFrom),
-                        notification.user.username.eq(username)
+                        notification.user.id.eq(userId)
                 ).orderBy(notification.createdAt.desc())
                 .limit(pageSize)
                 .fetch();
@@ -47,7 +47,7 @@ public class NotificationRepositoryImpl implements NotificationCustomRepository 
     }
 
     @Override
-    public Optional<Notification> findUnread(String username, long notificationId) {
+    public Optional<Notification> findUnread(long userId, long notificationId) {
         return Optional.ofNullable(
                 queryFactory
                         .select(notification)
@@ -55,7 +55,7 @@ public class NotificationRepositoryImpl implements NotificationCustomRepository 
                         .leftJoin(notification.user, user)
                         .where(
                                 notification.id.eq(notificationId),
-                                notification.user.username.eq(username),
+                                notification.user.id.eq(userId),
                                 notification.isRead.isFalse()
                         ).fetchFirst()
         );

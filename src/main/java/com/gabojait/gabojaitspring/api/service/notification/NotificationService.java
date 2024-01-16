@@ -39,15 +39,15 @@ public class NotificationService {
 
     /**
      * 알림 페이징 조회
-     * @param username 회원 아이디
+     * @param userId 회원 식별자
      * @param pageFrom 페이지 시작점
      * @param pageSize 페이지 크기
      * @return 알림 기본 응답들
      */
-    public PageData<List<NotificationPageResponse>> findPageNotifications(String username,
+    public PageData<List<NotificationPageResponse>> findPageNotifications(long userId,
                                                                           long pageFrom,
                                                                           int pageSize) {
-        Page<Notification> notifications = notificationRepository.findPage(username, pageFrom, pageSize);
+        Page<Notification> notifications = notificationRepository.findPage(userId, pageFrom, pageSize);
 
         List<NotificationPageResponse> responses = notifications.stream()
                 .map(NotificationPageResponse::new)
@@ -57,13 +57,13 @@ public class NotificationService {
     }
 
     /**
-     * 알림 읽기
-     * @param username       회원 아이디
+     * 알림 읽기 |
+     * @param userId 회원 식별자
      * @param notificationId 알림 식별자
      */
     @Transactional
-    public void readNotification(String username, long notificationId) {
-        notificationRepository.findUnread(username, notificationId)
+    public void readNotification(long userId, long notificationId) {
+        notificationRepository.findUnread(userId, notificationId)
                 .ifPresent(Notification::read);
     }
 

@@ -46,13 +46,13 @@ public class OfferService {
      * 회원이 팀에 제안 |
      * 404(USER_NOT_FOUND / TEAM_NOT_FOUND)
      * 409(TEAM_POSITION_UNAVAILABLE)
-     * @param username 회원 아이디
+     * @param userId 회원 식별자
      * @param teamId 팀 식별자
      * @param request 제안 생성 요청
      */
     @Transactional
-    public void offerByUser(String username, long teamId, OfferCreateRequest request) {
-        User user = findUser(username);
+    public void offerByUser(long userId, long teamId, OfferCreateRequest request) {
+        User user = findUser(userId);
         Team team = findTeam(teamId);
 
         validatePositionAvailability(team, Position.valueOf(request.getOfferPosition()));
@@ -66,23 +66,22 @@ public class OfferService {
     /**
      * 팀이 회원에 제안 |
      * 403(REQUEST_FORBIDDEN)
-     * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND)
+     * 404(CURRENT_TEAM_NOT_FOUND)
      * 409(TEAM_POSITION_UNAVAILABLE)
-     * @param username 회원 아이디
-     * @param userId 회원 식별자
+     * @param leaderUserId 리더 회원 식별자
+     * @param otherUserId 다른 회원 식별자
      * @param request 제안 생성 요청
      */
     @Transactional
-    public void offerByTeam(String username, long userId, OfferCreateRequest request) {
-        User leaderUser = findUser(username);
-        TeamMember teamMember = findCurrentTeamMemberFetchTeam(leaderUser.getId());
+    public void offerByTeam(long leaderUserId, long otherUserId, OfferCreateRequest request) {
+        TeamMember leaderTeamMember = findCurrentTeamMemberFetchTeam(leaderUserId);
 
-        validateLeader(teamMember);
-        validatePositionAvailability(teamMember.getTeam(), Position.valueOf(request.getOfferPosition()));
+        validateLeader(leaderTeamMember);
+        validatePositionAvailability(leaderTeamMember.getTeam(), Position.valueOf(request.getOfferPosition()));
 
-        User user = findUserSeekingTeam(userId);
+        User user = findUserSeekingTeam(otherUserId);
 
-        Offer offer = request.toEntity(user, teamMember.getTeam(), OfferedBy.LEADER);
+        Offer offer = request.toEntity(user, leaderTeamMember.getTeam(), OfferedBy.LEADER);
         offerRepository.save(offer);
 
         notificationService.sendOfferByTeam(offer);
@@ -90,20 +89,17 @@ public class OfferService {
 
     /**
      * 회원 관련 제안 페이징 조회 |
-     * 404(USER_NOT_FOUND)
-     * @param username 회원 아이디
+     * @param userId 회원 식별자
      * @param offeredBy 제안자
      * @param pageFrom 페이지 시작점
      * @param pageSize 페이지 크기
      * @return 제안 페이지 응답들
      */
-    public PageData<List<OfferPageResponse>> findPageUserOffer(String username,
+    public PageData<List<OfferPageResponse>> findPageUserOffer(long userId,
                                                                OfferedBy offeredBy,
                                                                long pageFrom,
                                                                int pageSize) {
-        User user = findUser(username);
-
-        Page<Offer> offers = offerRepository.findPageFetchUser(user.getId(), offeredBy, pageFrom, pageSize);
+        Page<Offer> offers = offerRepository.findPageFetchUser(userId, offeredBy, pageFrom, pageSize);
 
         List<OfferPageResponse> responses = offers.stream()
                 .map(o -> new OfferPageResponse(o, List.of()))
@@ -116,19 +112,19 @@ public class OfferService {
      * 팀 관련 제안 페이징 조회 |
      * 403(REQUEST_FORBIDDEN)
      * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND)
-     * @param username 회원 아이디
+     * @param userId 회원 식별자
      * @param position 포지션
      * @param offeredBy 제안자
      * @param pageFrom 페이지 시작점
      * @param pageSize 페이지 크기
      * @return 제안 페이지 응답들
      */
-    public PageData<List<OfferPageResponse>> findPageTeamOffer(String username,
-                                                                  Position position,
-                                                                  OfferedBy offeredBy,
-                                                                  long pageFrom,
-                                                                  int pageSize) {
-        User user = findUser(username);
+    public PageData<List<OfferPageResponse>> findPageTeamOffer(long userId,
+                                                               Position position,
+                                                               OfferedBy offeredBy,
+                                                               long pageFrom,
+                                                               int pageSize) {
+        User user = findUser(userId);
         TeamMember teamMember = findCurrentTeamMemberFetchTeam(user.getId());
 
         validateLeader(teamMember);
@@ -150,15 +146,14 @@ public class OfferService {
 
     /**
      * 회원이 받은 제안 결정
-     * 404(USER_NOT_FOUND / OFFER_NOT_FOUND)
-     * @param username 회원 아이디
+     * 404(OFFER_NOT_FOUND)
+     * @param userId 회원 식별자
      * @param offerId 제안 식별자
      * @param request 제안 결정 요청
      */
     @Transactional
-    public void userDecideOffer(String username, long offerId, OfferDecideRequest request) {
-        User user = findUser(username);
-        Offer offer = findOfferFetchTeam(user.getId(), offerId, OfferedBy.LEADER);
+    public void userDecideOffer(long userId, long offerId, OfferDecideRequest request) {
+        Offer offer = findOfferFetchTeam(userId, offerId, OfferedBy.LEADER);
 
         if (request.getIsAccepted()) {
             offer.accept();
@@ -177,15 +172,14 @@ public class OfferService {
     /**
      * 팀이 받은 제안 결정 |
      * 403(REQUEST_FORBIDDEN)
-     * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND / OFFER_NOT_FOUND)
-     * @param username 회원 아이디
+     * 404(CURRENT_TEAM_NOT_FOUND / OFFER_NOT_FOUND)
+     * @param userId 회원 식별자
      * @param offerId 제안 식별자
      * @param request 제안 결정 요청
      */
     @Transactional
-    public void teamDecideOffer(String username, long offerId, OfferDecideRequest request) {
-        User user = findUser(username);
-        TeamMember teamLeader = findCurrentTeamMemberFetchTeam(user.getId());
+    public void teamDecideOffer(long userId, long offerId, OfferDecideRequest request) {
+        TeamMember teamLeader = findCurrentTeamMemberFetchTeam(userId);
 
         validateLeader(teamLeader);
 
@@ -207,14 +201,13 @@ public class OfferService {
 
     /**
      * 회원이 보낸 제안 취소 |
-     * 404(USER_NOT_FOUND / OFFER_NOT_FOUND)
-     * @param username 회원 아이디
+     * 404(OFFER_NOT_FOUND)
+     * @param userId 회원 식별자
      * @param offerId 제안 식별자
      */
     @Transactional
-    public void cancelByUser(String username, long offerId) {
-        User user = findUser(username);
-        Offer offer = findOfferFetchTeam(user.getId(), offerId, OfferedBy.USER);
+    public void cancelByUser(long userId, long offerId) {
+        Offer offer = findOfferFetchTeam(userId, offerId, OfferedBy.USER);
 
         offer.cancel();
     }
@@ -222,14 +215,13 @@ public class OfferService {
     /**
      * 팀이 보낸 제안 취소 |
      * 403(REQUEST_FORBIDDEN)
-     * 404(USER_NOT_FOUND / CURRENT_TEAM_NOT_FOUND / OFFER_NOT_FOUND)
-     * @param username 회원 아이디
+     * 404(CURRENT_TEAM_NOT_FOUND / OFFER_NOT_FOUND)
+     * @param userId 회원 식별자
      * @param offerId 제안 식별자
      */
     @Transactional
-    public void cancelByTeam(String username, long offerId) {
-        User user = findUser(username);
-        TeamMember teamMember = findCurrentTeamMemberFetchTeam(user.getId());
+    public void cancelByTeam(long userId, long offerId) {
+        TeamMember teamMember = findCurrentTeamMemberFetchTeam(userId);
 
         validateLeader(teamMember);
 
@@ -289,6 +281,19 @@ public class OfferService {
      */
     private User findUser(String username) {
         return userRepository.findByUsername(username)
+                .orElseThrow(() -> {
+                    throw new CustomException(USER_NOT_FOUND);
+                });
+    }
+
+    /**
+     * 회원 단건 조회 |
+     * 404(USER_NOT_FOUND)
+     * @param userId 회원 식별자
+     * @return 회원
+     */
+    private User findUser(long userId) {
+        return userRepository.findById(userId)
                 .orElseThrow(() -> {
                     throw new CustomException(USER_NOT_FOUND);
                 });

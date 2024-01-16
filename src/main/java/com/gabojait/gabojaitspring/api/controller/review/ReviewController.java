@@ -22,11 +22,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Positive;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -63,10 +61,12 @@ public class ReviewController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/user/team/review")
-    public ResponseEntity<DefaultMultiResponse<Object>> findAllReviewableTeams(HttpServletRequest servletRequest) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+    public ResponseEntity<DefaultMultiResponse<Object>> findAllReviewableTeams(
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization
+    ) {
+        long userId = jwtProvider.getUserId(authorization);
 
-        PageData<List<ReviewFindAllTeamResponse>> responses = reviewService.findAllReviewableTeams(username,
+        PageData<List<ReviewFindAllTeamResponse>> responses = reviewService.findAllReviewableTeams(userId,
                 LocalDateTime.now());
 
         return ResponseEntity.status(REVIEWABLE_TEAMS_FOUND.getHttpStatus())
@@ -85,7 +85,7 @@ public class ReviewController {
                     "- 400 = TEAM_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 404 = USER_NOT_FOUND || TEAM_MEMBER_NOT_FOUND\n" +
+                    "- 404 = TEAM_MEMBER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -100,14 +100,14 @@ public class ReviewController {
     })
     @GetMapping("/user/team/{team-id}/review")
     public ResponseEntity<DefaultSingleResponse<Object>> findReviewableTeam(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @PathVariable(value = "team-id")
             @Positive(message = "팀 식별자는 양수만 가능합니다.")
             Long teamId
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getUserId(authorization);
 
-        ReviewFindTeamResponse response = reviewService.findReviewableTeam(username, teamId, LocalDateTime.now());
+        ReviewFindTeamResponse response = reviewService.findReviewableTeam(userId, teamId, LocalDateTime.now());
 
         return ResponseEntity.status(REVIEWABLE_TEAM_FOUND.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -124,7 +124,7 @@ public class ReviewController {
                     "TEAM_MEMBER_ID_POSITIVE_ONLY || RATING_RANGE_INVALID || TEAM_ID_POSITIVE_ONLY\n" +
                     "- 401 = TOKEN_UNAUTHENTICATED\n" +
                     "- 403 = TOKEN_UNAUTHORIZED\n" +
-                    "- 404 = USER_NOT_FOUND || TEAM_MEMBER_NOT_FOUND\n" +
+                    "- 404 = TEAM_MEMBER_NOT_FOUND\n" +
                     "- 500 = SERVER_ERROR\n" +
                     "- 503 = ONGOING_INSPECTION")
     @ApiResponses(value = {
@@ -139,14 +139,16 @@ public class ReviewController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/user/team/{team-id}/review")
-    public ResponseEntity<DefaultNoResponse> createReview(HttpServletRequest servletRequest,
-                                                          @PathVariable(value = "team-id")
-                                                          @Positive(message = "팀 식별자는 양수만 가능합니다.")
-                                                          Long teamId,
-                                                          @RequestBody @Valid ReviewCreateManyRequest request) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+    public ResponseEntity<DefaultNoResponse> createReview(
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
+            @PathVariable(value = "team-id")
+            @Positive(message = "팀 식별자는 양수만 가능합니다.")
+            Long teamId,
+            @RequestBody @Valid ReviewCreateManyRequest request
+    ) {
+        long userId = jwtProvider.getUserId(authorization);
 
-        reviewService.createReview(username, teamId, request);
+        reviewService.createReview(userId, teamId, request);
 
         return ResponseEntity.status(USER_REVIEWED.getHttpStatus())
                 .body(DefaultNoResponse.noDataBuilder()

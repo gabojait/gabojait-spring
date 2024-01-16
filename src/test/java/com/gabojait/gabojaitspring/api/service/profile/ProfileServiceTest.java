@@ -108,7 +108,7 @@ class ProfileServiceTest {
         teamMemberRepository.save(currentTeamMember);
 
         // when
-        ProfileFindMyselfResponse response = profileService.findMyProfile(user2.getUsername());
+        ProfileFindMyselfResponse response = profileService.findMyProfile(user2.getId());
 
         // then
         assertThat(userRepository.findById(user2.getId()).get().getVisitedCnt())
@@ -198,10 +198,10 @@ class ProfileServiceTest {
     @DisplayName("존재하지 않은 회원으로 프로필 조회시 예외가 발생한다.")
     void givenNonExistingUser_whenMyFindProfile_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
 
         // when & then
-        assertThatThrownBy(() -> profileService.findMyProfile(username))
+        assertThatThrownBy(() -> profileService.findMyProfile(userId))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -254,7 +254,7 @@ class ProfileServiceTest {
         teamMemberRepository.save(currentTeamMember);
 
         // when
-        ProfileFindOtherResponse response = profileService.findOtherProfile(user1.getUsername(), user2.getId());
+        ProfileFindOtherResponse response = profileService.findOtherProfile(user1.getId(), user2.getId());
 
         // then
         assertThat(userRepository.findById(user2.getId()).get().getVisitedCnt())
@@ -403,7 +403,7 @@ class ProfileServiceTest {
         teamMemberRepository.save(currentTeamMember);
 
         // when
-        ProfileFindOtherResponse response = profileService.findOtherProfile(user2.getUsername(), user2.getId());
+        ProfileFindOtherResponse response = profileService.findOtherProfile(user2.getId(), user2.getId());
 
         // then
         assertThat(userRepository.findById(user2.getId()).get().getVisitedCnt())
@@ -517,21 +517,21 @@ class ProfileServiceTest {
         long userId = 2L;
 
         // when & then
-        assertThatThrownBy(() -> profileService.findOtherProfile(user.getUsername(), userId))
+        assertThatThrownBy(() -> profileService.findOtherProfile(user.getId(), userId))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 아이디로 다른 프로필 조회시 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원 식별자로 다른 프로필 조회시 예외가 발생한다.")
     void givenNonExistingUsername_whenFindOtherProfile_thenThrow() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com","tester", "테스터일");
-        String username = "테스터이";
+        long userId = 2L;
 
         // when & then
-        assertThatThrownBy(() -> profileService.findOtherProfile(username, user.getId()))
+        assertThatThrownBy(() -> profileService.findOtherProfile(userId, user.getId()))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -546,7 +546,7 @@ class ProfileServiceTest {
         MultipartFile image = new MockMultipartFile("data", "filename.txt", "image/png", "image".getBytes());
 
         // when
-        ProfileImageResponse response = profileService.uploadProfileImage(user.getUsername(), image);
+        ProfileImageResponse response = profileService.uploadProfileImage(user.getId(), image);
 
         // then
         assertThat(response.getImageUrl()).isNotBlank();
@@ -561,22 +561,22 @@ class ProfileServiceTest {
         MultipartFile image = null;
 
         // when & then
-        assertThatThrownBy(() -> profileService.uploadProfileImage(user.getUsername(), image))
+        assertThatThrownBy(() -> profileService.uploadProfileImage(user.getId(), image))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(FILE_FIELD_REQUIRED);
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 아이디로 프로필 이미지 업로드시 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원 식별자로 프로필 이미지 업로드시 예외가 발생한다.")
     void givenNonExistingUser_whenUploadProfileImage_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
 
         MultipartFile image = new MockMultipartFile("data", "filename.txt", "image/png", "image".getBytes());
 
         // when & then
-        assertThatThrownBy(() -> profileService.uploadProfileImage(username, image))
+        assertThatThrownBy(() -> profileService.uploadProfileImage(userId, image))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -591,7 +591,7 @@ class ProfileServiceTest {
         MultipartFile image = new MockMultipartFile("data", "filename.txt", "image/txt", "image".getBytes());
 
         // when & then
-        assertThatThrownBy(() -> profileService.uploadProfileImage(user.getUsername(), image))
+        assertThatThrownBy(() -> profileService.uploadProfileImage(user.getId(), image))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(IMAGE_TYPE_UNSUPPORTED);
@@ -599,25 +599,25 @@ class ProfileServiceTest {
 
     @Test
     @DisplayName("프로필 이미지를 삭제한다.")
-    void givenUsername_whenDeleteProfileImage_thenReturn() {
+    void givenUserId_whenDeleteProfileImage_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
         // when
-        ProfileImageResponse response = profileService.deleteProfileImage(user.getUsername());
+        ProfileImageResponse response = profileService.deleteProfileImage(user.getId());
 
         // then
         assertThat(response.getImageUrl()).isNull();
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 아이디로 프로필 이미지를 삭제시 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원 식별자로 프로필 이미지를 삭제시 예외가 발생한다.")
     void givenNonExistingUser_whenDeleteProfileImage_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
 
         // when & then
-        assertThatThrownBy(() -> profileService.deleteProfileImage(username))
+        assertThatThrownBy(() -> profileService.deleteProfileImage(userId))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -631,7 +631,7 @@ class ProfileServiceTest {
         boolean isSeekingTeam = false;
 
         // when
-        profileService.updateIsSeekingTeam(user.getUsername(), isSeekingTeam);
+        profileService.updateIsSeekingTeam(user.getId(), isSeekingTeam);
 
         // then
         Optional<User> foundUser = userRepository.findByUsername(user.getUsername());
@@ -640,14 +640,14 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 아이디로 팀 찾기 여부 업데이트시 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원 식별자로 팀 찾기 여부 업데이트시 예외가 발생한다.")
     void givenNonExistingUser_whenUpdateIsSeekingTeam_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
         boolean isSeekingTeam = false;
 
         // when & then
-        assertThatThrownBy(() -> profileService.updateIsSeekingTeam(username, isSeekingTeam))
+        assertThatThrownBy(() -> profileService.updateIsSeekingTeam(userId, isSeekingTeam))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -661,7 +661,7 @@ class ProfileServiceTest {
         String profileDescription = "안녕하세요.";
 
         // when
-        profileService.updateProfileDescription(user.getUsername(), profileDescription);
+        profileService.updateProfileDescription(user.getId(), profileDescription);
 
         // then
         Optional<User> foundUser = userRepository.findByUsername(user.getUsername());
@@ -673,11 +673,11 @@ class ProfileServiceTest {
     @DisplayName("존재하지 않은 아이디로 프로필 자기소개 업데이트시 예외가 발생한다.")
     void givenNonExistingUser_whenUpdateProfileDescription_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
         String profileDescription = "안녕하세요.";
 
         // when & then
-        assertThatThrownBy(() -> profileService.updateProfileDescription(username, profileDescription))
+        assertThatThrownBy(() -> profileService.updateProfileDescription(userId, profileDescription))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -837,7 +837,7 @@ class ProfileServiceTest {
         ProfileUpdateRequest request = createValidProfileUpdateRequest();
 
         // when
-        ProfileUpdateResponse response = profileService.updateProfile(user.getUsername(), request);
+        ProfileUpdateResponse response = profileService.updateProfile(user.getId(), request);
 
         // then
         assertThat(response.getPosition().toString()).isEqualTo(request.getPosition());
@@ -890,7 +890,7 @@ class ProfileServiceTest {
         request.getEducations().get(0).setIsCurrent(false);
 
         // when & then
-        assertThatThrownBy(() -> profileService.updateProfile(user.getUsername(), request))
+        assertThatThrownBy(() -> profileService.updateProfile(user.getId(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(EDUCATION_DATE_INVALID);
@@ -908,7 +908,7 @@ class ProfileServiceTest {
         request.getEducations().get(0).setIsCurrent(false);
 
         // when & then
-        assertThatThrownBy(() -> profileService.updateProfile(user.getUsername(), request))
+        assertThatThrownBy(() -> profileService.updateProfile(user.getId(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(EDUCATION_ENDED_AT_FIELD_REQUIRED);
@@ -926,7 +926,7 @@ class ProfileServiceTest {
         request.getWorks().get(0).setIsCurrent(false);
 
         // when & then
-        assertThatThrownBy(() -> profileService.updateProfile(user.getUsername(), request))
+        assertThatThrownBy(() -> profileService.updateProfile(user.getId(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(WORK_DATE_INVALID);
@@ -944,22 +944,22 @@ class ProfileServiceTest {
         request.getWorks().get(0).setIsCurrent(false);
 
         // when & then
-        assertThatThrownBy(() -> profileService.updateProfile(user.getUsername(), request))
+        assertThatThrownBy(() -> profileService.updateProfile(user.getId(), request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(WORK_ENDED_AT_FIELD_REQUIRED);
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 아이디로 프로필 업데이트시 예외가 발생한다.")
-    void givenNonExistingUsername_whenUpdateProfile_thenThrow() {
+    @DisplayName("존재하지 않은 회원 식별자로 프로필 업데이트시 예외가 발생한다.")
+    void givenNonExistingUserId_whenUpdateProfile_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
 
         ProfileUpdateRequest request = createValidProfileUpdateRequest();
 
         // when & then
-        assertThatThrownBy(() -> profileService.updateProfile(username, request))
+        assertThatThrownBy(() -> profileService.updateProfile(userId, request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -974,7 +974,7 @@ class ProfileServiceTest {
         MultipartFile file = new MockMultipartFile("data", "filename.txt", "image/png", "image".getBytes());
 
         // when
-        PortfolioUrlResponse response = profileService.uploadPortfolioFile(user.getUsername(), file);
+        PortfolioUrlResponse response = profileService.uploadPortfolioFile(user.getId(), file);
 
         // then
         assertThat(response.getPortfolioUrl()).isNotBlank();
@@ -989,22 +989,22 @@ class ProfileServiceTest {
         MultipartFile file = null;
 
         // when & then
-        assertThatThrownBy(() -> profileService.uploadPortfolioFile(user.getUsername(), file))
+        assertThatThrownBy(() -> profileService.uploadPortfolioFile(user.getId(), file))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(FILE_FIELD_REQUIRED);
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 아이디로 포트폴리오 파일 업로드시 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원 식별자로 포트폴리오 파일 업로드시 예외가 발생한다.")
     void givenNonExistingUser_whenUploadPortfolioFile_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
 
         MultipartFile file = new MockMultipartFile("data", "filename.txt", "image/png", "image".getBytes());
 
         // when & then
-        assertThatThrownBy(() -> profileService.uploadPortfolioFile(username, file))
+        assertThatThrownBy(() -> profileService.uploadPortfolioFile(userId, file))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -1019,7 +1019,7 @@ class ProfileServiceTest {
         MultipartFile file = new MockMultipartFile("data", "filename.txt", "image/gif", "image".getBytes());
 
         // when & then
-        assertThatThrownBy(() -> profileService.uploadPortfolioFile(user.getUsername(), file))
+        assertThatThrownBy(() -> profileService.uploadPortfolioFile(user.getId(), file))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(FILE_TYPE_UNSUPPORTED);
@@ -1049,7 +1049,7 @@ class ProfileServiceTest {
         int pageSize = 2;
 
         // when
-        PageData<List<ProfilePageResponse>> users = profileService.findPageUser(user1.getUsername(), position,
+        PageData<List<ProfilePageResponse>> users = profileService.findPageUser(user1.getId(), position,
                 pageFrom, pageSize);
 
         // then
@@ -1078,16 +1078,16 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 아이디로 프로필 페이징 조회시 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원 식별자로 프로필 페이징 조회시 예외가 발생한다.")
     void givenNonExistingUser_whenFindPageUser_thenThrow() {
         // given
-        String username = "tester1";
+        long userId = 1L;
 
         long pageFrom = Long.MAX_VALUE;
         int pageSize = 2;
 
         // when & then
-        assertThatThrownBy(() -> profileService.findPageUser(username, Position.NONE, pageFrom, pageSize))
+        assertThatThrownBy(() -> profileService.findPageUser(userId, Position.NONE, pageFrom, pageSize))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);

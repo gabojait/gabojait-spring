@@ -41,11 +41,10 @@ class JwtProviderTest {
     void givenUser_whenCreateJwt_thenReturn() {
         // given
         List<Role> roles = new ArrayList<>(List.of(Role.USER));
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND,
-                roles);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND, roles);
 
         // when
-        HttpHeaders headers = jwtProvider.createJwt(user.getUsername());
+        HttpHeaders headers = jwtProvider.createJwt(user.getId());
 
         // then
         String accessToken = headers.get(AUTHORIZATION).get(0);
@@ -59,11 +58,10 @@ class JwtProviderTest {
     void givenAdmin_whenCreateJwt_thenReturn() {
         // given
         List<Role> roles = new ArrayList<>(List.of(Role.USER, Role.ADMIN));
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND,
-                roles);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND, roles);
 
         // when
-        HttpHeaders headers = jwtProvider.createJwt(user.getUsername());
+        HttpHeaders headers = jwtProvider.createJwt(user.getId());
 
         // then
         String accessToken = headers.get(AUTHORIZATION).get(0);
@@ -81,7 +79,7 @@ class JwtProviderTest {
                 roles);
 
         // when
-        HttpHeaders headers = jwtProvider.createJwt(user.getUsername());
+        HttpHeaders headers = jwtProvider.createJwt(user.getId());
 
         // then
         String accessToken = headers.get(AUTHORIZATION).get(0);
@@ -93,10 +91,10 @@ class JwtProviderTest {
     @DisplayName("존재하지 않은 회원으로 Jwt를 생성하면 예외가 발생한다.")
     void givenNonExistingUser_whenCreateJwt_thenThrow() {
         // given
-        String username = "tester";
+        long userId = 1L;
 
         // when
-        assertThatThrownBy(() -> jwtProvider.createJwt(username))
+        assertThatThrownBy(() -> jwtProvider.createJwt(userId))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -108,104 +106,99 @@ class JwtProviderTest {
     }
 
     @Test
-    @DisplayName("액세스 토큰으로 회원 아이디를 반환한다.")
-    void givenUserAccessToken_whenGetUsername_thenReturn() {
+    @DisplayName("액세스 토큰으로 회원 식별자를 반환한다.")
+    void givenUserAccessToken_whenGetUserId_thenReturn() {
         // given
-        String username = "tester";
-        createSavedDefaultUser("tester@gabojait.com", username, "테스터", Position.BACKEND, List.of(Role.USER));
-        String token = jwtProvider.createJwt(username).get(AUTHORIZATION).get(0);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND, List.of(Role.USER));
+        String token = jwtProvider.createJwt(user.getId()).get(AUTHORIZATION).get(0);
 
         // when
-        String gotUsername = jwtProvider.getUsername(tokenPrefix + token);
+        long gotUserId = jwtProvider.getUserId(tokenPrefix + token);
 
         // then
-        assertThat(gotUsername).isEqualTo(username);
+        assertThat(gotUserId).isEqualTo(user.getId());
     }
 
     @Test
-    @DisplayName("리프레시 토큰으로 회원 아이디를 반환한다.")
-    void givenUserRefreshToken_whenGetUsername_thenReturn() {
+    @DisplayName("리프레시 토큰으로 회원 식별자를 반환한다.")
+    void givenUserRefreshToken_whenGetUserId_thenReturn() {
         // given
-        String username = "tester";
-        createSavedDefaultUser("tester@gabojait.com", username, "테스터", Position.BACKEND, List.of(Role.USER));
-        String token = jwtProvider.createJwt(username).get("Refresh-Token").get(0);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND, List.of(Role.USER));
+        String token = jwtProvider.createJwt(user.getId()).get("Refresh-Token").get(0);
 
         // when
-        String gotUsername = jwtProvider.getUsername(tokenPrefix + token);
+        long gotUserId = jwtProvider.getUserId(tokenPrefix + token);
 
         // then
-        assertThat(gotUsername).isEqualTo(username);
+        assertThat(gotUserId).isEqualTo(user.getId());
     }
 
     @Test
-    @DisplayName("액세스 토큰으로 관리자 아이디를 반환한다.")
-    void givenAdminAccessToken_whenGetUsername_thenReturn() {
+    @DisplayName("액세스 토큰으로 관리자 회원 식별자를 반환한다.")
+    void givenAdminAccessToken_whenGetUserId_thenReturn() {
         // given
-        String username = "tester";
-        createSavedDefaultUser("tester@gabojait.com", username, "테스터", Position.BACKEND,
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND,
                 List.of(Role.USER, Role.ADMIN));
-        String token = jwtProvider.createJwt(username).get("Refresh-Token").get(0);
+        String token = jwtProvider.createJwt(user.getId()).get("Refresh-Token").get(0);
 
         // when
-        String gotUsername = jwtProvider.getUsername(tokenPrefix + token);
+        long gotUserId = jwtProvider.getUserId(tokenPrefix + token);
 
         // then
-        assertThat(gotUsername).isEqualTo(username);
+        assertThat(gotUserId).isEqualTo(user.getId());
     }
 
     @Test
-    @DisplayName("리프레시 토큰으로 관리자 아이디를 반환한다.")
-    void givenAdminRefreshToken_whenGetUsername_thenReturn() {
+    @DisplayName("리프레시 토큰으로 관리자 회원 식별자를 반환한다.")
+    void givenAdminRefreshToken_whenGetUserId_thenReturn() {
         // given
-        String username = "tester";
-        createSavedDefaultUser("tester@gabojait.com", username, "테스터", Position.BACKEND,
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND,
                 List.of(Role.USER, Role.ADMIN));
-        String token = jwtProvider.createJwt(username).get("Refresh-Token").get(0);
+        String token = jwtProvider.createJwt(user.getId()).get("Refresh-Token").get(0);
 
         // when
-        String gotUsername = jwtProvider.getUsername(tokenPrefix + token);
+        long gotUserId = jwtProvider.getUserId(tokenPrefix + token);
 
         // then
-        assertThat(gotUsername).isEqualTo(username);
+        assertThat(gotUserId).isEqualTo(user.getId());
     }
 
     @Test
-    @DisplayName("액세스 토큰으로 마스터 아이디를 반환한다.")
-    void givenMasterAccessToken_whenGetUsername_thenReturn() {
+    @DisplayName("액세스 토큰으로 마스터 회원 식별자를 반환한다.")
+    void givenMasterAccessToken_whenGetUserId_thenReturn() {
         // given
-        String username = "tester";
-        createSavedDefaultUser("tester@gabojait.com", username, "테스터", Position.BACKEND,
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND,
                 List.of(Role.USER, Role.ADMIN));
-        String token = jwtProvider.createJwt(username).get("Refresh-Token").get(0);
+        String token = jwtProvider.createJwt(user.getId()).get("Refresh-Token").get(0);
 
         // when
-        String gotUsername = jwtProvider.getUsername(tokenPrefix + token);
+        long gotUserId = jwtProvider.getUserId(tokenPrefix + token);
 
         // then
-        assertThat(gotUsername).isEqualTo(username);
+        assertThat(gotUserId).isEqualTo(user.getId());
     }
 
     @Test
-    @DisplayName("NULL인 토큰으로 아이디를 반환하면 예외가 발생한다.")
-    void givenNull_whenGetUsername_thenThrow() {
+    @DisplayName("NULL인 토큰으로 회원 식별자를 반환하면 예외가 발생한다.")
+    void givenNull_whenGetUserId_thenThrow() {
         // given
         String token = null;
 
         // when & then
-        assertThatThrownBy(() -> jwtProvider.getUsername(token))
+        assertThatThrownBy(() -> jwtProvider.getUserId(token))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(TOKEN_UNAUTHENTICATED);
     }
 
     @Test
-    @DisplayName("미입력된 토큰으로 아이디를 반환하면 예외가 발생한다.")
-    void givenBlank_whenGetUsername_thenThrow() {
+    @DisplayName("미입력된 토큰으로 회원 식별자를 반환하면 예외가 발생한다.")
+    void givenBlank_whenGetUserId_thenThrow() {
         // given
         String token = "";
 
         // when & then
-        assertThatThrownBy(() -> jwtProvider.getUsername(token))
+        assertThatThrownBy(() -> jwtProvider.getUserId(token))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(TOKEN_UNAUTHENTICATED);

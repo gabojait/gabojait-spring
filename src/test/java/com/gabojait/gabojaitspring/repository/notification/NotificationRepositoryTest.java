@@ -49,7 +49,7 @@ class NotificationRepositoryTest {
         int pageSize = 1;
 
         // when
-        Page<Notification> notifications = notificationRepository.findPage(user.getUsername(), pageFrom, pageSize);
+        Page<Notification> notifications = notificationRepository.findPage(user.getId(), pageFrom, pageSize);
 
         // then
         assertThat(notifications)
@@ -74,7 +74,7 @@ class NotificationRepositoryTest {
         notificationRepository.save(notification);
 
         // when
-        Optional<Notification> foundNotification = notificationRepository.findUnread(user.getUsername(), notification.getId());
+        Optional<Notification> foundNotification = notificationRepository.findUnread(user.getId(), notification.getId());
 
         // then
         assertThat(foundNotification.get())
@@ -95,7 +95,7 @@ class NotificationRepositoryTest {
         notificationRepository.save(notification);
 
         // when
-        Optional<Notification> foundNotification = notificationRepository.findUnread(user.getUsername(), notification.getId());
+        Optional<Notification> foundNotification = notificationRepository.findUnread(user.getId(), notification.getId());
 
         // then
         assertThat(foundNotification).isEmpty();

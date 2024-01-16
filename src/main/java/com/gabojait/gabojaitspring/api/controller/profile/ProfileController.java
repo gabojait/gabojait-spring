@@ -62,10 +62,12 @@ public class ProfileController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/profile")
-    public ResponseEntity<DefaultSingleResponse<Object>> findMyself(HttpServletRequest servletRequest) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+    public ResponseEntity<DefaultSingleResponse<Object>> findMyself(
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization
+    ) {
+        long userId = jwtProvider.getUserId(authorization);
 
-        ProfileFindMyselfResponse response = profileService.findMyProfile(username);
+        ProfileFindMyselfResponse response = profileService.findMyProfile(userId);
 
         return ResponseEntity.status(SELF_PROFILE_FOUND.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -98,14 +100,14 @@ public class ProfileController {
     })
     @GetMapping("/{user-id}/profile")
     public ResponseEntity<DefaultSingleResponse<Object>> findOther(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @PathVariable(value = "user-id")
             @Positive(message = "회원 식별자는 양수만 가능합니다.")
             Long userId
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long myUserId = jwtProvider.getUserId(authorization);
 
-        ProfileFindOtherResponse response = profileService.findOtherProfile(username, userId);
+        ProfileFindOtherResponse response = profileService.findOtherProfile(myUserId, userId);
 
         return ResponseEntity.status(PROFILE_FOUND.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -144,13 +146,13 @@ public class ProfileController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DefaultSingleResponse<Object>> uploadProfileImage(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @RequestPart(value = "image", required = false)
             MultipartFile image
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getUserId(authorization);
 
-        ProfileImageResponse response = profileService.uploadProfileImage(username, image);
+        ProfileImageResponse response = profileService.uploadProfileImage(userId, image);
 
         return ResponseEntity.status(PROFILE_IMAGE_UPLOADED.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -178,10 +180,12 @@ public class ProfileController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping("/image")
-    public ResponseEntity<DefaultSingleResponse<Object>> deleteProfileImage(HttpServletRequest servletRequest) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+    public ResponseEntity<DefaultSingleResponse<Object>> deleteProfileImage(
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization
+    ) {
+        long userId = jwtProvider.getUserId(authorization);
 
-        ProfileImageResponse response = profileService.deleteProfileImage(username);
+        ProfileImageResponse response = profileService.deleteProfileImage(userId);
 
         return ResponseEntity.status(PROFILE_IMAGE_DELETED.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -211,12 +215,13 @@ public class ProfileController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/seeking-team")
-    public ResponseEntity<DefaultNoResponse> updateIsSeekingTeam(HttpServletRequest servletRequest,
-                                                                 @RequestBody @Valid
-                                                                 ProfileIsSeekRequest request) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+    public ResponseEntity<DefaultNoResponse> updateIsSeekingTeam(
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
+            @RequestBody @Valid ProfileIsSeekRequest request
+    ) {
+        long userId = jwtProvider.getUserId(authorization);
 
-        profileService.updateIsSeekingTeam(username, request.getIsSeekingTeam());
+        profileService.updateIsSeekingTeam(userId, request.getIsSeekingTeam());
 
         return ResponseEntity.status(PROFILE_SEEKING_TEAM_UPDATED.getHttpStatus())
                 .body(DefaultNoResponse.noDataBuilder()
@@ -245,12 +250,13 @@ public class ProfileController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/description")
-    public ResponseEntity<DefaultNoResponse> updateDescription(HttpServletRequest servletRequest,
-                                                                @RequestBody @Valid
-                                                                ProfileDescriptionRequest request) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+    public ResponseEntity<DefaultNoResponse> updateDescription(
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
+            @RequestBody @Valid ProfileDescriptionRequest request
+    ) {
+        long userId = jwtProvider.getUserId(authorization);
 
-        profileService.updateProfileDescription(username, request.getProfileDescription());
+        profileService.updateProfileDescription(userId, request.getProfileDescription());
 
         return ResponseEntity.status(PROFILE_DESCRIPTION_UPDATED.getHttpStatus())
                 .body(DefaultNoResponse.noDataBuilder()
@@ -285,12 +291,13 @@ public class ProfileController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PostMapping("/profile")
-    public ResponseEntity<DefaultSingleResponse<Object>> updateProfile(HttpServletRequest servletRequest,
-                                                                       @RequestBody @Valid
-                                                                       ProfileUpdateRequest request) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+    public ResponseEntity<DefaultSingleResponse<Object>> updateProfile(
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
+            @RequestBody @Valid ProfileUpdateRequest request
+    ) {
+        long userId = jwtProvider.getUserId(authorization);
 
-        ProfileUpdateResponse response = profileService.updateProfile(username, request);
+        ProfileUpdateResponse response = profileService.updateProfile(userId, request);
 
         return ResponseEntity.status(PROFILE_UPDATED.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -328,13 +335,13 @@ public class ProfileController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DefaultSingleResponse<Object>> uploadPortfolioFile(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @RequestPart(value = "file", required = false)
             MultipartFile file
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getUserId(authorization);
 
-        PortfolioUrlResponse response = profileService.uploadPortfolioFile(username, file);
+        PortfolioUrlResponse response = profileService.uploadPortfolioFile(userId, file);
 
         return ResponseEntity.status(PORTFOLIO_FILE_UPLOADED.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -370,7 +377,7 @@ public class ProfileController {
     })
     @GetMapping("/seeking-team")
     public ResponseEntity<DefaultMultiResponse<Object>> findUsersLookingForTeam(
-            HttpServletRequest servletRequest,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
             @RequestParam(value = "position", required = false, defaultValue = "NONE")
             @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE)",
                     message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다.")
@@ -383,9 +390,9 @@ public class ProfileController {
             @Max(value = 100, message = "페이지 사이즈는 100까지의 수만 가능합니다.")
             Integer pageSize
     ) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+        long userId = jwtProvider.getUserId(authorization);
 
-        PageData<List<ProfilePageResponse>> responses = profileService.findPageUser(username, Position.valueOf(position),
+        PageData<List<ProfilePageResponse>> responses = profileService.findPageUser(userId, Position.valueOf(position),
                  pageFrom, pageSize);
 
         return ResponseEntity.status(USERS_SEEKING_TEAM_FOUND.getHttpStatus())

@@ -24,4 +24,15 @@ public class UserRoleRepositoryImpl implements UserRoleCustomRepository {
                         userRole.user.username.eq(username)
                 ).fetch();
     }
+
+    @Override
+    public List<UserRole> findAll(long userId) {
+        return queryFactory
+                .selectFrom(userRole)
+                .leftJoin(userRole.user, user)
+                .fetchJoin()
+                .where(
+                        userRole.user.id.eq(userId)
+                ).fetch();
+    }
 }

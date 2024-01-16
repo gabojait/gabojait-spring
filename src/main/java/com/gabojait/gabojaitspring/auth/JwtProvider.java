@@ -40,8 +40,8 @@ public class JwtProvider {
     private final CustomUserDetailsService customUserDetailsService;
     private static final String tokenPrefix = "Bearer ";
 
-    public HttpHeaders createJwt(String username) {
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+    public HttpHeaders createJwt(Long userId) {
+        UserDetails userDetails = customUserDetailsService.loadUserByUserId(userId);
         List<String> authorities = userDetails.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
@@ -51,7 +51,7 @@ public class JwtProvider {
         Algorithm algorithm = Algorithm.HMAC256(secret.getBytes(StandardCharsets.UTF_8));
         HttpHeaders headers = new HttpHeaders();
         String accessToken = JWT.create()
-                .withSubject(userDetails.getUsername())
+                .withSubject(userId.toString())
                 .withIssuedAt(new Date(time))
                 .withExpiresAt(new Date(time + accessTokenTime))
                 .withIssuer(domain)
@@ -64,7 +64,7 @@ public class JwtProvider {
             return headers;
 
         String refreshToken = JWT.create()
-                .withSubject(userDetails.getUsername())
+                .withSubject(userId.toString())
                 .withIssuedAt(new Date(time))
                 .withExpiresAt(new Date(time + refreshTokenTime))
                 .withIssuer(domain)
@@ -94,16 +94,16 @@ public class JwtProvider {
                 throw new CustomException(TOKEN_UNAUTHENTICATED);
         }
 
-        String username = decodedJWT.getSubject();
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+        long userId = Long.parseLong(decodedJWT.getSubject());
+        UserDetails userDetails = customUserDetailsService.loadUserByUserId(userId);
 
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(userDetails.getUsername(), "", userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
 
-    public String getUsername(String token) {
-        return decodeJwt(token).getSubject();
+    public Long getUserId(String token) {
+        return Long.valueOf(decodeJwt(token).getSubject());
     }
 
     private DecodedJWT decodeJwt(String token) {

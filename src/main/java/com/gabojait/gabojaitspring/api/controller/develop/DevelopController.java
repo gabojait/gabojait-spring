@@ -109,9 +109,7 @@ public class DevelopController {
             @Positive(message = "테스터 식별자는 양수만 가능합니다.")
             Long testerId
     ) {
-        String username = developService.findTester(testerId);
-
-        HttpHeaders headers = jwtProvider.createJwt(username);
+        HttpHeaders headers = jwtProvider.createJwt(testerId);
 
         return ResponseEntity.status(TESTER_TOKEN_ISSUED.getHttpStatus())
                 .headers(headers)

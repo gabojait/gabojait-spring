@@ -40,4 +40,19 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
                 grantedAuthorities);
     }
+
+    public UserDetails loadUserByUserId(long userId) throws UsernameNotFoundException {
+        List<UserRole> userRoles = userRoleRepository.findAll(userId);
+
+        User user = userRoles.stream()
+                .findFirst()
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND))
+                .getUser();
+        List<GrantedAuthority> grantedAuthorities = userRoles.stream()
+                .map(userROle -> new SimpleGrantedAuthority(userROle.getRole().name()))
+                .collect(Collectors.toList());
+
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
+                grantedAuthorities);
+    }
 }

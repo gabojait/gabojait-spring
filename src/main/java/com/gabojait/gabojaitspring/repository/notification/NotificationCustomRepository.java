@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface NotificationCustomRepository {
 
-    Page<Notification> findPage(String username, long pageFrom, int pageSize);
+    Page<Notification> findPage(long userId, long pageFrom, int pageSize);
 
-    Optional<Notification> findUnread(String username, long notificationId);
+    Optional<Notification> findUnread(long userId, long notificationId);
 }

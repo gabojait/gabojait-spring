@@ -4,7 +4,10 @@ import com.gabojait.gabojaitspring.api.dto.common.response.DefaultMultiResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultNoResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.DefaultSingleResponse;
 import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
-import com.gabojait.gabojaitspring.api.dto.team.request.*;
+import com.gabojait.gabojaitspring.api.dto.team.request.TeamCompleteRequest;
+import com.gabojait.gabojaitspring.api.dto.team.request.TeamCreateRequest;
+import com.gabojait.gabojaitspring.api.dto.team.request.TeamIsRecruitingUpdateRequest;
+import com.gabojait.gabojaitspring.api.dto.team.request.TeamUpdateRequest;
 import com.gabojait.gabojaitspring.api.dto.team.response.*;
 import com.gabojait.gabojaitspring.api.service.team.TeamService;
 import com.gabojait.gabojaitspring.auth.JwtProvider;
@@ -21,15 +24,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.validation.constraints.*;
-
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Positive;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
-import static com.gabojait.gabojaitspring.common.code.SuccessCode.SELF_TEAM_FOUND;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "팀")
@@ -70,11 +72,13 @@ public class TeamController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/team")
-    public ResponseEntity<DefaultSingleResponse<Object>> createTeam(HttpServletRequest servletRequest,
-                                                                    @RequestBody @Valid TeamCreateRequest request) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+    public ResponseEntity<DefaultSingleResponse<Object>> createTeam(
+            @RequestHeader(value = AUTHORIZATION, required = false) String token,
+            @RequestBody @Valid TeamCreateRequest request
+    ) {
+        long userId = jwtProvider.getUserId(token);
 
-        TeamCreateResponse response = teamService.createTeam(username, request);
+        TeamCreateResponse response = teamService.createTeam(userId, request);
 
         return ResponseEntity.status(TEAM_CREATED.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -112,11 +116,13 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PutMapping("/team")
-    public ResponseEntity<DefaultSingleResponse<Object>> updateTeam(HttpServletRequest servletRequest,
-                                                                    @RequestBody @Valid TeamUpdateRequest request) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+    public ResponseEntity<DefaultSingleResponse<Object>> updateTeam(
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
+            @RequestBody @Valid TeamUpdateRequest request
+    ) {
+        long userId = jwtProvider.getUserId(authorization);
 
-        TeamUpdateResponse response = teamService.updateTeam(username, request);
+        TeamUpdateResponse response = teamService.updateTeam(userId, request);
 
         return ResponseEntity.status(TEAM_UPDATED.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -144,10 +150,12 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/user/team")
-    public ResponseEntity<DefaultSingleResponse<Object>> findMyCurrentTeam(HttpServletRequest servletRequest) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+    public ResponseEntity<DefaultSingleResponse<Object>> findMyCurrentTeam(
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization
+    ) {
+        long userId = jwtProvider.getUserId(authorization);
 
-        TeamMyCurrentResponse response = teamService.findCurrentTeam(username);
+        TeamMyCurrentResponse response = teamService.findCurrentTeam(userId);
 
         return ResponseEntity.status(SELF_TEAM_FOUND.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -179,13 +187,15 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @GetMapping("/team/{team-id}")
-    public ResponseEntity<DefaultSingleResponse<Object>> findTeam(HttpServletRequest servletRequest,
-                                                                  @PathVariable(value = "team-id")
-                                                                  @Positive(message = "팀 식별자는 양수만 가능합니다.")
-                                                                  Long teamId) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+    public ResponseEntity<DefaultSingleResponse<Object>> findTeam(
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
+            @PathVariable(value = "team-id")
+            @Positive(message = "팀 식별자는 양수만 가능합니다.")
+            Long teamId
+    ) {
+        long userId = jwtProvider.getUserId(authorization);
 
-        TeamFindResponse response = teamService.findOtherTeam(username, teamId);
+        TeamFindResponse response = teamService.findOtherTeam(userId, teamId);
 
         return ResponseEntity.status(TEAM_FOUND.getHttpStatus())
                 .body(DefaultSingleResponse.singleDataBuilder()
@@ -262,12 +272,13 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/team/recruiting")
-    public ResponseEntity<DefaultNoResponse> updateIsRecruiting(HttpServletRequest servletRequest,
-                                                                @RequestBody @Valid
-                                                                TeamIsRecruitingUpdateRequest request) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+    public ResponseEntity<DefaultNoResponse> updateIsRecruiting(
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
+            @RequestBody @Valid TeamIsRecruitingUpdateRequest request
+    ) {
+        long userId = jwtProvider.getUserId(authorization);
 
-        teamService.updateIsRecruiting(username, request.getIsRecruiting());
+        teamService.updateIsRecruiting(userId, request.getIsRecruiting());
 
         return ResponseEntity.status(TEAM_IS_RECRUITING_UPDATED.getHttpStatus())
                 .body(DefaultNoResponse.noDataBuilder()
@@ -294,10 +305,12 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @DeleteMapping("/team/incomplete")
-    public ResponseEntity<DefaultNoResponse> projectIncomplete(HttpServletRequest servletRequest) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+    public ResponseEntity<DefaultNoResponse> projectIncomplete(
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization
+    ) {
+        long userId = jwtProvider.getUserId(authorization);
 
-        teamService.endProject(username, "", LocalDateTime.now());
+        teamService.endProject(userId, "", LocalDateTime.now());
 
         return ResponseEntity.status(PROJECT_INCOMPLETE.getHttpStatus())
                 .body(DefaultNoResponse.noDataBuilder()
@@ -326,11 +339,13 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/team/complete")
-    public ResponseEntity<DefaultNoResponse> quitCompleteProject(HttpServletRequest servletRequest,
-                                                                 @RequestBody @Valid TeamCompleteRequest request) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+    public ResponseEntity<DefaultNoResponse> quitCompleteProject(
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
+            @RequestBody @Valid TeamCompleteRequest request
+    ) {
+        long userId = jwtProvider.getUserId(authorization);
 
-        teamService.endProject(username, request.getProjectUrl(), LocalDateTime.now());
+        teamService.endProject(userId, request.getProjectUrl(), LocalDateTime.now());
 
         return ResponseEntity.status(PROJECT_COMPLETE.getHttpStatus())
                 .body(DefaultNoResponse.noDataBuilder()
@@ -363,13 +378,15 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/team/user/{user-id}/fire")
-    public ResponseEntity<DefaultNoResponse> fireTeamMember(HttpServletRequest servletRequest,
-                                                            @PathVariable(value = "user-id")
-                                                            @Positive(message = "회원 식별자는 양수만 가능합니다.")
-                                                            Long userId) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+    public ResponseEntity<DefaultNoResponse> fireTeamMember(
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorization,
+            @PathVariable(value = "user-id")
+            @Positive(message = "회원 식별자는 양수만 가능합니다.")
+            Long userId
+    ) {
+        long myUserId = jwtProvider.getUserId(authorization);
 
-        teamService.fire(username, userId);
+        teamService.fire(myUserId, userId);
 
         return ResponseEntity.status(TEAMMATE_FIRED.getHttpStatus())
                 .body(DefaultNoResponse.noDataBuilder()
@@ -398,10 +415,11 @@ public class TeamController {
             @ApiResponse(responseCode = "503", description = "SERVICE UNAVAILABLE")
     })
     @PatchMapping("/team/leave")
-    public ResponseEntity<DefaultNoResponse> leaveTeam(HttpServletRequest servletRequest) {
-        String username = jwtProvider.getUsername(servletRequest.getHeader(AUTHORIZATION));
+    public ResponseEntity<DefaultNoResponse> leaveTeam(@RequestHeader(value = AUTHORIZATION, required = false)
+                                                       String authorization) {
+        long userId = jwtProvider.getUserId(authorization);
 
-        teamService.leave(username);
+        teamService.leave(userId);
 
         return ResponseEntity.status(USER_LEFT_TEAM.getHttpStatus())
                 .body(DefaultNoResponse.noDataBuilder()
