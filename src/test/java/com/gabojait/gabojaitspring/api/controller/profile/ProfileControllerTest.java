@@ -505,6 +505,29 @@ class ProfileControllerTest {
     }
 
     @Test
+    @DisplayName("포트폴리오에 포트폴리오 URL이 1000자 초과일시 프로필 업데이트를 하면 400을 반환한다.")
+    void givenPortfolioGreaterThan1000SizePortfolioUrl_whenUpdateProfile_thenReturn400() throws Exception {
+        // given
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
+        request.getPortfolios().get(0).setPortfolioUrl("a".repeat(1001));
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                post("/api/v1/user/profile")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(PORTFOLIO_URL_LENGTH_INVALID.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(PORTFOLIO_URL_LENGTH_INVALID.getMessage()));
+    }
+
+    @Test
     @DisplayName("포트폴리오에 잘못된 미디어 입력시 프로필 업데이트를 하면 400을 반환한다.")
     void givenPortfolioFormatMedia_whenUpdateProfile_thenReturn400() throws Exception {
         // given
@@ -528,11 +551,11 @@ class ProfileControllerTest {
     }
 
     @Test
-    @DisplayName("포트폴리오에 포트폴리오 URL이 1000자 초과일시 프로필 업데이트를 하면 400을 반환한다.")
-    void givenPortfolioGreaterThan1000SizePortfolioUrl_whenUpdateProfile_thenReturn400() throws Exception {
+    @DisplayName("경력에 기관명이 1자 미만일시 프로필 업데이트를 하면 400을 반환한다.")
+    void givenWorkLessThan1SizeCorporationName_whenUpdateProfile_thenReturn400() throws Exception {
         // given
         ProfileUpdateRequest request = createValidProfileUpdateRequest();
-        request.getPortfolios().get(0).setPortfolioUrl("a".repeat(1001));
+        request.getWorks().get(0).setCorporationName("");
 
         // when
         ResultActions actions = mockMvc.perform(
@@ -545,9 +568,9 @@ class ProfileControllerTest {
         actions.andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.responseCode")
-                        .value(PORTFOLIO_URL_LENGTH_INVALID.name()))
+                        .value(CORPORATION_NAME_LENGTH_INVALID.name()))
                 .andExpect(jsonPath("$.responseMessage")
-                        .value(PORTFOLIO_URL_LENGTH_INVALID.getMessage()));
+                        .value(CORPORATION_NAME_LENGTH_INVALID.getMessage()));
     }
 
     @Test
