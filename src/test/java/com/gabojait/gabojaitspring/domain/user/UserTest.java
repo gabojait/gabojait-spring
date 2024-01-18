@@ -498,6 +498,13 @@ class UserTest {
                         false
                 ),
                 Arguments.of(
+                        createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터일", Gender.M,
+                                LocalDate.of(1997, 2, 11), now),
+                        createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터이", Gender.M,
+                                LocalDate.of(1997, 2, 11), now),
+                        false
+                ),
+                Arguments.of(
                         createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
                                 LocalDate.of(1997, 2, 11), now),
                         createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
