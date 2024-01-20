@@ -25,13 +25,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class TeamMemberTest {
 
     @Test
-    @DisplayName("팀원을 생성한다.")
-    void builder() {
+    @DisplayName("팀원 생성이 정상 작동한다")
+    void givenValid_whenBuilder_thenReturn() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
+        User user = createDefaultUser("tester@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", (byte) 2, (byte) 2, (byte) 2, (byte) 2);
 
         Position position = Position.BACKEND;
         boolean isLeader = true;
@@ -45,18 +43,18 @@ class TeamMemberTest {
                         .extracting("position", "teamMemberStatus", "isLeader", "isDeleted")
                         .containsExactly(position, TeamMemberStatus.PROGRESS, isLeader, false),
                 () -> assertThat(teamMember.getUser().getIsSeekingTeam()).isFalse(),
-                () -> assertThat(teamMember.getTeam().getBackendCurrentCnt()).isEqualTo((byte) 1)
+                () -> assertThat(teamMember.getUser()).isEqualTo(user),
+                () -> assertThat(teamMember.getTeam().getBackendCurrentCnt()).isEqualTo((byte) 1),
+                () -> assertThat(teamMember.getTeam()).isEqualTo(team)
         );
     }
 
     @Test
-    @DisplayName("팀장이 프로젝트를 완료한다.")
+    @DisplayName("팀장이 프로젝트 완료를 하면 정상 작동한다")
     void givenLeader_whenComplete_thenReturn() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
+        User user = createDefaultUser("tester@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", (byte) 2, (byte) 2, (byte) 2, (byte) 2);
 
         Position position = Position.BACKEND;
         boolean isLeader = true;
@@ -82,13 +80,11 @@ class TeamMemberTest {
     }
 
     @Test
-    @DisplayName("팀원이 프로젝트를 완료한다.")
-    void givenNonLeader_whenComplete_thenReturn() {
+    @DisplayName("팀원이 프로젝트 완료를 하면 정상 작동한다")
+    void givenMember_whenComplete_thenReturn() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
+        User user = createDefaultUser("tester@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", (byte) 2, (byte) 2, (byte) 2, (byte) 2);
 
         Position position = Position.BACKEND;
         boolean isLeader = false;
@@ -113,15 +109,13 @@ class TeamMemberTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 팀장 여부가 {0}인 팀원이 프로젝트를 미완료한다.")
+    @ParameterizedTest(name = "[{index}] 팀장 여부가 {0}가 프로젝트를 미완료한다.")
     @ValueSource(booleans = {true, false})
-    @DisplayName("팀원이 프로젝트를 미완료한다.")
+    @DisplayName("프로젝트 미완료를 한다")
     void givenValid_whenIncomplete_thenReturn(boolean isLeader) {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
+        User user = createDefaultUser("tester@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", (byte) 2, (byte) 2, (byte) 2, (byte) 2);
 
         Position position = Position.BACKEND;
         TeamMember teamMember = createTeamMember(position, isLeader, user, team);
@@ -139,13 +133,11 @@ class TeamMemberTest {
     }
 
     @Test
-    @DisplayName("팀원이 프로젝트에서 추방한다.")
-    void givenNonLeader_whenFire_thenReturn() {
+    @DisplayName("팀원이 프로젝트에서 추방 당하면 정상 작동한다")
+    void givenMember_whenFire_thenReturn() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
+        User user = createDefaultUser("tester@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", (byte) 2, (byte) 2, (byte) 2, (byte) 2);
 
         Position position = Position.BACKEND;
         boolean isLeader = false;
@@ -164,13 +156,11 @@ class TeamMemberTest {
     }
 
     @Test
-    @DisplayName("팀장이 프로젝트에서 추방하면 예외가 발생한다.")
+    @DisplayName("팀장이 프로젝트에서 추방 당하면 예외가 발생한다.")
     void givenLeader_whenFire_thenThrow() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
+        User user = createDefaultUser("tester@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", (byte) 2, (byte) 2, (byte) 2, (byte) 2);
 
         Position position = Position.BACKEND;
         boolean isLeader = true;
@@ -184,13 +174,11 @@ class TeamMemberTest {
     }
 
     @Test
-    @DisplayName("팀원이 프로젝트를 그만둔다.")
-    void givenNonLeader_whenQuit_thenReturn() {
+    @DisplayName("팀원이 프로젝트를 탈퇴하면 정상 작동한다")
+    void givenMember_whenQuit_thenReturn() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
+        User user = createDefaultUser("tester@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", (byte) 2, (byte) 2, (byte) 2, (byte) 2);
 
         Position position = Position.BACKEND;
         boolean isLeader = false;
@@ -211,13 +199,11 @@ class TeamMemberTest {
     }
 
     @Test
-    @DisplayName("팀장이 프로젝트를 그만두면 예외가 발생한다.")
+    @DisplayName("팀장이 프로젝트를 탈퇴하면 예외가 발생한다.")
     void givenLeader_whenQuit_thenThrow() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
+        User user = createDefaultUser("tester@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", (byte) 2, (byte) 2, (byte) 2, (byte) 2);
 
         Position position = Position.BACKEND;
         boolean isLeader = true;
@@ -231,13 +217,11 @@ class TeamMemberTest {
     }
 
     @Test
-    @DisplayName("진행 상태인 팀원의 회원 연관관계를 끊는다.")
+    @DisplayName("진행 상태인 팀원의 회원 연관관계를 끊으면 정상 작동한다")
     void givenProgressMember_whenDisconnectUser_thenReturn() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
+        User user = createDefaultUser("tester@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", (byte) 2, (byte) 2, (byte) 2, (byte) 2);
 
         boolean isLeader = false;
         Position position = Position.BACKEND;
@@ -257,13 +241,11 @@ class TeamMemberTest {
     }
 
     @Test
-    @DisplayName("진행 상태인 팀장의 회원 연관관계를 끊으면 예외가 발생한다.")
+    @DisplayName("진행 상태인 팀장의 회원 연관관계를 끊으면 예외가 발생한다")
     void givenProgressLeader_whenDisconnectUser_thenThrow() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
+        User user = createDefaultUser("tester@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", (byte) 2, (byte) 2, (byte) 2, (byte) 2);
 
         boolean isLeader = true;
         Position position = Position.BACKEND;
@@ -276,15 +258,13 @@ class TeamMemberTest {
                 .isEqualTo(UNREGISTER_UNAVAILABLE);
     }
 
-    @ParameterizedTest(name = "[{index}] 완료 상태인 팀장 여부가 {0}인 팀원이 회원과의 연관관계를 끊는다.")
+    @ParameterizedTest(name = "[{index}] 완료 상태이며 팀장 여부가 {0}인 회원과의 연관관계를 끊는다")
     @ValueSource(booleans = {true, false})
-    @DisplayName("완료 상태인 팀원의 회원 연관관계를 끊는다.")
+    @DisplayName("완료 상태인 회원 연관관계를 끊으면 정상 작동한다")
     void givenComplete_whenDisconnectUser_thenReturn(boolean isLeader) {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
+        User user = createDefaultUser("tester@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", (byte) 2, (byte) 2, (byte) 2, (byte) 2);
 
         Position position = Position.BACKEND;
         String projectUrl = "github.com/gabojait";
@@ -307,28 +287,22 @@ class TeamMemberTest {
     }
 
     private static Stream<Arguments> providerEquals() {
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 10, (byte) 10,
-                (byte) 10, (byte) 10);
+        User user = createDefaultUser("tester@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", (byte) 10, (byte) 10, (byte) 10, (byte) 10);
         TeamMember teamMember = createTeamMember(Position.BACKEND, false, user, team);
 
         TeamMember teamMemberStatusTeamMember1 = createTeamMember(Position.BACKEND, false, user, team);
         TeamMember teamMemberStatusTeamMember2 = createTeamMember(Position.BACKEND, false, user, team);
         teamMemberStatusTeamMember2.quit();
 
-        User user1 = createDefaultUser("tester1@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        User user1 = createDefaultUser("tester1@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());
         TeamMember userTeamMember1 = createTeamMember(Position.BACKEND, false, user1, team);
-        User user2 = createDefaultUser("tester2@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        User user2 = createDefaultUser("tester2@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());
         TeamMember userTeamMember2 = createTeamMember(Position.BACKEND, false, user2, team);
 
-        Team team1 = createTeam("가보자잇1", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
+        Team team1 = createTeam("가보자잇1", (byte) 2, (byte) 2, (byte) 2, (byte) 2);
         TeamMember teamTeamMember1 = createTeamMember(Position.BACKEND, false, user, team1);
-        Team team2 = createTeam("가보자잇2", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
+        Team team2 = createTeam("가보자잇2", (byte) 2, (byte) 2, (byte) 2, (byte) 2);
         TeamMember teamTeamMember2 = createTeamMember(Position.BACKEND, false, user, team2);
 
         return Stream.of(
@@ -355,19 +329,17 @@ class TeamMemberTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 팀원 객체를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 팀원 객체를 비교한다")
     @MethodSource("providerEquals")
-    @DisplayName("팀원 객체를 비교한다.")
+    @DisplayName("팀원 객체 비교가 정상 작동한다")
     void givenProvider_whenEquals_thenReturn(TeamMember teamMember, Object object, boolean result) {
         // when & then
         assertThat(teamMember.equals(object)).isEqualTo(result);
     }
 
     private static Stream<Arguments> providerHashCode() {
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 5, (byte) 5,
-                (byte) 5, (byte) 5);
+        User user = createDefaultUser("tester@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", (byte) 5, (byte) 5, (byte) 5, (byte) 5);
 
         return Stream.of(
                 Arguments.of(
@@ -383,9 +355,9 @@ class TeamMemberTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 팀원 해시코드를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 팀원 해시코드를 비교한다")
     @MethodSource("providerHashCode")
-    @DisplayName("팀원 해시코드를 비교한다.")
+    @DisplayName("팀원 해시코드 비교가 정상 작동한다")
     void givenProvider_whenHashCode_thenReturn(TeamMember teamMember1, TeamMember teamMember2, boolean result) {
         // when
         int hashCode1 = teamMember1.hashCode();
@@ -405,18 +377,15 @@ class TeamMemberTest {
     }
 
     private static Team createTeam(String projectName,
-                            String projectDescription,
-                            String expectation,
-                            String openChatUrl,
-                            byte designerMaxCnt,
-                            byte backendMaxCnt,
-                            byte frontendMaxCnt,
-                            byte managerMaxCnt) {
+                                   byte designerMaxCnt,
+                                   byte backendMaxCnt,
+                                   byte frontendMaxCnt,
+                                   byte managerMaxCnt) {
         return Team.builder()
                 .projectName(projectName)
-                .projectDescription(projectDescription)
-                .expectation(expectation)
-                .openChatUrl(openChatUrl)
+                .projectDescription("가보자잇입니다")
+                .expectation("열정적인 사람을 구합니다.")
+                .openChatUrl("kakao.com/o/gabojait")
                 .designerMaxCnt(designerMaxCnt)
                 .backendMaxCnt(backendMaxCnt)
                 .frontendMaxCnt(frontendMaxCnt)
@@ -424,25 +393,18 @@ class TeamMemberTest {
                 .build();
     }
 
-    private static User createDefaultUser(String email,
-                                   String verificationCode,
-                                   String username,
-                                   String password,
-                                   String nickname,
-                                   Gender gender,
-                                   LocalDate birthdate,
-                                   LocalDateTime lastRequestAt) {
+    private static User createDefaultUser(String email, LocalDate birthdate, LocalDateTime lastRequestAt) {
         Contact contact = Contact.builder()
                 .email(email)
-                .verificationCode(verificationCode)
+                .verificationCode("000000")
                 .build();
         contact.verified();
 
         return User.builder()
-                .username(username)
-                .password(password)
-                .nickname(nickname)
-                .gender(gender)
+                .username("tester")
+                .password("password1!")
+                .nickname("테스터")
+                .gender(Gender.M)
                 .birthdate(birthdate)
                 .lastRequestAt(lastRequestAt)
                 .contact(contact)

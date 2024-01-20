@@ -23,17 +23,17 @@ class TeamMemberStatusTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {0} 팀원 상태 텍스트는 {1}다.")
+    @ParameterizedTest(name = "[{index}] {0} 팀원 상태 텍스트는 {1}다")
     @MethodSource("providerGetText")
-    @DisplayName("팀원 상태 텍스트를 반환한다.")
+    @DisplayName("팀원 상태 텍스트 반환이 정상 작동한다")
     void givenProvider_whenGetText_thenReturn(TeamMemberStatus teamMemberStatus, String text) {
         // when & then
         assertThat(teamMemberStatus.getText()).isEqualTo(text);
     }
 
     @Test
-    @DisplayName("전체 팀원상태를 반환한다.")
-    void values() {
+    @DisplayName("전체 팀원 상태 반환이 정상 작동한다")
+    void givenValid_whenValues_thenReturn() {
         // given & when
         TeamMemberStatus[] teamMemberStatuses = TeamMemberStatus.values();
 
@@ -52,16 +52,16 @@ class TeamMemberStatusTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {0} 값을 {1} 팀원 상태로 변환한다.")
+    @ParameterizedTest(name = "[{index}] {0} 값을 {1} 팀원 상태로 변환한다")
     @MethodSource("providerValueOf")
-    @DisplayName("팀원 상태 값을 변환한다.")
+    @DisplayName("팀원 상태 값을 변환이 정상 작동한다")
     void givenProvider_whenValueOf_thenReturn(String value, TeamMemberStatus teamMemberStatus) {
         // when & then
         assertThat(TeamMemberStatus.valueOf(value)).isEqualTo(teamMemberStatus);
     }
 
     @Test
-    @DisplayName("잘못된 값을 팀원상태로 반환하면 예외가 발생한다.")
+    @DisplayName("잘못된 값을 팀원 상태로 반환하면 예외가 발생한다.")
     void givenInvalid_whenValueOf_thenReturn() {
         // given
         String value = "INVALID";

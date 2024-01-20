@@ -10,10 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Random;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
@@ -23,8 +24,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class TeamTest {
 
     @Test
-    @DisplayName("팀을 생성한다.")
-    void builder() {
+    @DisplayName("팀 생성이 정상 작동한다")
+    void givenValid_whenBuilder_thenReturn() {
         // given
         String projectName = "가보자잇";
         String projectDescription = "가보자잇입니다.";
@@ -51,7 +52,7 @@ class TeamTest {
     }
 
     @Test
-    @DisplayName("팀을 업데이트한다.")
+    @DisplayName("팀 업데이트이 정상 작동한다")
     void givenValid_whenUpdate_thenReturn() {
         // given
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
@@ -66,8 +67,8 @@ class TeamTest {
         byte managerMaxCnt = 3;
 
         // when
-        team.update(projectName, projectDescription, expectation, designerMaxCnt, backendMaxCnt,
-                frontendMaxCnt, managerMaxCnt);
+        team.update(projectName, projectDescription, expectation, designerMaxCnt, backendMaxCnt, frontendMaxCnt,
+                managerMaxCnt);
 
         // then
         assertThat(team)
@@ -78,14 +79,13 @@ class TeamTest {
     }
 
     @Test
-    @DisplayName("디자이너 현재 수가 업데이트될 최대 수 보다 많으면 예외가 발생한다.")
+    @DisplayName("디자이너 현재 수가 업데이트될 최대 수 보다 많으면 예외가 발생한다")
     void givenLesserDesigner_whenUpdate_thenThrow() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        User user = createDefaultUser(LocalDate.of(1997, 2, 11), LocalDateTime.now());
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
                 (byte) 2, (byte) 2);
-        createTeamMember(Position.DESIGNER, true, user, team);
+        createTeamMember(Position.DESIGNER, user, team);
 
         String projectName = "가볼까잇";
         String projectDescription = "가보볼까잇입니다.";
@@ -104,14 +104,13 @@ class TeamTest {
     }
 
     @Test
-    @DisplayName("백엔드 현재 수가 업데이트될 최대 수 보다 많으면 예외가 발생한다.")
+    @DisplayName("백엔드 현재 수가 업데이트될 최대 수 보다 많으면 예외가 발생한다")
     void givenLesserBackend_whenUpdate_thenThrow() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        User user = createDefaultUser(LocalDate.of(1997, 2, 11), LocalDateTime.now());
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
                 (byte) 2, (byte) 2);
-        createTeamMember(Position.BACKEND, true, user, team);
+        createTeamMember(Position.BACKEND, user, team);
 
         String projectName = "가볼까잇";
         String projectDescription = "가보볼까잇입니다.";
@@ -130,14 +129,13 @@ class TeamTest {
     }
 
     @Test
-    @DisplayName("프런트엔드 현재 수가 업데이트될 최대 수 보다 많으면 예외가 발생한다.")
+    @DisplayName("프런트엔드 현재 수가 업데이트될 최대 수 보다 많으면 예외가 발생한다")
     void givenLesserFrontend_whenUpdate_thenThrow() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        User user = createDefaultUser(LocalDate.of(1997, 2, 11), LocalDateTime.now());
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
                 (byte) 2, (byte) 2);
-        createTeamMember(Position.FRONTEND, true, user, team);
+        createTeamMember(Position.FRONTEND, user, team);
 
         String projectName = "가볼까잇";
         String projectDescription = "가보볼까잇입니다.";
@@ -156,14 +154,13 @@ class TeamTest {
     }
 
     @Test
-    @DisplayName("매니저 현재 수가 업데이트될 최대 수 보다 많으면 예외가 발생한다.")
+    @DisplayName("매니저 현재 수가 업데이트될 최대 수 보다 많으면 예외가 발생한다")
     void givenLesserManager_whenUpdate_thenThrow() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        User user = createDefaultUser(LocalDate.of(1997, 2, 11), LocalDateTime.now());
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
                 (byte) 2, (byte) 2);
-        createTeamMember(Position.MANAGER, true, user, team);
+        createTeamMember(Position.MANAGER, user, team);
 
         String projectName = "가볼까잇";
         String projectDescription = "가보볼까잇입니다.";
@@ -202,9 +199,9 @@ class TeamTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {0}가 팀을 들어간다.")
+    @ParameterizedTest(name = "[{index}] {0}가 팀에 합류한다")
     @MethodSource("providerJoin")
-    @DisplayName("특정 포지션이 팀에 들어간다.")
+    @DisplayName("팀에 합류가 정상 작동한다")
     void givenProvider_whenJoin_thenReturn(byte designerMaxCnt,
                                            byte backendMaxCnt,
                                            byte frontendMaxCnt,
@@ -231,7 +228,7 @@ class TeamTest {
     }
 
     @Test
-    @DisplayName("마감인 특정 포지션에 들어가면 예외가 발생한다.")
+    @DisplayName("마감인 포지션에 들어가면 예외가 발생한다")
     void givenFullPosition_whenJoin_thenThrow() {
         // given
         Position position = Position.DESIGNER;
@@ -254,9 +251,9 @@ class TeamTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {0}가 팀에서 나간다.")
+    @ParameterizedTest(name = "[{index}] {0}가 팀에서 탈퇴한다")
     @MethodSource("providerLeave")
-    @DisplayName("특정 포지션이 팀에서 나간다.")
+    @DisplayName("팀에서 탈퇴가 정상 작동한다")
     void givenProvider_whenLeave_thenReturn(Position position,
                                             byte designerCurrentCnt,
                                             byte backendCurrentCnt,
@@ -279,8 +276,8 @@ class TeamTest {
     }
 
     @Test
-    @DisplayName("팀원 모집 여부를 업데이트한다.")
-    void updateIsRecruiting() {
+    @DisplayName("팀원 모집 여부를 업데이트한다")
+    void givenValid_whenUpdateIsRecruiting_thenReturn() {
         // given
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
                 (byte) 2, (byte) 2);
@@ -301,9 +298,9 @@ class TeamTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 마감되지 않은 {0} 포지션의 마감 여부를 확인한다.")
+    @ParameterizedTest(name = "[{index}] 마감되지 않은 {0} 포지션의 마감 여부를 확인한다")
     @MethodSource("providerIsPositionFull")
-    @DisplayName("마감되지 않은 포지션의 마감 여부를 확인한다.")
+    @DisplayName("마감되지 않은 포지션의 마감 여부를 확인이 정상 작동한다")
     void givenProviderNotFull_whenIsPositionFull_thenReturn(Position position) {
         // given
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 1, (byte) 1,
@@ -316,9 +313,9 @@ class TeamTest {
         assertThat(result).isFalse();
     }
 
-    @ParameterizedTest(name = "[{index}] 마감된 {0} 포지션의 마감 여부를 확인한다.")
+    @ParameterizedTest(name = "[{index}] 마감된 {0} 포지션의 마감 여부를 확인한다")
     @MethodSource("providerIsPositionFull")
-    @DisplayName("마감되지 않은 포지션의 마감 여부를 확인한다.")
+    @DisplayName("마감되지 않은 포지션의 마감 여부를 확인이 정상 작동한다")
     void givenProviderFull_whenIsPositionFull_thenReturn(Position position) {
         // given
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 1, (byte) 1,
@@ -332,26 +329,25 @@ class TeamTest {
         assertThat(result).isTrue();
     }
 
-    @Test
-    @DisplayName("팀 프로필을 방문한다.")
-    void visited() {
+    @ParameterizedTest(name = "[{index}] {0}번 팀 프로필을 방문한다")
+    @ValueSource(longs = {1, 3, 5, 7, 10})
+    @DisplayName("팀 프로필을 방문이 정상 작동한다")
+    void givenValid_whenVisited_thenReturn(long visitCnt) {
         // given
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
                 (byte) 2, (byte) 2);
 
-        int visitedCnt = new Random().nextInt(100) + 1;
-
         // when
-        for (int i = 0; i < visitedCnt; i++)
-            team.visit();
+        LongStream.range(0, visitCnt)
+                .forEach(i -> team.visit());
 
         // then
-        assertThat(team.getVisitedCnt()).isEqualTo(visitedCnt);
+        assertThat(team.getVisitedCnt()).isEqualTo(visitCnt);
     }
 
     @Test
-    @DisplayName("프로젝트를 미완료한다.")
-    void incomplete() {
+    @DisplayName("프로젝트 미완료가 정상 작동한다")
+    void givenValid_whenIncomplete_thenReturn() {
         // given
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
                 (byte) 2, (byte) 2);
@@ -366,8 +362,8 @@ class TeamTest {
     }
 
     @Test
-    @DisplayName("프로젝트를 완료한다.")
-    void complete() {
+    @DisplayName("프로젝트 완료가 정상 작동한다")
+    void givenValid_whenComplete_thenReturn() {
         // given
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
                 (byte) 2, (byte) 2);
@@ -512,9 +508,9 @@ class TeamTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 팀 객체를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 팀 객체를 비교한다")
     @MethodSource("providerEquals")
-    @DisplayName("팀 객체를 비교한다.")
+    @DisplayName("팀 객체 비교가 정상 작동한다")
     void givenProvider_whenEquals_thenReturn(Team team, Object object, boolean result) {
         // when & then
         assertThat(team.equals(object)).isEqualTo(result);
@@ -539,9 +535,9 @@ class TeamTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 팀 해시코드를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 팀 해시코드를 비교한다")
     @MethodSource("providerHashCode")
-    @DisplayName("팀 해시코드를 비교한다.")
+    @DisplayName("팀 해시코드 비교가 정상 작동한다")
     void givenProvider_whenHashCode_thenReturn(Team team1, Team team2, boolean result) {
         // when
         int hashCode1 = team1.hashCode();
@@ -571,35 +567,28 @@ class TeamTest {
                 .build();
     }
 
-    private static User createDefaultUser(String email,
-                                   String verificationCode,
-                                   String username,
-                                   String password,
-                                   String nickname,
-                                   Gender gender,
-                                   LocalDate birthdate,
-                                   LocalDateTime lastRequestAt) {
+    private static User createDefaultUser(LocalDate birthdate, LocalDateTime lastRequestAt) {
         Contact contact = Contact.builder()
-                .email(email)
-                .verificationCode(verificationCode)
+                .email("tester@gabojait.com")
+                .verificationCode("000000")
                 .build();
         contact.verified();
 
         return User.builder()
-                .username(username)
-                .password(password)
-                .nickname(nickname)
-                .gender(gender)
+                .username("tester")
+                .password("password1!")
+                .nickname("테스터")
+                .gender(Gender.M)
                 .birthdate(birthdate)
                 .lastRequestAt(lastRequestAt)
                 .contact(contact)
                 .build();
     }
 
-    private static TeamMember createTeamMember(Position position, boolean isLeader, User user, Team team) {
-        return TeamMember.builder()
+    private static void createTeamMember(Position position, User user, Team team) {
+        TeamMember.builder()
                 .position(position)
-                .isLeader(isLeader)
+                .isLeader(true)
                 .team(team)
                 .user(user)
                 .build();
