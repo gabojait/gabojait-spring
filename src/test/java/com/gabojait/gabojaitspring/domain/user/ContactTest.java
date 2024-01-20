@@ -13,8 +13,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 class ContactTest {
 
     @Test
-    @DisplayName("연락처를 생성한다.")
-    void builder() {
+    @DisplayName("연락처 생성이 정상 작동한다")
+    void givenValid_whenBuilder_thenReturn() {
         // given
         String email = "tester@gabojait.com";
         String verificationCode = "000000";
@@ -29,8 +29,8 @@ class ContactTest {
     }
 
     @Test
-    @DisplayName("연락처 인증을 한다.")
-    void verified() {
+    @DisplayName("연락처 인증이 정상 작동한다")
+    void givenValid_whenVerified_thenReturn() {
         // given
         String email = "tester@gabojait.com";
         String verificationCode = "000000";
@@ -72,9 +72,9 @@ class ContactTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 연락처 객체를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 연락처 객체를 비교한다")
     @MethodSource("providerEquals")
-    @DisplayName("연락처 객체를 비교한다.")
+    @DisplayName("연락처 객체 비교이 정상 작동한다")
     void givenProvider_whenEquals_thenReturn(Contact contact, Object object, boolean result) {
         // when & then
         assertThat(contact.equals(object)).isEqualTo(result);
@@ -95,9 +95,9 @@ class ContactTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 연락처 해시코드를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 연락처 해시코드를 비교한다")
     @MethodSource("providerHashCode")
-    @DisplayName("연락처 해시코드를 비교한다.")
+    @DisplayName("연락처 해시코드 비교가 정상 작동한다")
     void givenProvider_whenHashCode_thenReturn(Contact contact1, Contact contact2, boolean result) {
         // when
         int hashCode1 = contact1.hashCode();

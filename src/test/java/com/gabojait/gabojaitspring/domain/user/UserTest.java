@@ -4,57 +4,59 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 class UserTest {
 
     @Test
-    @DisplayName("회원을 생성한다.")
-    void builder() {
+    @DisplayName("회원 생성이 정상 작동한다")
+    void givenValid_whenBuilder_thenReturn() {
         // given
-        String email = "tester@gabojait.com";
-        String verificationCode = "000000";
         String username = "tester";
         String password = "password1!";
         String nickname = "테스터";
         Gender gender = Gender.M;
         LocalDate birthdate = LocalDate.of(1997, 2, 11);
         LocalDateTime lastRequestAt = LocalDateTime.now();
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
 
         // when
-        User user = createDefaultUser(email, verificationCode, username, password, nickname, gender, birthdate,
-                lastRequestAt);
+        User user = createDefaultUser(username, password, nickname, gender, birthdate, lastRequestAt, contact);
 
         // then
-        assertThat(user)
-                .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
-                        "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt", "isSeekingTeam",
-                        "isTemporaryPassword", "isNotified")
-                .containsExactly(username, password, nickname, null, null, birthdate, lastRequestAt, gender,
-                        Position.NONE, 0F, 0L, 0, true, false, true);
+        assertAll(
+                () -> assertThat(user)
+                        .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
+                                "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt", "isSeekingTeam",
+                                "isTemporaryPassword", "isNotified")
+                        .containsExactly(username, password, nickname, null, null, birthdate, lastRequestAt, gender,
+                                Position.NONE, 0F, 0L, 0, true, false, true),
+                () -> assertThat(user.getContact()).isEqualTo(contact)
+        );
     }
 
     @Test
-    @DisplayName("회원 비밀번호를 업데이트한다.")
-    void givenNonTemporaryPassword_whenUpdatePassword_thenReturn() {
+    @DisplayName("새 비밀번호로 회원 비밀번호 업데이트가 정상 작동한다")
+    void givenNewPassword_whenUpdatePassword_thenReturn() {
         // given
-        String email = "tester@gabojait.com";
-        String verificationCode = "000000";
         String username = "tester";
         String password = "password1!";
         String nickname = "테스터";
         Gender gender = Gender.M;
         LocalDate birthdate = LocalDate.of(1997, 2, 11);
         LocalDateTime lastRequestAt = LocalDateTime.now();
-        User user = createDefaultUser(email, verificationCode, username, password, nickname, gender, birthdate,
-                lastRequestAt);
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser(username, password, nickname, gender, birthdate, lastRequestAt, contact);
 
         String updatePassword = "password2!";
         boolean isTemporaryPassword = false;
@@ -72,19 +74,17 @@ class UserTest {
     }
 
     @Test
-    @DisplayName("회원 임시 비밀번호를 업데이트한다.")
+    @DisplayName("임시 비밀본호로 회원 비밀번호 업데이트가 정상 작동한다")
     void givenTemporaryPassword_whenUpdatePassword_thenReturn() {
         // given
-        String email = "tester@gabojait.com";
-        String verificationCode = "000000";
         String username = "tester";
         String password = "password1!";
         String nickname = "테스터";
         Gender gender = Gender.M;
         LocalDate birthdate = LocalDate.of(1997, 2, 11);
         LocalDateTime lastRequestAt = LocalDateTime.now();
-        User user = createDefaultUser(email, verificationCode, username, password, nickname, gender, birthdate,
-                lastRequestAt);
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser(username, password, nickname, gender, birthdate, lastRequestAt, contact);
 
         String updatePassword = "password2!";
         boolean isTemporaryPassword = true;
@@ -103,19 +103,17 @@ class UserTest {
     }
 
     @Test
-    @DisplayName("회원 닉네임을 업데이트한다.")
-    void updateNickname() {
+    @DisplayName("회원 닉네임 업데이트가 정상 작동한다")
+    void givenValid_whenUpdateNickname_thenReturn() {
         // given
-        String email = "tester@gabojait.com";
-        String verificationCode = "000000";
         String username = "tester";
         String password = "password1!";
         String nickname = "테스터";
         Gender gender = Gender.M;
         LocalDate birthdate = LocalDate.of(1997, 2, 11);
         LocalDateTime lastRequestAt = LocalDateTime.now();
-        User user = createDefaultUser(email, verificationCode, username, password, nickname, gender, birthdate,
-                lastRequestAt);
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser(username, password, nickname, gender, birthdate, lastRequestAt, contact);
 
         String updateNickname = "새테스터";
 
@@ -131,21 +129,19 @@ class UserTest {
                         Position.NONE, 0F, 0L, 0, true, false, true);
     }
 
-    @ParameterizedTest(name = "[{index}] {0}로 회원 알림 여부를 업데이트한다.")
+    @ParameterizedTest(name = "[{index}] {0}로 회원 알림 여부를 업데이트 한다")
     @ValueSource(booleans = {true, false})
-    @DisplayName("회원 알림 여부를 업데이트한다.")
+    @DisplayName("회원 알림 여부 업데이트가 정상 작동한다")
     void givenValid_whenUpdateIsNotified_thenReturn(boolean isNotified) {
         // given
-        String email = "tester@gabojait.com";
-        String verificationCode = "000000";
         String username = "tester";
         String password = "password1!";
         String nickname = "테스터";
         Gender gender = Gender.M;
         LocalDate birthdate = LocalDate.of(1997, 2, 11);
         LocalDateTime lastRequestAt = LocalDateTime.now();
-        User user = createDefaultUser(email, verificationCode, username, password, nickname, gender, birthdate,
-                lastRequestAt);
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser(username, password, nickname, gender, birthdate, lastRequestAt, contact);
 
         // when
         user.updateIsNotified(isNotified);
@@ -160,19 +156,17 @@ class UserTest {
     }
 
     @Test
-    @DisplayName("회원 마지막 요청일을 업데이트한다.")
-    void updateLastRequestAt() {
+    @DisplayName("회원 마지막 요청일 업데이트가 정상 작동한다")
+    void givenValid_whenUpdateLastRequestAt_thenReturn() {
         // given
-        String email = "tester@gabojait.com";
-        String verificationCode = "000000";
         String username = "tester";
         String password = "password1!";
         String nickname = "테스터";
         Gender gender = Gender.M;
         LocalDate birthdate = LocalDate.of(1997, 2, 11);
         LocalDateTime lastRequestAt = LocalDateTime.now();
-        User user = createDefaultUser(email, verificationCode, username, password, nickname, gender, birthdate,
-                lastRequestAt);
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser(username, password, nickname, gender, birthdate, lastRequestAt, contact);
 
         LocalDateTime updateLastRequestAt = LocalDateTime.now();
 
@@ -188,31 +182,19 @@ class UserTest {
                         Position.NONE, 0F, 0L, 0, true, false, true);
     }
 
-    private static Stream<Arguments> providerUpdatePosition() {
-        return Stream.of(
-                Arguments.of(Position.DESIGNER),
-                Arguments.of(Position.BACKEND),
-                Arguments.of(Position.FRONTEND),
-                Arguments.of(Position.MANAGER),
-                Arguments.of(Position.NONE)
-        );
-    }
-
-    @ParameterizedTest(name = "[{index}] {0}로 포지션을 업데이트한다.")
-    @MethodSource("providerUpdatePosition")
-    @DisplayName("회원 포지션을 업데이트 한다.")
-    void givenProvider_whenUpdatePosition_thenReturn(Position position) {
+    @ParameterizedTest(name = "[{index}] {0}로 포지션을 업데이트한다")
+    @EnumSource(Position.class)
+    @DisplayName("회원 포지션 업데이트가 정상 작동한다")
+    void givenValid_whenUpdatePosition_thenReturn(Position position) {
         // given
-        String email = "tester@gabojait.com";
-        String verificationCode = "000000";
         String username = "tester";
         String password = "password1!";
         String nickname = "테스터";
         Gender gender = Gender.M;
         LocalDate birthdate = LocalDate.of(1997, 2, 11);
         LocalDateTime lastRequestAt = LocalDateTime.now();
-        User user = createDefaultUser(email, verificationCode, username, password, nickname, gender, birthdate,
-                lastRequestAt);
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser(username, password, nickname, gender, birthdate, lastRequestAt, contact);
 
         // when
         user.updatePosition(position);
@@ -236,13 +218,15 @@ class UserTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 포지션 존재 여부가 {0}일때 포지션 존재 여부를 확인한다.")
+    @ParameterizedTest(name = "[{index}] 포지션 존재 여부가 {0}일때 포지션 존재 여부를 확인한다")
     @MethodSource("providerHasPosition")
-    @DisplayName("회원 포지션 존재 여부를 확인한다.")
+    @DisplayName("회원 포지션 존재 여부 확인이 정상 작동한다")
     void givenProvider_whenHasPosition_thenReturn(Position position, boolean result) {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11),
+                LocalDateTime.now(), contact);
+
         user.updatePosition(position);
 
         // when & then
@@ -250,19 +234,17 @@ class UserTest {
     }
 
     @Test
-    @DisplayName("회원 프로필 소개를 업데이트한다.")
-    void updateProfileDescription() {
+    @DisplayName("회원 프로필 소개 업데이트가 정상 작동한다")
+    void givenValid_whenUpdateProfileDescription_thenReturn() {
         // given
-        String email = "tester@gabojait.com";
-        String verificationCode = "000000";
         String username = "tester";
         String password = "password1!";
         String nickname = "테스터";
         Gender gender = Gender.M;
         LocalDate birthdate = LocalDate.of(1997, 2, 11);
         LocalDateTime lastRequestAt = LocalDateTime.now();
-        User user = createDefaultUser(email, verificationCode, username, password, nickname, gender, birthdate,
-                lastRequestAt);
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser(username, password, nickname, gender, birthdate, lastRequestAt, contact);
 
         String profileDescription = "안녕하세요! 신입 백엔드 개발자 테스터입니다.";
 
@@ -279,19 +261,17 @@ class UserTest {
     }
 
     @Test
-    @DisplayName("회원 프로필 사진 URL을 업데이트한다.")
-    void updateImageUrl() {
+    @DisplayName("회원 프로필 사진 URL 업데이트가 정상 작동한다")
+    void givenValid_whenUpdateImageUrl_thenReturn() {
         // given
-        String email = "tester@gabojait.com";
-        String verificationCode = "000000";
         String username = "tester";
         String password = "password1!";
         String nickname = "테스터";
         Gender gender = Gender.M;
         LocalDate birthdate = LocalDate.of(1997, 2, 11);
         LocalDateTime lastRequestAt = LocalDateTime.now();
-        User user = createDefaultUser(email, verificationCode, username, password, nickname, gender, birthdate,
-                lastRequestAt);
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser(username, password, nickname, gender, birthdate, lastRequestAt, contact);
 
         String imageUrl = "https://google.com";
 
@@ -307,21 +287,19 @@ class UserTest {
                         Position.NONE, 0F, 0L, 0, true, false, true);
     }
 
-    @ParameterizedTest(name = "[{index}] {0}로 팀 찾기 여부를 업데이트한다.")
+    @ParameterizedTest(name = "[{index}] {0}로 팀 찾기 여부를 업데이트한다")
     @ValueSource(booleans = {true, false})
-    @DisplayName("회원 팀 찾기 여부를 업데이트한다.")
+    @DisplayName("회원 팀 찾기 여부 업데이트가 정상 작동한다")
     void givenValid_whenUpdateIsSeekingTeam_thenReturn(boolean isSeekingTeam) {
         // given
-        String email = "tester@gabojait.com";
-        String verificationCode = "000000";
         String username = "tester";
         String password = "password1!";
         String nickname = "테스터";
         Gender gender = Gender.M;
         LocalDate birthdate = LocalDate.of(1997, 2, 11);
         LocalDateTime lastRequestAt = LocalDateTime.now();
-        User user = createDefaultUser(email, verificationCode, username, password, nickname, gender, birthdate,
-                lastRequestAt);
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser(username, password, nickname, gender, birthdate, lastRequestAt, contact);
 
         // when
         user.updateIsSeekingTeam(isSeekingTeam);
@@ -335,25 +313,23 @@ class UserTest {
                         Position.NONE, 0F, 0L, 0, isSeekingTeam, false, true);
     }
 
-    @ParameterizedTest(name = "[{index}] {0}번 회원 프로필을 방문한다.")
+    @ParameterizedTest(name = "[{index}] {0}번 회원 프로필을 방문한다")
     @ValueSource(longs = {1, 3, 5, 7, 10})
-    @DisplayName("회원 프로필을 방문한다.")
+    @DisplayName("회원 프로필 방문이 정상 작동한다")
     void givenValid_whenVisit_thenReturn(long visitCnt) {
         // given
-        String email = "tester@gabojait.com";
-        String verificationCode = "000000";
         String username = "tester";
         String password = "password1!";
         String nickname = "테스터";
         Gender gender = Gender.M;
         LocalDate birthdate = LocalDate.of(1997, 2, 11);
         LocalDateTime lastRequestAt = LocalDateTime.now();
-        User user = createDefaultUser(email, verificationCode, username, password, nickname, gender, birthdate,
-                lastRequestAt);
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser(username, password, nickname, gender, birthdate, lastRequestAt, contact);
 
         // when
-        for (long i = 0; i < visitCnt; i++)
-            user.visit();
+        LongStream.range(0, visitCnt)
+                .forEach(i -> user.visit());
 
         // then
         assertThat(user)
@@ -374,155 +350,160 @@ class UserTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {1}로 회원 평점을 업데이트한다.")
+    @ParameterizedTest(name = "[{index}] {1}로 회원 평점을 업데이트한다")
     @MethodSource("providerRate")
-    @DisplayName("회원 평점을 업데이트한다.")
+    @DisplayName("회원 평점 업데이트가 정상 작동한다")
     void givenProvider_whenRate_thenReturn(float[] ratings, float averageRating) {
         // given
-        String email = "tester@gabojait.com";
-        String verificationCode = "000000";
         String username = "tester";
         String password = "password1!";
         String nickname = "테스터";
         Gender gender = Gender.M;
         LocalDate birthdate = LocalDate.of(1997, 2, 11);
         LocalDateTime lastRequestAt = LocalDateTime.now();
-        User user = createDefaultUser(email, verificationCode, username, password, nickname, gender, birthdate,
-                lastRequestAt);
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser(username, password, nickname, gender, birthdate, lastRequestAt, contact);
 
         // when
         for (float r : ratings)
             user.rate(r);
 
         // then
-        assertThat(user.getRating()).isEqualTo(averageRating);
+        assertThat(user)
+                .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
+                        "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt", "isSeekingTeam",
+                        "isTemporaryPassword", "isNotified")
+                .containsExactly(username, password, nickname, null, null, birthdate, lastRequestAt, gender,
+                        Position.NONE, averageRating, 0L, ratings.length, true, false, true);
     }
 
     private static Stream<Arguments> providerEquals() {
         LocalDateTime now = LocalDateTime.now();
 
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), now);
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11),
+                LocalDateTime.now(), contact);
 
-        User profileDescriptionUser1 = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
-                Gender.M, LocalDate.of(1997, 2, 11), now);
+        Contact contact1 = createDefaultContact("tester1@gabojait.com", "000000");
+        User contactUser1 = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11),
+                LocalDateTime.now(), contact1);
+        Contact contact2 = createDefaultContact("tester2@gabojait.com", "000000");
+        User contactUser2 = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11),
+                LocalDateTime.now(), contact2);
+
+        User profileDescriptionUser1 = createDefaultUser("tester", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), now, contact);
         profileDescriptionUser1.updateProfileDescription("1");
-        User profileDescriptionUser2 = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
-                Gender.M, LocalDate.of(1997, 2, 11), now);
+        User profileDescriptionUser2 = createDefaultUser("tester", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), now, contact);
         profileDescriptionUser2.updateProfileDescription("2");
 
-        User imageUrlUser1 = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
-                Gender.M, LocalDate.of(1997, 2, 11), now);
+        User imageUrlUser1 = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                contact);
         imageUrlUser1.updateImageUrl("1");
-        User imageUrlUser2 = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
-                Gender.M, LocalDate.of(1997, 2, 11), now);
+        User imageUrlUser2 = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                contact);
         imageUrlUser2.updateImageUrl("2");
 
-        User positionUser1 = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
-                Gender.M, LocalDate.of(1997, 2, 11), now);
+        User positionUser1 = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                contact);
         positionUser1.updatePosition(Position.DESIGNER);
-        User positionUser2 = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
-                Gender.M, LocalDate.of(1997, 2, 11), now);
+        User positionUser2 = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                contact);
         positionUser2.updatePosition(Position.BACKEND);
 
-        User ratingUser1 = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
-                Gender.M, LocalDate.of(1997, 2, 11), now);
-        User ratingUser2 = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
-                Gender.M, LocalDate.of(1997, 2, 11), now);
+        User ratingUser1 = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                contact);
+        User ratingUser2 = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                contact);
         ratingUser2.rate(5F);
 
-        User visitUser1 = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
-                Gender.M, LocalDate.of(1997, 2, 11), now);
-        User visitUser2 = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
-                Gender.M, LocalDate.of(1997, 2, 11), now);
+        User visitUser1 = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                contact);
+        User visitUser2 = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                contact);
         visitUser2.visit();
 
-        User reviewCntUser1 = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
-                Gender.M, LocalDate.of(1997, 2, 11), now);
+        User reviewCntUser1 = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11),
+                now, contact);
         reviewCntUser1.rate(1F);
-        User reviewCntUser2 = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
-                Gender.M, LocalDate.of(1997, 2, 11), now);
+        User reviewCntUser2 = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11),
+                now, contact);
         reviewCntUser2.rate(1F);
         reviewCntUser2.rate(1F);
 
-        User isSeekingTeamUser1 = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
-                Gender.M, LocalDate.of(1997, 2, 11), now);
+        User isSeekingTeamUser1 = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11),
+                now, contact);
         isSeekingTeamUser1.updateIsSeekingTeam(true);
-        User isSeekingTeamUser2 = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터",
-                Gender.M, LocalDate.of(1997, 2, 11), now);
+        User isSeekingTeamUser2 = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11),
+                now, contact);
         isSeekingTeamUser2.updateIsSeekingTeam(false);
 
-        User isTemporaryPasswordUser1 = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!",
-                "테스터", Gender.M, LocalDate.of(1997, 2, 11), now);
+        User isTemporaryPasswordUser1 = createDefaultUser("tester", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), now, contact);
         isTemporaryPasswordUser1.updatePassword("password1!", false);
-        User isTemporaryPasswordUser2 = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!",
-                "테스터", Gender.M, LocalDate.of(1997, 2, 11), now);
+        User isTemporaryPasswordUser2 = createDefaultUser("tester", "password1!", "테스터", Gender.M,
+                LocalDate.of(1997, 2, 11), now, contact);
         isTemporaryPasswordUser2.updatePassword("password1!", true);
 
-        User isNotifiedUser1 = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!",
-                "테스터", Gender.M, LocalDate.of(1997, 2, 11), now);
+        User isNotifiedUser1 = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11),
+                now, contact);
         isNotifiedUser1.updateIsNotified(true);
-        User isNotifiedUser2 = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!",
-                "테스터", Gender.M, LocalDate.of(1997, 2, 11), now);
+        User isNotifiedUser2 = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11),
+                now, contact);
         isNotifiedUser2.updateIsNotified(false);
 
         return Stream.of(
                 Arguments.of(user, user, true),
                 Arguments.of(user, new Object(), false),
                 Arguments.of(
-                        createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                                LocalDate.of(1997, 2, 11), now),
-                        createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                                LocalDate.of(1997, 2, 11), now),
+                        createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                                contact),
+                        createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                                contact),
                         true
                 ),
+                Arguments.of(contactUser1, contactUser2, false),
                 Arguments.of(
-                        createDefaultUser("tester1@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                                LocalDate.of(1997, 2, 11), now),
-                        createDefaultUser("tester2@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                                LocalDate.of(1997, 2, 11), now),
+                        createDefaultUser("tester1", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                                contact),
+                        createDefaultUser("tester2", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                                contact),
                         false
                 ),
                 Arguments.of(
-                        createDefaultUser("tester@gabojait.com", "000000", "tester1", "password1!", "테스터", Gender.M,
-                                LocalDate.of(1997, 2, 11), now),
-                        createDefaultUser("tester@gabojait.com", "000000", "tester2", "password1!", "테스터", Gender.M,
-                                LocalDate.of(1997, 2, 11), now),
+                        createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                                contact),
+                        createDefaultUser("tester", "password2!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                                contact),
                         false
                 ),
                 Arguments.of(
-                        createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                                LocalDate.of(1997, 2, 11), now),
-                        createDefaultUser("tester@gabojait.com", "000000", "tester", "password2!", "테스터", Gender.M,
-                                LocalDate.of(1997, 2, 11), now),
+                        createDefaultUser("tester", "password1!", "테스터일", Gender.M, LocalDate.of(1997, 2, 11), now,
+                                contact),
+                        createDefaultUser("tester", "password1!", "테스터이", Gender.M, LocalDate.of(1997, 2, 11), now,
+                                contact),
                         false
                 ),
                 Arguments.of(
-                        createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터일", Gender.M,
-                                LocalDate.of(1997, 2, 11), now),
-                        createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터이", Gender.M,
-                                LocalDate.of(1997, 2, 11), now),
+                        createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                                contact),
+                        createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 12), now,
+                                contact),
                         false
                 ),
                 Arguments.of(
-                        createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                                LocalDate.of(1997, 2, 11), now),
-                        createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                                LocalDate.of(1997, 2, 12), now),
+                        createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                                contact),
+                        createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11),
+                                LocalDateTime.now(), contact),
                         false
                 ),
                 Arguments.of(
-                        createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                                LocalDate.of(1997, 2, 11), now),
-                        createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                                LocalDate.of(1997, 2, 11), LocalDateTime.now()),
-                        false
-                ),
-                Arguments.of(
-                        createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                                LocalDate.of(1997, 2, 11), now),
-                        createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.F,
-                                LocalDate.of(1997, 2, 11), now),
+                        createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                                contact),
+                        createDefaultUser("tester", "password1!", "테스터", Gender.F, LocalDate.of(1997, 2, 11), now,
+                                contact),
                         false
                 ),
                 Arguments.of(profileDescriptionUser1, profileDescriptionUser2 , false),
@@ -537,9 +518,9 @@ class UserTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 회원 객체를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 회원 객체를 비교한다")
     @MethodSource("providerEquals")
-    @DisplayName("회원 객체를 비교한다.")
+    @DisplayName("회원 객체 비교가 정상 작동한다")
     void givenProvider_whenEquals_thenReturn(User user, Object object, boolean result) {
         // when & then
         assertThat(user.equals(object)).isEqualTo(result);
@@ -547,28 +528,29 @@ class UserTest {
 
     private static Stream<Arguments> providerHashCode() {
         LocalDateTime now = LocalDateTime.now();
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
 
         return Stream.of(
                 Arguments.of(
-                        createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                                LocalDate.of(1997, 2, 11), now),
-                        createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                                LocalDate.of(1997, 2, 11), now),
+                        createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now, 
+                                contact),
+                        createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                                contact),
                         true
                 ),
                 Arguments.of(
-                        createDefaultUser("tester@gabojait.com", "000000", "tester1", "password1!", "테스터", Gender.M,
-                                LocalDate.of(1997, 2, 11), now),
-                        createDefaultUser("tester@gabojait.com", "000000", "tester2", "password1!", "테스터", Gender.M,
-                                LocalDate.of(1997, 2, 11), now),
+                        createDefaultUser("tester1", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                                contact),
+                        createDefaultUser("tester2", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), now,
+                                contact),
                         false
                 )
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 회원 해시코드를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 회원 해시코드를 비교한다")
     @MethodSource("providerHashCode")
-    @DisplayName("회원 해시코드를 비교한다.")
+    @DisplayName("회원 해시코드 비교가 정상 적당한다")
     void givenProvider_whenHashCode_thenReturn(User user1, User user2, boolean result) {
         // when
         int hashCode1 = user1.hashCode();
@@ -579,98 +561,98 @@ class UserTest {
     }
 
     @Test
-    @DisplayName("회원의 아이디를 반환한다.")
-    void getUsername() {
+    @DisplayName("회원 아이디 반환이 정상 적당한다")
+    void givenValid_whenGetUsername_thenReturn() {
         // given
         String username = "tester";
-        User user = createDefaultUser("tester@gabojait.com", "000000", username, "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser(username, "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11),
+                LocalDateTime.now(), contact);
 
         // when & then
         assertThat(user.getUsername()).isEqualTo(username);
     }
 
     @Test
-    @DisplayName("회원의 비밀번호를 반환한다.")
-    void getPassword() {
+    @DisplayName("회원 비밀번호 반환이 정상 작동한다")
+    void givenValid_whenGetPassword_thenReturn() {
         // given
         String password = "password1!";
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", password, "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser("tester", password, "테스터", Gender.M, LocalDate.of(1997, 2, 11),
+                LocalDateTime.now(), contact);
 
         // when & then
         assertThat(user.getPassword()).isEqualTo(password);
     }
 
     @Test
-    @DisplayName("회원의 권한들을 반환한다.")
-    void getAuthorities() {
+    @DisplayName("회원 권한들 반환이 정상 작동한다")
+    void givenValid_whenGetAuthorities_thenReturn() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11),
+                LocalDateTime.now(), contact);
 
         // when & then
         assertThat(user.getAuthorities()).isNull();
     }
 
     @Test
-    @DisplayName("회원의 계정 만료 여부를 반환한다.")
-    void isAccountNonExpired() {
+    @DisplayName("회원 계정 만료 여부 반환이 정상 작동한다")
+    void givenValid_whenIssAccountNonExpired_thenReturn() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11),
+                LocalDateTime.now(), contact);
 
         // when & then
         assertThat(user.isAccountNonExpired()).isTrue();
     }
 
     @Test
-    @DisplayName("회원의 계정 잠금 여부를 반환한다.")
-    void isAccountNonLocked() {
+    @DisplayName("회원 계정 잠금 여부 반환이 정상 작동한다")
+    void givenValid_whenIsAccountNonLocked_thenReturn() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11),
+                LocalDateTime.now(), contact);
 
         // when & then
         assertThat(user.isAccountNonLocked()).isTrue();
     }
 
     @Test
-    @DisplayName("회원의 계정 자격 만료 여부를 반환한다.")
-    void isCredentialsNonExpired() {
+    @DisplayName("회원 계정 자격 만료 여부 반환이 정상 작동한다")
+    void givenValid_whenIsCredentialsNonExpired_thenReturn() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11),
+                LocalDateTime.now(), contact);
 
         // when & then
         assertThat(user.isCredentialsNonExpired()).isTrue();
     }
 
     @Test
-    @DisplayName("회원의 가능 여부를 반환한다.")
-    void isEnabled() {
+    @DisplayName("회원 가능 여부 반환이 정상 작동한다")
+    void givenValid_whenIsEnabled_thenReturn() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Contact contact = createDefaultContact("tester@gabojait.com", "000000");
+        User user = createDefaultUser("tester", "password1!", "테스터", Gender.M, LocalDate.of(1997, 2, 11), 
+                LocalDateTime.now(), contact);
 
         // when
         assertThat(user.isEnabled()).isTrue();
     }
 
-    private static User createDefaultUser(String email,
-                                   String verificationCode,
-                                   String username,
-                                   String password,
-                                   String nickname,
-                                   Gender gender,
-                                   LocalDate birthdate,
-                                   LocalDateTime lastRequestAt) {
-        Contact contact = Contact.builder()
-                .email(email)
-                .verificationCode(verificationCode)
-                .build();
-        contact.verified();
-
+    private static User createDefaultUser(String username,
+                                          String password,
+                                          String nickname,
+                                          Gender gender,
+                                          LocalDate birthdate,
+                                          LocalDateTime lastRequestAt,
+                                          Contact contact) {
         return User.builder()
                 .username(username)
                 .password(password)
@@ -680,5 +662,16 @@ class UserTest {
                 .lastRequestAt(lastRequestAt)
                 .contact(contact)
                 .build();
+    }
+    
+    private static Contact createDefaultContact(String email, String verificationCode) {
+        Contact contact = Contact.builder()
+                .email(email)
+                .verificationCode(verificationCode)
+                .build();
+        
+        contact.verified();
+        
+        return contact;
     }
 }

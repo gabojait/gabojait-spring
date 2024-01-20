@@ -23,17 +23,17 @@ class PositionTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {0} 포지션 텍스트는 {1}다.")
+    @ParameterizedTest(name = "[{index}] {0} 포지션 텍스트는 {1}다")
     @MethodSource("providerGetText")
-    @DisplayName("포지션 텍스트를 반환한다.")
+    @DisplayName("포지션 텍스트 반환이 정상 작동한다")
     void givenProvider_whenGetText_thenReturn(Position position, String text) {
         // when & then
         assertThat(position.getText()).isEqualTo(text);
     }
 
     @Test
-    @DisplayName("전체 포지션을 반환한다.")
-    void values() {
+    @DisplayName("전체 포지션 반환이 정상 작동한다")
+    void givenValid_whenValues_thenReturn() {
         // given & when
         Position[] positions = Position.values();
 
@@ -52,16 +52,16 @@ class PositionTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {0} 값을 {1} 포지션으로 변환한다.")
+    @ParameterizedTest(name = "[{index}] {0} 값을 {1} 포지션으로 변환한다")
     @MethodSource("providerValueOf")
-    @DisplayName("포지션 값을 변환한다.")
+    @DisplayName("포지션 값을 변환이 정상 작동한다")
     void givenProvider_whenValueOf_thenReturn(String value, Position position) {
         // when & then
         assertThat(Position.valueOf(value)).isEqualTo(position);
     }
 
     @Test
-    @DisplayName("잘못된 값을 포지션으로 변환하면 예외가 발생한다.")
+    @DisplayName("잘못된 값을 포지션으로 변환하면 예외가 발생한다")
     void givenInvalid_whenValueOf_thenThrow() {
         // given
         String s = "INVALID";

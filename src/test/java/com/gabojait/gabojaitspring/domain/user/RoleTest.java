@@ -21,17 +21,17 @@ class RoleTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {0} 권한 텍스트는 {1}다.")
+    @ParameterizedTest(name = "[{index}] {0} 권한 텍스트는 {1}다")
     @MethodSource("providerGetText")
-    @DisplayName("권한 텍스트를 반환한다.")
+    @DisplayName("권한 텍스트 반환이 정상 작동한다")
     void givenProvider_whenGetText_thenReturn(Role role, String text) {
         // when & then
         assertThat(role.getText()).isEqualTo(text);
     }
 
     @Test
-    @DisplayName("전체 권한을 반환한다.")
-    void values() {
+    @DisplayName("전체 권한 반환이 정상 작동한다")
+    void givenValid_whenValues_thenReturn() {
         // given & when
         Role[] roles = Role.values();
 
@@ -47,9 +47,9 @@ class RoleTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {0} 값을 {1} 권한으로 변환한다.")
+    @ParameterizedTest(name = "[{index}] {0} 값을 {1} 권한으로 변환한다")
     @MethodSource("providerValueOf")
-    @DisplayName("권한 값을 변환한다.")
+    @DisplayName("권한 값 변환이 정상 작동한다")
     void givenProvider_whenValueOf_thenReturn(String value, Role role) {
         // when & then
         assertThat(Role.valueOf(value)).isEqualTo(role);

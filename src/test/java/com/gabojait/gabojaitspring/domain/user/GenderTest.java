@@ -21,17 +21,17 @@ class GenderTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {0} 성별 텍스트는 {1}다.")
+    @ParameterizedTest(name = "[{index}] {0} 성별 텍스트는 {1}다")
     @MethodSource("providerGetText")
-    @DisplayName("성별 텍스트를 반환한다.")
+    @DisplayName("성별 텍스트 반환이 정상 작동한다")
     void givenProvider_whenGetText_thenReturn(Gender gender, String text) {
         // when & then
         assertThat(gender.getText()).isEqualTo(text);
     }
 
     @Test
-    @DisplayName("전체 성별을 반환한다.")
-    void values() {
+    @DisplayName("전체 성별 반환이 정상 작동한다")
+    void givenValid_whenValues_thenReturn() {
         // given & when
         Gender[] genders = Gender.values();
 
@@ -47,16 +47,16 @@ class GenderTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {0} 값을 {1} 성별로 변환한다.")
+    @ParameterizedTest(name = "[{index}] {0} 값을 {1} 성별로 변환한다")
     @MethodSource("providerValueOf")
-    @DisplayName("성별 값을 변환한다.")
+    @DisplayName("성별 값 변환이 정상 작동한다")
     void givenProvider_whenValueOf_thenReturn(String value, Gender gender) {
         // when & then
         assertThat(Gender.valueOf(value)).isEqualTo(gender);
     }
 
     @Test
-    @DisplayName("잘못된 값을 성별로 변환하면 예외가 발생한다.")
+    @DisplayName("잘못된 값을 성별로 변환하면 예외가 발생한다")
     void givenInvalid_whenValueOf_thenThrow() {
         // given
         String value = "INVALID";

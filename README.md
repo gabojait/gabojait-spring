@@ -29,9 +29,11 @@
 ---
 
 ## Link
+
 - ### [API Status](https://uptime-kuma.nogamsung.com/status/gabojait)
 - ### [Test API Swagger](https://gabojait-dev.nogamsung.com/api/v1/docs/swagger-ui/index.html)
 - ### [Breakpoint Test](docs/breakpoint-test.md)
+- ### [Convention](docs/convention.md)
 - ### [Client Repository](https://github.com/gabojait/gabojait-react-native)
 
 ---
@@ -55,11 +57,6 @@
 ---
 
 ## Monitoring
+
 - ### [Uptime Kuma](https://uptime-kuma.nogamsung.com/status/gabojait)
 - ### Sentry
-
----
-
-## Rule
-- ### [Commit Convention](https://doublesprogramming.tistory.com/256)
-- ### [Semantic Versioning](https://semver.org/lang/ko/)
