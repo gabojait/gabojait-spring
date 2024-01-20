@@ -40,12 +40,10 @@ class TeamMemberTest {
         // then
         assertAll(
                 () -> assertThat(teamMember)
-                        .extracting("position", "teamMemberStatus", "isLeader", "isDeleted")
-                        .containsExactly(position, TeamMemberStatus.PROGRESS, isLeader, false),
+                        .extracting("position", "teamMemberStatus", "isLeader", "isDeleted", "user", "team")
+                        .containsExactly(position, TeamMemberStatus.PROGRESS, isLeader, false, user, team),
                 () -> assertThat(teamMember.getUser().getIsSeekingTeam()).isFalse(),
-                () -> assertThat(teamMember.getUser()).isEqualTo(user),
-                () -> assertThat(teamMember.getTeam().getBackendCurrentCnt()).isEqualTo((byte) 1),
-                () -> assertThat(teamMember.getTeam()).isEqualTo(team)
+                () -> assertThat(teamMember.getTeam().getBackendCurrentCnt()).isEqualTo((byte) 1)
         );
     }
 
