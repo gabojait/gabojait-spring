@@ -23,7 +23,7 @@ class UserRoleTest {
         Role role = Role.USER;
 
         // when
-        UserRole userRole = createDefaultUserRole(role, user);
+        UserRole userRole = createUserRole(role, user);
 
         // then
         assertAll(
@@ -36,7 +36,7 @@ class UserRoleTest {
         LocalDateTime now = LocalDateTime.now();
 
         User user = createDefaultUser("tester", now);
-        UserRole userRole = createDefaultUserRole(Role.USER, user);
+        UserRole userRole = createUserRole(Role.USER, user);
 
         User user1 = createDefaultUser("tester1", now);
         User user2 = createDefaultUser("tester2", now);
@@ -45,18 +45,18 @@ class UserRoleTest {
                 Arguments.of(userRole, userRole, true),
                 Arguments.of(userRole, new Object(), false),
                 Arguments.of(
-                        createDefaultUserRole(Role.USER, user),
-                        createDefaultUserRole(Role.USER, user),
+                        createUserRole(Role.USER, user),
+                        createUserRole(Role.USER, user),
                         true
                 ),
                 Arguments.of(
-                        createDefaultUserRole(Role.USER, user1),
-                        createDefaultUserRole(Role.USER, user2),
+                        createUserRole(Role.USER, user1),
+                        createUserRole(Role.USER, user2),
                         false
                 ),
                 Arguments.of(
-                        createDefaultUserRole(Role.USER, user),
-                        createDefaultUserRole(Role.ADMIN, user),
+                        createUserRole(Role.USER, user),
+                        createUserRole(Role.ADMIN, user),
                         false
                 )
         );
@@ -75,13 +75,13 @@ class UserRoleTest {
 
         return Stream.of(
                 Arguments.of(
-                        createDefaultUserRole(Role.USER, user),
-                        createDefaultUserRole(Role.USER, user),
+                        createUserRole(Role.USER, user),
+                        createUserRole(Role.USER, user),
                         true
                 ),
                 Arguments.of(
-                        createDefaultUserRole(Role.USER, user),
-                        createDefaultUserRole(Role.ADMIN, user),
+                        createUserRole(Role.USER, user),
+                        createUserRole(Role.ADMIN, user),
                         false
                 )
         );
@@ -99,7 +99,7 @@ class UserRoleTest {
         assertThat(hashCode1 == hashCode2).isEqualTo(result);
     }
 
-    private static UserRole createDefaultUserRole(Role role, User user) {
+    private static UserRole createUserRole(Role role, User user) {
         return UserRole.builder()
                 .user(user)
                 .role(role)
