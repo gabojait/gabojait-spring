@@ -183,49 +183,66 @@ class TeamTest {
 
     private static Stream<Arguments> providerJoin() {
         return Stream.of(
-                Arguments.of(Position.DESIGNER, (byte) 1, (byte) 0, (byte) 0, (byte) 0),
-                Arguments.of(Position.BACKEND, (byte) 0, (byte) 1, (byte) 0, (byte) 0),
-                Arguments.of(Position.FRONTEND, (byte) 0, (byte) 0, (byte) 1, (byte) 0),
-                Arguments.of(Position.MANAGER, (byte) 0, (byte) 0, (byte) 0, (byte) 1)
+                Arguments.of((byte) 1, (byte) 1, (byte) 1, (byte) 1, Position.DESIGNER,
+                        (byte) 1, (byte) 0, (byte) 0, (byte) 0, true),
+                Arguments.of((byte) 1, (byte) 1, (byte) 1, (byte) 1, Position.BACKEND,
+                        (byte) 0, (byte) 1, (byte) 0, (byte) 0, true),
+                Arguments.of((byte) 1, (byte) 1, (byte) 1, (byte) 1, Position.FRONTEND,
+                        (byte) 0, (byte) 0, (byte) 1, (byte) 0, true),
+                Arguments.of((byte) 1, (byte) 1, (byte) 1, (byte) 1, Position.MANAGER,
+                        (byte) 0, (byte) 0, (byte) 0, (byte) 1, true),
+                Arguments.of((byte) 1, (byte) 0, (byte) 0, (byte) 0, Position.DESIGNER,
+                        (byte) 1, (byte) 0, (byte) 0, (byte) 0, false),
+                Arguments.of((byte) 0, (byte) 1, (byte) 0, (byte) 0, Position.BACKEND,
+                        (byte) 0, (byte) 1, (byte) 0, (byte) 0, false),
+                Arguments.of((byte) 0, (byte) 0, (byte) 1, (byte) 0, Position.FRONTEND,
+                        (byte) 0, (byte) 0, (byte) 1, (byte) 0, false),
+                Arguments.of((byte) 0, (byte) 0, (byte) 0, (byte) 1, Position.MANAGER,
+                        (byte) 0, (byte) 0, (byte) 0, (byte) 1, false)
         );
     }
 
     @ParameterizedTest(name = "[{index}] {0}가 팀을 들어간다.")
     @MethodSource("providerJoin")
     @DisplayName("특정 포지션이 팀에 들어간다.")
-    void givenProvider_whenJoin_thenReturn(Position position,
+    void givenProvider_whenJoin_thenReturn(byte designerMaxCnt,
+                                           byte backendMaxCnt,
+                                           byte frontendMaxCnt,
+                                           byte managerMaxCnt,
+                                           Position position,
                                            byte designerCurrentCnt,
                                            byte backendCurrentCnt,
                                            byte frontendCurrentCnt,
-                                           byte managerCurrentCnt) {
+                                           byte managerCurrentCnt,
+                                           boolean isRecruiting) {
         // given
-        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
-                (byte) 2, (byte) 2);
+        Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", designerMaxCnt,
+                backendMaxCnt, frontendMaxCnt, managerMaxCnt);
 
         // when
         team.join(position);
 
         // then
         assertThat(team)
-                .extracting("designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt", "managerCurrentCnt")
-                .containsExactly(designerCurrentCnt, backendCurrentCnt, frontendCurrentCnt, managerCurrentCnt);
+                .extracting("designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt", "managerCurrentCnt",
+                        "isRecruiting")
+                .containsExactly(designerCurrentCnt, backendCurrentCnt, frontendCurrentCnt, managerCurrentCnt,
+                        isRecruiting);
     }
 
     @Test
-    @DisplayName("모든 포지션 인원이 차면 팀 모집이 마감된다.")
-    void givenFull_whenJoin_thenReturn() {
+    @DisplayName("마감인 특정 포지션에 들어가면 예외가 발생한다.")
+    void givenFullPosition_whenJoin_thenThrow() {
         // given
+        Position position = Position.DESIGNER;
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 0, (byte) 0,
-                (byte) 0, (byte) 1);
+                (byte) 0, (byte) 0);
 
-        // when
-        team.join(Position.MANAGER);
-
-        // then
-        assertThat(team)
-                .extracting("designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt", "managerCurrentCnt",
-                        "isRecruiting")
-                .containsExactly((byte) 0, (byte) 0, (byte) 0, (byte) 1, false);
+        // when & then
+        assertThatThrownBy(() -> team.join(position))
+                .isInstanceOf(CustomException.class)
+                .extracting("errorCode")
+                .isEqualTo(TEAM_POSITION_UNAVAILABLE);
     }
 
     private static Stream<Arguments> providerLeave() {
