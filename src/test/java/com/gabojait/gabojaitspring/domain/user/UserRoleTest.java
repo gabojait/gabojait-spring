@@ -19,16 +19,24 @@ class UserRoleTest {
     @DisplayName("회원 권한 생성이 정상 작동한다")
     void givenValid_whenBuilder_thenReturn() {
         // given
-        User user = createDefaultUser("tester", LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        User user = createDefaultUser("tester", now);
         Role role = Role.USER;
 
         // when
         UserRole userRole = createUserRole(role, user);
 
         // then
-        assertThat(userRole)
-                .extracting("role", "user")
-                .containsExactly(role, user);
+        assertAll(
+                () -> assertThat(userRole.getRole()).isEqualTo(role),
+                () -> assertThat(userRole.getUser())
+                        .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
+                                "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt",
+                                "isSeekingTeam", "isTemporaryPassword", "isNotified")
+                        .containsExactly("tester", "password1!", "테스터", null, null, LocalDate.of(1997, 2, 11),
+                                now, Gender.M, Position.NONE, 0F, 0L, 0,
+                                false, false, true)
+        );
     }
 
     private static Stream<Arguments> providerEquals() {

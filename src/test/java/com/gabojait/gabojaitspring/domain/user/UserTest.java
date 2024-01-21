@@ -34,12 +34,18 @@ class UserTest {
         User user = createUser(username, password, nickname, gender, birthdate, lastRequestAt, contact);
 
         // then
-        assertThat(user)
-                .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
-                        "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt", "isSeekingTeam",
-                        "isTemporaryPassword", "isNotified", "contact")
-                .containsExactly(username, password, nickname, null, null, birthdate, lastRequestAt, gender,
-                        Position.NONE, 0F, 0L, 0, true, false, true, contact);
+        assertAll(
+                () -> assertThat(user)
+                        .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
+                                "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt",
+                                "isSeekingTeam", "isTemporaryPassword", "isNotified")
+                        .containsExactly(username, password, nickname, null, null, birthdate,
+                                lastRequestAt, gender, Position.NONE, 0F, 0L, 0,
+                                true, false, true),
+                () -> assertThat(user.getContact())
+                        .extracting("email", "verificationCode", "isVerified")
+                        .containsExactly("tester@gabojait.com", "000000", true)
+        );
     }
 
     @Test
@@ -66,8 +72,9 @@ class UserTest {
                 .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
                         "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt", "isSeekingTeam",
                         "isTemporaryPassword", "isNotified")
-                .containsExactly(username, updatePassword, nickname, null, null, birthdate, lastRequestAt, gender,
-                        Position.NONE, 0F, 0L, 0, true, isTemporaryPassword, true);
+                .containsExactly(username, updatePassword, nickname, null, null, birthdate,
+                        lastRequestAt, gender, Position.NONE, 0F, 0L, 0, true,
+                        isTemporaryPassword, true);
     }
 
     @Test
@@ -95,8 +102,9 @@ class UserTest {
                 .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
                         "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt", "isSeekingTeam",
                         "isTemporaryPassword", "isNotified")
-                .containsExactly(username, updatePassword, nickname, null, null, birthdate, lastRequestAt, gender,
-                        Position.NONE, 0F, 0L, 0, true, isTemporaryPassword, true);
+                .containsExactly(username, updatePassword, nickname, null, null, birthdate,
+                        lastRequestAt, gender, Position.NONE, 0F, 0L, 0, true,
+                        isTemporaryPassword, true);
     }
 
     @Test
@@ -122,8 +130,9 @@ class UserTest {
                 .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
                         "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt", "isSeekingTeam",
                         "isTemporaryPassword", "isNotified")
-                .containsExactly(username, password, updateNickname, null, null, birthdate, lastRequestAt, gender,
-                        Position.NONE, 0F, 0L, 0, true, false, true);
+                .containsExactly(username, password, updateNickname, null, null, birthdate,
+                        lastRequestAt, gender, Position.NONE, 0F, 0L, 0, true,
+                        false, true);
     }
 
     @ParameterizedTest(name = "[{index}] {0}로 회원 알림 여부를 업데이트 한다")
@@ -148,8 +157,9 @@ class UserTest {
                 .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
                         "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt", "isSeekingTeam",
                         "isTemporaryPassword", "isNotified")
-                .containsExactly(username, password, nickname, null, null, birthdate, lastRequestAt, gender,
-                        Position.NONE, 0F, 0L, 0, true, false, isNotified);
+                .containsExactly(username, password, nickname, null, null, birthdate,
+                        lastRequestAt, gender, Position.NONE, 0F, 0L, 0, true,
+                        false, isNotified);
     }
 
     @Test
@@ -175,8 +185,9 @@ class UserTest {
                 .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
                         "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt", "isSeekingTeam",
                         "isTemporaryPassword", "isNotified")
-                .containsExactly(username, password, nickname, null, null, birthdate, updateLastRequestAt, gender,
-                        Position.NONE, 0F, 0L, 0, true, false, true);
+                .containsExactly(username, password, nickname, null, null, birthdate,
+                        updateLastRequestAt, gender, Position.NONE, 0F, 0L, 0, true,
+                        false, true);
     }
 
     @ParameterizedTest(name = "[{index}] {0}로 포지션을 업데이트한다")
@@ -201,8 +212,9 @@ class UserTest {
                 .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
                         "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt", "isSeekingTeam",
                         "isTemporaryPassword", "isNotified")
-                .containsExactly(username, password, nickname, null, null, birthdate, lastRequestAt, gender, position,
-                        0F, 0L, 0, true, false, true);
+                .containsExactly(username, password, nickname, null, null, birthdate,
+                        lastRequestAt, gender, position, 0F, 0L, 0, true,
+                        false, true);
     }
 
     private static Stream<Arguments> providerHasPosition() {
@@ -253,8 +265,9 @@ class UserTest {
                 .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
                         "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt", "isSeekingTeam",
                         "isTemporaryPassword", "isNotified")
-                .containsExactly(username, password, nickname, profileDescription, null, birthdate, lastRequestAt,
-                        gender, Position.NONE, 0F, 0L, 0, true, false, true);
+                .containsExactly(username, password, nickname, profileDescription, null, birthdate,
+                        lastRequestAt, gender, Position.NONE, 0F, 0L, 0, true,
+                        false, true);
     }
 
     @Test
@@ -280,8 +293,9 @@ class UserTest {
                 .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
                         "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt", "isSeekingTeam",
                         "isTemporaryPassword", "isNotified")
-                .containsExactly(username, password, nickname, null, imageUrl, birthdate, lastRequestAt, gender,
-                        Position.NONE, 0F, 0L, 0, true, false, true);
+                .containsExactly(username, password, nickname, null, imageUrl, birthdate,
+                        lastRequestAt, gender, Position.NONE, 0F, 0L, 0, true,
+                        false, true);
     }
 
     @ParameterizedTest(name = "[{index}] {0}로 팀 찾기 여부를 업데이트한다")
@@ -306,8 +320,9 @@ class UserTest {
                 .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
                         "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt", "isSeekingTeam",
                         "isTemporaryPassword", "isNotified")
-                .containsExactly(username, password, nickname, null, null, birthdate, lastRequestAt, gender,
-                        Position.NONE, 0F, 0L, 0, isSeekingTeam, false, true);
+                .containsExactly(username, password, nickname, null, null, birthdate,
+                        lastRequestAt, gender, Position.NONE, 0F, 0L, 0, isSeekingTeam,
+                        false, true);
     }
 
     @ParameterizedTest(name = "[{index}] {0}번 회원 프로필을 방문한다")
@@ -333,8 +348,9 @@ class UserTest {
                 .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
                         "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt", "isSeekingTeam",
                         "isTemporaryPassword", "isNotified")
-                .containsExactly(username, password, nickname, null, null, birthdate, lastRequestAt, gender,
-                        Position.NONE, 0F, visitCnt, 0, true, false, true);
+                .containsExactly(username, password, nickname, null, null, birthdate,
+                        lastRequestAt, gender, Position.NONE, 0F, visitCnt, 0, true,
+                        false, true);
     }
 
     private static Stream<Arguments> providerRate() {
@@ -370,8 +386,9 @@ class UserTest {
                 .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
                         "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt", "isSeekingTeam",
                         "isTemporaryPassword", "isNotified")
-                .containsExactly(username, password, nickname, null, null, birthdate, lastRequestAt, gender,
-                        Position.NONE, averageRating, 0L, ratings.length, true, false, true);
+                .containsExactly(username, password, nickname, null, null, birthdate,
+                        lastRequestAt, gender, Position.NONE, averageRating, 0L, ratings.length, true,
+                        false, true);
     }
 
     private static Stream<Arguments> providerEquals() {
