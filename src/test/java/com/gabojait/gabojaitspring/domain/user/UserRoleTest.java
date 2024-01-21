@@ -35,7 +35,7 @@ class UserRoleTest {
                                 "isSeekingTeam", "isTemporaryPassword", "isNotified")
                         .containsExactly("tester", "password1!", "테스터", null, null, LocalDate.of(1997, 2, 11),
                                 now, Gender.M, Position.NONE, 0F, 0L, 0,
-                                false, false, true)
+                                true, false, true)
         );
     }
 
