@@ -17,42 +17,43 @@ import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 class ReviewTest {
 
     @Test
-    @DisplayName("리뷰를 생성한다.")
-    void builder() {
+    @DisplayName("리뷰 생성이 정상 작동한다")
+    void givenValid_whenBuilder_thenReturn() {
         // given
-        User user1 = createDefaultUser("tester1@gabojait.com", "000000", "tester1", "password1!", "테스터일", Gender.M,
+        User user1 = createDefaultUser("tester1@gabojait.com", "tester1", "테스터일",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        User user2 = createDefaultUser("tester2@gabojait.com", "000000", "tester2", "password1!", "테스터이", Gender.M,
+        User user2 = createDefaultUser("tester2@gabojait.com", "tester2", "테스터이",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
 
-        Team team = createTeam("가보자잇", (byte) 3);
-        TeamMember teamMember1 = createTeamMember(Position.BACKEND, true, user1, team);
-        TeamMember teamMember2 = createTeamMember(Position.MANAGER, false, user2, team);
+        Team team = createTeam();
+        TeamMember reviewer = createTeamMember(Position.BACKEND, true, user1, team);
+        TeamMember reviewee = createTeamMember(Position.MANAGER, false, user2, team);
         byte rating = 3;
         String post = "좋은 팀원이였습니다.";
 
         // when
-        Review review = createReview(rating, post, teamMember1, teamMember2);
+        Review review = createReview(rating, post, reviewer, reviewee);
 
         // then
-        assertThat(review)
-                .extracting("rating", "post")
-                .containsExactly(rating, post);
-
-        assertEquals(user2.getRating(), rating);
+        assertAll(
+                () -> assertThat(review)
+                        .extracting("rating", "post", "isDeleted", "reviewer", "reviewee")
+                        .containsExactly(rating, post, false, reviewer, reviewee),
+                () -> assertThat(user2.getRating()).isEqualTo(rating)
+        );
     }
 
     private static Stream<Arguments> providerEquals() {
-        User user1 = createDefaultUser("tester1@gabojait.com", "000000", "tester1", "password1!", "테스터일", Gender.M,
+        User user1 = createDefaultUser("tester1@gabojait.com", "tester1", "테스터일",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        User user2 = createDefaultUser("tester2@gabojait.com", "000000", "tester2", "password1!", "테스터이", Gender.M,
+        User user2 = createDefaultUser("tester2@gabojait.com", "tester2", "테스터이",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", (byte) 3);
+        Team team = createTeam();
         TeamMember teamMember1 = createTeamMember(Position.BACKEND, false, user1, team);
         TeamMember teamMember2 = createTeamMember(Position.FRONTEND, false, user2, team);
 
@@ -91,20 +92,20 @@ class ReviewTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 리뷰 객체를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 리뷰 객체를 비교한다")
     @MethodSource("providerEquals")
-    @DisplayName("리뷰 객체를 비교한다.")
+    @DisplayName("리뷰 객체 비교가 정상 작동한다")
     void givenProvider_whenEquals_thenReturn(Review review, Object object, boolean result) {
         // when & then
         assertThat(review.equals(object)).isEqualTo(result);
     }
 
     private static Stream<Arguments> providerHashCode() {
-        User user1 = createDefaultUser("tester1@gabojait.com", "000000", "tester1", "password1!", "테스터일", Gender.M,
+        User user1 = createDefaultUser("tester1@gabojait.com", "tester1", "테스터일",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        User user2 = createDefaultUser("tester2@gabojait.com", "000000", "tester2", "password1!", "테스터이", Gender.M,
+        User user2 = createDefaultUser("tester2@gabojait.com", "tester2", "테스터이",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", (byte) 3);
+        Team team = createTeam();
         TeamMember teamMember1 = createTeamMember(Position.BACKEND, false, user1, team);
         TeamMember teamMember2 = createTeamMember(Position.FRONTEND, false, user2, team);
 
@@ -122,9 +123,9 @@ class ReviewTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 리뷰 해시코드를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 리뷰 해시코드를 비교한다")
     @MethodSource("providerHashCode")
-    @DisplayName("리뷰 해시코드를 비교한다.")
+    @DisplayName("리뷰 해시코드 비교가 정상 작동한다")
     void givenProvider_whenHashCode_thenReturn(Review review1, Review review2, boolean result) {
         // when
         int hashCode1 = review1.hashCode();
@@ -152,38 +153,35 @@ class ReviewTest {
                 .build();
     }
 
-    private static Team createTeam(String projectName, byte maxCnt) {
+    private static Team createTeam() {
         return Team.builder()
-                .projectName(projectName)
+                .projectName("가보자잇")
                 .projectDescription("프로젝트 설명입니다.")
                 .expectation("열정적인 팀원을 구합니다.")
                 .openChatUrl("kakao.com/o/gabojait")
-                .designerMaxCnt(maxCnt)
-                .backendMaxCnt(maxCnt)
-                .frontendMaxCnt(maxCnt)
-                .managerMaxCnt(maxCnt)
+                .designerMaxCnt((byte) 3)
+                .backendMaxCnt((byte) 3)
+                .frontendMaxCnt((byte) 3)
+                .managerMaxCnt((byte) 3)
                 .build();
     }
 
     private static User createDefaultUser(String email,
-                                          String verificationCode,
                                           String username,
-                                          String password,
                                           String nickname,
-                                          Gender gender,
                                           LocalDate birthdate,
                                           LocalDateTime lastRequestAt) {
         Contact contact = Contact.builder()
                 .email(email)
-                .verificationCode(verificationCode)
+                .verificationCode("000000")
                 .build();
         contact.verified();
 
         return User.builder()
                 .username(username)
-                .password(password)
+                .password("password1!")
                 .nickname(nickname)
-                .gender(gender)
+                .gender(Gender.M)
                 .birthdate(birthdate)
                 .lastRequestAt(lastRequestAt)
                 .contact(contact)

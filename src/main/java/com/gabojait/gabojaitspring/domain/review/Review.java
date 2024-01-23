@@ -1,8 +1,11 @@
 package com.gabojait.gabojaitspring.domain.review;
 
-import com.gabojait.gabojaitspring.domain.base.BaseEntity;
+import com.gabojait.gabojaitspring.domain.base.BasePermanentEntity;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -10,7 +13,7 @@ import java.util.Objects;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Review extends BaseEntity {
+public class Review extends BasePermanentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,6 +39,7 @@ public class Review extends BaseEntity {
         this.post = post;
         this.reviewer = reviewer;
         this.reviewee = reviewee;
+        this.isDeleted = false;
 
         reviewee.getUser().rate(rating);
     }
