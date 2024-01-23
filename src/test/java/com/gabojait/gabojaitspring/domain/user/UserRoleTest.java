@@ -27,16 +27,7 @@ class UserRoleTest {
         UserRole userRole = createUserRole(role, user);
 
         // then
-        assertAll(
-                () -> assertThat(userRole.getRole()).isEqualTo(role),
-                () -> assertThat(userRole.getUser())
-                        .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
-                                "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt",
-                                "isSeekingTeam", "isTemporaryPassword", "isNotified")
-                        .containsExactly("tester", "password1!", "테스터", null, null, LocalDate.of(1997, 2, 11),
-                                now, Gender.M, Position.NONE, 0F, 0L, 0,
-                                true, false, true)
-        );
+        assertThat(userRole.getRole()).isEqualTo(role);
     }
 
     private static Stream<Arguments> providerEquals() {

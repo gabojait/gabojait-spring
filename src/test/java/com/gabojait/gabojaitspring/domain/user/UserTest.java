@@ -34,18 +34,13 @@ class UserTest {
         User user = createUser(username, password, nickname, gender, birthdate, lastRequestAt, contact);
 
         // then
-        assertAll(
-                () -> assertThat(user)
-                        .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
-                                "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt",
-                                "isSeekingTeam", "isTemporaryPassword", "isNotified")
-                        .containsExactly(username, password, nickname, null, null, birthdate,
-                                lastRequestAt, gender, Position.NONE, 0F, 0L, 0,
-                                true, false, true),
-                () -> assertThat(user.getContact())
-                        .extracting("email", "verificationCode", "isVerified")
-                        .containsExactly("tester@gabojait.com", "000000", true)
-        );
+        assertThat(user)
+                .extracting("username", "password", "nickname", "profileDescription", "imageUrl", "birthdate",
+                        "lastRequestAt", "gender", "position", "rating", "visitedCnt", "reviewCnt",
+                        "isSeekingTeam", "isTemporaryPassword", "isNotified", "contact")
+                .containsExactly(username, password, nickname, null, null, birthdate,
+                        lastRequestAt, gender, Position.NONE, 0F, 0L, 0,
+                        true, false, true, contact);
     }
 
     @Test
