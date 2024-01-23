@@ -14,6 +14,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("test")
@@ -41,29 +42,29 @@ class TeamRepositoryTest {
         PageData<List<Team>> teams = teamRepository.findPage(position, pageFrom, pageSize);
 
         // then
-        assertThat(teams.getData())
-                .extracting("id", "projectName", "projectDescription", "expectation", "openChatUrl", "projectUrl",
-                        "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt", "managerCurrentCnt",
-                        "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt", "visitedCnt",
-                        "isRecruiting", "isDeleted")
-                .containsExactly(
-                        tuple(team4.getId(), team4.getProjectName(), team4.getProjectDescription(),
-                                team4.getExpectation(), team4.getOpenChatUrl(), team4.getProjectUrl(),
-                                team4.getDesignerCurrentCnt(), team4.getBackendCurrentCnt(),
-                                team4.getFrontendCurrentCnt(), team4.getManagerCurrentCnt(), team4.getDesignerMaxCnt(),
-                                team4.getBackendMaxCnt(), team4.getFrontendMaxCnt(), team4.getManagerMaxCnt(),
-                                team4.getVisitedCnt(), team4.getIsRecruiting(), team4.getIsDeleted()),
-                        tuple(team3.getId(), team3.getProjectName(), team3.getProjectDescription(),
-                                team3.getExpectation(), team3.getOpenChatUrl(), team3.getProjectUrl(),
-                                team3.getDesignerCurrentCnt(), team3.getBackendCurrentCnt(),
-                                team3.getFrontendCurrentCnt(), team3.getManagerCurrentCnt(), team3.getDesignerMaxCnt(),
-                                team3.getBackendMaxCnt(), team3.getFrontendMaxCnt(), team3.getManagerMaxCnt(),
-                                team3.getVisitedCnt(), team3.getIsRecruiting(), team3.getIsDeleted())
-                );
-
-        assertEquals(pageSize, teams.getData().size());
-        assertEquals(4, teams.getTotal());
-
+        assertAll(
+                () -> assertThat(teams.getData())
+                        .extracting("id", "projectName", "projectDescription", "expectation", "openChatUrl", "projectUrl",
+                                "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt", "managerCurrentCnt",
+                                "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt", "visitedCnt",
+                                "isRecruiting", "isDeleted")
+                        .containsExactly(
+                                tuple(team4.getId(), team4.getProjectName(), team4.getProjectDescription(),
+                                        team4.getExpectation(), team4.getOpenChatUrl(), team4.getProjectUrl(),
+                                        team4.getDesignerCurrentCnt(), team4.getBackendCurrentCnt(),
+                                        team4.getFrontendCurrentCnt(), team4.getManagerCurrentCnt(), team4.getDesignerMaxCnt(),
+                                        team4.getBackendMaxCnt(), team4.getFrontendMaxCnt(), team4.getManagerMaxCnt(),
+                                        team4.getVisitedCnt(), team4.getIsRecruiting(), team4.getIsDeleted()),
+                                tuple(team3.getId(), team3.getProjectName(), team3.getProjectDescription(),
+                                        team3.getExpectation(), team3.getOpenChatUrl(), team3.getProjectUrl(),
+                                        team3.getDesignerCurrentCnt(), team3.getBackendCurrentCnt(),
+                                        team3.getFrontendCurrentCnt(), team3.getManagerCurrentCnt(), team3.getDesignerMaxCnt(),
+                                        team3.getBackendMaxCnt(), team3.getFrontendMaxCnt(), team3.getManagerMaxCnt(),
+                                        team3.getVisitedCnt(), team3.getIsRecruiting(), team3.getIsDeleted())
+                        ),
+                () -> assertThat(teams.getData().size()).isEqualTo(pageSize),
+                () -> assertThat(teams.getTotal()).isEqualTo(4)
+        );
     }
 
     @Test
@@ -84,28 +85,29 @@ class TeamRepositoryTest {
         PageData<List<Team>> teams = teamRepository.findPage(position, pageFrom, pageSize);
 
         // then
-        assertThat(teams.getData())
-                .extracting("id", "projectName", "projectDescription", "expectation", "openChatUrl", "projectUrl",
-                        "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt", "managerCurrentCnt",
-                        "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt", "visitedCnt",
-                        "isRecruiting", "isDeleted")
-                .containsExactly(
-                        tuple(team3.getId(), team3.getProjectName(), team3.getProjectDescription(),
-                                team3.getExpectation(), team3.getOpenChatUrl(), team3.getProjectUrl(),
-                                team3.getDesignerCurrentCnt(), team3.getBackendCurrentCnt(),
-                                team3.getFrontendCurrentCnt(), team3.getManagerCurrentCnt(), team3.getDesignerMaxCnt(),
-                                team3.getBackendMaxCnt(), team3.getFrontendMaxCnt(), team3.getManagerMaxCnt(),
-                                team3.getVisitedCnt(), team3.getIsRecruiting(), team3.getIsDeleted()),
-                        tuple(team2.getId(), team2.getProjectName(), team2.getProjectDescription(),
-                                team2.getExpectation(), team2.getOpenChatUrl(), team2.getProjectUrl(),
-                                team2.getDesignerCurrentCnt(), team2.getBackendCurrentCnt(),
-                                team2.getFrontendCurrentCnt(), team2.getManagerCurrentCnt(), team2.getDesignerMaxCnt(),
-                                team2.getBackendMaxCnt(), team2.getFrontendMaxCnt(), team2.getManagerMaxCnt(),
-                                team2.getVisitedCnt(), team2.getIsRecruiting(), team2.getIsDeleted())
-                );
-
-        assertEquals(pageSize, teams.getData().size());
-        assertEquals(3, teams.getTotal());
+        assertAll(
+                () -> assertThat(teams.getData())
+                        .extracting("id", "projectName", "projectDescription", "expectation", "openChatUrl", "projectUrl",
+                                "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt", "managerCurrentCnt",
+                                "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt", "visitedCnt",
+                                "isRecruiting", "isDeleted")
+                        .containsExactly(
+                                tuple(team3.getId(), team3.getProjectName(), team3.getProjectDescription(),
+                                        team3.getExpectation(), team3.getOpenChatUrl(), team3.getProjectUrl(),
+                                        team3.getDesignerCurrentCnt(), team3.getBackendCurrentCnt(),
+                                        team3.getFrontendCurrentCnt(), team3.getManagerCurrentCnt(), team3.getDesignerMaxCnt(),
+                                        team3.getBackendMaxCnt(), team3.getFrontendMaxCnt(), team3.getManagerMaxCnt(),
+                                        team3.getVisitedCnt(), team3.getIsRecruiting(), team3.getIsDeleted()),
+                                tuple(team2.getId(), team2.getProjectName(), team2.getProjectDescription(),
+                                        team2.getExpectation(), team2.getOpenChatUrl(), team2.getProjectUrl(),
+                                        team2.getDesignerCurrentCnt(), team2.getBackendCurrentCnt(),
+                                        team2.getFrontendCurrentCnt(), team2.getManagerCurrentCnt(), team2.getDesignerMaxCnt(),
+                                        team2.getBackendMaxCnt(), team2.getFrontendMaxCnt(), team2.getManagerMaxCnt(),
+                                        team2.getVisitedCnt(), team2.getIsRecruiting(), team2.getIsDeleted())
+                        ),
+                () -> assertThat(teams.getData().size()).isEqualTo(pageSize),
+                () -> assertThat(teams.getTotal()).isEqualTo(3)
+        );
     }
 
     private Team createTeam(String projectName, byte maxCnt) {

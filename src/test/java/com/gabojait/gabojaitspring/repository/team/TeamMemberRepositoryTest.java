@@ -44,16 +44,14 @@ class TeamMemberRepositoryTest {
         Team team1 = createTeam("프로젝트1");
         teamRepository.save(team1);
         TeamMember teamMember1 = createTeamMember(true, user, team1);
+        teamMember1.complete("github.com/gabojait1", LocalDateTime.now());
         teamMemberRepository.save(teamMember1);
-        team1.complete("github.com/gabojait1", LocalDateTime.now());
-        teamRepository.save(team1);
 
         Team team2 = createTeam("프로젝트2");
         teamRepository.save(team2);
         TeamMember teamMember2 = createTeamMember(true, user, team2);
+        teamMember2.complete("github.com/gabojait2", LocalDateTime.now());
         teamMemberRepository.save(teamMember2);
-        team2.complete("github.com/gabojait2", LocalDateTime.now());
-        teamRepository.save(team2);
 
         Team team3 = createTeam("프로젝트3");
         teamRepository.save(team3);
@@ -413,7 +411,6 @@ class TeamMemberRepositoryTest {
 
         Team team1 = createTeam("가보자잇1");
         Team team2 = createTeam("가보자잇2");
-        team1.complete("github.com/gabojait", now.minusWeeks(4).minusSeconds(1));
         teamRepository.saveAll(List.of(team1, team2));
         TeamMember teamMember1 = createTeamMember(true, user, team1);
         teamMember1.complete("github.com/gabojait", now.minusWeeks(4).minusSeconds(1));
@@ -433,7 +430,7 @@ class TeamMemberRepositoryTest {
                                 teamMember2.getUpdatedAt())
                 );
 
-        assertEquals(1, teamMembers.size());
+        assertThat(teamMembers.size()).isEqualTo(1);
     }
 
     @Test
@@ -451,7 +448,7 @@ class TeamMemberRepositoryTest {
         boolean result = teamMemberRepository.existsCurrent(user.getId());
 
         // then
-        assertTrue(result);
+        assertThat(result).isTrue();
     }
 
     @Test
@@ -483,7 +480,7 @@ class TeamMemberRepositoryTest {
         boolean result = teamMemberRepository.exists(user.getId(), team.getId());
 
         // then
-        assertTrue(result);
+        assertThat(result).isTrue();
     }
 
     @Test
@@ -499,7 +496,7 @@ class TeamMemberRepositoryTest {
         boolean result = teamMemberRepository.exists(user.getId(), team.getId());
 
         // then
-        assertFalse(result);
+        assertThat(result).isFalse();
     }
 
     private TeamMember createTeamMember(boolean isLeader, User user, Team team) {
