@@ -1,7 +1,6 @@
 package com.gabojait.gabojaitspring.domain.offer;
 
 import com.gabojait.gabojaitspring.domain.team.Team;
-import com.gabojait.gabojaitspring.domain.team.TeamMember;
 import com.gabojait.gabojaitspring.domain.user.Contact;
 import com.gabojait.gabojaitspring.domain.user.Gender;
 import com.gabojait.gabojaitspring.domain.user.Position;
@@ -21,9 +20,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 class OfferTest {
 
     private static Stream<Arguments> providerBuilder() {
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터일", Gender.M,
+        User user = createDefaultUser("tester", "테스터일",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", (byte) 3);
+        Team team = createTeam("가보자잇");
 
         return Stream.of(
                 Arguments.of(OfferedBy.LEADER, Position.BACKEND, user, team),
@@ -40,19 +39,8 @@ class OfferTest {
 
         // then
         assertThat(offer)
-                .extracting("offeredBy", "position", "isAccepted", "isDeleted")
-                .containsExactly(offeredBy, position, null, false);
-    }
-
-    private static Stream<Arguments> providerAccept() {
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터일", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", (byte) 3);
-
-        return Stream.of(
-                Arguments.of(OfferedBy.LEADER, Position.BACKEND, user, team),
-                Arguments.of(OfferedBy.USER, Position.BACKEND, user, team)
-        );
+                .extracting("offeredBy", "position", "isAccepted", "isDeleted", "user", "team")
+                .containsExactly(offeredBy, position, null, false, user, team);
     }
 
     @ParameterizedTest(name = "[{index}] {0}가 제안을 수락한다.")
@@ -60,9 +48,9 @@ class OfferTest {
     @DisplayName("제안을 수락한다.")
     void givenEnum_whenAccept_thenReturn(OfferedBy offeredBy) {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터일", Gender.M,
+        User user = createDefaultUser("tester", "테스터일",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", (byte) 3);
+        Team team = createTeam("가보자잇");
         Position position = Position.BACKEND;
 
         Offer offer = createOffer(offeredBy, position, user, team);
@@ -81,9 +69,9 @@ class OfferTest {
     @DisplayName("제안을 거절한다.")
     void givenEnum_whenDecline_thenReturn(OfferedBy offeredBy) {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터일", Gender.M,
+        User user = createDefaultUser("tester", "테스터일",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", (byte) 3);
+        Team team = createTeam("가보자잇");
         Position position = Position.BACKEND;
 
         Offer offer = createOffer(offeredBy, position, user, team);
@@ -102,9 +90,9 @@ class OfferTest {
     @DisplayName("제안을 취소한다.")
     void givenEnum_whenCancel_thenReturn(OfferedBy offeredBy) {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터일", Gender.M,
+        User user = createDefaultUser("tester", "테스터일",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", (byte) 3);
+        Team team = createTeam("가보자잇");
         Position position = Position.BACKEND;
 
         Offer offer = createOffer(offeredBy, position, user, team);
@@ -119,21 +107,21 @@ class OfferTest {
     }
 
     private static Stream<Arguments> providerEquals() {
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
+        User user = createDefaultUser("tester", "테스터",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", (byte) 3);
+        Team team = createTeam("가보자잇");
         Offer offer = createOffer(OfferedBy.USER, Position.BACKEND, user, team);
 
-        User user1 = createDefaultUser("tester@gabojait.com", "000000", "tester1", "password1!", "테스터", Gender.M,
+        User user1 = createDefaultUser("tester1", "테스터",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
         Offer userOffer1 = createOffer(OfferedBy.USER, Position.BACKEND, user1, team);
-        User user2 = createDefaultUser("tester@gabojait.com", "000000", "tester2", "password1!", "테스터", Gender.M,
+        User user2 = createDefaultUser("tester2", "테스터",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
         Offer userOffer2 = createOffer(OfferedBy.USER, Position.BACKEND, user2, team);
 
-        Team team1 = createTeam("가보자잇1", (byte) 3);
+        Team team1 = createTeam("가보자잇1");
         Offer teamOffer1 = createOffer(OfferedBy.USER, Position.BACKEND, user, team1);
-        Team team2 = createTeam("가보자잇2", (byte) 3);
+        Team team2 = createTeam("가보자잇2");
         Offer teamOffer2 = createOffer(OfferedBy.USER, Position.BACKEND, user, team2);
 
         Offer isAccepted1 = createOffer(OfferedBy.USER, Position.BACKEND, user, team);
@@ -173,9 +161,9 @@ class OfferTest {
     }
 
     private static Stream<Arguments> providerHashCode() {
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
+        User user = createDefaultUser("tester", "테스터",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Team team = createTeam("가보자잇", (byte) 3);
+        Team team = createTeam("가보자잇");
 
         return Stream.of(
                 Arguments.of(
@@ -212,47 +200,34 @@ class OfferTest {
                 .build();
     }
 
-    private static TeamMember createTeamMember(Position position, boolean isLeader, User user, Team team) {
-        return TeamMember.builder()
-                .position(position)
-                .isLeader(isLeader)
-                .team(team)
-                .user(user)
-                .build();
-    }
-
-    private static Team createTeam(String projectName, byte maxCnt) {
+    private static Team createTeam(String projectName) {
         return Team.builder()
                 .projectName(projectName)
                 .projectDescription("프로젝트 설명입니다.")
                 .expectation("열정적인 팀원을 구합니다.")
                 .openChatUrl("kakao.com/o/gabojait")
-                .designerMaxCnt(maxCnt)
-                .backendMaxCnt(maxCnt)
-                .frontendMaxCnt(maxCnt)
-                .managerMaxCnt(maxCnt)
+                .designerMaxCnt((byte) 3)
+                .backendMaxCnt((byte) 3)
+                .frontendMaxCnt((byte) 3)
+                .managerMaxCnt((byte) 3)
                 .build();
     }
 
-    private static User createDefaultUser(String email,
-                                          String verificationCode,
-                                          String username,
-                                          String password,
+    private static User createDefaultUser(String username,
                                           String nickname,
-                                          Gender gender,
                                           LocalDate birthdate,
                                           LocalDateTime lastRequestAt) {
         Contact contact = Contact.builder()
-                .email(email)
-                .verificationCode(verificationCode)
+                .email("tester@gabojait.com")
+                .verificationCode("000000")
                 .build();
         contact.verified();
 
         return User.builder()
                 .username(username)
-                .password(password)
+                .password("password1!")
                 .nickname(nickname)
-                .gender(gender)
+                .gender(Gender.M)
                 .birthdate(birthdate)
                 .lastRequestAt(lastRequestAt)
                 .contact(contact)
