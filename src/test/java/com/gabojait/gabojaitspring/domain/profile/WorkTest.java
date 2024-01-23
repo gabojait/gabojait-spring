@@ -18,11 +18,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 class WorkTest {
 
     @Test
-    @DisplayName("경력을 생성한다.")
+    @DisplayName("경력 생성이 정상 작동한다")
     void builder() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        User user = createDefaultUser("tester", LocalDate.of(1997, 2, 11), LocalDateTime.now());
 
         String corporationName = "가보자잇사";
         String workDescription = "가보자잇사에서 근무";
@@ -35,16 +34,15 @@ class WorkTest {
 
         // then
         assertThat(work)
-                .extracting("corporationName", "workDescription", "startedAt", "endedAt", "isCurrent")
-                .containsExactly(corporationName, workDescription, startedAt, endedAt, isCurrent);
+                .extracting("corporationName", "workDescription", "startedAt", "endedAt", "isCurrent", "user")
+                .containsExactly(corporationName, workDescription, startedAt, endedAt, isCurrent, user);
     }
 
     @Test
-    @DisplayName("경력을 업데이트한다.")
+    @DisplayName("경력 업데이트가 정상 작동한다")
     void update() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        User user = createDefaultUser("tester", LocalDate.of(1997, 2, 11), LocalDateTime.now());
         Work work = createWork("가보자잇사", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user);
 
         String corporationName = "카카오";
@@ -65,14 +63,11 @@ class WorkTest {
     private static Stream<Arguments> providerEquals() {
         LocalDateTime now = LocalDateTime.now();
 
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), now);
+        User user = createDefaultUser("tester", LocalDate.of(1997, 2, 11), now);
         Work work = createWork("가보자잇사", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user);
 
-        User user1 = createDefaultUser("tester@gabojait.com", "000000", "tester1", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), now);
-        User user2 = createDefaultUser("tester@gabojait.com", "000000", "tester2", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), now);
+        User user1 = createDefaultUser("tester1", LocalDate.of(1997, 2, 11), now);
+        User user2 = createDefaultUser("tester2", LocalDate.of(1997, 2, 11), now);
         Work userWork1 = createWork("가보자잇사", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user1);
         Work userWork2 = createWork("가보자잇사", "백엔드 개발", LocalDate.of(2001, 1, 1), LocalDate.of(2002, 1, 1), false, user2);
 
@@ -113,9 +108,9 @@ class WorkTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 경력 객체를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 경력 객체를 비교한다")
     @MethodSource("providerEquals")
-    @DisplayName("경력 객체를 비교한다.")
+    @DisplayName("경력 객체 비교가 정상 작동한다")
     void givenProvider_whenEquals_thenReturn(Work work, Object object, boolean result) {
         // when & then
         assertThat(work.equals(object)).isEqualTo(result);
@@ -124,7 +119,7 @@ class WorkTest {
     private static Stream<Arguments> providerHashCode() {
         LocalDateTime now = LocalDateTime.now();
 
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
+        User user = createDefaultUser("tester",
                 LocalDate.of(1997, 2, 11), now);
 
         return Stream.of(
@@ -141,9 +136,9 @@ class WorkTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 경력 해시코드를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 경력 해시코드를 비교한다")
     @MethodSource("providerHashCode")
-    @DisplayName("경력 해시코드를 비교한다.")
+    @DisplayName("경력 해시코드 비교가 정상 작동한다")
     void givenProvider_whenHashCode_thenReturn(Work work1, Work work2, boolean result) {
         // when
         int hashCode1 = work1.hashCode();
@@ -154,11 +149,11 @@ class WorkTest {
     }
 
     private static Work createWork(String corporationName,
-                            String workDescription,
-                            LocalDate startedAt,
-                            LocalDate endedAt,
-                            boolean isCurrent,
-                            User user) {
+                                   String workDescription,
+                                   LocalDate startedAt,
+                                   LocalDate endedAt,
+                                   boolean isCurrent,
+                                   User user) {
         return Work.builder()
                 .corporationName(corporationName)
                 .workDescription(workDescription)
@@ -169,25 +164,20 @@ class WorkTest {
                 .build();
     }
 
-    private static User createDefaultUser(String email,
-                                   String verificationCode,
-                                   String username,
-                                   String password,
-                                   String nickname,
-                                   Gender gender,
-                                   LocalDate birthdate,
-                                   LocalDateTime lastRequestAt) {
+    private static User createDefaultUser(String username,
+                                          LocalDate birthdate,
+                                          LocalDateTime lastRequestAt) {
         Contact contact = Contact.builder()
-                .email(email)
-                .verificationCode(verificationCode)
+                .email("tester@gabojait.com")
+                .verificationCode("000000")
                 .build();
         contact.verified();
 
         return User.builder()
                 .username(username)
-                .password(password)
-                .nickname(nickname)
-                .gender(gender)
+                .password("password1!")
+                .nickname("테스터")
+                .gender(Gender.M)
                 .birthdate(birthdate)
                 .lastRequestAt(lastRequestAt)
                 .contact(contact)

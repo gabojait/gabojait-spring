@@ -18,11 +18,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 class EducationTest {
 
     @Test
-    @DisplayName("학력을 생성한다.")
-    void builder() {
+    @DisplayName("학력 생성이 정상 작동한다")
+    void givenValid_whenBuilder_thenReturn() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        User user = createDefaultUser("tester", LocalDate.of(1997, 2, 11), LocalDateTime.now());
         String institutionName = "가보자잇대";
         LocalDate startedAt = LocalDate.of(2019, 3, 1);
         LocalDate endedAt = LocalDate.of(2023, 8, 1);
@@ -33,17 +32,16 @@ class EducationTest {
 
         // then
         assertThat(education)
-                .extracting("institutionName", "startedAt", "endedAt", "isCurrent")
-                .containsExactly(institutionName, startedAt, endedAt, isCurrent);
+                .extracting("institutionName", "startedAt", "endedAt", "isCurrent", "user")
+                .containsExactly(institutionName, startedAt, endedAt, isCurrent, user);
 
     }
 
     @Test
-    @DisplayName("학력을 업데이트한다.")
-    void update() {
+    @DisplayName("학력 업데이트가 정상 작동한다")
+    void givenValid_whenUpdate_thenReturn() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        User user = createDefaultUser("tester", LocalDate.of(1997, 2, 11), LocalDateTime.now());
 
         Education education = createEducation("가보자잇대", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false,
                 user);
@@ -65,15 +63,12 @@ class EducationTest {
     private static Stream<Arguments> providerEquals() {
         LocalDateTime now = LocalDateTime.now();
 
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), now);
+        User user = createDefaultUser("tester", LocalDate.of(1997, 2, 11), now);
         Education education = createEducation("가보자잇대", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false,
                 user);
 
-        User user1 = createDefaultUser("tester@gabojait.com", "000000", "tester1", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), now);
-        User user2 = createDefaultUser("tester@gabojait.com", "000000", "tester2", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), now);
+        User user1 = createDefaultUser("tester1", LocalDate.of(1997, 2, 11), now);
+        User user2 = createDefaultUser("tester2", LocalDate.of(1997, 2, 11), now);
         Education userEducation1 = createEducation("가보자잇대", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false,
                 user1);
         Education userEducation2 = createEducation("가보자잇대", LocalDate.of(2019, 3, 1), LocalDate.of(2023, 8, 1), false,
@@ -111,9 +106,9 @@ class EducationTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 학력 객체를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 학력 객체를 비교한다")
     @MethodSource("providerEquals")
-    @DisplayName("학력 객체를 비교한다.")
+    @DisplayName("학력 객체 비교가 정상 작동한다")
     void givenProvider_whenEquals_thenReturn(Education education, Object object, boolean result) {
         // when & then
         assertThat(education.equals(object)).isEqualTo(result);
@@ -122,8 +117,7 @@ class EducationTest {
     private static Stream<Arguments> providerHashCode() {
         LocalDateTime now = LocalDateTime.now();
 
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), now);
+        User user = createDefaultUser("tester", LocalDate.of(1997, 2, 11), now);
 
         return Stream.of(
                 Arguments.of(
@@ -139,9 +133,9 @@ class EducationTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 학력 해시코드를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 학력 해시코드를 비교한다")
     @MethodSource("providerHashCode")
-    @DisplayName("학력 해시코드를 비교한다.")
+    @DisplayName("학력 해시코드 비교가 정상 작동한다")
     void givenProvider_whenHashCode_thenReturn(Education education1, Education education2, boolean result) {
         // when
         int hashCode1 = education1.hashCode();
@@ -152,10 +146,10 @@ class EducationTest {
     }
 
     private static Education createEducation(String institutionName,
-                                      LocalDate startedAt,
-                                      LocalDate endedAt,
-                                      boolean isCurrent,
-                                      User user) {
+                                             LocalDate startedAt,
+                                             LocalDate endedAt,
+                                             boolean isCurrent,
+                                             User user) {
         return Education.builder()
                 .institutionName(institutionName)
                 .startedAt(startedAt)
@@ -165,25 +159,20 @@ class EducationTest {
                 .build();
     }
 
-    private static User createDefaultUser(String email,
-                                   String verificationCode,
-                                   String username,
-                                   String password,
-                                   String nickname,
-                                   Gender gender,
-                                   LocalDate birthdate,
-                                   LocalDateTime lastRequestAt) {
+    private static User createDefaultUser(String username,
+                                          LocalDate birthdate,
+                                          LocalDateTime lastRequestAt) {
         Contact contact = Contact.builder()
-                .email(email)
-                .verificationCode(verificationCode)
+                .email("tester@gabojait.com")
+                .verificationCode("000000")
                 .build();
         contact.verified();
 
         return User.builder()
                 .username(username)
-                .password(password)
-                .nickname(nickname)
-                .gender(gender)
+                .password("password1!")
+                .nickname("테스터")
+                .gender(Gender.M)
                 .birthdate(birthdate)
                 .lastRequestAt(lastRequestAt)
                 .contact(contact)

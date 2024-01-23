@@ -22,17 +22,17 @@ class LevelTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {0} 레벨 텍스트는 {1}이다.")
+    @ParameterizedTest(name = "[{index}] {0} 레벨 텍스트는 {1}이다")
     @MethodSource("providerGetText")
-    @DisplayName("레벨 텍스트를 반환한다.")
+    @DisplayName("레벨 텍스트 반환이 정상 작동한다")
     void givenProvider_whenGetText_thenReturn(Level level, String text) {
         // when & then
         assertThat(level.getText()).isEqualTo(text);
     }
 
     @Test
-    @DisplayName("전체 레벨을 반환한다.")
-    void values() {
+    @DisplayName("전체 레벨 반환이 정상 작동한다")
+    void givenProvider_whenValues_thenReturn() {
         // given & when
         Level[] levels = Level.values();
 
@@ -48,16 +48,16 @@ class LevelTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {0} 값을 {1} 레벨로 변환한다.")
+    @ParameterizedTest(name = "[{index}] {0} 값을 {1} 레벨로 변환한다")
     @MethodSource("providerValueOf")
-    @DisplayName("레벨 값을 반환한다.")
+    @DisplayName("레벨 값 변환이 정상 작동한다")
     void givenProvider_whenValueOf_thenReturn(String value, Level level) {
         // when & then
         assertThat(Level.valueOf(value)).isEqualTo(level);
     }
 
     @Test
-    @DisplayName("잘못된 값을 레벨로 변환하면 예외가 발생한다.")
+    @DisplayName("잘못된 값을 레벨로 변환하면 예외가 발생한다")
     void givenInvalid_whenValueOf_thenThrow() {
         // given
         String value = "INVALID";

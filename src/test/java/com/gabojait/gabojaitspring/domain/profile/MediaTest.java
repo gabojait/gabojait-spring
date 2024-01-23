@@ -21,17 +21,17 @@ class MediaTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {0} 미디어 텍스트는 {1}이다.")
+    @ParameterizedTest(name = "[{index}] {0} 미디어 텍스트는 {1}이다")
     @MethodSource("providerGetText")
-    @DisplayName("미디어 텍스트를 반환한다.")
+    @DisplayName("미디어 텍스트 반환이 정상 작동한다")
     void givenProvider_whenGetText_thenReturn(Media media, String text) {
         // when & then
         assertThat(media.getText()).isEqualTo(text);
     }
 
     @Test
-    @DisplayName("전체 미디어를 반환한다.")
-    void values() {
+    @DisplayName("전체 미디어 반환이 정상 작동한다")
+    void givenValid_whenValues_thenReturn() {
         // given & when
         Media[] medias = Media.values();
 
@@ -46,9 +46,9 @@ class MediaTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {0} 값을 {1} 미디어로 변환한다.")
+    @ParameterizedTest(name = "[{index}] {0} 값을 {1} 미디어로 변환한다")
     @MethodSource("providerValueOf")
-    @DisplayName("미디어로 값을 변환한다.")
+    @DisplayName("미디어 값 변환이 정상 작동한다")
     void givenProvider_whenValueOf_thenReturn(String value, Media media) {
         // when & then
         assertThat(Media.valueOf(value)).isEqualTo(media);

@@ -18,11 +18,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PortfolioTest {
 
     @Test
-    @DisplayName("포트폴리오를 생성한다.")
-    void builder() {
+    @DisplayName("포트폴리오 생성이 정상 작동한다")
+    void givenValid_whenBuilder_thenReturn() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        User user = createDefaultUser("tester", LocalDate.of(1997, 2, 11), LocalDateTime.now());
 
         String portfolioName = "깃허브";
         String portfolioUrl = "github.com/gabojait";
@@ -33,16 +32,15 @@ class PortfolioTest {
 
         // then
         assertThat(portfolio)
-                .extracting("portfolioName", "portfolioUrl", "media")
-                .containsExactly(portfolioName, portfolioUrl, media);
+                .extracting("portfolioName", "portfolioUrl", "media", "user")
+                .containsExactly(portfolioName, portfolioUrl, media, user);
     }
 
     @Test
-    @DisplayName("포트폴리오를 업데이트한다.")
-    void update() {
+    @DisplayName("포트폴리오 업데이트가 정상 작동한다")
+    void givenValid_whenUpdate_thenReturn() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        User user = createDefaultUser("tester", LocalDate.of(1997, 2, 11), LocalDateTime.now());
         Portfolio portfolio = createPortfolio("깃허브", "github.com/gabojait", Media.LINK, user);
 
         String portfolioName = "노션";
@@ -61,14 +59,11 @@ class PortfolioTest {
     private static Stream<Arguments> providerEquals() {
         LocalDateTime now = LocalDateTime.now();
 
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), now);
+        User user = createDefaultUser("tester", LocalDate.of(1997, 2, 11), now);
         Portfolio portfolio = createPortfolio("깃허브", "github.com/gabojait", Media.LINK, user);
 
-        User user1 = createDefaultUser("tester@gabojait.com", "000000", "tester1", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), now);
-        User user2 = createDefaultUser("tester@gabojait.com", "000000", "tester2", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), now);
+        User user1 = createDefaultUser("tester1", LocalDate.of(1997, 2, 11), now);
+        User user2 = createDefaultUser("tester2", LocalDate.of(1997, 2, 11), now);
         Portfolio userPortfolio1 = createPortfolio("깃허브", "github.com/gabojait", Media.LINK, user1);
         Portfolio userPortfolio2 = createPortfolio("깃허브", "github.com/gabojait", Media.LINK, user2);
 
@@ -99,9 +94,9 @@ class PortfolioTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 포트폴리오 객체를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 포트폴리오 객체를 비교한다")
     @MethodSource("providerEquals")
-    @DisplayName("포트폴리오 객체를 비교한다.")
+    @DisplayName("포트폴리오 객체 비교가 정상 작동한다")
     void givenProvider_whenEquals_thenReturn(Portfolio portfolio, Object object, boolean result) {
         // when & then
         assertThat(portfolio.equals(object)).isEqualTo(result);
@@ -110,8 +105,7 @@ class PortfolioTest {
     private static Stream<Arguments> providerHashCode() {
         LocalDateTime now = LocalDateTime.now();
 
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
-                LocalDate.of(1997, 2, 11), now);
+        User user = createDefaultUser("tester", LocalDate.of(1997, 2, 11), now);
 
         return Stream.of(
                 Arguments.of(
@@ -127,9 +121,9 @@ class PortfolioTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 포트폴리오 해시코드를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 포트폴리오 해시코드를 비교한다")
     @MethodSource("providerHashCode")
-    @DisplayName("포트폴리오 해시코드를 비교한다.")
+    @DisplayName("포트폴리오 해시코드 비교가 정상 작동한다")
     void givenProvider_whenHashCode_thenReturn(Portfolio portfolio1, Portfolio portfolio2, boolean result) {
         // when
         int hashCode1 = portfolio1.hashCode();
@@ -148,25 +142,20 @@ class PortfolioTest {
                 .build();
     }
 
-    private static User createDefaultUser(String email,
-                                   String verificationCode,
-                                   String username,
-                                   String password,
-                                   String nickname,
-                                   Gender gender,
-                                   LocalDate birthdate,
-                                   LocalDateTime lastRequestAt) {
+    private static User createDefaultUser(String username,
+                                          LocalDate birthdate,
+                                          LocalDateTime lastRequestAt) {
         Contact contact = Contact.builder()
-                .email(email)
-                .verificationCode(verificationCode)
+                .email("tester@gabojait.com")
+                .verificationCode("000000")
                 .build();
         contact.verified();
 
         return User.builder()
                 .username(username)
-                .password(password)
-                .nickname(nickname)
-                .gender(gender)
+                .password("password1!")
+                .nickname("테스터")
+                .gender(Gender.M)
                 .birthdate(birthdate)
                 .lastRequestAt(lastRequestAt)
                 .contact(contact)
