@@ -3,7 +3,6 @@ package com.gabojait.gabojaitspring.repository.review;
 import com.gabojait.gabojaitspring.domain.review.Review;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
-import com.gabojait.gabojaitspring.domain.team.TeamMemberStatus;
 import com.gabojait.gabojaitspring.domain.user.Contact;
 import com.gabojait.gabojaitspring.domain.user.Gender;
 import com.gabojait.gabojaitspring.domain.user.Position;
@@ -26,7 +25,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -41,8 +40,8 @@ class ReviewRepositoryTest {
 
 
     @Test
-    @DisplayName("리뷰 페이징 조회를 한다.")
-    void findPage() {
+    @DisplayName("존재하는 리뷰가 있을시 리뷰 페이징 조회를 한다.")
+    void givenExistingReview_whenFindPage_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
         Team team = createSavedTeam("가보자잇");
@@ -74,17 +73,37 @@ class ReviewRepositoryTest {
         Page<Review> reviews = reviewRepository.findPage(user1.getId(), pageFrom, pageSize);
 
         // then
-        assertThat(reviews.getContent())
-                .extracting("id", "rating", "post", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(review3.getId(), review3.getRating(), review3.getPost(),
-                                review3.getCreatedAt(), review3.getUpdatedAt()),
-                        tuple(review2.getId(), review2.getRating(), review2.getPost(),
-                                review2.getCreatedAt(), review2.getUpdatedAt())
-                );
+        assertAll(
+                () -> assertThat(reviews.getContent())
+                        .extracting("id", "rating", "post", "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(review3.getId(), review3.getRating(), review3.getPost(),
+                                        review3.getCreatedAt(), review3.getUpdatedAt()),
+                                tuple(review2.getId(), review2.getRating(), review2.getPost(),
+                                        review2.getCreatedAt(), review2.getUpdatedAt())
+                        ),
+                () -> assertThat(reviews.getSize()).isEqualTo(pageSize),
+                () -> assertThat(reviews.getTotalElements()).isEqualTo(3)
+        );
+    }
 
-        assertEquals(pageSize, reviews.getSize());
-        assertEquals(3, reviews.getTotalElements());
+    @Test
+    @DisplayName("존재하지 않은 리뷰 페이징 조회를 한다")
+    void givenNoneExistingReview_whenFindPage_thenReturn() {
+        // given
+        long userId = 1L;
+        long pageFrom = Long.MAX_VALUE;
+        int pageSize = 1;
+
+        // when
+        Page<Review> reviews = reviewRepository.findPage(userId, pageFrom, pageSize);
+
+        // then
+        assertAll(
+                () -> assertThat(reviews.getContent()).isEmpty(),
+                () -> assertThat(reviews.getSize()).isEqualTo(pageSize),
+                () -> assertThat(reviews.getTotalElements()).isEqualTo(0)
+        );
     }
 
     @Test
@@ -97,7 +116,6 @@ class ReviewRepositoryTest {
         User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이");
 
         Team team = createSavedTeam("가보자잇");
-        team.complete("github.com/gabojait", now);
         teamRepository.save(team);
 
         TeamMember teamMember1 = createSavedTeamMember(Position.MANAGER, true, user1, team);
@@ -112,7 +130,7 @@ class ReviewRepositoryTest {
         boolean result = reviewRepository.exists(user1.getId(), team.getId());
 
         // then
-        assertTrue(result);
+        assertThat(result).isTrue();
     }
 
     @Test
@@ -125,7 +143,6 @@ class ReviewRepositoryTest {
         User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이");
 
         Team team = createSavedTeam("가보자잇");
-        team.complete("github.com/gabojait", now);
         teamRepository.save(team);
 
         TeamMember teamMember1 = createSavedTeamMember(Position.MANAGER, true, user1, team);
@@ -138,7 +155,7 @@ class ReviewRepositoryTest {
         boolean result = reviewRepository.exists(user1.getId(), team.getId());
 
         // then
-        assertFalse(result);
+        assertThat(result).isFalse();
     }
 
     @Test
@@ -173,7 +190,7 @@ class ReviewRepositoryTest {
         long result = reviewRepository.countPrevious(user1.getId(), pageFrom);
 
         // then
-        assertEquals(1L, result);
+        assertThat(result).isEqualTo(1);
     }
 
     @Test
@@ -187,7 +204,7 @@ class ReviewRepositoryTest {
         long result = reviewRepository.countPrevious(user.getId(), pageFrom);
 
         // then
-        assertEquals(0L, result);
+        assertThat(result).isEqualTo(0);
     }
 
     private Review createSavedReview(TeamMember reviewer, TeamMember reviewee) {
@@ -247,5 +264,4 @@ class ReviewRepositoryTest {
 
         return userRepository.save(user);
     }
-
 }
