@@ -43,7 +43,9 @@ class TeamMemberTest {
                         .extracting("position", "teamMemberStatus", "isLeader", "isDeleted", "user", "team")
                         .containsExactly(position, TeamMemberStatus.PROGRESS, isLeader, false, user, team),
                 () -> assertThat(teamMember.getUser().getIsSeekingTeam()).isFalse(),
-                () -> assertThat(teamMember.getTeam().getBackendCurrentCnt()).isEqualTo((byte) 1)
+                () -> assertThat(teamMember.getTeam())
+                        .extracting("backendCurrentCnt", "isRecruiting")
+                        .containsExactly((byte)1, true)
         );
     }
 
@@ -70,9 +72,8 @@ class TeamMemberTest {
                         .extracting("position", "isLeader", "isDeleted")
                         .containsExactly(position, isLeader, false),
                 () -> assertThat(teamMember.getTeam())
-                        .extracting("projectUrl", "completedAt", "designerCurrentCnt", "backendCurrentCnt",
-                                "frontendCurrentCnt", "managerCurrentCnt")
-                        .containsExactly(projectUrl, completedAt, (byte) 0, (byte) 1, (byte) 0, (byte) 0),
+                        .extracting("projectUrl", "completedAt", "isRecruiting")
+                        .containsExactly(projectUrl, completedAt, false),
                 () -> assertThat(teamMember.getUser().getIsSeekingTeam()).isTrue()
         );
     }
@@ -100,9 +101,8 @@ class TeamMemberTest {
                         .extracting("position", "isLeader", "isDeleted")
                         .containsExactly(position, isLeader, false),
                 () -> assertThat(teamMember.getTeam())
-                        .extracting("projectUrl", "completedAt", "designerCurrentCnt", "backendCurrentCnt",
-                                "frontendCurrentCnt", "managerCurrentCnt")
-                        .containsExactly(null, null, (byte) 0, (byte) 1, (byte) 0, (byte) 0),
+                        .extracting("projectUrl", "completedAt", "isRecruiting")
+                        .containsExactly(null, null, true),
                 () -> assertThat(teamMember.getUser().getIsSeekingTeam()).isTrue()
         );
     }

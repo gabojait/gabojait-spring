@@ -188,7 +188,7 @@ public class Team extends BasePermanentEntity {
         this.isDeleted = true;
     }
 
-    public void complete(String projectUrl, LocalDateTime completedAt) {
+    protected void complete(String projectUrl, LocalDateTime completedAt) {
         this.projectUrl = projectUrl;
         this.completedAt = completedAt;
         this.isRecruiting = false;
