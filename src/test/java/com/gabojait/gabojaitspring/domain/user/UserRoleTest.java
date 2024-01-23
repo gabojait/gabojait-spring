@@ -27,7 +27,11 @@ class UserRoleTest {
         UserRole userRole = createUserRole(role, user);
 
         // then
-        assertThat(userRole.getRole()).isEqualTo(role);
+        assertAll(
+                () -> assertThat(userRole)
+                        .extracting("role", "user")
+                        .containsExactly(role, user)
+        );
     }
 
     private static Stream<Arguments> providerEquals() {
