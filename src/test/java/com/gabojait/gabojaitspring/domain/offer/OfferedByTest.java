@@ -47,7 +47,7 @@ class OfferedByTest {
 
     @ParameterizedTest(name = "[{index}] {0} 값을 {1} 제안자로 변환한다")
     @MethodSource("providerValueOf")
-    @DisplayName("제안자 값을 반환한다.")
+    @DisplayName("제안자 값을 반환한다")
     void givenProvider_whenValueOf_thenReturn(String value, OfferedBy offeredBy) {
         // when & then
         assertThat(OfferedBy.valueOf(value)).isEqualTo(offeredBy);

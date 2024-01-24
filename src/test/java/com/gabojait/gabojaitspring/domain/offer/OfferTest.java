@@ -30,9 +30,9 @@ class OfferTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {0}가 제안을 생성한다.")
+    @ParameterizedTest(name = "[{index}] {0}가 제안을 생성한다")
     @MethodSource("providerBuilder")
-    @DisplayName("제안을 생성한다.")
+    @DisplayName("제안 생성이 정상 작동한다")
     void givenProvider_whenBuilder_thenReturn(OfferedBy offeredBy, Position position, User user, Team team) {
         // when
         Offer offer = createOffer(offeredBy, position, user, team);
@@ -43,9 +43,9 @@ class OfferTest {
                 .containsExactly(offeredBy, position, null, false, user, team);
     }
 
-    @ParameterizedTest(name = "[{index}] {0}가 제안을 수락한다.")
+    @ParameterizedTest(name = "[{index}] {0}가 제안을 수락한다")
     @EnumSource(OfferedBy.class)
-    @DisplayName("제안을 수락한다.")
+    @DisplayName("제안 수락이 정상 작동한다")
     void givenEnum_whenAccept_thenReturn(OfferedBy offeredBy) {
         // given
         User user = createDefaultUser("tester", "테스터일",
@@ -64,9 +64,9 @@ class OfferTest {
                 .containsExactly(offeredBy, position, true, true);
     }
 
-    @ParameterizedTest(name = "[{index}] {0}가 제안을 거절한다.")
+    @ParameterizedTest(name = "[{index}] {0}가 제안을 거절한다")
     @EnumSource(OfferedBy.class)
-    @DisplayName("제안을 거절한다.")
+    @DisplayName("제안 거절이 정상 작동한다")
     void givenEnum_whenDecline_thenReturn(OfferedBy offeredBy) {
         // given
         User user = createDefaultUser("tester", "테스터일",
@@ -85,9 +85,9 @@ class OfferTest {
                 .containsExactly(offeredBy, position, false, true);
     }
 
-    @ParameterizedTest(name = "[{index}] {0}가 제안을 취소한다.")
+    @ParameterizedTest(name = "[{index}] {0}가 제안을 취소한다")
     @EnumSource(OfferedBy.class)
-    @DisplayName("제안을 취소한다.")
+    @DisplayName("제안 취소가 정상 작동한다")
     void givenEnum_whenCancel_thenReturn(OfferedBy offeredBy) {
         // given
         User user = createDefaultUser("tester", "테스터일",
@@ -152,9 +152,9 @@ class OfferTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 제안 객체를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 제안 객체를 비교한다")
     @MethodSource("providerEquals")
-    @DisplayName("제안 객체를 비교한다.")
+    @DisplayName("제안 객체를 비교한다")
     void givenProvider_whenEquals_thenReturn(Offer offer, Object object, boolean result) {
         // when & then
         assertThat(offer.equals(object)).isEqualTo(result);
@@ -179,9 +179,9 @@ class OfferTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 제안 해시코드를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 제안 해시코드를 비교한다")
     @MethodSource("providerHashCode")
-    @DisplayName("제안 해시코드를 비교한다.")
+    @DisplayName("제안 해시코드를 비교한다")
     void givenProvider_whenHashCode_thenReturn(Offer offer1, Offer offer2, boolean result) {
         // when
         int hashCode1 = offer1.hashCode();
