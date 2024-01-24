@@ -19,10 +19,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class NotificationTest {
 
     @Test
-    @DisplayName("알림을 생성한다.")
+    @DisplayName("알림 생성이 정상 작동한다")
     void builder() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.F,
+        User user = createDefaultUser("tester@gabojait.com", "tester", "테스터",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
         NotificationType notificationType = NotificationType.NONE;
         String title = "알림 제목";
@@ -38,10 +38,10 @@ class NotificationTest {
     }
 
     @Test
-    @DisplayName("알림을 읽는다.")
+    @DisplayName("알림 읽기가 정상 작동한다")
     void read() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.F,
+        User user = createDefaultUser("tester@gabojait.com", "tester", "테스터",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
         Notification notification = createNotification(user, NotificationType.TEAM_OFFER, "알림 제목", "알림이 왔습니다.");
 
@@ -53,14 +53,14 @@ class NotificationTest {
     }
 
     private static Stream<Arguments> providerEquals() {
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.F,
+        User user = createDefaultUser("tester@gabojait.com", "tester", "테스터",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
         Notification notification = createNotification(user, NotificationType.NONE, "알림 제목", "알림이 왔습니다.");
 
-        User user1 = createDefaultUser("tester1@gabojait.com", "000000", "tester1", "password1!", "테스터일", Gender.F,
+        User user1 = createDefaultUser("tester1@gabojait.com", "tester1", "테스터일",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
         Notification userNotification1 = createNotification(user1, NotificationType.NONE, "알림 제목", "알림이 왔습니다.");
-        User user2 = createDefaultUser("tester2@gabojait.com", "000000", "tester2", "password1!", "테스터이", Gender.F,
+        User user2 = createDefaultUser("tester2@gabojait.com", "tester2", "테스터이",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
         Notification userNotification2 = createNotification(user2, NotificationType.NONE, "알림 제목", "알림이 왔습니다.");
 
@@ -96,16 +96,16 @@ class NotificationTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 알림 객체를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 알림 객체를 비교한다")
     @MethodSource("providerEquals")
-    @DisplayName("알림 객체를 비교한다.")
+    @DisplayName("알림 객체를 비교한다")
     void givenProvider_whenEquals_thenReturn(Notification notification, Object object, boolean result) {
         // when & then
         assertThat(notification.equals(object)).isEqualTo(result);
     }
 
     private static Stream<Arguments> providerHashCode() {
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.F,
+        User user = createDefaultUser("tester@gabojait.com", "tester", "테스터",
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
 
         return Stream.of(
@@ -122,9 +122,9 @@ class NotificationTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 알림 해시코드를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 알림 해시코드를 비교한다")
     @MethodSource("providerHashCode")
-    @DisplayName("알림 해시코드를 비교한다.")
+    @DisplayName("알림 해시코드를 비교한다")
     void givenProvider_whenHashCode_thenReturn(Notification notification1, Notification notification2, boolean result) {
         // when
         int hashCode1 = notification1.hashCode();
@@ -145,24 +145,21 @@ class NotificationTest {
     }
 
     private static User createDefaultUser(String email,
-                                          String verificationCode,
                                           String username,
-                                          String password,
                                           String nickname,
-                                          Gender gender,
                                           LocalDate birthdate,
                                           LocalDateTime lastRequestAt) {
         Contact contact = Contact.builder()
                 .email(email)
-                .verificationCode(verificationCode)
+                .verificationCode("000000")
                 .build();
         contact.verified();
 
         return User.builder()
                 .username(username)
-                .password(password)
+                .password("password1!")
                 .nickname(nickname)
-                .gender(gender)
+                .gender(Gender.F)
                 .birthdate(birthdate)
                 .lastRequestAt(lastRequestAt)
                 .contact(contact)

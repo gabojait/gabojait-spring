@@ -9,7 +9,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class NotificationTypeTest {
 
@@ -27,16 +26,16 @@ class NotificationTypeTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {0} 알림 타입은 {1}다.")
+    @ParameterizedTest(name = "[{index}] {0} 알림 타입은 {1}다")
     @MethodSource("providerGetText")
-    @DisplayName("알림 타입을 반환한다.")
+    @DisplayName("알림 타입을 반환한다")
     void givenProvider_whenGetText_thenReturn(NotificationType notificationType, String text) {
         // when & then
         assertThat(notificationType.getText()).isEqualTo(text);
     }
 
     @Test
-    @DisplayName("전체 알림 타입을 반환한다.")
+    @DisplayName("전체 알림 타입 반환이 정상 작동한다")
     void values() {
         // given & when
         NotificationType[] notificationTypes = NotificationType.values();
@@ -62,9 +61,9 @@ class NotificationTypeTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {0} 값을 {1} 알림 타입으로 변환한다.")
+    @ParameterizedTest(name = "[{index}] {0} 값을 {1} 알림 타입으로 변환한다")
     @MethodSource("providerValueOf")
-    @DisplayName("알림 타입 값을 변환한다.")
+    @DisplayName("알림 타입 값을 변환한다")
     void givenProvider_whenValueOf_thenReturn(String value, NotificationType notificationType) {
         // when & then
         assertThat(NotificationType.valueOf(value)).isEqualTo(notificationType);

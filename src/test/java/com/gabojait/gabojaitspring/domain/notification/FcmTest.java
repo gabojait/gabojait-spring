@@ -19,10 +19,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class FcmTest {
 
     @Test
-    @DisplayName("FCM을 생성한다.")
+    @DisplayName("FCM 생성이 정상 작동한다")
     void builder() {
         // given
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.F,
+        User user = createDefaultUser("tester@gabojait.com", "tester", "테스터", Gender.F,
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
         String fcmToken = "fcm-token";
 
@@ -34,60 +34,49 @@ class FcmTest {
     }
 
     private static Stream<Arguments> providerEquals() {
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.F,
+        User user = createDefaultUser("tester@gabojait.com", "tester", "테스터", Gender.F,
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
         String fcmToken = "fcm-token";
 
         Fcm fcm = createFcm(fcmToken, user);
 
-        User user1 = createDefaultUser("tester1@gabojait.com", "000000", "tester1", "password1!", "테스터일", Gender.M,
+        User user1 = createDefaultUser("tester1@gabojait.com", "tester1", "테스터일", Gender.M,
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
         Fcm userFcm1 = createFcm(fcmToken, user1);
-        User user2 = createDefaultUser("tester2@gabojait.com", "000000", "tester2", "password1!", "테스터이", Gender.M,
+        User user2 = createDefaultUser("tester2@gabojait.com", "tester2", "테스터이", Gender.M,
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
         Fcm userFcm2 = createFcm(fcmToken, user2);
 
         return Stream.of(
                 Arguments.of(fcm, fcm, true),
                 Arguments.of(fcm, new Object(), false),
-                Arguments.of(
-                        createFcm("fcm-token1", user),
-                        createFcm("fcm-token2", user),
-                        false
-                ),
+                Arguments.of(createFcm("fcm-token", user), createFcm("fcm-token", user), true),
+                Arguments.of(createFcm("fcm-token1", user), createFcm("fcm-token2", user), false),
                 Arguments.of(userFcm1, userFcm2, false)
         );
     }
 
-    @ParameterizedTest(name = "[{index}] FCM 객체를 비교한다.")
+    @ParameterizedTest(name = "[{index}] FCM 객체를 비교한다")
     @MethodSource("providerEquals")
-    @DisplayName("FCM 객체를 비교한다.")
+    @DisplayName("FCM 객체를 비교한다")
     void givenProvider_whenEquals_thenReturn(Fcm fcm, Object object, boolean result) {
         // when & then
         assertThat(fcm.equals(object)).isEqualTo(result);
     }
 
     private static Stream<Arguments> providerHashCode() {
-        User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.F,
+        User user = createDefaultUser("tester@gabojait.com", "tester", "테스터", Gender.F,
                 LocalDate.of(1997, 2, 11), LocalDateTime.now());
 
         return Stream.of(
-                Arguments.of(
-                        createFcm("fcm-token", user),
-                        createFcm("fcm-token", user),
-                        true
-                ),
-                Arguments.of(
-                        createFcm("fcm-token1", user),
-                        createFcm("fcm-token2", user),
-                        false
-                )
+                Arguments.of(createFcm("fcm-token", user), createFcm("fcm-token", user), true),
+                Arguments.of(createFcm("fcm-token1", user), createFcm("fcm-token2", user), false)
         );
     }
 
-    @ParameterizedTest(name = "[{index}] FCM 해시코드를 비교한다.")
+    @ParameterizedTest(name = "[{index}] FCM 해시코드를 비교한다")
     @MethodSource("providerHashCode")
-    @DisplayName("FCM 해시코드를 비교한다.")
+    @DisplayName("FCM 해시코드를 비교한다")
     void givenProvider_whenHashCode_thenReturn(Fcm fcm1, Fcm fcm2, boolean result) {
         // when
         int hashCode1 = fcm1.hashCode();
@@ -105,22 +94,20 @@ class FcmTest {
     }
 
     private static User createDefaultUser(String email,
-                                   String verificationCode,
-                                   String username,
-                                   String password,
-                                   String nickname,
-                                   Gender gender,
-                                   LocalDate birthdate,
-                                   LocalDateTime lastRequestAt) {
+                                          String username,
+                                          String nickname,
+                                          Gender gender,
+                                          LocalDate birthdate,
+                                          LocalDateTime lastRequestAt) {
         Contact contact = Contact.builder()
                 .email(email)
-                .verificationCode(verificationCode)
+                .verificationCode("000000")
                 .build();
         contact.verified();
 
         return User.builder()
                 .username(username)
-                .password(password)
+                .password("password1!")
                 .nickname(nickname)
                 .gender(gender)
                 .birthdate(birthdate)
