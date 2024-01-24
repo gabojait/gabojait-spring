@@ -107,7 +107,7 @@ class TeamMemberTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 팀장 여부가 {0}가 프로젝트를 미완료한다.")
+    @ParameterizedTest(name = "[{index}] 팀장 여부가 {0}가 프로젝트를 미완료한다")
     @ValueSource(booleans = {true, false})
     @DisplayName("프로젝트 미완료를 한다")
     void givenValid_whenIncomplete_thenReturn(boolean isLeader) {
@@ -154,7 +154,7 @@ class TeamMemberTest {
     }
 
     @Test
-    @DisplayName("팀장이 프로젝트에서 추방 당하면 예외가 발생한다.")
+    @DisplayName("팀장이 프로젝트에서 추방 당하면 예외가 발생한다")
     void givenLeader_whenFire_thenThrow() {
         // given
         User user = createDefaultUser("tester@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());
@@ -197,7 +197,7 @@ class TeamMemberTest {
     }
 
     @Test
-    @DisplayName("팀장이 프로젝트를 탈퇴하면 예외가 발생한다.")
+    @DisplayName("팀장이 프로젝트를 탈퇴하면 예외가 발생한다")
     void givenLeader_whenQuit_thenThrow() {
         // given
         User user = createDefaultUser("tester@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());

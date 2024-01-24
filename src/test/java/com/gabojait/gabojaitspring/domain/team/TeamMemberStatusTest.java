@@ -61,7 +61,7 @@ class TeamMemberStatusTest {
     }
 
     @Test
-    @DisplayName("잘못된 값을 팀원 상태로 반환하면 예외가 발생한다.")
+    @DisplayName("잘못된 값을 팀원 상태로 반환하면 예외가 발생한다")
     void givenInvalid_whenValueOf_thenReturn() {
         // given
         String value = "INVALID";
