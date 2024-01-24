@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class FavoriteTest {
 
     @Test
-    @DisplayName("회원 찜을 생성한다.")
+    @DisplayName("회원 찜 생성이 정상 작동한다")
     void givenFavoriteUser_whenBuilder_thenReturn() {
         // given
         User user1 = createDefaultUser("tester1@gabojait.com", "000000", "tester1", "password1!", "테스터일", Gender.M,
@@ -37,7 +37,7 @@ class FavoriteTest {
     }
 
     @Test
-    @DisplayName("팀 찜을 생성한다.")
+    @DisplayName("팀 찜 생성이 정상 작동한다")
     void givenFavoriteTeam_whenBuilder_thenReturn() {
         // given
         User user = createDefaultUser("tester@gabojait.com", "000000", "tester", "password1!", "테스터", Gender.M,
@@ -61,34 +61,38 @@ class FavoriteTest {
         Team favoriteTeam = createTeam("가보자잇", (byte) 2);
         Favorite favorite = createFavorite(user, favoriteTeam, null);
 
+        User user1 = createDefaultUser("tester1@gabojait.com", "000000", "tester1", "password1!", "테스터일",
+                Gender.M, LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Favorite user1Favorite = createFavorite(user1, null, null);
+        User user2 = createDefaultUser("tester2@gabojait.com", "000000", "tester2", "password1!", "테스터이",
+                Gender.M, LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Favorite user2Favorite = createFavorite(user2, null, null);
+
         Team team1 = createTeam("가보자잇1", (byte) 2);
         Favorite favoriteTeamFavorite1 = createFavorite(user, team1, null);
         Team team2 = createTeam("가보자잇2", (byte) 2);
         Favorite favoriteTeamFavorite2 = createFavorite(user, team2, null);
 
-        User user1 = createDefaultUser("tester1@gabojait.com", "000000", "tester1", "password1!", "테스터일", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Favorite favoriteUserFavorite1 = createFavorite(user, null, user1);
-        User user2 = createDefaultUser("tester2@gabojait.com", "000000", "tester2", "password1!", "테스터이", Gender.M,
-                LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Favorite favoriteUserFavorite2 = createFavorite(user, null, user2);
+        User favoriteUser1 = createDefaultUser("tester1@gabojait.com", "000000", "tester1", "password1!", "테스터일",
+                Gender.M, LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Favorite favoriteUserFavorite1 = createFavorite(user, null, favoriteUser1);
+        User favoriteUser2 = createDefaultUser("tester2@gabojait.com", "000000", "tester2", "password1!", "테스터이",
+                Gender.M, LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Favorite favoriteUserFavorite2 = createFavorite(user, null, favoriteUser2);
 
         return Stream.of(
                 Arguments.of(favorite, favorite, true),
                 Arguments.of(favorite, new Object(), false),
-                Arguments.of(
-                        createFavorite(user, null, favoriteUser),
-                        createFavorite(user, null, favoriteUser),
-                        true
-                ),
+                Arguments.of(createFavorite(user, null, favoriteUser), createFavorite(user, null, favoriteUser), true),
+                Arguments.of(user1Favorite, user2Favorite, false),
                 Arguments.of(favoriteTeamFavorite1, favoriteTeamFavorite2, false),
                 Arguments.of(favoriteUserFavorite1, favoriteUserFavorite2, false)
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 찜 객체를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 찜 객체를 비교한다")
     @MethodSource("providerEquals")
-    @DisplayName("찜 객체를 비교한다.")
+    @DisplayName("찜 객체를 비교한다")
     void givenProvider_whenEquals_thenReturn(Favorite favorite, Object object, boolean result) {
         // when & then
         assertThat(favorite.equals(object)).isEqualTo(result);
@@ -115,9 +119,9 @@ class FavoriteTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] 찜 해시코드를 비교한다.")
+    @ParameterizedTest(name = "[{index}] 찜 해시코드를 비교한다")
     @MethodSource("providerHashCode")
-    @DisplayName("찜 해시코드를 비교한다.")
+    @DisplayName("찜 해시코드를 비교한다")
     void givenProvider_whenHashCode_thenReturn(Favorite favorite1, Favorite favorite2, boolean result) {
         // when
         int hashCode1 = favorite1.hashCode();
