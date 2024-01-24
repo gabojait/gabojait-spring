@@ -56,7 +56,7 @@ class RoleTest {
     }
 
     @Test
-    @DisplayName("잘못된 값을 권한으로 변환하면 예외가 발생한다.")
+    @DisplayName("잘못된 값을 권한으로 변환하면 예외가 발생한다")
     void givenInvalid_whenValueOf_thenThrow() {
         // given
         String s = "INVALID";
