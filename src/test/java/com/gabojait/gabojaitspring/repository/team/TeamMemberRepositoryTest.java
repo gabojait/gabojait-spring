@@ -22,8 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -36,7 +35,7 @@ class TeamMemberRepositoryTest {
     @Autowired private TeamRepository teamRepository;
 
     @Test
-    @DisplayName("현재까지 완료된 또는 진행중인 모든 팀원 정보를 조회한다.")
+    @DisplayName("현재까지 완료 또는 진행중인 모든 팀원 정보를 조회가 정상 작동한다")
     void findAllFetchTeam() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -63,22 +62,11 @@ class TeamMemberRepositoryTest {
 
         // then
         assertThat(teamMembers)
-                .extracting("id", "position", "isLeader", "teamMemberStatus", "isDeleted", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(teamMember3.getId(), teamMember3.getPosition(), teamMember3.getIsLeader(),
-                                teamMember3.getTeamMemberStatus(), teamMember3.getIsDeleted(), teamMember3.getCreatedAt(),
-                                teamMember3.getUpdatedAt()),
-                        tuple(teamMember2.getId(), teamMember2.getPosition(), teamMember2.getIsLeader(),
-                                teamMember2.getTeamMemberStatus(), teamMember2.getIsDeleted(), teamMember2.getCreatedAt(),
-                                teamMember2.getUpdatedAt()),
-                        tuple(teamMember1.getId(), teamMember1.getPosition(), teamMember1.getIsLeader(),
-                                teamMember1.getTeamMemberStatus(), teamMember1.getIsDeleted(), teamMember1.getCreatedAt(),
-                                teamMember1.getUpdatedAt())
-                );
+                .containsExactly(teamMember3, teamMember2, teamMember1);
     }
 
     @Test
-    @DisplayName("현재까지 관련된 모든 팀원 정보를 조회한다.")
+    @DisplayName("현재까지 관련된 모든 팀원 정보를 조회가 정상 작동한다")
     void findAll() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -105,22 +93,11 @@ class TeamMemberRepositoryTest {
 
         // then
         assertThat(teamMembers)
-                .extracting("id", "position", "isLeader", "teamMemberStatus", "isDeleted", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(teamMember3.getId(), teamMember3.getPosition(), teamMember3.getIsLeader(),
-                                teamMember3.getTeamMemberStatus(), teamMember3.getIsDeleted(),
-                                teamMember3.getCreatedAt(), teamMember3.getUpdatedAt()),
-                        tuple(teamMember2.getId(), teamMember2.getPosition(), teamMember2.getIsLeader(),
-                                teamMember2.getTeamMemberStatus(), teamMember2.getIsDeleted(),
-                                teamMember2.getCreatedAt(), teamMember2.getUpdatedAt()),
-                        tuple(teamMember1.getId(), teamMember1.getPosition(), teamMember1.getIsLeader(),
-                                teamMember1.getTeamMemberStatus(), teamMember1.getIsDeleted(),
-                                teamMember1.getCreatedAt(), teamMember1.getUpdatedAt())
-                );
+                .containsExactly(teamMember3, teamMember2, teamMember1);
     }
 
     @Test
-    @DisplayName("현재 소속된 팀이 있을시 현재 소속된 팀원 정보를 조회한다.")
+    @DisplayName("현재 소속된 팀이 있을시 현재 소속된 팀원 정보를 조회가 정상 작동한다")
     void givenExistingCurrentTeam_whenFindCurrentFetchTeam_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -134,20 +111,16 @@ class TeamMemberRepositoryTest {
         TeamMember foundTeamMember = teamMemberRepository.findCurrentFetchTeam(user.getId()).get();
 
         // then
-        assertThat(foundTeamMember).isEqualTo(teamMember);
         assertAll(
+                () -> assertThat(foundTeamMember).isEqualTo(teamMember),
                 () -> assertThat(foundTeamMember)
-                        .extracting("id", "position", "isLeader", "teamMemberStatus", "isDeleted", "createdAt", "updatedAt")
-                        .containsExactly(teamMember.getId(), teamMember.getPosition(), teamMember.getIsLeader(),
-                                teamMember.getTeamMemberStatus(), teamMember.getIsDeleted(), teamMember.getCreatedAt(),
-                                teamMember.getUpdatedAt()),
-                () -> assertThat(foundTeamMember.getTeam().getId()).isEqualTo(team.getId()),
-                () -> assertThat(foundTeamMember.getUser().getId()).isEqualTo(user.getId())
+                        .extracting("team", "user")
+                        .containsExactly(team, user)
         );
     }
 
     @Test
-    @DisplayName("현재 소속된 팀이 없을시 현재 소속된 팀원 정보를 조회한다.")
+    @DisplayName("현재 소속된 팀이 없을시 현재 소속된 팀원 정보를 조회가 정상 작동한다")
     void givenNonExistingCurrentTeam_whenFindCurrentFetchTeam_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -166,7 +139,7 @@ class TeamMemberRepositoryTest {
     }
 
     @Test
-    @DisplayName("현재 소속된 팀의 팀원 정보를 조회한다.")
+    @DisplayName("현재 소속된 팀의 팀원 정보를 조회가 정상 작동한다")
     void givenExistingCurrentTeam_whenFindCurrent_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -182,15 +155,11 @@ class TeamMemberRepositoryTest {
         TeamMember foundTeamMember = teamMemberRepository.find(user.getId(), team.getId(), teamMemberStatus).get();
 
         // then
-        assertThat(foundTeamMember)
-                .extracting("id", "position", "teamMemberStatus", "isLeader", "isDeleted", "createdAt", "updatedAt")
-                .containsExactly(teamMember.getId(), teamMember.getPosition(), teamMember.getTeamMemberStatus(),
-                        teamMember.getIsLeader(), teamMember.getIsDeleted(), teamMember.getCreatedAt(),
-                        teamMember.getUpdatedAt());
+        assertThat(foundTeamMember).isEqualTo(teamMember);
     }
 
     @Test
-    @DisplayName("현재 소속된 팀이 없을시 현재 소속된 팀의 팀원 정보를 조회한다.")
+    @DisplayName("현재 소속된 팀이 없을시 현재 소속된 팀의 팀원 정보를 조회가 정상 작동한다")
     void givenNonExistingCurrentTeam_whenFind_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -207,8 +176,8 @@ class TeamMemberRepositoryTest {
     }
 
     @Test
-    @DisplayName("팀장을 조회한다.")
-    void findLeaderFetchUser() {
+    @DisplayName("팀장을 조회가 정상 작동한다")
+    void givenValid_whenFindLeaderFetchUser_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
         User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이");
@@ -227,16 +196,12 @@ class TeamMemberRepositoryTest {
         TeamMember teamMember = teamMemberRepository.findLeaderFetchUser(team.getId()).get();
 
         // then
-        assertThat(teamMember)
-                .extracting("id", "position", "teamMemberStatus", "isLeader", "isDeleted", "createdAt", "updatedAt")
-                .containsExactly(teamMember1.getId(), teamMember1.getPosition(),
-                        teamMember1.getTeamMemberStatus(), teamMember1.getIsLeader(), teamMember1.getIsDeleted(),
-                        teamMember1.getCreatedAt(), teamMember1.getUpdatedAt());
+        assertThat(teamMember).isEqualTo(teamMember1);
     }
 
     @Test
-    @DisplayName("완료한 팀에 팀원 전체를 조회한다.")
-    void findAllCompleteFetchTeam() {
+    @DisplayName("완료한 팀에 팀원 전체를 조회가 정상 작동한다")
+    void givenValid_whenFindAllCompleteFetchTeam_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
         User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이");
@@ -258,24 +223,12 @@ class TeamMemberRepositoryTest {
         List<TeamMember> teamMembers = teamMemberRepository.findAllCompleteFetchTeam(team.getId());
 
         // then
-        assertThat(teamMembers)
-                .extracting("id", "position", "teamMemberStatus", "isLeader", "isDeleted", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(teamMember3.getId(), teamMember3.getPosition(), teamMember3.getTeamMemberStatus(),
-                                teamMember3.getIsLeader(), teamMember3.getIsDeleted(), teamMember3.getCreatedAt(),
-                                teamMember3.getUpdatedAt()),
-                        tuple(teamMember2.getId(), teamMember2.getPosition(), teamMember2.getTeamMemberStatus(),
-                                teamMember2.getIsLeader(), teamMember2.getIsDeleted(), teamMember2.getCreatedAt(),
-                                teamMember2.getUpdatedAt()),
-                        tuple(teamMember1.getId(), teamMember1.getPosition(), teamMember1.getTeamMemberStatus(),
-                                teamMember1.getIsLeader(), teamMember1.getIsDeleted(), teamMember1.getCreatedAt(),
-                                teamMember1.getUpdatedAt())
-                );
+        assertThat(teamMembers).containsExactly(teamMember3, teamMember2, teamMember1);
     }
 
     @Test
-    @DisplayName("현재 소속된 팀원 전체를 조회한다.")
-    void findAllCurrentFetchUser() {
+    @DisplayName("현재 소속된 팀원 전체를 조회가 정상 작동한다")
+    void givenValid_whenFindAllCurrentFetchUser_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
         User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이");
@@ -293,24 +246,12 @@ class TeamMemberRepositoryTest {
         List<TeamMember> teamMembers = teamMemberRepository.findAllCurrentFetchUser(team.getId());
 
         // then
-        assertThat(teamMembers)
-                .extracting("id", "position", "isLeader", "teamMemberStatus", "isDeleted", "createdAt", "updatedAt")
-                .containsExactlyInAnyOrder(
-                        tuple(teamMember3.getId(), teamMember3.getPosition(), teamMember3.getIsLeader(),
-                                teamMember3.getTeamMemberStatus(), teamMember3.getIsDeleted(), teamMember3.getCreatedAt(),
-                                teamMember3.getUpdatedAt()),
-                        tuple(teamMember2.getId(), teamMember2.getPosition(), teamMember2.getIsLeader(),
-                                teamMember2.getTeamMemberStatus(), teamMember2.getIsDeleted(), teamMember2.getCreatedAt(),
-                                teamMember2.getUpdatedAt()),
-                        tuple(teamMember1.getId(), teamMember1.getPosition(), teamMember1.getIsLeader(),
-                                teamMember1.getTeamMemberStatus(), teamMember1.getIsDeleted(), teamMember1.getCreatedAt(),
-                                teamMember1.getUpdatedAt())
-                );
+        assertThat(teamMembers).containsExactlyInAnyOrder(teamMember3, teamMember2, teamMember1);
     }
 
     @Test
-    @DisplayName("현재 소속된 또는 완료된 팀원 전체를 조회한다.")
-    void findAllFetchUser() {
+    @DisplayName("현재 소속된 또는 완료된 팀원 전체를 조회가 정상 작동한다")
+    void givenValid_whenFindAllFetchUser_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
         User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이");
@@ -323,29 +264,18 @@ class TeamMemberRepositoryTest {
         TeamMember teamMember2 = createTeamMember(false, user2, team);
         TeamMember teamMember3 = createTeamMember(false, user3, team);
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3));
+        teamRepository.save(team);
 
         // when
         List<TeamMember> teamMembers = teamMemberRepository.findAllFetchUser(team.getId());
 
         // then
-        assertThat(teamMembers)
-                .extracting("id", "position", "teamMemberStatus", "isLeader", "isDeleted", "createdAt", "updatedAt")
-                .containsExactlyInAnyOrder(
-                        tuple(teamMember3.getId(), teamMember3.getPosition(), teamMember3.getTeamMemberStatus(),
-                                teamMember3.getIsLeader(), teamMember3.getIsDeleted(), teamMember3.getCreatedAt(),
-                                teamMember3.getUpdatedAt()),
-                        tuple(teamMember2.getId(), teamMember2.getPosition(), teamMember2.getTeamMemberStatus(),
-                                teamMember2.getIsLeader(), teamMember2.getIsDeleted(), teamMember2.getCreatedAt(),
-                                teamMember2.getUpdatedAt()),
-                        tuple(teamMember1.getId(), teamMember1.getPosition(), teamMember1.getTeamMemberStatus(),
-                                teamMember1.getIsLeader(), teamMember1.getIsDeleted(), teamMember1.getCreatedAt(),
-                                teamMember1.getUpdatedAt())
-                );
+        assertThat(teamMembers).containsExactlyInAnyOrder(teamMember3, teamMember2, teamMember1);
     }
 
     @Test
-    @DisplayName("한 회원을 제외한 팀원 전체를 조회한다.")
-    void findAllExceptUserFetchUser() {
+    @DisplayName("한 회원을 제외한 팀원 전체를 조회가 정상 작동한다")
+    void givenValid_WhenFindAllExceptUserFetchUser_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
         User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이");
@@ -361,26 +291,18 @@ class TeamMemberRepositoryTest {
         TeamMember teamMember4 = createTeamMember(false, user4, team);
         teamMember4.quit();
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3, teamMember4));
+        teamRepository.save(team);
 
         // when
         List<TeamMember> teamMembers = teamMemberRepository.findAllExceptUserFetchUser(team.getId(), user1.getId());
 
         // then
-        assertThat(teamMembers)
-                .extracting("id", "position", "teamMemberStatus", "isLeader", "isDeleted", "createdAt", "updatedAt")
-                .containsExactlyInAnyOrder(
-                        tuple(teamMember2.getId(), teamMember2.getPosition(), teamMember2.getTeamMemberStatus(),
-                                teamMember2.getIsLeader(), teamMember2.getIsDeleted(), teamMember2.getCreatedAt(),
-                                teamMember2.getUpdatedAt()),
-                        tuple(teamMember3.getId(), teamMember3.getPosition(), teamMember3.getTeamMemberStatus(),
-                                teamMember3.getIsLeader(), teamMember3.getIsDeleted(), teamMember3.getCreatedAt(),
-                                teamMember3.getUpdatedAt())
-                );
+        assertThat(teamMembers).containsExactlyInAnyOrder(teamMember2, teamMember3);
     }
 
     @Test
     @DisplayName("리뷰 가능한 팀원을 조회한다.")
-    void findReviewableFetchTeam() {
+    void givenValid_whenFindReviewableFetchTeam_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gaobjait.com", "tester", "테스터");
         LocalDateTime now = LocalDateTime.now();
@@ -395,16 +317,12 @@ class TeamMemberRepositoryTest {
         TeamMember foundTeamMember = teamMemberRepository.findReviewableFetchTeam(user.getId(), team.getId(), now).get();
 
         // then
-        assertThat(foundTeamMember)
-                .extracting("id", "position", "teamMemberStatus", "isLeader", "isDeleted", "createdAt", "updatedAt")
-                .containsExactly(teamMember.getId(), teamMember.getPosition(), teamMember.getTeamMemberStatus(),
-                        teamMember.getIsLeader(), teamMember.getIsDeleted(), teamMember.getCreatedAt(),
-                        teamMember.getUpdatedAt());
+        assertThat(foundTeamMember).isEqualTo(teamMember);
     }
 
     @Test
-    @DisplayName("리뷰 가능한 팀원을 전체 조회한다.")
-    void findAllReviewableFetchTeam() {
+    @DisplayName("리뷰 가능한 팀원을 전체 조회가 정상 작동한다")
+    void givenValid_whenFindAllReviewableFetchTeam_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
         LocalDateTime now = LocalDateTime.now();
@@ -422,19 +340,14 @@ class TeamMemberRepositoryTest {
         List<TeamMember> teamMembers = teamMemberRepository.findAllReviewableFetchTeam(user.getId(), now);
 
         // then
-        assertThat(teamMembers)
-                .extracting("id", "position", "teamMemberStatus", "isLeader", "isDeleted", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(teamMember2.getId(), teamMember2.getPosition(), teamMember2.getTeamMemberStatus(),
-                                teamMember2.getIsLeader(), teamMember2.getIsDeleted(), teamMember2.getCreatedAt(),
-                                teamMember2.getUpdatedAt())
-                );
-
-        assertThat(teamMembers.size()).isEqualTo(1);
+        assertAll(
+                () -> assertThat(teamMembers).containsExactly(teamMember2),
+                () -> assertThat(teamMembers.size()).isEqualTo(1)
+        );
     }
 
     @Test
-    @DisplayName("현재 소속된 팀이 있을시 현재 소속된 팀 여부를 확인한다.")
+    @DisplayName("현재 소속된 팀이 있을시 현재 소속된 팀 여부 조회시 참을 반환한다")
     void givenExistingCurrentTeam_whenExistsCurrent_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -452,7 +365,7 @@ class TeamMemberRepositoryTest {
     }
 
     @Test
-    @DisplayName("현재 소속된 팀이 없을시 현재 소속된 팀 여부를 확인한다.")
+    @DisplayName("현재 소속된 팀이 없을시 현재 소속된 팀 여부 조회시 거짓을 반환한다")
     void givenNonExistingCurrentTeam_whenExistsCurrent_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -465,7 +378,7 @@ class TeamMemberRepositoryTest {
     }
 
     @Test
-    @DisplayName("팀에 소속되어 있을시 팀에 소속 여부를 확인한다.")
+    @DisplayName("팀에 소속되어 있을시 팀에 소속 여부 조회시 참을 반환한다")
     void givenExistingTeamMember_whenExists_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -484,7 +397,7 @@ class TeamMemberRepositoryTest {
     }
 
     @Test
-    @DisplayName("팀에 소속되어 있지 않을시 팀에 소속 여부를 확인한다.")
+    @DisplayName("팀에 소속되어 있지 않을시 팀에 소속 여부 조회시 거짓을 반환한다")
     void givenNonExistingTeamMember_whenExists_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
