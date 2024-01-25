@@ -15,7 +15,7 @@ DROP TABLE IF EXISTS contact;
 
 CREATE TABLE contact
 (
-    contact_id                  BIGINT AUTO_INCREMENT PRIMARY_KEY,
+    contact_id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
     email                       VARCHAR(255) NOT NULL,
     verification_code            VARCHAR(6)   NOT NULL,
     is_verified                  BIT          NOT NULL,
@@ -164,7 +164,7 @@ CREATE TABLE team
     completed_at                DATETIME(6)   NULL,
     created_at                  DATETIME(6)   NOT NULL,
     updated_at                  DATETIME(6)   NOT NULL,
-    is_deleted                  BIT           NOT NULL,
+    is_deleted                  BIT           NOT NULL
 );
 
 
@@ -198,7 +198,7 @@ CREATE TABLE favorite
     CONSTRAINT fk_favorite_favorite_user_id
         FOREIGN KEY (favorite_user_id) REFERENCES users (user_id),
     CONSTRAINT fk_favorite_user_id
-        FOREIGN KEY (user_id) REFERENCES users (user_id),
+        FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE offer
