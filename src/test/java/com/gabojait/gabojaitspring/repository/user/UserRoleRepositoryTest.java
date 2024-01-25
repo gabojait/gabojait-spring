@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles("test")
@@ -26,10 +25,10 @@ class UserRoleRepositoryTest {
     @Autowired private ContactRepository contactRepository;
 
     @Test
-    @DisplayName("회원 아이디로 전체 권한 조회를 한다.")
+    @DisplayName("회원 아이디로 전체 권한 조회가 정상 작동한다")
     void givenUsername_whenFindAll_thenReturn() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
+        User user = createSavedDefaultUser();
         Role role = Role.USER;
         UserRole userRole = createUserRole(user, role);
         userRoleRepository.save(userRole);
@@ -45,10 +44,10 @@ class UserRoleRepositoryTest {
     }
 
     @Test
-    @DisplayName("회원 식별자로 전체 권한 조회를 한다.")
+    @DisplayName("회원 식별자로 전체 권한 조회가 정상 작동한다")
     void givenUserId_findAll_thenReturn() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
+        User user = createSavedDefaultUser();
         Role role = Role.USER;
         UserRole userRole = createUserRole(user, role);
         userRoleRepository.save(userRole);
@@ -59,12 +58,9 @@ class UserRoleRepositoryTest {
         // then
         assertAll(
                 () -> assertThat(userRoles)
-                        .extracting("id", "role", "createdAt", "updatedAt")
-                        .containsExactlyInAnyOrder(
-                                tuple(userRole.getId(), userRole.getRole(), userRole.getCreatedAt(),
-                                        userRole.getUpdatedAt())
-                        ),
-                () -> assertThat(userRoles).extracting("user").containsExactlyInAnyOrder(user)
+                        .containsExactlyInAnyOrder(userRole),
+                () -> assertThat(userRoles).extracting("user")
+                        .containsExactlyInAnyOrder(user)
         );
     }
 
@@ -75,18 +71,18 @@ class UserRoleRepositoryTest {
                 .build();
     }
 
-    private User createSavedDefaultUser(String email, String username, String nickname) {
+    private User createSavedDefaultUser() {
         Contact contact = Contact.builder()
-                .email(email)
+                .email("tester@gabojait.com")
                 .verificationCode("000000")
                 .build();
         contact.verified();
         contactRepository.save(contact);
 
         User user = User.builder()
-                .username(username)
+                .username("tester")
                 .password("password1!")
-                .nickname(nickname)
+                .nickname("테스터")
                 .gender(Gender.M)
                 .birthdate(LocalDate.of(1997, 2, 11))
                 .lastRequestAt(LocalDateTime.now())

@@ -17,7 +17,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles("test")
@@ -29,7 +30,7 @@ class UserRepositoryTest {
     @Autowired private ContactRepository contactRepository;
 
     @Test
-    @DisplayName("연락처로 회원 단건 조회를 한다.")
+    @DisplayName("연락처로 회원 단건 조회가 정상 작동한다")
     void givenValid_whenFindByContact_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -47,7 +48,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("아이디로 회원 단건 조회를 한다.")
+    @DisplayName("아이디로 회원 단건 조회가 정상 작동한다")
     void givenValid_whenFindByUsername_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -65,7 +66,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("닉네임으로 회원 단건 조회를 한다.")
+    @DisplayName("닉네임으로 회원 단건 조회가 정상 작동한다")
     void givenValid_whenFindByNickname_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -83,7 +84,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("존재하는 회원 아이디로 회원 존재 여부를 확인한다.")
+    @DisplayName("존재하는 회원 아이디로 회원 존재 여부 조회시 참을 반환한다")
     void givenExisting_whenExistsByUsername_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -101,7 +102,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 식별자로 회원 존재 여부를 확인한다.")
+    @DisplayName("존재하지 않은 회원 식별자로 회원 존재 여부 조회시 거짓을 반환한다")
     void givenNonExisting_whenExistsByUsername_thenReturn() {
         // given
         String username = "tester";
@@ -114,7 +115,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("존재하는 회원 닉네임으로 회원 존재 여부를 확인한다.")
+    @DisplayName("존재하는 회원 닉네임으로 회원 존재 여부 조회시 참을 반환한다")
     void givenExisting_whenExistsByNickname_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -132,7 +133,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 닉네임으로 회원 존재 여부를 확인한다.")
+    @DisplayName("존재하지 않은 닉네임으로 회원 존재 여부 조회시 거짓을 반환한다")
     void givenNonExisting_whenExistsByNickname_thenReturn() {
         // given
         String nickname = "테스터";
@@ -145,7 +146,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("동일한 아이디 저장시 예외가 발생한다.")
+    @DisplayName("동일한 아이디 저장시 예외가 발생한다")
     void givenSameUsernames_whenSave_thenThrow() {
         // given
         Contact contact1 = createContact("tester1@gabojait.com");
@@ -163,7 +164,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("동일한 닉네임 저장시 예외가 발생한다.")
+    @DisplayName("동일한 닉네임 저장시 예외가 발생한다")
     void givenSameNicknames_whenSave_thenThrow() {
         // given
         Contact contact1 = createContact("tester1@gabojait.com");
@@ -181,7 +182,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("연락처가 없는 회원 저장시 예외가 발생한다.")
+    @DisplayName("연락처가 없는 회원 저장시 예외가 발생한다")
     void givenNoContact_whenSave_thenThrow() {
         // given
         User user = createUser("tester", "테스터", null);
@@ -192,7 +193,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("전체 포지션으로 회원 페이징 조회를 한다.")
+    @DisplayName("전체 포지션으로 회원 페이징 조회가 정상 작동한다")
     void givenNonePosition_whenFindPage_thenReturn() {
         // given
         Contact contact1 = createContact("tester1@gabojait.com");
@@ -225,7 +226,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("특정 포지션으로 회원 페이징 조회를 한다.")
+    @DisplayName("특정 포지션으로 회원 페이징 조회가 정상 작동한다")
     void givenPosition_whenFindPage_thenReturn() {
         // given
         Contact contact1 = createContact("tester1@gabojait.com");
@@ -260,7 +261,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("결과가 없는 회원 페이징 조회를 한다.")
+    @DisplayName("결과가 없는 회원 페이징 조회가 정상 작동한다")
     void givenNoResult_whenFindPage_thenReturn() {
         // given
         long pageFrom = Long.MAX_VALUE;
@@ -278,7 +279,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("회원 식별자로 팀을 찾는 회원 단건 조회를 한다.")
+    @DisplayName("회원 식별자로 팀을 찾는 회원 단건 조회가 정상 작동한다")
     void givenValid_whenFindSeekingTeam_thenReturn() {
         // given
         Contact contact = createContact("tester@gaobjait.com");
@@ -294,7 +295,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("이메일로 회원 단건 조회를 한다.")
+    @DisplayName("이메일로 회원 단건 조회가 정상 작동한다")
     void givenValid_whenFind_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
