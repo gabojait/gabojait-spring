@@ -12,8 +12,8 @@ import lombok.ToString;
 @ApiModel(value = "리뷰 팀원 응답")
 public class ReviewTeamMemberResponse {
 
-    @ApiModelProperty(position = 1, required = true, value = "회원 식별자")
-    private Long userId;
+    @ApiModelProperty(position = 1, required = true, value = "팀원 식별자")
+    private Long teamMemberId;
 
     @ApiModelProperty(position = 2, required = true, value = "아이디")
     private String username;
@@ -29,7 +29,7 @@ public class ReviewTeamMemberResponse {
     private Boolean isLeader;
 
     public ReviewTeamMemberResponse(TeamMember teamMember) {
-        this.userId = teamMember.getUser().getId();
+        this.teamMemberId = teamMember.getId();
         this.username = teamMember.getUser().getUsername();
         this.nickname = teamMember.getUser().getNickname();
         this.position = teamMember.getPosition();

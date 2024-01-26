@@ -115,11 +115,11 @@ class ReviewServiceTest {
                         .extracting("teamId", "projectName")
                         .containsExactly(team.getId(), team.getProjectName()),
                 () -> assertThat(response.getTeamMembers())
-                        .extracting("userId", "username", "nickname", "position", "isLeader")
+                        .extracting("teamMemberId", "username", "nickname", "position", "isLeader")
                         .containsExactly(
-                                tuple(user3.getId(), user3.getUsername(), user3.getNickname(),
+                                tuple(teamMember3.getId(), user3.getUsername(), user3.getNickname(),
                                         teamMember3.getPosition(), teamMember3.getIsLeader()),
-                                tuple(user2.getId(), user2.getUsername(), user2.getNickname(),
+                                tuple(teamMember2.getId(), user2.getUsername(), user2.getNickname(),
                                         teamMember2.getPosition(), teamMember2.getIsLeader())
                         )
         );
