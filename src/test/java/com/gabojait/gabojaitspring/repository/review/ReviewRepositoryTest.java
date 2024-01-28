@@ -40,8 +40,8 @@ class ReviewRepositoryTest {
 
 
     @Test
-    @DisplayName("존재하는 리뷰가 있을시 리뷰 페이징 조회를 한다.")
-    void givenExistingReview_whenFindPage_thenReturn() {
+    @DisplayName("리뷰 페이징 조회가 정상 작동한다")
+    void givenValid_whenFindPage_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
         Team team = createSavedTeam("가보자잇");
@@ -88,7 +88,7 @@ class ReviewRepositoryTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 리뷰 페이징 조회를 한다")
+    @DisplayName("존재하지 않은 리뷰 페이징 조회가 정상 작동한다")
     void givenNoneExistingReview_whenFindPage_thenReturn() {
         // given
         long userId = 1L;
@@ -107,7 +107,7 @@ class ReviewRepositoryTest {
     }
 
     @Test
-    @DisplayName("존재하는 리뷰 존재 여부 조회를 한다.")
+    @DisplayName("존재하는 리뷰 존재 여부 조회시 참을 반환한다")
     void givenExistingReview_whenExists_thenReturn() {
         // given
         LocalDateTime now = LocalDateTime.now();
@@ -134,7 +134,7 @@ class ReviewRepositoryTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 리뷰 존재 여부 조회를 한다.")
+    @DisplayName("존재하지 않은 리뷰 존재 여부 조회시 거짓을 반환한다")
     void givenNonExistingReview_whenExists_thenReturn() {
         // given
         LocalDateTime now = LocalDateTime.now();
@@ -159,7 +159,7 @@ class ReviewRepositoryTest {
     }
 
     @Test
-    @DisplayName("존재하는 리뷰가 있을시 열의 수를 조회한다.")
+    @DisplayName("존재하는 리뷰가 있을시 열의 수 조회가 정상 작동한다")
     void givenExistingReview_whenCountPrevious_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
@@ -194,7 +194,7 @@ class ReviewRepositoryTest {
     }
 
     @Test
-    @DisplayName("존재하는 리뷰가 없을시 열의 수를 조회한다.")
+    @DisplayName("존재하는 리뷰가 없을시 열의 수 조회가 정상 작동한다")
     void givenNonExistingReview_whenCountPrevious_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
