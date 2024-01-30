@@ -33,8 +33,8 @@ class SkillRepositoryTest {
     @Autowired private UserRepository userRepository;
 
     @Test
-    @DisplayName("기술 전체 조회를 한다.")
-    void findAll() {
+    @DisplayName("기술 전체 조회가 정상 작동한다")
+    void givenValid_whenFindAll_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
@@ -57,8 +57,8 @@ class SkillRepositoryTest {
     }
 
     @Test
-    @DisplayName("여러 회원의 기술 전체 조회를 한다.")
-    void findAllInFetchUser() {
+    @DisplayName("여러 회원의 기술 전체 조회가 정상 작동한다")
+    void givenValid_whenFindAllInFetchUser_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
         User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이");

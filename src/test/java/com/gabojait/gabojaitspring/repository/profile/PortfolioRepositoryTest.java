@@ -32,8 +32,8 @@ class PortfolioRepositoryTest {
     @Autowired private UserRepository userRepository;
 
     @Test
-    @DisplayName("포트폴리오 전체 조회를 한다.")
-    void findAll() {
+    @DisplayName("포트폴리오 전체 조회가 정상 작동한다")
+    void givenValid_whenFindAll_thenReturn() {
         // given
         User user = createSavedDefaultUser();
 
