@@ -27,6 +27,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("test")
@@ -41,8 +42,8 @@ class OfferRepositoryTest {
     @Autowired private UserRepository userRepository;
 
     @Test
-    @DisplayName("회원의 제안 전체 조회를 한다.")
-    void findAllByUserId() {
+    @DisplayName("회원의 제안 전체 조회가 정상 작동한다")
+    void givenValid_whenFindAllByUserId_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
         Team team = createSavedTeam("가보자잇");
@@ -60,22 +61,11 @@ class OfferRepositoryTest {
         List<Offer> offers = offerRepository.findAllByUserId(user2.getId(), user1.getId());
 
         // then
-        assertThat(offers)
-                .extracting("id", "offeredBy", "position", "isAccepted", "isDeleted", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(offer4.getId(), offer4.getOfferedBy(), offer4.getPosition(), offer4.getIsAccepted(),
-                                offer4.getIsDeleted(), offer4.getCreatedAt(), offer4.getUpdatedAt()),
-                        tuple(offer3.getId(), offer3.getOfferedBy(), offer3.getPosition(), offer3.getIsAccepted(),
-                                offer3.getIsDeleted(), offer3.getCreatedAt(), offer3.getUpdatedAt()),
-                        tuple(offer2.getId(), offer2.getOfferedBy(), offer2.getPosition(), offer2.getIsAccepted(),
-                                offer2.getIsDeleted(), offer2.getCreatedAt(), offer2.getUpdatedAt()),
-                        tuple(offer1.getId(), offer1.getOfferedBy(), offer1.getPosition(), offer1.getIsAccepted(),
-                                offer1.getIsDeleted(), offer1.getCreatedAt(), offer1.getUpdatedAt())
-                );
+        assertThat(offers).containsExactly(offer4, offer3, offer2, offer1);
     }
 
     @Test
-    @DisplayName("팀장인 회원으로 여러 회원의 제안 전체 조회를 한다.")
+    @DisplayName("팀장인 회원으로 여러 회원의 제안 전체 조회가 정상 작동한다")
     void givenTeamLeader_whenFindAllInUserIds_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
@@ -93,18 +83,11 @@ class OfferRepositoryTest {
         List<Offer> offers = offerRepository.findAllInUserIds(List.of(user2.getId(), user3.getId()), user1.getId());
 
         // then
-        assertThat(offers)
-                .extracting("id", "offeredBy", "position", "isAccepted", "isDeleted", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(offer2.getId(), offer2.getOfferedBy(), offer2.getPosition(), offer2.getIsAccepted(),
-                                offer2.getIsDeleted(), offer2.getCreatedAt(), offer2.getUpdatedAt()),
-                        tuple(offer1.getId(), offer1.getOfferedBy(), offer1.getPosition(), offer1.getIsAccepted(),
-                                offer1.getIsDeleted(), offer1.getCreatedAt(), offer1.getUpdatedAt())
-                );
+        assertThat(offers).containsExactly(offer2, offer1);
     }
 
     @Test
-    @DisplayName("팀원인 회원으로 여러 회원의 제안 전체 조회를 한다.")
+    @DisplayName("팀원인 회원으로 여러 회원의 제안 전체 조회가 정상 작동한다")
     void givenTeamMember_whenFindAllInUserIds_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
@@ -128,8 +111,8 @@ class OfferRepositoryTest {
     }
 
     @Test
-    @DisplayName("회원 식별자와 팀 식별자로 제안 전체 조회를 한다.")
-    void findAllByTeamId() {
+    @DisplayName("회원 식별자와 팀 식별자로 제안 전체 조회가 정상 작동한다")
+    void givenValid_whenFindAllByTeamId_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
         Team team = createSavedTeam("가보자잇");
@@ -144,19 +127,12 @@ class OfferRepositoryTest {
         List<Offer> offers = offerRepository.findAllByTeamId(user2.getId(), team.getId());
 
         // then
-        assertThat(offers)
-                .extracting("id", "offeredBy", "position", "isAccepted", "isDeleted", "createdAt", "updatedAt")
-                .containsExactlyInAnyOrder(
-                        tuple(offer2.getId(), offer2.getOfferedBy(), offer2.getPosition(), offer2.getIsAccepted(),
-                                offer2.getIsDeleted(), offer2.getCreatedAt(), offer2.getUpdatedAt()),
-                        tuple(offer1.getId(), offer1.getOfferedBy(), offer1.getPosition(), offer1.getIsAccepted(),
-                                offer1.getIsDeleted(), offer1.getCreatedAt(), offer1.getUpdatedAt())
-                );
+        assertThat(offers).containsExactlyInAnyOrder(offer2, offer1);
     }
 
     @Test
-    @DisplayName("회원 식별자와 제안 식별자로 제안 단건 조회를 한다.")
-    void findFetchTeam()  {
+    @DisplayName("회원 식별자와 제안 식별자로 제안 단건 조회가 정상 작동한다")
+    void givenValid_whenFindFetchTeam_thenReturn()  {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
         Team team = createSavedTeam("가보자잇1");
@@ -166,18 +142,15 @@ class OfferRepositoryTest {
         Offer offer = createSavedOffer(OfferedBy.LEADER, Position.DESIGNER, user2, team);
 
         // when
-        Optional<Offer> foundOffer = offerRepository.findFetchTeam(user2.getId(), offer.getId(), OfferedBy.LEADER);
+        Offer foundOffer = offerRepository.findFetchTeam(user2.getId(), offer.getId(), OfferedBy.LEADER).get();
 
         // then
-        assertThat(foundOffer.get())
-                .extracting("id", "offeredBy", "position", "isAccepted", "isDeleted", "createdAt", "updatedAt")
-                .containsExactly(offer.getId(), offer.getOfferedBy(), offer.getPosition(), offer.getIsAccepted(),
-                        offer.getIsDeleted(), offer.getCreatedAt(), offer.getUpdatedAt());
+        assertThat(foundOffer).isEqualTo(offer);
     }
 
     @Test
-    @DisplayName("팀 식별자와 제안 식별자로 제안 단건 조회를 한다.")
-    void findFetchUser()  {
+    @DisplayName("팀 식별자와 제안 식별자로 제안 단건 조회가 정상 작동한다")
+    void givenValid_whenFindFetchUser_thenReturn()  {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
         Team team = createSavedTeam("가보자잇1");
@@ -187,17 +160,14 @@ class OfferRepositoryTest {
         Offer offer = createSavedOffer(OfferedBy.USER, Position.DESIGNER, user2, team);
 
         // when
-        Optional<Offer> foundOffer = offerRepository.findFetchUser(team.getId(), offer.getId(), OfferedBy.USER);
+        Offer foundOffer = offerRepository.findFetchUser(team.getId(), offer.getId(), OfferedBy.USER).get();
 
         // then
-        assertThat(foundOffer.get())
-                .extracting("id", "offeredBy", "position", "isAccepted", "isDeleted", "createdAt", "updatedAt")
-                .containsExactly(offer.getId(), offer.getOfferedBy(), offer.getPosition(), offer.getIsAccepted(),
-                        offer.getIsDeleted(), offer.getCreatedAt(), offer.getUpdatedAt());
+        assertThat(foundOffer).isEqualTo(offer);
     }
 
     @Test
-    @DisplayName("회원이 받은 제안 페이징 조회를 한다.")
+    @DisplayName("회원이 받은 제안 페이징 조회가 정상 작동한다")
     void givenReceivedByUser_whenFindPageFetchUser_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
@@ -220,20 +190,16 @@ class OfferRepositoryTest {
         Page<Offer> offers = offerRepository.findPageFetchUser(user1.getId(), offeredBy, pageFrom, pageSize);
 
         // then
-        assertThat(offers)
-                .extracting("id", "offeredBy", "position", "isAccepted", "isDeleted", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(offer2.getId(), offer2.getOfferedBy(), offer2.getPosition(), offer2.getIsAccepted(),
-                                offer2.getIsDeleted(), offer2.getCreatedAt(), offer2.getUpdatedAt())
-                );
-
-        assertEquals(offers.getSize(), pageSize);
-        assertEquals(offers.getTotalElements(), 2);
+        assertAll(
+                () -> assertThat(offers.getContent()).containsExactly(offer2),
+                () -> assertThat(offers.getSize()).isEqualTo(pageSize),
+                () -> assertThat(offers.getTotalElements()).isEqualTo(2)
+        );
     }
 
     @Test
-    @DisplayName("회원이 보낸 제안 페이징 조회를 한다.")
-    void givneSentByUser_whenFindPageFetchUser_thenReturn() {
+    @DisplayName("회원이 보낸 제안 페이징 조회가 정상 작동한다")
+    void givenSentByUser_whenFindPageFetchUser_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
 
@@ -255,19 +221,15 @@ class OfferRepositoryTest {
         Page<Offer> offers = offerRepository.findPageFetchUser(user1.getId(), offeredBy, pageFrom, pageSize);
 
         // then
-        assertThat(offers)
-                .extracting("id", "offeredBy", "position", "isAccepted", "isDeleted", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(offer2.getId(), offer2.getOfferedBy(), offer2.getPosition(), offer2.getIsAccepted(),
-                                offer2.getIsDeleted(), offer2.getCreatedAt(), offer2.getUpdatedAt())
-                );
-
-        assertEquals(offers.getSize(), pageSize);
-        assertEquals(offers.getTotalElements(), 2);
+        assertAll(
+                () -> assertThat(offers.getContent()).containsExactly(offer2),
+                () -> assertThat(offers.getSize()).isEqualTo(pageSize),
+                () -> assertThat(offers.getTotalElements()).isEqualTo(2)
+        );
     }
 
     @Test
-    @DisplayName("팀이 받은 제안 페이징 조회를 한다.")
+    @DisplayName("팀이 받은 제안 페이징 조회가 정상 작동한다")
     void givenReceivedByTeam_whenFindPageFetchTeam_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
@@ -289,15 +251,11 @@ class OfferRepositoryTest {
         Page<Offer> offers = offerRepository.findPageFetchTeam(team.getId(), position, offeredBy, pageFrom, pageSize);
 
         // then
-        assertThat(offers)
-                .extracting("id", "offeredBy", "position", "isAccepted", "isDeleted", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(offer2.getId(), offer2.getOfferedBy(), offer2.getPosition(), offer2.getIsAccepted(),
-                                offer2.getIsDeleted(), offer2.getCreatedAt(), offer2.getUpdatedAt())
-                );
-
-        assertEquals(offers.getSize(), pageSize);
-        assertEquals(offers.getTotalElements(), 2);
+        assertAll(
+                () -> assertThat(offers).containsExactly(offer2),
+                () -> assertThat(offers.getSize()).isEqualTo(pageSize),
+                () -> assertThat(offers.getTotalElements()).isEqualTo(2)
+        );
     }
 
     @Test
@@ -323,15 +281,11 @@ class OfferRepositoryTest {
         Page<Offer> offers = offerRepository.findPageFetchTeam(team.getId(), position, offeredBy, pageFrom, pageSize);
 
         // then
-        assertThat(offers)
-                .extracting("id", "offeredBy", "position", "isAccepted", "isDeleted", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(offer2.getId(), offer2.getOfferedBy(), offer2.getPosition(), offer2.getIsAccepted(),
-                                offer2.getIsDeleted(), offer2.getCreatedAt(), offer2.getUpdatedAt())
-                );
-
-        assertEquals(offers.getSize(), pageSize);
-        assertEquals(offers.getTotalElements(), 2);
+        assertAll(
+                () -> assertThat(offers.getContent()).containsExactly(offer2),
+                () -> assertThat(offers.getSize()).isEqualTo(pageSize),
+                () -> assertThat(offers.getTotalElements()).isEqualTo(2)
+        );
     }
 
     private Offer createSavedOffer(OfferedBy offeredBy, Position position, User user, Team team) {
