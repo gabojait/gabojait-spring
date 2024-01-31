@@ -74,14 +74,7 @@ class ReviewRepositoryTest {
 
         // then
         assertAll(
-                () -> assertThat(reviews.getContent())
-                        .extracting("id", "rating", "post", "createdAt", "updatedAt")
-                        .containsExactly(
-                                tuple(review3.getId(), review3.getRating(), review3.getPost(),
-                                        review3.getCreatedAt(), review3.getUpdatedAt()),
-                                tuple(review2.getId(), review2.getRating(), review2.getPost(),
-                                        review2.getCreatedAt(), review2.getUpdatedAt())
-                        ),
+                () -> assertThat(reviews.getContent()).containsExactly(review3, review2),
                 () -> assertThat(reviews.getSize()).isEqualTo(pageSize),
                 () -> assertThat(reviews.getTotalElements()).isEqualTo(3)
         );
