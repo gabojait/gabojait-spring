@@ -51,16 +51,7 @@ class WorkRepositoryTest {
         List<Work> works = workRepository.findAll(user.getId());
 
         // then
-        assertThat(works)
-                .extracting("corporationName", "workDescription", "startedAt", "endedAt", "isCurrent")
-                .containsExactly(
-                        tuple(work3.getCorporationName(), work3.getWorkDescription(),
-                                work3.getStartedAt(), work3.getEndedAt(), work3.getIsCurrent()),
-                        tuple(work2.getCorporationName(), work2.getWorkDescription(),
-                                work2.getStartedAt(), work2.getEndedAt(), work2.getIsCurrent()),
-                        tuple(work1.getCorporationName(), work1.getWorkDescription(),
-                                work1.getStartedAt(), work1.getEndedAt(), work1.getIsCurrent())
-                );
+        assertThat(works).containsExactly(work3, work2, work1);
     }
 
     private Work createWork(String corporationName,

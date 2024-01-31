@@ -51,16 +51,7 @@ class EducationRepositoryTest {
         List<Education> educations = educationRepository.findAll(user.getId());
 
         // then
-        assertThat(educations)
-                .extracting("institutionName", "startedAt", "endedAt", "isCurrent")
-                .containsExactly(
-                        tuple(education3.getInstitutionName(), education3.getStartedAt(), education3.getEndedAt(),
-                                education3.getIsCurrent()),
-                        tuple(education2.getInstitutionName(), education2.getStartedAt(), education2.getEndedAt(),
-                                education2.getIsCurrent()),
-                        tuple(education1.getInstitutionName(), education1.getStartedAt(), education1.getEndedAt(),
-                                education1.getIsCurrent())
-                );
+        assertThat(educations).containsExactly(education3, education2, education1);
     }
 
     private Education createEducation(String institutionName,

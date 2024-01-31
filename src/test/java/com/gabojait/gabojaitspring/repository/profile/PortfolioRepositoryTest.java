@@ -46,13 +46,7 @@ class PortfolioRepositoryTest {
         List<Portfolio> portfolios = portfolioRepository.findAll(user.getId());
 
         // then
-        assertThat(portfolios)
-                .extracting("portfolioName", "portfolioUrl", "media")
-                .containsExactly(
-                        tuple(portfolio3.getPortfolioName(), portfolio3.getPortfolioUrl(), portfolio3.getMedia()),
-                        tuple(portfolio2.getPortfolioName(), portfolio2.getPortfolioUrl(), portfolio2.getMedia()),
-                        tuple(portfolio1.getPortfolioName(), portfolio1.getPortfolioUrl(), portfolio1.getMedia())
-                );
+        assertThat(portfolios).containsExactly(portfolio3, portfolio2, portfolio1);
     }
 
     private Portfolio createPortfolio(String portfolioName, String portfolioUrl, Media media, User user) {

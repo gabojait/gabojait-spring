@@ -47,13 +47,7 @@ class SkillRepositoryTest {
         List<Skill> skills = skillRepository.findAll(user.getId());
 
         // then
-        assertThat(skills)
-                .extracting("skillName", "level", "isExperienced")
-                .containsExactly(
-                        tuple(skill3.getSkillName(), skill3.getLevel(), skill3.getIsExperienced()),
-                        tuple(skill2.getSkillName(), skill2.getLevel(), skill2.getIsExperienced()),
-                        tuple(skill1.getSkillName(), skill1.getLevel(), skill1.getIsExperienced())
-                );
+        assertThat(skills).containsExactly(skill3, skill2, skill1);
     }
 
     @Test
@@ -76,22 +70,7 @@ class SkillRepositoryTest {
         List<Skill> skills = skillRepository.findAllInFetchUser(List.of(user1.getId(), user2.getId(), user3.getId()));
 
         // then
-        assertThat(skills)
-                .extracting("id", "skillName", "level", "isExperienced", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(skill6.getId(), skill6.getSkillName(), skill6.getLevel(), skill6.getIsExperienced(),
-                                skill6.getCreatedAt(), skill6.getUpdatedAt()),
-                        tuple(skill5.getId(), skill5.getSkillName(), skill5.getLevel(), skill5.getIsExperienced(),
-                                skill5.getCreatedAt(), skill5.getUpdatedAt()),
-                        tuple(skill4.getId(), skill4.getSkillName(), skill4.getLevel(), skill4.getIsExperienced(),
-                                skill4.getCreatedAt(), skill4.getUpdatedAt()),
-                        tuple(skill3.getId(), skill3.getSkillName(), skill3.getLevel(), skill3.getIsExperienced(),
-                                skill3.getCreatedAt(), skill3.getUpdatedAt()),
-                        tuple(skill2.getId(), skill2.getSkillName(), skill2.getLevel(), skill2.getIsExperienced(),
-                                skill2.getCreatedAt(), skill2.getUpdatedAt()),
-                        tuple(skill1.getId(), skill1.getSkillName(), skill1.getLevel(), skill1.getIsExperienced(),
-                                skill1.getCreatedAt(), skill1.getUpdatedAt())
-                );
+        assertThat(skills).containsExactly(skill6, skill5, skill4, skill3, skill2, skill1);
     }
 
     private Skill createSkill(String skillName, Level level, boolean isExperienced, User user) {
