@@ -116,7 +116,7 @@ class FavoriteRepositoryTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 찜으로 찜 단건 조회가 정상 작동한다")
+    @DisplayName("존재하는 찜이 없을시 회원 찜으로 찜 단건 조회가 정상 작동한다")
     void givenNonExistingFavorite_whenFindUser_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
@@ -131,7 +131,7 @@ class FavoriteRepositoryTest {
 
     @Test
     @DisplayName("존재하는 회원 찜으로 찜 단건 조회가 정상 작동한다")
-    void givenExistingFavorite_whenFindTeam_thenReturn() {
+    void givenValid_whenFindTeam_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
         Team team = createSavedTeam("가보자잇");
@@ -140,10 +140,10 @@ class FavoriteRepositoryTest {
         favoriteRepository.save(favorite);
 
         // when
-        Optional<Favorite> foundFavorite = favoriteRepository.findTeam(user.getId(), team.getId());
+        Favorite foundFavorite = favoriteRepository.findTeam(user.getId(), team.getId()).get();
 
         // then
-        assertThat(foundFavorite).isPresent();
+        assertThat(foundFavorite).isEqualTo(favorite);
     }
 
     @Test
@@ -161,7 +161,7 @@ class FavoriteRepositoryTest {
     }
 
     @Test
-    @DisplayName("찜한 회원 페이징 조회를 한다.")
+    @DisplayName("찜한 회원이 있을시 찜한 회원 페이징 조회가 정상 작동한다")
     void givenValid_whenFindPageUser_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
@@ -189,7 +189,26 @@ class FavoriteRepositoryTest {
     }
 
     @Test
-    @DisplayName("찜한 팀 페이징 조회가 정상 작동한다")
+    @DisplayName("찜한 회원이 없을시 찜한 회원 페이징 조회가 정상 작동한다")
+    void givenNoneExisting_whenFindPageUser_thenReturn() {
+        // given
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
+
+        long pageFrom = Long.MAX_VALUE;
+        int pageSize = 2;
+
+        // when
+        PageData<List<Favorite>> favorites = favoriteRepository.findPageUser(user.getId(), pageFrom, pageSize);
+
+        // then
+        assertAll(
+                () -> assertThat(favorites.getData()).isEmpty(),
+                () -> assertThat(favorites.getTotal()).isEqualTo(0L)
+        );
+    }
+
+    @Test
+    @DisplayName("찜한 팀이 있을시 찜한 팀 페이징 조회가 정상 작동한다")
     void givenValid_whenFindPageTeam_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -214,6 +233,25 @@ class FavoriteRepositoryTest {
                 () -> assertThat(favorites.getData()).containsExactly(favorite3, favorite2),
                 () -> assertThat(favorites.getData().size()).isEqualTo(pageSize),
                 () -> assertThat(favorites.getTotal()).isEqualTo(3L)
+        );
+    }
+
+    @Test
+    @DisplayName("찜한 팀이 없을시 찜한 팀 페이징 조회가 정상 작동한다")
+    void givenNoneExisting_whenFindPageTeam_thenReturn() {
+        // given
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
+
+        long pageFrom = Long.MAX_VALUE;
+        int pageSize = 2;
+
+        // when
+        PageData<List<Favorite>> favorites = favoriteRepository.findPageTeam(user.getId(), pageFrom, pageSize);
+
+        // then
+        assertAll(
+                () -> assertThat(favorites.getData()).isEmpty(),
+                () -> assertThat(favorites.getTotal()).isEqualTo(0L)
         );
     }
 
