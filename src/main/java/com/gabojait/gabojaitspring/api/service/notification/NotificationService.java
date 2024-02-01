@@ -14,7 +14,6 @@ import com.gabojait.gabojaitspring.repository.team.TeamMemberRepository;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,13 +46,13 @@ public class NotificationService {
     public PageData<List<NotificationPageResponse>> findPageNotifications(long userId,
                                                                           long pageFrom,
                                                                           int pageSize) {
-        Page<Notification> notifications = notificationRepository.findPage(userId, pageFrom, pageSize);
+        PageData<List<Notification>> notifications = notificationRepository.findPage(userId, pageFrom, pageSize);
 
-        List<NotificationPageResponse> responses = notifications.stream()
+        List<NotificationPageResponse> responses = notifications.getData().stream()
                 .map(NotificationPageResponse::new)
                 .collect(Collectors.toList());
 
-        return new PageData<>(responses, notifications.getTotalElements());
+        return new PageData<>(responses, notifications.getTotal());
     }
 
     /**

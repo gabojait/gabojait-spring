@@ -1,11 +1,9 @@
 package com.gabojait.gabojaitspring.repository.notification;
 
+import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.notification.Notification;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +17,7 @@ public class NotificationRepositoryImpl implements NotificationCustomRepository 
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Notification> findPage(long userId, long pageFrom, int pageSize) {
+    public PageData<List<Notification>> findPage(long userId, long pageFrom, int pageSize) {
         Long count = queryFactory
                 .select(notification.id.count())
                 .from(notification)
@@ -27,10 +25,8 @@ public class NotificationRepositoryImpl implements NotificationCustomRepository 
                         notification.user.id.eq(userId)
                 ).fetchOne();
 
-        Pageable pageable = Pageable.ofSize(pageSize);
-
         if (count == null || count == 0)
-            return new PageImpl<>(List.of(), pageable, 0);
+            return new PageData<>(List.of(), 0);
 
         List<Notification> notifications = queryFactory
                 .select(notification)
@@ -43,7 +39,7 @@ public class NotificationRepositoryImpl implements NotificationCustomRepository 
                 .limit(pageSize)
                 .fetch();
 
-        return new PageImpl<>(notifications, pageable, count);
+        return new PageData<>(notifications, count);
     }
 
     @Override

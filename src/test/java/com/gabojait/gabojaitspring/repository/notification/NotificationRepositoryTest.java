@@ -1,5 +1,6 @@
 package com.gabojait.gabojaitspring.repository.notification;
 
+import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.notification.Notification;
 import com.gabojait.gabojaitspring.domain.notification.NotificationType;
 import com.gabojait.gabojaitspring.domain.user.Contact;
@@ -49,13 +50,13 @@ class NotificationRepositoryTest {
         int pageSize = 1;
 
         // when
-        Page<Notification> notifications = notificationRepository.findPage(user.getId(), pageFrom, pageSize);
+        PageData<List<Notification>> notifications = notificationRepository.findPage(user.getId(), pageFrom, pageSize);
 
         // then
         assertAll(
-                () -> assertThat(notifications.getContent()).containsExactly(notification2),
-                () -> assertThat(notifications.getSize()).isEqualTo(pageSize),
-                () -> assertThat(notifications.getTotalElements()).isEqualTo(3L)
+                () -> assertThat(notifications.getData()).containsExactly(notification2),
+                () -> assertThat(notifications.getData().size()).isEqualTo(pageSize),
+                () -> assertThat(notifications.getTotal()).isEqualTo(3L)
         );
     }
 
