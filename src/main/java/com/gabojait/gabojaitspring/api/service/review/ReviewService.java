@@ -8,13 +8,10 @@ import com.gabojait.gabojaitspring.api.dto.review.response.ReviewPageResponse;
 import com.gabojait.gabojaitspring.domain.review.Review;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
 import com.gabojait.gabojaitspring.domain.team.TeamMemberStatus;
-import com.gabojait.gabojaitspring.domain.user.User;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.review.ReviewRepository;
 import com.gabojait.gabojaitspring.repository.team.TeamMemberRepository;
-import com.gabojait.gabojaitspring.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +21,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.TEAM_MEMBER_NOT_FOUND;
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -98,14 +94,14 @@ public class ReviewService {
      * @return 리뷰 페이징 응답들
      */
     public PageData<List<ReviewPageResponse>> findPageReviews(long userId, long pageFrom, int pageSize) {
-        Page<Review> reviews = reviewRepository.findPage(userId, pageFrom, pageSize);
+        PageData<List<Review>> reviews = reviewRepository.findPage(userId, pageFrom, pageSize);
         long reviewCnt = reviewRepository.countPrevious(userId, pageFrom);
 
-        List<ReviewPageResponse> responses = IntStream.range(0, Math.min(pageSize, reviews.getContent().size()))
-                .mapToObj(i -> new ReviewPageResponse(reviews.getContent().get(i), (int) (reviewCnt - i)))
+        List<ReviewPageResponse> responses = IntStream.range(0, Math.min(pageSize, reviews.getData().size()))
+                .mapToObj(i -> new ReviewPageResponse(reviews.getData().get(i), (int) (reviewCnt - i)))
                 .collect(Collectors.toList());
 
-        return new PageData<>(responses, reviews.getTotalElements());
+        return new PageData<>(responses, reviews.getTotal());
     }
 
     /**

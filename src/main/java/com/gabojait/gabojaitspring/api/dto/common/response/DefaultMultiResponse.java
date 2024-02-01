@@ -10,7 +10,7 @@ import lombok.ToString;
 public class DefaultMultiResponse<T> extends DefaultNoResponse {
 
     @ApiModelProperty(position = 3, value = "데이터")
-    private PageData responseData;
+    private PageData<T> responseData;
 
     @Builder(builderMethodName = "multiDataBuilder", builderClassName = "multiDataBuilder")
     public DefaultMultiResponse(String responseCode, String responseMessage, PageData responseData) {

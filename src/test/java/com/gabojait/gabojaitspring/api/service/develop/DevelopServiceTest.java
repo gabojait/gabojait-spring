@@ -1,5 +1,6 @@
 package com.gabojait.gabojaitspring.api.service.develop;
 
+import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.profile.*;
 import com.gabojait.gabojaitspring.domain.review.Review;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
@@ -19,7 +20,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +31,8 @@ import static com.gabojait.gabojaitspring.common.code.ErrorCode.TESTER_NOT_FOUND
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -197,7 +198,7 @@ class DevelopServiceTest {
         // then
         User user = users.get(0);
         List<TeamMember> teamMembers = teamMemberRepository.findAllFetchTeam(user.getId());
-        Page<Review> reviews = reviewRepository.findPage(user.getId(), Long.MAX_VALUE, 20);
+        PageData<List<Review>> reviews = reviewRepository.findPage(user.getId(), Long.MAX_VALUE, 20);
 
         assertAll(
                 () -> assertThat(teamMembers)
@@ -212,7 +213,7 @@ class DevelopServiceTest {
                         .containsExactly("가볼까잇1", "가볼까잇 프로젝트 설명입니다.", "열정적인 팀원을 구합니다.",
                                 "https://open.kakao.com/o/test", (byte) 5, (byte) 5, (byte) 5, (byte) 5, "github.com/gabojait",
                                 0L, false, false),
-                () -> assertThat(reviews.getContent())
+                () -> assertThat(reviews.getData())
                         .extracting("post")
                         .containsExactly("열정적인 팀원이였습니다.", "열정적인 팀원이였습니다.", "열정적인 팀원이였습니다.",
                                 "열정적인 팀원이였습니다.")

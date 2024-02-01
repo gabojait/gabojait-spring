@@ -1,5 +1,6 @@
 package com.gabojait.gabojaitspring.repository.review;
 
+import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.review.Review;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
@@ -70,13 +71,13 @@ class ReviewRepositoryTest {
         int pageSize = 2;
 
         // when
-        Page<Review> reviews = reviewRepository.findPage(user1.getId(), pageFrom, pageSize);
+        PageData<List<Review>> reviews = reviewRepository.findPage(user1.getId(), pageFrom, pageSize);
 
         // then
         assertAll(
-                () -> assertThat(reviews.getContent()).containsExactly(review3, review2),
-                () -> assertThat(reviews.getSize()).isEqualTo(pageSize),
-                () -> assertThat(reviews.getTotalElements()).isEqualTo(3)
+                () -> assertThat(reviews.getData()).containsExactly(review3, review2),
+                () -> assertThat(reviews.getData().size()).isEqualTo(pageSize),
+                () -> assertThat(reviews.getTotal()).isEqualTo(3L)
         );
     }
 
@@ -89,13 +90,12 @@ class ReviewRepositoryTest {
         int pageSize = 1;
 
         // when
-        Page<Review> reviews = reviewRepository.findPage(userId, pageFrom, pageSize);
+        PageData<List<Review>> reviews = reviewRepository.findPage(userId, pageFrom, pageSize);
 
         // then
         assertAll(
-                () -> assertThat(reviews.getContent()).isEmpty(),
-                () -> assertThat(reviews.getSize()).isEqualTo(pageSize),
-                () -> assertThat(reviews.getTotalElements()).isEqualTo(0)
+                () -> assertThat(reviews.getData()).isEmpty(),
+                () -> assertThat(reviews.getTotal()).isEqualTo(0L)
         );
     }
 

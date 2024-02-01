@@ -23,7 +23,6 @@ import com.gabojait.gabojaitspring.repository.team.TeamMemberRepository;
 import com.gabojait.gabojaitspring.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -456,7 +455,7 @@ public class ProfileService {
         List<Portfolio> portfolios = portfolioRepository.findAll(user.getId());
         List<Work> works = workRepository.findAll(user.getId());
         List<TeamMember> teamMembers = teamMemberRepository.findAllFetchTeam(user.getId());
-        Page<Review> reviews = reviewRepository.findPage(user.getId(), Long.MAX_VALUE, 3);
+        PageData<List<Review>> reviews = reviewRepository.findPage(user.getId(), Long.MAX_VALUE, 3);
         long reviewCnt = reviewRepository.countPrevious(user.getId(), Long.MAX_VALUE);
 
         return new ProfileVO(educations, portfolios, works, teamMembers, reviews, reviewCnt);

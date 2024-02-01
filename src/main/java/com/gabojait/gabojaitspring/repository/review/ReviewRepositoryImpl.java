@@ -1,13 +1,10 @@
 package com.gabojait.gabojaitspring.repository.review;
 
+import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.review.Review;
 import com.gabojait.gabojaitspring.domain.team.TeamMemberStatus;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -16,7 +13,6 @@ import static com.gabojait.gabojaitspring.domain.team.QTeam.team;
 import static com.gabojait.gabojaitspring.domain.team.QTeamMember.teamMember;
 import static com.gabojait.gabojaitspring.domain.user.QUser.user;
 import static com.querydsl.jpa.JPAExpressions.select;
-import static com.querydsl.jpa.JPAExpressions.selectOne;
 
 @RequiredArgsConstructor
 public class ReviewRepositoryImpl implements ReviewCustomRepository {
@@ -24,7 +20,7 @@ public class ReviewRepositoryImpl implements ReviewCustomRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Review> findPage(long userId, long pageFrom, int pageSize) {
+    public PageData<List<Review>> findPage(long userId, long pageFrom, int pageSize) {
         Long count = queryFactory.select(review.id.count())
                 .from(review)
                 .where(
@@ -40,10 +36,8 @@ public class ReviewRepositoryImpl implements ReviewCustomRepository {
                                         ))
                 ).fetchOne();
 
-        Pageable pageable = Pageable.ofSize(pageSize);
-
         if (count == null || count == 0)
-            return new PageImpl<>(List.of(), pageable, 0);
+            return new PageData<>(List.of(), 0);
 
         List<Review> reviews = queryFactory.selectFrom(review)
                 .where(
@@ -63,7 +57,7 @@ public class ReviewRepositoryImpl implements ReviewCustomRepository {
                 .limit(pageSize)
                 .fetch();
 
-        return new PageImpl<>(reviews, pageable, count);
+        return new PageData<>(reviews, count);
     }
 
     @Override

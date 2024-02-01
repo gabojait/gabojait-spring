@@ -1,11 +1,13 @@
 package com.gabojait.gabojaitspring.repository.review;
 
+import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.review.Review;
-import org.springframework.data.domain.Page;
+
+import java.util.List;
 
 public interface ReviewCustomRepository {
 
-    Page<Review> findPage(long userId, long pageFrom, int pageSize);
+    PageData<List<Review>> findPage(long userId, long pageFrom, int pageSize);
 
     boolean exists(long userId, long teamId);
 

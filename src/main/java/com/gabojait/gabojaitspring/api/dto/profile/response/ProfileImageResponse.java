@@ -113,9 +113,9 @@ public class ProfileImageResponse {
                     this.isLeader = tm.getIsLeader();
                 });
 
-        this.reviews = IntStream.range(0, profile.getReviews().getContent().size())
+        this.reviews = IntStream.range(0, profile.getReviews().getData().size())
                 .mapToObj(i ->
-                        new ProfileReviewResponse(profile.getReviews().getContent().get(i), (int) (profile.getReviewCnt() - i)))
+                        new ProfileReviewResponse(profile.getReviews().getData().get(i), (int) (profile.getReviewCnt() - i)))
                 .collect(Collectors.toList());
 
         this.createdAt = user.getCreatedAt();
