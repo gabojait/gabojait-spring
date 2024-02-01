@@ -1,12 +1,10 @@
 package com.gabojait.gabojaitspring.repository.favorite;
 
+import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.favorite.Favorite;
 import com.gabojait.gabojaitspring.domain.user.QUser;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -83,7 +81,7 @@ public class FavoriteRepositoryImpl implements FavoriteCustomRepository {
     }
 
     @Override
-    public Page<Favorite> findPageUser(long userId, long pageFrom, int pageSize) {
+    public PageData<List<Favorite>> findPageUser(long userId, long pageFrom, int pageSize) {
         Long count = queryFactory.select(favorite.count())
                 .from(favorite)
                 .leftJoin(favorite.user, user)
@@ -92,10 +90,8 @@ public class FavoriteRepositoryImpl implements FavoriteCustomRepository {
                         favorite.favoriteUser.isNotNull()
                 ).fetchOne();
 
-        Pageable pageable = Pageable.ofSize(pageSize);
-
         if (count == null || count == 0)
-            return new PageImpl<>(List.of(), pageable, 0);
+            return new PageData<>(List.of(), 0);
 
         QUser targetUser = new QUser("targetUser");
         List<Favorite> favorites = queryFactory.select(favorite)
@@ -111,11 +107,11 @@ public class FavoriteRepositoryImpl implements FavoriteCustomRepository {
                 .limit(pageSize)
                 .fetch();
 
-        return new PageImpl<>(favorites, pageable, count);
+        return new PageData<>(favorites, count);
     }
 
     @Override
-    public Page<Favorite> findPageTeam(long userId, long pageFrom, int pageSize) {
+    public PageData<List<Favorite>> findPageTeam(long userId, long pageFrom, int pageSize) {
         Long count = queryFactory.select(favorite.count())
                 .from(favorite)
                 .leftJoin(favorite.user, user)
@@ -124,10 +120,8 @@ public class FavoriteRepositoryImpl implements FavoriteCustomRepository {
                         favorite.favoriteTeam.isNotNull()
                 ).fetchOne();
 
-        Pageable pageable = Pageable.ofSize(pageSize);
-
         if (count == null || count == 0)
-            return new PageImpl<>(List.of(), pageable, 0);
+            return new PageData<>(List.of(), 0);
 
         List<Favorite> favorites = queryFactory.select(favorite)
                 .from(favorite)
@@ -142,6 +136,6 @@ public class FavoriteRepositoryImpl implements FavoriteCustomRepository {
                 .limit(pageSize)
                 .fetch();
 
-        return new PageImpl<>(favorites, pageable, count);
+        return new PageData<>(favorites, count);
     }
 }

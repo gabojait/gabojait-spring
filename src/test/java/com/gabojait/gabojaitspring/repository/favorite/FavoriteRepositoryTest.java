@@ -1,5 +1,6 @@
 package com.gabojait.gabojaitspring.repository.favorite;
 
+import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.favorite.Favorite;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.user.Contact;
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,8 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.groups.Tuple.tuple;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -179,13 +178,13 @@ class FavoriteRepositoryTest {
         int pageSize = 2;
 
         // when
-        Page<Favorite> favorites = favoriteRepository.findPageUser(user1.getId(), pageFrom, pageSize);
+        PageData<List<Favorite>> favorites = favoriteRepository.findPageUser(user1.getId(), pageFrom, pageSize);
 
         // then
         assertAll(
-                () -> assertThat(favorites.getContent()).containsExactly(favorite3, favorite2),
-                () -> assertThat(favorites.getSize()).isEqualTo(pageSize),
-                () -> assertThat(favorites.getTotalElements()).isEqualTo(3L)
+                () -> assertThat(favorites.getData()).containsExactly(favorite3, favorite2),
+                () -> assertThat(favorites.getData().size()).isEqualTo(pageSize),
+                () -> assertThat(favorites.getTotal()).isEqualTo(3L)
         );
     }
 
@@ -208,13 +207,13 @@ class FavoriteRepositoryTest {
         int pageSize = 2;
 
         // when
-        Page<Favorite> favorites = favoriteRepository.findPageTeam(user.getId(), pageFrom, pageSize);
+        PageData<List<Favorite>> favorites = favoriteRepository.findPageTeam(user.getId(), pageFrom, pageSize);
 
         // then
         assertAll(
-                () -> assertThat(favorites.getContent()).containsExactly(favorite3, favorite2),
-                () -> assertThat(favorites.getSize()).isEqualTo(pageSize),
-                () -> assertThat(favorites.getTotalElements()).isEqualTo(3L)
+                () -> assertThat(favorites.getData()).containsExactly(favorite3, favorite2),
+                () -> assertThat(favorites.getData().size()).isEqualTo(pageSize),
+                () -> assertThat(favorites.getTotal()).isEqualTo(3L)
         );
     }
 

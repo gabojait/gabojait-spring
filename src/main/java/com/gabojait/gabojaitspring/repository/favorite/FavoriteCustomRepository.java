@@ -1,8 +1,9 @@
 package com.gabojait.gabojaitspring.repository.favorite;
 
+import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.favorite.Favorite;
-import org.springframework.data.domain.Page;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface FavoriteCustomRepository {
@@ -15,7 +16,7 @@ public interface FavoriteCustomRepository {
 
     Optional<Favorite> findTeam(long userId, long teamId);
 
-    Page<Favorite> findPageUser(long userId, long pageFrom, int pageSize);
+    PageData<List<Favorite>> findPageUser(long userId, long pageFrom, int pageSize);
 
-    Page<Favorite> findPageTeam(long userId, long pageFrom, int pageSize);
+    PageData<List<Favorite>> findPageTeam(long userId, long pageFrom, int pageSize);
 }

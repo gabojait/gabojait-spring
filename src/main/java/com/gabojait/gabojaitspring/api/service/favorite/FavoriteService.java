@@ -14,7 +14,6 @@ import com.gabojait.gabojaitspring.repository.profile.SkillRepository;
 import com.gabojait.gabojaitspring.repository.team.TeamRepository;
 import com.gabojait.gabojaitspring.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +23,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
+import static com.gabojait.gabojaitspring.common.code.ErrorCode.TEAM_NOT_FOUND;
+import static com.gabojait.gabojaitspring.common.code.ErrorCode.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -99,19 +99,19 @@ public class FavoriteService {
     public PageData<List<FavoriteUserPageResponse>> findPageFavoriteUser(long userId, long pageFrom, int pageSize) {
         User user = findUser(userId);
 
-        Page<Favorite> favorites = favoriteRepository.findPageUser(user.getId(), pageFrom, pageSize);
-        List<Skill> skills = skillRepository.findAllInFetchUser(favorites.stream()
+        PageData<List<Favorite>> favorites = favoriteRepository.findPageUser(user.getId(), pageFrom, pageSize);
+        List<Skill> skills = skillRepository.findAllInFetchUser(favorites.getData().stream()
                 .map(f -> f.getFavoriteUser().getId())
                 .collect(Collectors.toList()));
         Map<Long, List<Skill>> sMap = skills.stream()
                 .collect(Collectors.groupingBy(s -> s.getUser().getId()));
 
-        List<FavoriteUserPageResponse> responses = favorites.stream()
+        List<FavoriteUserPageResponse> responses = favorites.getData().stream()
                 .map(f -> new FavoriteUserPageResponse(f,
                         sMap.getOrDefault(f.getFavoriteUser().getId(), Collections.emptyList())))
                 .collect(Collectors.toList());
 
-        return new PageData<>(responses, favorites.getTotalElements());
+        return new PageData<>(responses, favorites.getTotal());
     }
 
     /**
@@ -125,13 +125,13 @@ public class FavoriteService {
     public PageData<List<FavoriteTeamPageResponse>> findPageFavoriteTeam(long userId, long pageFrom, int pageSize) {
         User user = findUser(userId);
 
-        Page<Favorite> favorites = favoriteRepository.findPageTeam(user.getId(), pageFrom, pageSize);
+        PageData<List<Favorite>> favorites = favoriteRepository.findPageTeam(user.getId(), pageFrom, pageSize);
 
-        List<FavoriteTeamPageResponse> responses = favorites.stream()
+        List<FavoriteTeamPageResponse> responses = favorites.getData().stream()
                 .map(FavoriteTeamPageResponse::new)
                 .collect(Collectors.toList());
 
-        return new PageData<>(responses, favorites.getTotalElements());
+        return new PageData<>(responses, favorites.getTotal());
     }
 
     /**
