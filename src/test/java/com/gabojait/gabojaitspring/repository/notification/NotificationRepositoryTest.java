@@ -35,8 +35,8 @@ class NotificationRepositoryTest {
     @Autowired private ContactRepository contactRepository;
 
     @Test
-    @DisplayName("알림 페이징 조회를 한다.")
-    void findPage() {
+    @DisplayName("알림 페이징 조회가 정상 작동한다")
+    void givenValid_whenFindPage_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
@@ -52,21 +52,16 @@ class NotificationRepositoryTest {
         Page<Notification> notifications = notificationRepository.findPage(user.getId(), pageFrom, pageSize);
 
         // then
-        assertThat(notifications)
-                .extracting("id", "notificationType", "title", "body", "isRead", "isDeleted", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(notification2.getId(), notification2.getNotificationType(), notification2.getTitle(),
-                                notification2.getBody(), notification2.getIsRead(), notification2.getIsDeleted(),
-                                notification2.getCreatedAt(), notification2.getUpdatedAt())
-                );
-
-        assertEquals(pageSize, notifications.getSize());
-        assertEquals(3L, notifications.getTotalElements());
+        assertAll(
+                () -> assertThat(notifications.getContent()).containsExactly(notification2),
+                () -> assertThat(notifications.getSize()).isEqualTo(pageSize),
+                () -> assertThat(notifications.getTotalElements()).isEqualTo(3L)
+        );
     }
 
     @Test
-    @DisplayName("읽지 않은 알림을 조회한다.")
-    void givenUnread_whenFindUnread_thenReturn() {
+    @DisplayName("읽지 않은 알림을 조회가 정상 작동한다")
+    void givenRead_whenFindUnread_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
@@ -74,19 +69,15 @@ class NotificationRepositoryTest {
         notificationRepository.save(notification);
 
         // when
-        Optional<Notification> foundNotification = notificationRepository.findUnread(user.getId(), notification.getId());
+        Notification foundNotification = notificationRepository.findUnread(user.getId(), notification.getId()).get();
 
         // then
-        assertThat(foundNotification.get())
-                .extracting("id", "notificationType", "title", "body", "isRead", "isDeleted", "createdAt", "updatedAt")
-                .containsExactly(notification.getId(), notification.getNotificationType(), notification.getTitle(),
-                        notification.getBody(), notification.getIsRead(), notification.getIsDeleted(),
-                        notification.getCreatedAt(), notification.getUpdatedAt());
+        assertThat(foundNotification).isEqualTo(notification);
     }
 
     @Test
-    @DisplayName("알림은 읽은 후 읽은 알림을 조회한다.")
-    void givenRead_whenFindUnread_thenReturn() {
+    @DisplayName("알림은 읽은 후 읽은 알림을 조회가 정상 작동한다")
+    void givenUnread_whenFindUnread_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 

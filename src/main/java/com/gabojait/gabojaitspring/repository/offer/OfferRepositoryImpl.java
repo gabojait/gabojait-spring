@@ -1,5 +1,6 @@
 package com.gabojait.gabojaitspring.repository.offer;
 
+import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
 import com.gabojait.gabojaitspring.domain.offer.OfferedBy;
 import com.gabojait.gabojaitspring.domain.team.TeamMemberStatus;
@@ -7,9 +8,6 @@ import com.gabojait.gabojaitspring.domain.user.Position;
 import com.gabojait.gabojaitspring.domain.user.QUser;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,7 +17,7 @@ import static com.gabojait.gabojaitspring.domain.offer.QOffer.offer;
 import static com.gabojait.gabojaitspring.domain.team.QTeam.team;
 import static com.gabojait.gabojaitspring.domain.team.QTeamMember.teamMember;
 import static com.gabojait.gabojaitspring.domain.user.QUser.user;
-import static com.querydsl.jpa.JPAExpressions.*;
+import static com.querydsl.jpa.JPAExpressions.select;
 
 @Repository
 @RequiredArgsConstructor
@@ -132,7 +130,7 @@ public class OfferRepositoryImpl implements OfferCustomRepository {
     }
 
     @Override
-    public Page<Offer> findPageFetchUser(long userId, OfferedBy offeredBy, long pageFrom, int pageSize) {
+    public PageData<List<Offer>> findPageFetchUser(long userId, OfferedBy offeredBy, long pageFrom, int pageSize) {
         Long count = queryFactory.select(offer.count())
                 .from(offer)
                 .leftJoin(offer.user, user)
@@ -144,10 +142,8 @@ public class OfferRepositoryImpl implements OfferCustomRepository {
                         offer.team.completedAt.isNull()
                 ).fetchOne();
 
-        Pageable pageable = Pageable.ofSize(pageSize);
-
         if (count == null || count == 0)
-            return new PageImpl<>(List.of(), pageable, 0);
+            return new PageData<>(List.of(), 0);
 
         List<Offer> offers = queryFactory.select(offer)
                 .from(offer)
@@ -164,11 +160,11 @@ public class OfferRepositoryImpl implements OfferCustomRepository {
                 .limit(pageSize)
                 .fetch();
 
-        return new PageImpl<>(offers, pageable, count);
+        return new PageData<>(offers, count);
     }
 
     @Override
-    public Page<Offer> findPageFetchTeam(long teamId,
+    public PageData<List<Offer>> findPageFetchTeam(long teamId,
                                          Position position,
                                          OfferedBy offeredBy,
                                          long pageFrom,
@@ -185,10 +181,8 @@ public class OfferRepositoryImpl implements OfferCustomRepository {
                         offer.team.completedAt.isNull()
                 ).fetchOne();
 
-        Pageable pageable = Pageable.ofSize(pageSize);
-
         if (count == null || count == 0)
-            return new PageImpl<>(List.of(), pageable, 0);
+            return new PageData<>(List.of(), 0);
 
         List<Offer> offers = queryFactory.select(offer)
                 .from(offer)
@@ -206,6 +200,6 @@ public class OfferRepositoryImpl implements OfferCustomRepository {
                 .limit(pageSize)
                 .fetch();
 
-        return new PageImpl<>(offers, pageable, count);
+        return new PageData<>(offers, count);
     }
 }

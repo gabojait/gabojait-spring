@@ -99,13 +99,24 @@ public class OfferService {
                                                                OfferedBy offeredBy,
                                                                long pageFrom,
                                                                int pageSize) {
-        Page<Offer> offers = offerRepository.findPageFetchUser(userId, offeredBy, pageFrom, pageSize);
+        PageData<List<Offer>> offers = offerRepository.findPageFetchUser(userId, offeredBy, pageFrom, pageSize);
 
-        List<OfferPageResponse> responses = offers.stream()
-                .map(o -> new OfferPageResponse(o, List.of()))
+        List<Long> userIds = offers.getData().stream()
+                .map(o -> o.getUser().getId())
                 .collect(Collectors.toList());
 
-        return new PageData<>(responses, offers.getTotalElements());
+        List<Skill> skills = skillRepository.findAllInFetchUser(userIds);
+
+        List<OfferPageResponse> responses = offers.getData().stream()
+                .map(offer -> {
+                    Long uId = offer.getUser().getId();
+                    List<Skill> userSkills = skills.stream()
+                            .filter(skill -> uId.equals(skill.getUser().getId()))
+                            .collect(Collectors.toList());
+                    return new OfferPageResponse(offer, userSkills);
+                }).collect(Collectors.toList());
+
+        return new PageData<>(responses, offers.getTotal());
     }
 
     /**
@@ -129,19 +140,20 @@ public class OfferService {
 
         validateLeader(teamMember);
 
-        Page<Offer> offers = offerRepository.findPageFetchTeam(teamMember.getTeam().getId(), position, offeredBy,
-                pageFrom, pageSize);
-        List<Skill> skills = skillRepository.findAllInFetchUser(offers.stream()
+        PageData<List<Offer>> offers = offerRepository.findPageFetchTeam(teamMember.getTeam().getId(), position,
+                offeredBy, pageFrom, pageSize);
+
+        List<Skill> skills = skillRepository.findAllInFetchUser(offers.getData().stream()
                 .map(o -> o.getUser().getId())
                 .collect(Collectors.toList()));
         Map<Long, List<Skill>> sMap = skills.stream()
                 .collect(Collectors.groupingBy(s -> s.getUser().getId()));
 
-        List<OfferPageResponse> responses = offers.stream()
+        List<OfferPageResponse> responses = offers.getData().stream()
                 .map(o -> new OfferPageResponse(o, sMap.getOrDefault(o.getUser().getId(), Collections.emptyList())))
                 .collect(Collectors.toList());
 
-        return new PageData<>(responses, offers.getTotalElements());
+        return new PageData<>(responses, offers.getTotal());
     }
 
     /**

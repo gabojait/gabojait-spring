@@ -39,24 +39,22 @@ class FcmRepositoryTest {
     @Autowired private TeamMemberRepository teamMemberRepository;
 
     @Test
-    @DisplayName("회원과 FCM 토큰으로 FCM 단건 조회를 한다.")
-    void findByUserAndFcmToken() {
+    @DisplayName("회원과 FCM 토큰으로 FCM 단건 조회가 정상 작동한다")
+    void givenValid_whenFindByUserAndFcmToken_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
         Fcm fcm = createSavedFcm(user, "fcm-token");
 
         // when
-        Optional<Fcm> foundFcm = fcmRepository.findByUserAndFcmToken(user, fcm.getFcmToken());
+        Fcm foundFcm = fcmRepository.findByUserAndFcmToken(user, fcm.getFcmToken()).get();
 
         // then
-        assertThat(foundFcm.get())
-                .extracting("id", "fcmToken", "createdAt", "updatedAt")
-                .containsExactly(fcm.getId(), fcm.getFcmToken(), fcm.getCreatedAt(), fcm.getUpdatedAt());
+        assertThat(foundFcm).isEqualTo(fcm);
     }
 
     @Test
-    @DisplayName("회원으로 FCM 전체 조회를 한다.")
-    void findAllByUser() {
+    @DisplayName("회원으로 FCM 전체 조회가 정상 작동한다")
+    void givenValid_whenFindAllByUser_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
@@ -68,18 +66,12 @@ class FcmRepositoryTest {
         List<Fcm> fcms = fcmRepository.findAllByUser(user);
 
         // then
-        assertThat(fcms)
-                .extracting("id", "fcmToken")
-                .containsExactlyInAnyOrder(
-                        tuple(fcm1.getId(), fcm1.getFcmToken()),
-                        tuple(fcm2.getId(), fcm2.getFcmToken()),
-                        tuple(fcm3.getId(), fcm3.getFcmToken())
-                );
+        assertThat(fcms).containsExactlyInAnyOrder(fcm1, fcm2, fcm3);
     }
 
     @Test
-    @DisplayName("팀 식별자로 전체 팀원의 FCM을 전체 조회를 한다.")
-    void findAllTeam() {
+    @DisplayName("팀 식별자로 전체 팀원의 FCM을 전체 조회가 정상 작동한다")
+    void givenValid_whenFindAllTeam_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
         User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이");
@@ -102,8 +94,8 @@ class FcmRepositoryTest {
     }
 
     @Test
-    @DisplayName("회원 식별자로 FCM을 전체 조회를 한다.")
-    void findAllUser() {
+    @DisplayName("회원 식별자로 FCM을 전체 조회가 정상 작동한다")
+    void givenValid_whenFindAllUser_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
@@ -118,8 +110,8 @@ class FcmRepositoryTest {
     }
 
     @Test
-    @DisplayName("한 회원을 제외한 전체 팀원의 FCM을 전체 조회를 한다.")
-    void findAllTeamExceptUser() {
+    @DisplayName("한 회원을 제외한 전체 팀원의 FCM을 전체 조회가 정상 작동한다")
+    void givenValid_whenFindAllTeamExceptUser_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
         User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이");
@@ -140,8 +132,7 @@ class FcmRepositoryTest {
         List<String> fcms = fcmRepository.findAllTeamExceptUser(team.getId(), user3.getId());
 
         // then
-        assertThat(fcms)
-                .containsExactlyInAnyOrder(fcm1.getFcmToken(), fcm2.getFcmToken());
+        assertThat(fcms).containsExactlyInAnyOrder(fcm1.getFcmToken(), fcm2.getFcmToken());
     }
 
     private Fcm createSavedFcm(User user, String fcmToken) {

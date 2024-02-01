@@ -1,5 +1,6 @@
 package com.gabojait.gabojaitspring.repository.offer;
 
+import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
 import com.gabojait.gabojaitspring.domain.offer.OfferedBy;
 import com.gabojait.gabojaitspring.domain.team.Team;
@@ -23,12 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -187,13 +185,13 @@ class OfferRepositoryTest {
         OfferedBy offeredBy = OfferedBy.LEADER;
 
         // when
-        Page<Offer> offers = offerRepository.findPageFetchUser(user1.getId(), offeredBy, pageFrom, pageSize);
+        PageData<List<Offer>> offers = offerRepository.findPageFetchUser(user1.getId(), offeredBy, pageFrom, pageSize);
 
         // then
         assertAll(
-                () -> assertThat(offers.getContent()).containsExactly(offer2),
-                () -> assertThat(offers.getSize()).isEqualTo(pageSize),
-                () -> assertThat(offers.getTotalElements()).isEqualTo(2)
+                () -> assertThat(offers.getData()).containsExactly(offer2),
+                () -> assertThat(offers.getData().size()).isEqualTo(pageSize),
+                () -> assertThat(offers.getTotal()).isEqualTo(2)
         );
     }
 
@@ -218,13 +216,13 @@ class OfferRepositoryTest {
         OfferedBy offeredBy = OfferedBy.USER;
 
         // when
-        Page<Offer> offers = offerRepository.findPageFetchUser(user1.getId(), offeredBy, pageFrom, pageSize);
+        PageData<List<Offer>> offers = offerRepository.findPageFetchUser(user1.getId(), offeredBy, pageFrom, pageSize);
 
         // then
         assertAll(
-                () -> assertThat(offers.getContent()).containsExactly(offer2),
-                () -> assertThat(offers.getSize()).isEqualTo(pageSize),
-                () -> assertThat(offers.getTotalElements()).isEqualTo(2)
+                () -> assertThat(offers.getData()).containsExactly(offer2),
+                () -> assertThat(offers.getData().size()).isEqualTo(pageSize),
+                () -> assertThat(offers.getTotal()).isEqualTo(2L)
         );
     }
 
@@ -248,13 +246,13 @@ class OfferRepositoryTest {
         int pageSize = 1;
 
         // when
-        Page<Offer> offers = offerRepository.findPageFetchTeam(team.getId(), position, offeredBy, pageFrom, pageSize);
+        PageData<List<Offer>> offers = offerRepository.findPageFetchTeam(team.getId(), position, offeredBy, pageFrom, pageSize);
 
         // then
         assertAll(
-                () -> assertThat(offers).containsExactly(offer2),
-                () -> assertThat(offers.getSize()).isEqualTo(pageSize),
-                () -> assertThat(offers.getTotalElements()).isEqualTo(2)
+                () -> assertThat(offers.getData()).containsExactly(offer2),
+                () -> assertThat(offers.getData().size()).isEqualTo(pageSize),
+                () -> assertThat(offers.getTotal()).isEqualTo(2L)
         );
     }
 
@@ -278,13 +276,13 @@ class OfferRepositoryTest {
         int pageSize = 1;
 
         // when
-        Page<Offer> offers = offerRepository.findPageFetchTeam(team.getId(), position, offeredBy, pageFrom, pageSize);
+        PageData<List<Offer>> offers = offerRepository.findPageFetchTeam(team.getId(), position, offeredBy, pageFrom, pageSize);
 
         // then
         assertAll(
-                () -> assertThat(offers.getContent()).containsExactly(offer2),
-                () -> assertThat(offers.getSize()).isEqualTo(pageSize),
-                () -> assertThat(offers.getTotalElements()).isEqualTo(2)
+                () -> assertThat(offers.getData()).containsExactly(offer2),
+                () -> assertThat(offers.getData().size()).isEqualTo(pageSize),
+                () -> assertThat(offers.getTotal()).isEqualTo(2L)
         );
     }
 
