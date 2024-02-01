@@ -17,7 +17,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -165,7 +164,7 @@ class OfferRepositoryTest {
     }
 
     @Test
-    @DisplayName("회원이 받은 제안 페이징 조회가 정상 작동한다")
+    @DisplayName("회원이 받은 제안이 있을시 회원이 받은 제안 페이징 조회가 정상 작동한다")
     void givenReceivedByUser_whenFindPageFetchUser_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
@@ -196,7 +195,7 @@ class OfferRepositoryTest {
     }
 
     @Test
-    @DisplayName("회원이 보낸 제안 페이징 조회가 정상 작동한다")
+    @DisplayName("회원이 보낸 제안이 있을시 회원이 보낸 제안 페이징 조회가 정상 작동한다")
     void givenSentByUser_whenFindPageFetchUser_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
@@ -227,7 +226,27 @@ class OfferRepositoryTest {
     }
 
     @Test
-    @DisplayName("팀이 받은 제안 페이징 조회가 정상 작동한다")
+    @DisplayName("회원 제안이 없을시 회원 제안 페이징 조회가 정상 작동한다")
+    void givenNoneExisting_whenFindPageFetchUser_thenReturn() {
+        // given
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
+
+        long pageFrom = Long.MAX_VALUE;
+        int pageSize = 1;
+        OfferedBy offeredBy = OfferedBy.USER;
+
+        // when
+        PageData<List<Offer>> offers = offerRepository.findPageFetchUser(user.getId(), offeredBy, pageFrom, pageSize);
+
+        // then
+        assertAll(
+                () -> assertThat(offers.getData()).isEmpty(),
+                () -> assertThat(offers.getTotal()).isEqualTo(0L)
+        );
+    }
+
+    @Test
+    @DisplayName("팀이 받은 제안이 있을시 팀이 받은 제안 페이징 조회가 정상 작동한다")
     void givenReceivedByTeam_whenFindPageFetchTeam_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
@@ -257,7 +276,7 @@ class OfferRepositoryTest {
     }
 
     @Test
-    @DisplayName("팀이 보낸 제안 페이징 조회를 한다.")
+    @DisplayName("팀이 보낸 제안이 있을시 팀이 보낸 제안 페이징 조회가 정상 작동한다")
     void givenSentByTeam_whenFindPageFetchTeam_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
@@ -283,6 +302,27 @@ class OfferRepositoryTest {
                 () -> assertThat(offers.getData()).containsExactly(offer2),
                 () -> assertThat(offers.getData().size()).isEqualTo(pageSize),
                 () -> assertThat(offers.getTotal()).isEqualTo(2L)
+        );
+    }
+
+    @Test
+    @DisplayName("회원 제안이 없을시 회원 제안 페이징 조회가 정상 작동한다")
+    void givenNoneExisting_whenFindPageFetchTeam_thenReturn() {
+        // given
+        Team team = createSavedTeam("가보자잇");
+
+        OfferedBy offeredBy = OfferedBy.LEADER;
+        Position position = Position.DESIGNER;
+        long pageFrom = Long.MAX_VALUE;
+        int pageSize = 1;
+
+        // when
+        PageData<List<Offer>> offers = offerRepository.findPageFetchTeam(team.getId(), position, offeredBy, pageFrom, pageSize);
+
+        // then
+        assertAll(
+                () -> assertThat(offers.getData()).isEmpty(),
+                () -> assertThat(offers.getTotal()).isEqualTo(0L)
         );
     }
 
