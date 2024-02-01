@@ -12,7 +12,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,9 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.not;
-import static org.assertj.core.groups.Tuple.tuple;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -36,7 +33,7 @@ class NotificationRepositoryTest {
     @Autowired private ContactRepository contactRepository;
 
     @Test
-    @DisplayName("알림 페이징 조회가 정상 작동한다")
+    @DisplayName("알림이 있을시 알림 페이징 조회가 정상 작동한다")
     void givenValid_whenFindPage_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -57,6 +54,25 @@ class NotificationRepositoryTest {
                 () -> assertThat(notifications.getData()).containsExactly(notification2),
                 () -> assertThat(notifications.getData().size()).isEqualTo(pageSize),
                 () -> assertThat(notifications.getTotal()).isEqualTo(3L)
+        );
+    }
+
+    @Test
+    @DisplayName("알림이 없을시 알림 페이징 조회가 정상 작동한다")
+    void givenNoneExisting_whenFindPage_thenReturn() {
+        // given
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
+
+        long pageFrom = Long.MAX_VALUE;
+        int pageSize = 1;
+
+        // when
+        PageData<List<Notification>> notifications = notificationRepository.findPage(user.getId(), pageFrom, pageSize);
+
+        // then
+        assertAll(
+                () -> assertThat(notifications.getData()).isEmpty(),
+                () -> assertThat(notifications.getTotal()).isEqualTo(0L)
         );
     }
 
