@@ -1,6 +1,6 @@
 package com.gabojait.gabojaitspring.api.service.develop;
 
-import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
+import com.gabojait.gabojaitspring.common.dto.response.PageData;
 import com.gabojait.gabojaitspring.domain.profile.*;
 import com.gabojait.gabojaitspring.domain.review.Review;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;

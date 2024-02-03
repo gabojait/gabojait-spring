@@ -2,10 +2,9 @@ package com.gabojait.gabojaitspring.api.controller.favorite;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gabojait.gabojaitspring.api.dto.favorite.request.FavoriteUpdateRequest;
-import com.gabojait.gabojaitspring.api.dto.favorite.request.FavoriteUpdateRequest;
 import com.gabojait.gabojaitspring.api.service.favorite.FavoriteService;
-import com.gabojait.gabojaitspring.auth.CustomAuthenticationEntryPoint;
-import com.gabojait.gabojaitspring.auth.JwtProvider;
+import com.gabojait.gabojaitspring.config.auth.CustomAuthenticationEntryPoint;
+import com.gabojait.gabojaitspring.config.auth.JwtProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

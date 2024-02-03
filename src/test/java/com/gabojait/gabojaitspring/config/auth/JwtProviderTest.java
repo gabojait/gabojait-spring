@@ -1,5 +1,7 @@
-package com.gabojait.gabojaitspring.auth;
+package com.gabojait.gabojaitspring.config.auth;
 
+import com.gabojait.gabojaitspring.config.auth.Jwt;
+import com.gabojait.gabojaitspring.config.auth.JwtProvider;
 import com.gabojait.gabojaitspring.domain.user.*;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.user.ContactRepository;
@@ -30,7 +32,6 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 class JwtProviderTest {
 
     @Autowired private JwtProvider jwtProvider;
-    @Autowired private CustomUserDetailsService customUserDetailsService;
     @Autowired private ContactRepository contactRepository;
     @Autowired private UserRepository userRepository;
     @Autowired private UserRoleRepository userRoleRepository;

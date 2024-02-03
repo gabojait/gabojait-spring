@@ -1,6 +1,6 @@
 package com.gabojait.gabojaitspring.api.service.notification;
 
-import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
+import com.gabojait.gabojaitspring.common.dto.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.notification.response.NotificationPageResponse;
 import com.gabojait.gabojaitspring.domain.notification.Notification;
 import com.gabojait.gabojaitspring.domain.notification.NotificationType;

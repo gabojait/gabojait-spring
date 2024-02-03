@@ -1,6 +1,6 @@
 package com.gabojait.gabojaitspring.repository.user;
 
-import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
+import com.gabojait.gabojaitspring.common.dto.response.PageData;
 import com.gabojait.gabojaitspring.domain.user.Contact;
 import com.gabojait.gabojaitspring.domain.user.Gender;
 import com.gabojait.gabojaitspring.domain.user.Position;

@@ -16,6 +16,8 @@ import com.gabojait.gabojaitspring.api.dto.user.response.UserContactResponse;
 import com.gabojait.gabojaitspring.api.dto.user.response.UserFindMyselfResponse;
 import com.gabojait.gabojaitspring.api.dto.user.response.UserLoginResponse;
 import com.gabojait.gabojaitspring.api.dto.user.response.UserRegisterResponse;
+import com.gabojait.gabojaitspring.common.dto.response.*;
+import com.gabojait.gabojaitspring.response.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RestController;

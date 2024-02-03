@@ -1,9 +1,8 @@
 package com.gabojait.gabojaitspring.config;
 
-import com.gabojait.gabojaitspring.auth.CustomAuthenticationEntryPoint;
-import com.gabojait.gabojaitspring.auth.CustomAuthenticationFilter;
+import com.gabojait.gabojaitspring.config.auth.CustomAuthenticationEntryPoint;
+import com.gabojait.gabojaitspring.config.auth.CustomAuthenticationFilter;
 import com.gabojait.gabojaitspring.domain.user.Role;
-import com.gabojait.gabojaitspring.domain.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,6 +1,6 @@
 package com.gabojait.gabojaitspring.api.service.offer;
 
-import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
+import com.gabojait.gabojaitspring.common.dto.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.offer.request.OfferCreateRequest;
 import com.gabojait.gabojaitspring.api.dto.offer.request.OfferDecideRequest;
 import com.gabojait.gabojaitspring.api.dto.offer.response.OfferPageResponse;
@@ -19,7 +19,6 @@ import com.gabojait.gabojaitspring.repository.team.TeamMemberRepository;
 import com.gabojait.gabojaitspring.repository.team.TeamRepository;
 import com.gabojait.gabojaitspring.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

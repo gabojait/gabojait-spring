@@ -1,6 +1,6 @@
 package com.gabojait.gabojaitspring.api.service.team;
 
-import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
+import com.gabojait.gabojaitspring.common.dto.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.team.request.TeamCreateRequest;
 import com.gabojait.gabojaitspring.api.dto.team.request.TeamUpdateRequest;
 import com.gabojait.gabojaitspring.api.dto.team.response.*;

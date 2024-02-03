@@ -1,15 +1,15 @@
 package com.gabojait.gabojaitspring.api.controller.profile;
 
-import com.gabojait.gabojaitspring.api.dto.common.response.DefaultMultiResponse;
-import com.gabojait.gabojaitspring.api.dto.common.response.DefaultNoResponse;
-import com.gabojait.gabojaitspring.api.dto.common.response.DefaultSingleResponse;
-import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
+import com.gabojait.gabojaitspring.common.dto.response.DefaultMultiResponse;
+import com.gabojait.gabojaitspring.common.dto.response.DefaultNoResponse;
+import com.gabojait.gabojaitspring.common.dto.response.DefaultSingleResponse;
+import com.gabojait.gabojaitspring.common.dto.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.profile.request.ProfileDescriptionRequest;
 import com.gabojait.gabojaitspring.api.dto.profile.request.ProfileIsSeekRequest;
 import com.gabojait.gabojaitspring.api.dto.profile.request.ProfileUpdateRequest;
 import com.gabojait.gabojaitspring.api.dto.profile.response.*;
 import com.gabojait.gabojaitspring.api.service.profile.ProfileService;
-import com.gabojait.gabojaitspring.auth.JwtProvider;
+import com.gabojait.gabojaitspring.config.auth.JwtProvider;
 import com.gabojait.gabojaitspring.domain.user.Position;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -25,7 +25,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 

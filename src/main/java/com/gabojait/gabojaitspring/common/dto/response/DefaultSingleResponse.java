@@ -1,4 +1,4 @@
-package com.gabojait.gabojaitspring.api.dto.common.response;
+package com.gabojait.gabojaitspring.common.dto.response;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

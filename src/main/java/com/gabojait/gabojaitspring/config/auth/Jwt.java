@@ -1,4 +1,4 @@
-package com.gabojait.gabojaitspring.auth;
+package com.gabojait.gabojaitspring.config.auth;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

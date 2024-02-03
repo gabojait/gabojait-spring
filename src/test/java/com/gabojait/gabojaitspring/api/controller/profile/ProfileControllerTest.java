@@ -3,8 +3,8 @@ package com.gabojait.gabojaitspring.api.controller.profile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gabojait.gabojaitspring.api.dto.profile.request.*;
 import com.gabojait.gabojaitspring.api.service.profile.ProfileService;
-import com.gabojait.gabojaitspring.auth.CustomAuthenticationEntryPoint;
-import com.gabojait.gabojaitspring.auth.JwtProvider;
+import com.gabojait.gabojaitspring.config.auth.CustomAuthenticationEntryPoint;
+import com.gabojait.gabojaitspring.config.auth.JwtProvider;
 import com.gabojait.gabojaitspring.domain.profile.Level;
 import com.gabojait.gabojaitspring.domain.profile.Media;
 import com.gabojait.gabojaitspring.domain.user.Position;
@@ -556,6 +556,29 @@ class ProfileControllerTest {
         // given
         ProfileUpdateRequest request = createValidProfileUpdateRequest();
         request.getWorks().get(0).setCorporationName("");
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                post("/api/v1/user/profile")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(CORPORATION_NAME_LENGTH_INVALID.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(CORPORATION_NAME_LENGTH_INVALID.getMessage()));
+    }
+
+    @Test
+    @DisplayName("경력에 기관명이 20자 초과일시 프로필 업데이트를 하면 400을 반환한다.")
+    void givenWorkGreaterThan20SizeCorporationName_whenUpdateProfile_thenReturn400() throws Exception {
+        // given
+        ProfileUpdateRequest request = createValidProfileUpdateRequest();
+        request.getWorks().get(0).setCorporationName("가".repeat(21));
 
         // when
         ResultActions actions = mockMvc.perform(

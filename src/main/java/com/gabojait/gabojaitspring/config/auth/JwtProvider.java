@@ -1,9 +1,10 @@
-package com.gabojait.gabojaitspring.auth;
+package com.gabojait.gabojaitspring.config.auth;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.gabojait.gabojaitspring.api.service.user.UserDetailsService;
 import com.gabojait.gabojaitspring.domain.user.Role;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.TOKEN_UNAUTHENTICATED;
@@ -37,11 +39,11 @@ public class JwtProvider {
     @Value("${api.jwt.time.refresh}")
     private long refreshTokenTime;
 
-    private final CustomUserDetailsService customUserDetailsService;
+    private final UserDetailsService userDetailsService;
     private static final String tokenPrefix = "Bearer ";
 
     public HttpHeaders createJwt(Long userId) {
-        UserDetails userDetails = customUserDetailsService.loadUserByUserId(userId);
+        UserDetails userDetails = userDetailsService.findUserDetails(userId);
         List<String> authorities = userDetails.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
@@ -95,7 +97,7 @@ public class JwtProvider {
         }
 
         long userId = Long.parseLong(decodedJWT.getSubject());
-        UserDetails userDetails = customUserDetailsService.loadUserByUserId(userId);
+        UserDetails userDetails = userDetailsService.findUserDetails(userId);
 
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(userDetails.getUsername(), "", userDetails.getAuthorities());

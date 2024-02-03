@@ -1,16 +1,16 @@
 package com.gabojait.gabojaitspring.api.controller.team;
 
-import com.gabojait.gabojaitspring.api.dto.common.response.DefaultMultiResponse;
-import com.gabojait.gabojaitspring.api.dto.common.response.DefaultNoResponse;
-import com.gabojait.gabojaitspring.api.dto.common.response.DefaultSingleResponse;
-import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
+import com.gabojait.gabojaitspring.common.dto.response.DefaultMultiResponse;
+import com.gabojait.gabojaitspring.common.dto.response.DefaultNoResponse;
+import com.gabojait.gabojaitspring.common.dto.response.DefaultSingleResponse;
+import com.gabojait.gabojaitspring.common.dto.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.team.request.TeamCompleteRequest;
 import com.gabojait.gabojaitspring.api.dto.team.request.TeamCreateRequest;
 import com.gabojait.gabojaitspring.api.dto.team.request.TeamIsRecruitingUpdateRequest;
 import com.gabojait.gabojaitspring.api.dto.team.request.TeamUpdateRequest;
 import com.gabojait.gabojaitspring.api.dto.team.response.*;
 import com.gabojait.gabojaitspring.api.service.team.TeamService;
-import com.gabojait.gabojaitspring.auth.JwtProvider;
+import com.gabojait.gabojaitspring.config.auth.JwtProvider;
 import com.gabojait.gabojaitspring.domain.user.Position;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

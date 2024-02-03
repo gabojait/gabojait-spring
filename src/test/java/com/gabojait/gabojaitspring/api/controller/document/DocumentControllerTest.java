@@ -1,8 +1,8 @@
 package com.gabojait.gabojaitspring.api.controller.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gabojait.gabojaitspring.auth.CustomAuthenticationEntryPoint;
-import com.gabojait.gabojaitspring.auth.JwtProvider;
+import com.gabojait.gabojaitspring.config.auth.CustomAuthenticationEntryPoint;
+import com.gabojait.gabojaitspring.config.auth.JwtProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;

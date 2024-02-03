@@ -922,13 +922,6 @@ class UserServiceTest {
                 .build();
     }
 
-    private UserRole createUserRole(User user) {
-        return UserRole.builder()
-                .user(user)
-                .role(Role.USER)
-                .build();
-    }
-
     private Fcm createFcm(User user) {
         return Fcm.builder()
                 .user(user)

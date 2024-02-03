@@ -1,11 +1,11 @@
 package com.gabojait.gabojaitspring.api.controller.notification;
 
-import com.gabojait.gabojaitspring.api.dto.common.response.DefaultMultiResponse;
-import com.gabojait.gabojaitspring.api.dto.common.response.DefaultNoResponse;
-import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
+import com.gabojait.gabojaitspring.common.dto.response.DefaultMultiResponse;
+import com.gabojait.gabojaitspring.common.dto.response.DefaultNoResponse;
+import com.gabojait.gabojaitspring.common.dto.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.notification.response.NotificationPageResponse;
 import com.gabojait.gabojaitspring.api.service.notification.NotificationService;
-import com.gabojait.gabojaitspring.auth.JwtProvider;
+import com.gabojait.gabojaitspring.config.auth.JwtProvider;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Content;

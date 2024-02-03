@@ -1,8 +1,8 @@
 package com.gabojait.gabojaitspring.api.controller.develop;
 
-import com.gabojait.gabojaitspring.api.dto.common.response.DefaultNoResponse;
+import com.gabojait.gabojaitspring.common.dto.response.DefaultNoResponse;
 import com.gabojait.gabojaitspring.api.service.develop.DevelopService;
-import com.gabojait.gabojaitspring.auth.JwtProvider;
+import com.gabojait.gabojaitspring.config.auth.JwtProvider;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

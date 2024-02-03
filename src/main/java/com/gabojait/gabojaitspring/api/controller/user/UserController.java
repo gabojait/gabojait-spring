@@ -1,13 +1,13 @@
 package com.gabojait.gabojaitspring.api.controller.user;
 
-import com.gabojait.gabojaitspring.api.dto.common.response.DefaultNoResponse;
-import com.gabojait.gabojaitspring.api.dto.common.response.DefaultSingleResponse;
+import com.gabojait.gabojaitspring.common.dto.response.DefaultNoResponse;
+import com.gabojait.gabojaitspring.common.dto.response.DefaultSingleResponse;
 import com.gabojait.gabojaitspring.api.dto.user.request.*;
 import com.gabojait.gabojaitspring.api.dto.user.response.UserFindMyselfResponse;
 import com.gabojait.gabojaitspring.api.dto.user.response.UserLoginResponse;
 import com.gabojait.gabojaitspring.api.dto.user.response.UserRegisterResponse;
 import com.gabojait.gabojaitspring.api.service.user.UserService;
-import com.gabojait.gabojaitspring.auth.JwtProvider;
+import com.gabojait.gabojaitspring.config.auth.JwtProvider;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Content;

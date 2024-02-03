@@ -1,6 +1,6 @@
 package com.gabojait.gabojaitspring.repository.user;
 
-import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
+import com.gabojait.gabojaitspring.common.dto.response.PageData;
 import com.gabojait.gabojaitspring.domain.user.Position;
 import com.gabojait.gabojaitspring.domain.user.User;
 import com.querydsl.core.types.Predicate;

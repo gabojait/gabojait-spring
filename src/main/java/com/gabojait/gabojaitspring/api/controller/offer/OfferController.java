@@ -1,13 +1,13 @@
 package com.gabojait.gabojaitspring.api.controller.offer;
 
-import com.gabojait.gabojaitspring.api.dto.common.response.DefaultMultiResponse;
-import com.gabojait.gabojaitspring.api.dto.common.response.DefaultNoResponse;
-import com.gabojait.gabojaitspring.api.dto.common.response.PageData;
+import com.gabojait.gabojaitspring.common.dto.response.DefaultMultiResponse;
+import com.gabojait.gabojaitspring.common.dto.response.DefaultNoResponse;
+import com.gabojait.gabojaitspring.common.dto.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.offer.request.OfferCreateRequest;
 import com.gabojait.gabojaitspring.api.dto.offer.request.OfferDecideRequest;
 import com.gabojait.gabojaitspring.api.dto.offer.response.OfferPageResponse;
 import com.gabojait.gabojaitspring.api.service.offer.OfferService;
-import com.gabojait.gabojaitspring.auth.JwtProvider;
+import com.gabojait.gabojaitspring.config.auth.JwtProvider;
 import com.gabojait.gabojaitspring.domain.offer.OfferedBy;
 import com.gabojait.gabojaitspring.domain.user.Position;
 import io.swagger.annotations.Api;

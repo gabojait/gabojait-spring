@@ -1,10 +1,9 @@
 package com.gabojait.gabojaitspring.api.controller.user;
 
-import com.gabojait.gabojaitspring.api.dto.common.response.DefaultNoResponse;
+import com.gabojait.gabojaitspring.common.dto.response.DefaultNoResponse;
 import com.gabojait.gabojaitspring.api.dto.user.request.ContactCreateRequest;
 import com.gabojait.gabojaitspring.api.dto.user.request.ContactVerifyRequest;
 import com.gabojait.gabojaitspring.api.service.user.ContactService;
-import com.gabojait.gabojaitspring.domain.user.Contact;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,8 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-
-import java.util.Optional;
 
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.EMAIL_VERIFIED;
 import static com.gabojait.gabojaitspring.common.code.SuccessCode.VERIFICATION_CODE_SENT;

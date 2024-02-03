@@ -1,7 +1,7 @@
-package com.gabojait.gabojaitspring.auth;
+package com.gabojait.gabojaitspring.config.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gabojait.gabojaitspring.api.dto.common.response.ExceptionResponse;
+import com.gabojait.gabojaitspring.common.dto.response.ExceptionResponse;
 import com.gabojait.gabojaitspring.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
