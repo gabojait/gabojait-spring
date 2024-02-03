@@ -21,7 +21,7 @@ CREATE TABLE contact
     is_verified                  BIT          NOT NULL,
     created_at                  DATETIME(6)  NOT NULL,
     updated_at                  DATETIME(6)  NOT NULL,
-    CONSTRAINT uq_contact UNIQUE (email)
+    CONSTRAINT uq_contact_email UNIQUE (email)
 );
 
 CREATE TABLE users
@@ -30,14 +30,14 @@ CREATE TABLE users
     username                    VARCHAR(15)  NOT NULL,
     password                    VARCHAR(255) NOT NULL,
     gender                      VARCHAR(1)   NOT NULL,
-    image_url                   VARCHAR(255),
+    image_url                   VARCHAR(255) NULL,
     nickname                    VARCHAR(8)   NOT NULL,
     position                    VARCHAR(20)  NOT NULL,
-    profile_description          VARCHAR(120),
+    profile_description          VARCHAR(120) NULL,
     visited_cnt                 BIGINT       NOT NULL,
     rating                      FLOAT        NOT NULL,
     review_cnt                  INT          NOT NULL,
-    birthdate                   DATE,
+    birthdate                   DATE         NULL,
     is_notified                  BIT          NOT NULL,
     is_seeking_team             BIT          NOT NULL,
     is_temporary_password       BIT          NOT NULL,
@@ -45,8 +45,10 @@ CREATE TABLE users
     created_at                  DATETIME(6)  NOT NULL,
     updated_at                  DATETIME(6)  NOT NULL,
     contact_id                  BIGINT       NOT NULL,
-    CONSTRAINT uq_user UNIQUE (username, nickname),
-    CONSTRAINT fk_user_contact FOREIGN KEY (contact_id) REFERENCES contact (contact_id)
+    CONSTRAINT uq_user_username UNIQUE (username),
+    CONSTRAINT uq_user_nickname UNIQUE (nickname),
+    CONSTRAINT fk_user_contact_id
+        FOREIGN KEY (contact_id) REFERENCES contact (contact_id)
 );
 
 CREATE TABLE user_role
@@ -56,7 +58,8 @@ CREATE TABLE user_role
     created_at                  DATETIME(6)  NOT NULL,
     updated_at                  DATETIME(6)  NOT NULL,
     user_id                     BIGINT       NOT NULL,
-    CONSTRAINT fk_user_role_user FOREIGN KEY (user_id) REFERENCES users (user_id)
+    CONSTRAINT fk_user_role_user_id
+        FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE education
@@ -65,11 +68,12 @@ CREATE TABLE education
     institution_name            VARCHAR(20)  NOT NULL,
     is_current                  BIT          NOT NULL,
     started_at                  DATE         NOT NULL,
-    ended_at                    DATE,
+    ended_at                    DATE         NULL,
     created_at                  DATETIME(6)  NOT NULL,
     updated_at                  DATETIME(6)  NOT NULL,
     user_id                     BIGINT       NOT NULL,
-    CONSTRAINT fk_education_user FOREIGN KEY (user_id) REFERENCES users (user_id)
+    CONSTRAINT fk_education_user_id
+        FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE portfolio
@@ -81,7 +85,8 @@ CREATE TABLE portfolio
     created_at                  DATETIME(6)   NOT NULL,
     updated_at                  DATETIME(6)   NOT NULL,
     user_id                     BIGINT        NOT NULL,
-    CONSTRAINT fk_portfolio_user_id FOREIGN KEY (user_id) REFERENCES users (user_id)
+    CONSTRAINT fk_portfolio_user_id
+        FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE skill
@@ -93,21 +98,23 @@ CREATE TABLE skill
     created_at                  DATETIME(6)   NOT NULL,
     updated_at                  DATETIME(6)   NOT NULL,
     user_id                     BIGINT        NOT NULL,
-    CONSTRAINT fk_skill_user FOREIGN KEY (user_id) REFERENCES users (user_id)
+    CONSTRAINT fk_skill_user_id
+        FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE work
 (
     work_id                     BIGINT AUTO_INCREMENT PRIMARY KEY,
     corporation_name            VARCHAR(20)   NOT NULL,
-    work_description            VARCHAR(100),
+    work_description            VARCHAR(100)  NULL,
     is_current                  BIT           NOT NULL,
     started_at                  DATE          NOT NULL,
-    ended_at                    DATE,
+    ended_at                    DATE          NULL,
     created_at                  DATETIME(6)   NOT NULL,
     updated_at                  DATETIME(6)   NOT NULL,
     user_id                     BIGINT        NOT NULL,
-    CONSTRAINT fk_work_user FOREIGN KEY (user_id) REFERENCES users (user_id)
+    CONSTRAINT fk_work_user_id
+        FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE fcm
@@ -116,8 +123,9 @@ CREATE TABLE fcm
     fcm_token                   VARCHAR(255)  NOT NULL,
     created_at                  DATETIME(6)   NOT NULL,
     updated_at                  DATETIME(6)   NOT NULL,
-    user_id                     BIGINT,
-    CONSTRAINT fk_fcm_user FOREIGN KEY (user_id) REFERENCES users (user_id)
+    user_id                     BIGINT        NULL,
+    CONSTRAINT fk_fcm_user_id
+        FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE notification
@@ -130,15 +138,16 @@ CREATE TABLE notification
     created_at                  DATETIME(6)   NOT NULL,
     updated_at                  DATETIME(6)   NOT NULL,
     is_deleted                  BIT           NOT NULL,
-    user_id                     BIGINT,
-    CONSTRAINT fk_notification_user FOREIGN KEY (user_id) REFERENCES users (user_id)
+    user_id                     BIGINT        NULL,
+    CONSTRAINT fk_notification_user_id
+        FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE team
 (
     team_id                     BIGINT AUTO_INCREMENT PRIMARY KEY,
     project_name                VARCHAR(20)   NOT NULL,
-    project_url                 VARCHAR(255),
+    project_url                 VARCHAR(255)  NULL,
     open_chat_url               VARCHAR(100)  NOT NULL,
     project_description         VARCHAR(500)  NOT NULL,
     expectation                 VARCHAR(200)  NOT NULL,
@@ -152,7 +161,7 @@ CREATE TABLE team
     manager_max_cnt             TINYINT       NOT NULL,
     visited_cnt                 BIGINT        NOT NULL,
     is_recruiting               BIT           NOT NULL,
-    completed_at                DATETIME(6),
+    completed_at                DATETIME(6)   NULL,
     created_at                  DATETIME(6)   NOT NULL,
     updated_at                  DATETIME(6)   NOT NULL,
     is_deleted                  BIT           NOT NULL
@@ -164,14 +173,16 @@ CREATE TABLE team_member
     team_member_id              BIGINT AUTO_INCREMENT PRIMARY KEY,
     position                    VARCHAR(20)   NOT NULL,
     team_member_status          VARCHAR(10)   NOT NULL,
-    is_leader                   BIT,
+    is_leader                   BIT           NULL,
     created_at                  DATETIME(6)   NOT NULL,
     updated_at                  DATETIME(6)   NOT NULL,
     is_deleted                  BIT           NOT NULL,
     team_id                     BIGINT        NOT NULL,
     user_id                     BIGINT        NOT NULL,
-    CONSTRAINT fk_team_member_team FOREIGN KEY (team_id) REFERENCES team (team_id),
-    CONSTRAINT fk_team_member_user FOREIGN KEY (user_id) REFERENCES users (user_id)
+    CONSTRAINT fk_team_member_team_id
+        FOREIGN KEY (team_id) REFERENCES team (team_id),
+    CONSTRAINT fk_team_member_user_id
+        FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE favorite
@@ -179,12 +190,15 @@ CREATE TABLE favorite
     favorite_id                 BIGINT AUTO_INCREMENT PRIMARY KEY,
     created_at                  DATETIME(6)   NOT NULL,
     updated_at                  DATETIME(6)   NOT NULL,
-    favorite_team_id            BIGINT,
-    favorite_user_id            BIGINT,
+    favorite_team_id            BIGINT        NULL,
+    favorite_user_id            BIGINT        NULL,
     user_id                     BIGINT        NOT NULL,
-    CONSTRAINT fk_favorite_favorite_team FOREIGN KEY (favorite_team_id) REFERENCES team (team_id),
-    CONSTRAINT fk_favorite_favorite_user FOREIGN KEY (favorite_user_id) REFERENCES users (user_id),
-    CONSTRAINT fk_favorite_user FOREIGN KEY (user_id) REFERENCES users (user_id)
+    CONSTRAINT fk_favorite_favorite_team_id
+        FOREIGN KEY (favorite_team_id) REFERENCES team (team_id),
+    CONSTRAINT fk_favorite_favorite_user_id
+        FOREIGN KEY (favorite_user_id) REFERENCES users (user_id),
+    CONSTRAINT fk_favorite_user_id
+        FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE offer
@@ -193,13 +207,15 @@ CREATE TABLE offer
     created_at                  DATETIME(6)   NOT NULL,
     updated_at                  DATETIME(6)   NOT NULL,
     is_deleted                  BIT           NOT NULL,
-    is_accepted                 BIT,
+    is_accepted                 BIT           NULL,
     offered_by                  VARCHAR(6)    NOT NULL,
     position                    VARCHAR(20)   NOT NULL,
     team_id                     BIGINT        NOT NULL,
     user_id                     BIGINT        NOT NULL,
-    CONSTRAINT fk_offer_user FOREIGN KEY (user_id) REFERENCES users (user_id),
-    CONSTRAINT fk_offer_team FOREIGN KEY (team_id) REFERENCES team (team_id)
+    CONSTRAINT fk_offer_user_id
+        FOREIGN KEY (user_id) REFERENCES users (user_id),
+    CONSTRAINT fk_offer_team_id
+        FOREIGN KEY (team_id) REFERENCES team (team_id)
 );
 
 
@@ -213,6 +229,8 @@ CREATE TABLE review
     is_deleted                  BIT           NOT NULL,
     reviewee_id                 BIGINT        NOT NULL,
     reviewer_id                 BIGINT        NOT NULL,
-    CONSTRAINT fk_review_reviewee FOREIGN KEY (reviewee_id) REFERENCES team_member (team_member_id),
-    CONSTRAINT fk_review_reviewer FOREIGN KEY (reviewer_id) REFERENCES team_member (team_member_id)
+    CONSTRAINT fk_review_reviewee_id
+        FOREIGN KEY (reviewee_id) REFERENCES team_member (team_member_id),
+    CONSTRAINT fk_review_reviewer_id
+        FOREIGN KEY (reviewer_id) REFERENCES team_member (team_member_id)
 );
