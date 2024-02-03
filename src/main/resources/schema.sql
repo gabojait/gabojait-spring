@@ -47,8 +47,7 @@ CREATE TABLE users
     contact_id                  BIGINT       NOT NULL,
     CONSTRAINT uq_user_username UNIQUE (username),
     CONSTRAINT uq_user_nickname UNIQUE (nickname),
-    CONSTRAINT fk_user_contact_id
-        FOREIGN KEY (contact_id) REFERENCES contact (contact_id)
+    CONSTRAINT fk_user_contact FOREIGN KEY (contact_id) REFERENCES contact (contact_id)
 );
 
 CREATE TABLE user_role
@@ -58,8 +57,7 @@ CREATE TABLE user_role
     created_at                  DATETIME(6)  NOT NULL,
     updated_at                  DATETIME(6)  NOT NULL,
     user_id                     BIGINT       NOT NULL,
-    CONSTRAINT fk_user_role_user_id
-        FOREIGN KEY (user_id) REFERENCES users (user_id)
+    CONSTRAINT fk_user_role_user FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE education
@@ -72,8 +70,7 @@ CREATE TABLE education
     created_at                  DATETIME(6)  NOT NULL,
     updated_at                  DATETIME(6)  NOT NULL,
     user_id                     BIGINT       NOT NULL,
-    CONSTRAINT fk_education_user_id
-        FOREIGN KEY (user_id) REFERENCES users (user_id)
+    CONSTRAINT fk_education_user FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE portfolio
@@ -85,8 +82,7 @@ CREATE TABLE portfolio
     created_at                  DATETIME(6)   NOT NULL,
     updated_at                  DATETIME(6)   NOT NULL,
     user_id                     BIGINT        NOT NULL,
-    CONSTRAINT fk_portfolio_user_id
-        FOREIGN KEY (user_id) REFERENCES users (user_id)
+    CONSTRAINT fk_portfolio_user FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE skill
@@ -98,8 +94,7 @@ CREATE TABLE skill
     created_at                  DATETIME(6)   NOT NULL,
     updated_at                  DATETIME(6)   NOT NULL,
     user_id                     BIGINT        NOT NULL,
-    CONSTRAINT fk_skill_user_id
-        FOREIGN KEY (user_id) REFERENCES users (user_id)
+    CONSTRAINT fk_skill_user FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE work
@@ -113,8 +108,7 @@ CREATE TABLE work
     created_at                  DATETIME(6)   NOT NULL,
     updated_at                  DATETIME(6)   NOT NULL,
     user_id                     BIGINT        NOT NULL,
-    CONSTRAINT fk_work_user_id
-        FOREIGN KEY (user_id) REFERENCES users (user_id)
+    CONSTRAINT fk_work_user FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE fcm
@@ -124,8 +118,7 @@ CREATE TABLE fcm
     created_at                  DATETIME(6)   NOT NULL,
     updated_at                  DATETIME(6)   NOT NULL,
     user_id                     BIGINT        NULL,
-    CONSTRAINT fk_fcm_user_id
-        FOREIGN KEY (user_id) REFERENCES users (user_id)
+    CONSTRAINT fk_fcm_user FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE notification
@@ -139,8 +132,7 @@ CREATE TABLE notification
     updated_at                  DATETIME(6)   NOT NULL,
     is_deleted                  BIT           NOT NULL,
     user_id                     BIGINT        NULL,
-    CONSTRAINT fk_notification_user_id
-        FOREIGN KEY (user_id) REFERENCES users (user_id)
+    CONSTRAINT fk_notification_user FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE team
@@ -179,10 +171,8 @@ CREATE TABLE team_member
     is_deleted                  BIT           NOT NULL,
     team_id                     BIGINT        NOT NULL,
     user_id                     BIGINT        NOT NULL,
-    CONSTRAINT fk_team_member_team_id
-        FOREIGN KEY (team_id) REFERENCES team (team_id),
-    CONSTRAINT fk_team_member_user_id
-        FOREIGN KEY (user_id) REFERENCES users (user_id)
+    CONSTRAINT fk_team_member_team FOREIGN KEY (team_id) REFERENCES team (team_id),
+    CONSTRAINT fk_team_member_user FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE favorite
@@ -193,12 +183,9 @@ CREATE TABLE favorite
     favorite_team_id            BIGINT        NULL,
     favorite_user_id            BIGINT        NULL,
     user_id                     BIGINT        NOT NULL,
-    CONSTRAINT fk_favorite_favorite_team_id
-        FOREIGN KEY (favorite_team_id) REFERENCES team (team_id),
-    CONSTRAINT fk_favorite_favorite_user_id
-        FOREIGN KEY (favorite_user_id) REFERENCES users (user_id),
-    CONSTRAINT fk_favorite_user_id
-        FOREIGN KEY (user_id) REFERENCES users (user_id)
+    CONSTRAINT fk_favorite_favorite_team FOREIGN KEY (favorite_team_id) REFERENCES team (team_id),
+    CONSTRAINT fk_favorite_favorite_user FOREIGN KEY (favorite_user_id) REFERENCES users (user_id),
+    CONSTRAINT fk_favorite_user FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE offer
@@ -212,10 +199,8 @@ CREATE TABLE offer
     position                    VARCHAR(20)   NOT NULL,
     team_id                     BIGINT        NOT NULL,
     user_id                     BIGINT        NOT NULL,
-    CONSTRAINT fk_offer_user_id
-        FOREIGN KEY (user_id) REFERENCES users (user_id),
-    CONSTRAINT fk_offer_team_id
-        FOREIGN KEY (team_id) REFERENCES team (team_id)
+    CONSTRAINT fk_offer_user FOREIGN KEY (user_id) REFERENCES users (user_id),
+    CONSTRAINT fk_offer_team FOREIGN KEY (team_id) REFERENCES team (team_id)
 );
 
 
@@ -229,8 +214,6 @@ CREATE TABLE review
     is_deleted                  BIT           NOT NULL,
     reviewee_id                 BIGINT        NOT NULL,
     reviewer_id                 BIGINT        NOT NULL,
-    CONSTRAINT fk_review_reviewee_id
-        FOREIGN KEY (reviewee_id) REFERENCES team_member (team_member_id),
-    CONSTRAINT fk_review_reviewer_id
-        FOREIGN KEY (reviewer_id) REFERENCES team_member (team_member_id)
+    CONSTRAINT fk_review_reviewee FOREIGN KEY (reviewee_id) REFERENCES team_member (team_member_id),
+    CONSTRAINT fk_review_reviewer FOREIGN KEY (reviewer_id) REFERENCES team_member (team_member_id)
 );
