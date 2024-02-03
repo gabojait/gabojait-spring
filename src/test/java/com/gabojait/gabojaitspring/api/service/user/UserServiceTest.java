@@ -34,8 +34,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -56,7 +57,7 @@ class UserServiceTest {
     @Autowired private PasswordUtility passwordUtility;
 
     @Test
-    @DisplayName("아이디 검증을 한다.")
+    @DisplayName("아이디 검증이 정상 작동한다")
     void givenValid_whenValidateUsername_thenReturn() {
         // given
         String username = "tester";
@@ -71,7 +72,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("'gabojait'이 포함된 아이디 검증시 예외가 발생한다.")
+    @DisplayName("'gabojait'이 포함된 아이디로 아이디 검증시 예외가 발생한다.")
     void givenGabojaitUsername_whenValidateUsername_thenThrow() {
         // given
         String username = "gabojaittest";
@@ -84,7 +85,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("사용중인 아이디 검증시 예외가 발생한다.")
+    @DisplayName("사용중인 아이디로 아이디 검증시 예외가 발생한다")
     void givenExistingUsername_whenValidateUsername_thenThrow() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -102,7 +103,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("닉네임을 검증한다.")
+    @DisplayName("닉네임을 검증이 정상 작동한다")
     void givenValid_whenValidateNickname_thenReturn() {
         // given
         String nickname = "테스터";
@@ -117,7 +118,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("'가보자잇'이 포함된 닉네임 검증시 예외가 발생한다.")
+    @DisplayName("'가보자잇'이 포함된 닉네임으로 닉네임 검증시 예외가 발생한다.")
     void givenGabojaitNickname_whenValidateNickname_thenThrow() {
         // given
         String nickname = "가보자잇크루";
@@ -130,7 +131,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("사용중인 닉네임 검증시 예외가 발생한다.")
+    @DisplayName("사용중인 닉네임으로 닉네임 검증시 예외가 발생한다")
     void givenExistingNickname_whenValidateNickname_thenThrow() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -148,7 +149,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("회원 가입을 한다.")
+    @DisplayName("회원 가입이 정상 작동한다")
     void givenValid_whenRegister_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -162,22 +163,22 @@ class UserServiceTest {
         UserRegisterResponse response = userService.register(request, lastRequestAt);
 
         // then
-        assertThat(response)
-                .extracting("username", "nickname", "gender", "birthdate", "isNotified")
-                .containsExactly(request.getUsername(), request.getNickname(), Gender.valueOf(request.getGender()),
-                        request.getBirthdate(), true);
+        User user = userRepository.findByContact(contact).get();
+        List<UserRole> userRoles = userRoleRepository.findAll(user.getUsername());
+        List<Fcm> fcms = fcmRepository.findAllByUser(user);
 
-        Optional<User> user = userRepository.findByContact(contact);
-
-        List<UserRole> userRoles = userRoleRepository.findAll(user.get().getUsername());
-        assertEquals(Role.USER, userRoles.get(0).getRole());
-
-        List<Fcm> fcms = fcmRepository.findAllByUser(user.get());
-        assertEquals(request.getFcmToken(), fcms.get(0).getFcmToken());
+        assertAll(
+                () -> assertThat(response)
+                        .extracting("username", "nickname", "gender", "birthdate", "isNotified")
+                        .containsExactly(request.getUsername(), request.getNickname(), Gender.valueOf(request.getGender()),
+                                request.getBirthdate(), true),
+                () -> assertThat(userRoles.get(0).getRole()).isEqualTo(Role.USER),
+                () -> assertThat(fcms.get(0).getFcmToken()).isEqualTo(request.getFcmToken())
+        );
     }
 
     @Test
-    @DisplayName("동일한하지 않은 비밀번호와 비밀번호 재입력으로 회원가입시 예외가 발생한다.")
+    @DisplayName("동일하지 않은 비밀번호와 비밀번호 재입력으로 회원가입시 예외가 발생한다")
     void givenUnMatchingPassword_whenRegister_thenThrow() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -196,8 +197,8 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("틀린 인증번호로 회원가입시 예외가 발생한다.")
-    void givenIncorrectVerificationCode_whenRegister_thenThrow() {
+    @DisplayName("잘못된 인증번호로 회원가입시 예외가 발생한다")
+    void givenInvalidVerificationCode_whenRegister_thenThrow() {
         // given
         Contact contact = createContact("tester@gabojait.com");
         contact.verified();
@@ -215,7 +216,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("연락처 인증요청하지 않은 연락처로 회원가입시 예외가 발생한다.")
+    @DisplayName("인증 요청하지 않은 연락처로 회원가입시 예외가 발생한다")
     void givenUnverifiedContact_whenRegister_thenThrow() {
         // given
         UserRegisterRequest request = createValidUserRegisterRequest();
@@ -229,7 +230,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("회원가입된 연락처로 회원가입시 예외가 발생한다.")
+    @DisplayName("회원가입된 연락처로 회원가입시 예외가 발생한다")
     void givenRegisteredContact_whenRegister_thenThrow() {
         // given
         Contact contact1 = createContact("tester@gabojait.com");
@@ -251,7 +252,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("로그인을 한다.")
+    @DisplayName("로그인이 정상 작동한다")
     void givenValid_whenLogin_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -268,11 +269,11 @@ class UserServiceTest {
         UserLoginResponse response = userService.login(request, lastRequestAt);
 
         // then
-        assertEquals(request.getUsername(), response.getUsername());
+        assertThat(response.getUsername()).isEqualTo(request.getUsername());
     }
 
     @Test
-    @DisplayName("존재하지 않는 아이디로 로그인시 예외가 발생한다.")
+    @DisplayName("존재하지 않는 아이디로 로그인시 예외가 발생한다")
     void givenUnregisteredUser_whenLogin_thenThrow() {
         // given
         UserLoginRequest request = createValidUserLoginRequest();
@@ -286,7 +287,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("잘못된 비밀번호로 로그인시 예외가 발생한다.")
+    @DisplayName("잘못된 비밀번호로 로그인시 예외가 발생한다")
     void givenIncorrectPassword_whenLogin_thenThrow() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -308,7 +309,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("로그아웃을 한다.")
+    @DisplayName("로그아웃이 정상 작동한다")
     void givenValid_whenLogout_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -329,8 +330,8 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원으로 로그아웃시 예외가 발생한다.")
-    void givenNonExistingUser_whenLogout_thenThrow() {
+    @DisplayName("존재하지 않은 회원 식별자로 로그아웃시 예외가 발생한다")
+    void givenNonExistingUserId_whenLogout_thenThrow() {
         // given
         long userId = 1L;
         String fcmToken = "fcm-token";
@@ -343,8 +344,8 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("회원 정보 조회를 한다.")
-    void givenUsername_whenFindUserInfo_thenReturn() {
+    @DisplayName("회원 정보 조회가 정상 작동한다")
+    void givenValid_whenFindUserInfo_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
         contact.verified();
@@ -357,22 +358,23 @@ class UserServiceTest {
         UserFindMyselfResponse response = userService.findUserInfo(user.getId());
 
         // then
-        assertThat(response)
-                .extracting("userId", "username", "nickname", "gender",
-                        "birthdate", "isNotified", "createdAt", "updatedAt")
-                .containsExactly(user.getId(), user.getUsername(), user.getNickname(), user.getGender(),
-                        user.getBirthdate(), user.getIsNotified(), user.getCreatedAt(), user.getUpdatedAt());
-
-        assertThat(response.getContact())
-                .extracting("contactId", "email", "createdAt",
-                        "updatedAt")
-                .containsExactly(contact.getId(), contact.getEmail(), contact.getCreatedAt(),
-                        contact.getUpdatedAt());
+        assertAll(
+                () -> assertThat(response)
+                        .extracting("userId", "username", "nickname", "gender",
+                                "birthdate", "isNotified", "createdAt", "updatedAt")
+                        .containsExactly(user.getId(), user.getUsername(), user.getNickname(), user.getGender(),
+                                user.getBirthdate(), user.getIsNotified(), user.getCreatedAt(), user.getUpdatedAt()),
+                () -> assertThat(response.getContact())
+                        .extracting("contactId", "email", "createdAt",
+                                "updatedAt")
+                        .containsExactly(contact.getId(), contact.getEmail(), contact.getCreatedAt(),
+                                contact.getUpdatedAt())
+        );
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 정보 조회를 한다.")
-    void givenNonExistingUsername_whenFindUserInfo_thenThrow() {
+    @DisplayName("존재하지 않은 회원 식별자로 회원 정보 조회시 예외가 발생한다")
+    void givenNonExistingUserId_whenFindUserInfo_thenThrow() {
         // given
         long userId = 1L;
 
@@ -384,7 +386,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("존재하는 FCM 토큰 업데이트를 한다.")
+    @DisplayName("존재하는 FCM 토큰 업데이트가 정상 작동한다")
     void givenExistingFcmToken_whenUpdateFcmToken_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -404,15 +406,17 @@ class UserServiceTest {
         userService.updateFcmToken(user.getId(), fcmToken, lastRequestAt);
 
         // then
-        Optional<Fcm> foundFcm = fcmRepository.findByUserAndFcmToken(user, fcmToken);
-        assertEquals(fcmToken, foundFcm.get().getFcmToken());
+        Fcm foundFcm = fcmRepository.findByUserAndFcmToken(user, fcmToken).get();
+        User foundUser = userRepository.findByUsername(user.getUsername()).get();
 
-        Optional<User> foundUser = userRepository.findByUsername(user.getUsername());
-        assertEquals(lastRequestAt, foundUser.get().getLastRequestAt());
+        assertAll(
+                () -> assertThat(foundFcm.getFcmToken()).isEqualTo(fcmToken),
+                () -> assertThat(foundUser).isEqualTo(user)
+        );
     }
 
     @Test
-    @DisplayName("존재하지 않은 FCM 토큰 업데이트를 한다.")
+    @DisplayName("존재하지 않은 FCM 토큰 업데이트가 정상 작동한다")
     void givenNonExistingFcmToken_whenUpdateFcmToken_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -429,15 +433,71 @@ class UserServiceTest {
         userService.updateFcmToken(user.getId(), fcmToken, lastRequestAt);
 
         // then
-        Optional<Fcm> fcm = fcmRepository.findByUserAndFcmToken(user, fcmToken);
-        assertEquals(fcmToken, fcm.get().getFcmToken());
+        Fcm foundFcm = fcmRepository.findByUserAndFcmToken(user, fcmToken).get();
+        User foundUser = userRepository.findByUsername(user.getUsername()).get();
 
-        Optional<User> foundUser = userRepository.findByUsername(user.getUsername());
-        assertEquals(lastRequestAt, foundUser.get().getLastRequestAt());
+        assertAll(
+                () -> assertThat(foundFcm.getFcmToken()).isEqualTo(fcmToken),
+                () -> assertThat(foundUser).isEqualTo(user)
+        );
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원의 FCM 토큰을 업데이트시 예외가 발생한다.")
+    @DisplayName("null로 FCM 토큰 업데이트가 정상 작동한다")
+    void givenNull_whenUpdateFcmToken_thenReturn() {
+        // given
+        Contact contact = createContact("tester@gabojait.com");
+        contact.verified();
+        contactRepository.save(contact);
+
+        User user = createUser("tester", "테스터", contact);
+        userRepository.save(user);
+
+        String fcmToken = null;
+        LocalDateTime lastRequestAt = LocalDateTime.now();
+
+        // when
+        userService.updateFcmToken(user.getId(), fcmToken, lastRequestAt);
+
+        // then
+        List<Fcm> foundFcms = fcmRepository.findAllByUser(user);
+        User foundUser = userRepository.findByUsername(user.getUsername()).get();
+
+        assertAll(
+                () -> assertThat(foundFcms).isEmpty(),
+                () -> assertThat(foundUser).isEqualTo(user)
+        );
+    }
+
+    @Test
+    @DisplayName("빈값으로 FCM 토큰 업데이트가 정상 작동한다")
+    void givenBlank_whenUpdateFcmToken_thenReturn() {
+        // given
+        Contact contact = createContact("tester@gabojait.com");
+        contact.verified();
+        contactRepository.save(contact);
+
+        User user = createUser("tester", "테스터", contact);
+        userRepository.save(user);
+
+        String fcmToken = "";
+        LocalDateTime lastRequestAt = LocalDateTime.now();
+
+        // when
+        userService.updateFcmToken(user.getId(), fcmToken, lastRequestAt);
+
+        // then
+        List<Fcm> foundFcms = fcmRepository.findAllByUser(user);
+        User foundUser = userRepository.findByUsername(user.getUsername()).get();
+
+        assertAll(
+                () -> assertThat(foundFcms).isEmpty(),
+                () -> assertThat(foundUser).isEqualTo(user)
+        );
+    }
+
+    @Test
+    @DisplayName("존재하지 않은 회원의 FCM 토큰을 업데이트시 예외가 발생한다")
     void givenNonExistingUser_whenUpdateFcmToken_thenThrow() {
         // given
         long userId = 1L;
@@ -452,7 +512,7 @@ class UserServiceTest {
     }
     
     @Test
-    @DisplayName("아이디를 이메일로 전송한다.")
+    @DisplayName("아이디를 이메일로 전송이 정상 작동한다")
     void givenValid_whenSendUsernameToEmail_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -467,7 +527,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 연락처로 아이디 이메일로 전송시 예외가 발생한다.")
+    @DisplayName("존재하지 않은 연락처로 아이디 이메일로 전송시 예외가 발생한다")
     void givenNonRegisteredEmail_whenSendUsernameToEmail_thenThrow() {
         // given
         String email = "tester@gabojait.com";
@@ -480,7 +540,22 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("비밀번호를 이메일로 전송한다.")
+    @DisplayName("존재하지 않은 회원으로 아이디를 이메일로 전송시 예외가 발생한다")
+    void givenNonRegisteredUser_whenSendUsernameToEmail_thenThrow() {
+        // given
+        Contact contact = createContact("tester@gabojait.com");
+        contact.verified();
+        contactRepository.save(contact);
+
+        // when & then
+        assertThatThrownBy(() -> userService.sendUsernameToEmail(contact.getEmail()))
+                .isInstanceOf(CustomException.class)
+                .extracting("errorCode")
+                .isEqualTo(CONTACT_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("비밀번호를 이메일로 전송이 정상 작동한다")
     void givenValid_whenSendPasswordToEmail_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -497,7 +572,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("동일하지 않은 이메일로 비밀번호를 이메일로 전송시 예외가 발생한다.")
+    @DisplayName("동일하지 않은 이메일로 비밀번호를 이메일로 전송시 예외가 발생한다")
     void givenUnMatchingEmail_whenSendPasswordToEmail_thenThrow() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -518,7 +593,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("가입하지 않은 이메일로 비밀번호를 이메일로 전송시 예외가 발생한다.")
+    @DisplayName("가입하지 않은 이메일로 비밀번호를 이메일로 전송시 예외가 발생한다")
     void givenUnregisteredUser_whenSendPasswordToEmail_thenThrow() {
         // given
         UserFindPasswordRequest request = createValidUserFindPasswordRequest();
@@ -531,7 +606,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("비밀번호 검증을 한다.")
+    @DisplayName("비밀번호 검증이 정상 작동한다")
     void givenValid_whenVerifyPassword_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -548,7 +623,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("틀린 비밀번호로 비밀번호 검증시 예외가 발생한다.")
+    @DisplayName("틀린 비밀번호로 비밀번호 검증시 예외가 발생한다")
     void givenIncorrectPassword_whenVerifyPassword_thenThrow() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -568,7 +643,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원으로 비밀번호 검증시 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원으로 비밀번호 검증시 예외가 발생한다")
     void givenNonExistingUser_whenVerifyPassword_thenThrow() {
         // given
         long userId = 1L;
@@ -582,7 +657,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("닉네임 업데이트를 한다.")
+    @DisplayName("닉네임 업데이트가 정상 작동한다")
     void givenValid_whenUpdateNickname_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -598,11 +673,11 @@ class UserServiceTest {
         userService.updateNickname(user.getId(), nickname);
 
         // then
-        assertEquals(nickname, user.getNickname());
+        assertThat(user.getNickname()).isEqualTo(nickname);
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원으로 닉네임 업데이트를 하면 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원으로 닉네임 업데이트를 하면 예외가 발생한다")
     void givenNonExistingUser_whenUpdateNickname_thenThrow() {
         // given
         long userId = 1L;
@@ -616,7 +691,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("'가보자잇'이 포함된 닉네임으로 닉네임 업데이트시 예외가 발생한다.")
+    @DisplayName("'가보자잇'이 포함된 닉네임으로 닉네임 업데이트시 예외가 발생한다")
     void givenGabojaitNickname_whenUpdateNickname_thenThrow() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -636,7 +711,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("사용중인 닉네임으로 닉네임 업데이트시 예외가 발생한다.")
+    @DisplayName("사용중인 닉네임으로 닉네임 업데이트시 예외가 발생한다")
     void givenExistingNickname_whenUpdateNickname_thenThrow() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -654,7 +729,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("비밀번호 업데이트를 한다.")
+    @DisplayName("비밀번호 업데이트가 정상 작동한다")
     void givenValid_whenUpdatePassword_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -671,7 +746,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("동일하지 않은 비밀번호로 비밀번호 업데이트를 하면 예외가 발생한다.")
+    @DisplayName("동일하지 않은 비밀번호로 비밀번호 업데이트를 하면 예외가 발생한다")
     void givenUnMatchingPassword_whenUpdatePassword_thenThrow() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -693,7 +768,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원으로 비밀번호 업데이트를 하면 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원으로 비밀번호 업데이트를 하면 예외가 발생한다")
     void givenNonExistingUser_whenUpdatePassword_thenThrow() {
         // given
         long userId = 1L;
@@ -708,7 +783,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("알림 여부 업데이트를 한다.")
+    @DisplayName("알림 여부 업데이트가 정상 작동한다")
     void givenValid_whenUpdateIsNotified_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -724,11 +799,11 @@ class UserServiceTest {
         userService.updateIsNotified(user.getId(), isNotified);
 
         // then
-        assertFalse(user.getIsNotified());
+        assertThat(user.getIsNotified()).isFalse();
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원으로 알림 여부 업데이트를 하면 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원으로 알림 여부 업데이트를 하면 예외가 발생한다")
     void givenNonExistingUser_whenUpdateIsNotified_thenThrow() {
         // given
         long userId = 1L;
@@ -742,7 +817,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("회원 탈퇴를 한다.")
+    @DisplayName("회원 탈퇴가 정상 작동한다")
     void givenValid_whenWithdrawal_thenReturn() {
         // given
         String email = "tester@gabojait.com";
@@ -755,16 +830,16 @@ class UserServiceTest {
         User user = createUser(username, "테스터", contact);
         userRepository.save(user);
 
-        Education education = createEducation("가보자잇대", user);
+        Education education = createEducation(user);
         educationRepository.save(education);
 
-        Portfolio portfolio = createPortfolio("깃허브", user);
+        Portfolio portfolio = createPortfolio(user);
         portfolioRepository.save(portfolio);
 
-        Skill skill = createSkill("스프링", user);
+        Skill skill = createSkill(user);
         skillRepository.save(skill);
 
-        Work work = createWork("가보자잇사", user);
+        Work work = createWork(user);
         workRepository.save(work);
 
 
@@ -772,20 +847,22 @@ class UserServiceTest {
         userService.withdrawal(user.getId());
 
         // then
-        assertThat(userRepository.findByUsername(username)).isEmpty();
-        assertThat(contactRepository.findByEmail(email)).isEmpty();
-        assertThat(fcmRepository.findAllByUser(user)).isEmpty();
-        assertThat(notificationRepository.findAllByUser(user)).isEmpty();
-        assertThat(userRoleRepository.findAll(username)).isEmpty();
-        assertThat(educationRepository.findAll(user.getId())).isEmpty();
-        assertThat(portfolioRepository.findAll(user.getId())).isEmpty();
-        assertThat(skillRepository.findAll(user.getId())).isEmpty();
-        assertThat(workRepository.findAll(user.getId())).isEmpty();
-        assertThat(teamMemberRepository.findAllFetchTeam(user.getId())).isEmpty();
+        assertAll(
+                () -> assertThat(userRepository.findByUsername(username)).isEmpty(),
+                () -> assertThat(contactRepository.findByEmail(email)).isEmpty(),
+                () -> assertThat(fcmRepository.findAllByUser(user)).isEmpty(),
+                () -> assertThat(notificationRepository.findAllByUser(user)).isEmpty(),
+                () -> assertThat(userRoleRepository.findAll(username)).isEmpty(),
+                () -> assertThat(educationRepository.findAll(user.getId())).isEmpty(),
+                () -> assertThat(portfolioRepository.findAll(user.getId())).isEmpty(),
+                () -> assertThat(skillRepository.findAll(user.getId())).isEmpty(),
+                () -> assertThat(workRepository.findAll(user.getId())).isEmpty(),
+                () -> assertThat(teamMemberRepository.findAllFetchTeam(user.getId())).isEmpty()
+        );
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원으로 회원 탈퇴를 하면 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원으로 회원 탈퇴를 하면 예외가 발생한다")
     void givenNonExistingUser_whenWithdrawal_thenThrow() {
         // given
         long userId = 1L;
@@ -859,9 +936,9 @@ class UserServiceTest {
                 .build();
     }
 
-    private Education createEducation(String institutionName, User user) {
+    private Education createEducation(User user) {
         return Education.builder()
-                .institutionName(institutionName)
+                .institutionName("가보자잇대")
                 .startedAt(LocalDate.of(2019, 3, 1))
                 .endedAt(LocalDate.of(2023,8, 1))
                 .isCurrent(false)
@@ -869,27 +946,27 @@ class UserServiceTest {
                 .build();
     }
 
-    private Portfolio createPortfolio(String portfolioName, User user) {
+    private Portfolio createPortfolio(User user) {
         return Portfolio.builder()
-                .portfolioName(portfolioName)
+                .portfolioName("깃허브")
                 .portfolioUrl("github.com/gabojait")
                 .media(Media.LINK)
                 .user(user)
                 .build();
     }
 
-    private Skill createSkill(String skillName, User user) {
+    private Skill createSkill(User user) {
         return Skill.builder()
-                .skillName(skillName)
+                .skillName("스프링")
                 .level(Level.MID)
                 .isExperienced(true)
                 .user(user)
                 .build();
     }
 
-    private Work createWork(String corporationName, User user) {
+    private Work createWork(User user) {
         return Work.builder()
-                .corporationName(corporationName)
+                .corporationName("가보자잇사")
                 .workDescription("가보자잇사에서 백엔드 개발")
                 .startedAt(LocalDate.of(2022, 8, 1))
                 .isCurrent(true)

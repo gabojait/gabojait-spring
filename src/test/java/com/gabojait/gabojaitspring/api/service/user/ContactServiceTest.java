@@ -34,7 +34,7 @@ class ContactServiceTest {
     @Autowired private UserRepository userRepository;
 
     @Test
-    @DisplayName("연락처 중복 검증을 한다.")
+    @DisplayName("연락처 중복 검증이 정상 작동한다")
     void givenValid_whenValidateDuplicateContact_thenReturn() {
         // given
         String email = "tester@gabojait.com";
@@ -49,7 +49,7 @@ class ContactServiceTest {
     }
 
     @Test
-    @DisplayName("존재하는 연락처 중복 검증시 기존 연락처를 삭제한다.")
+    @DisplayName("존재하는 연락처 중복 검증시 기존 연락처 삭제가 정상 작동한다")
     void givenExistingContact_whenValidateDuplicateContact_thenReturn() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -65,7 +65,7 @@ class ContactServiceTest {
     }
 
     @Test
-    @DisplayName("회원가입된 연락처 중복 검증시 예외가 발생한다.")
+    @DisplayName("회원가입된 연락처 중복 검증시 예외가 발생한다")
     void givenRegisteredContact_whenValidateDuplicateContact_thenThrow() {
         // given
         Contact contact = createContact("tester@gabojait.com");
@@ -81,7 +81,7 @@ class ContactServiceTest {
     }
 
     @Test
-    @DisplayName("연락처 생성 요청시 연락처를 생성한다.")
+    @DisplayName("연락처를 생성이 정상 작동한다")
     void givenValid_whenCreateContact_thenReturn() {
         // given
         ContactCreateRequest request = createValidContactCreateRequest();
@@ -98,7 +98,7 @@ class ContactServiceTest {
     }
 
     @Test
-    @DisplayName("존재하는 연락처 생성 요청시 예외가 발생한다.")
+    @DisplayName("존재하는 연락처 생성 요청시 예외가 발생한다")
     void givenExistingContact_whenCreateContact_thenThrow() {
         // given
         ContactCreateRequest request = createValidContactCreateRequest();
@@ -112,7 +112,7 @@ class ContactServiceTest {
     }
 
     @Test
-    @DisplayName("연락처 인증코드 확인 요청시 연락처를 인증한다.")
+    @DisplayName("연락처 인증코드 확인 요청시 연락처를 인증한다")
     void givenValid_whenVerifyContact_thenReturn() {
         // given
         ContactVerifyRequest request = createValidContactVerifyRequest("000000");
@@ -132,7 +132,7 @@ class ContactServiceTest {
     }
 
     @Test
-    @DisplayName("틀린 인증코드로 연락처 인증코드 확인 요청시 예외가 발생한다.")
+    @DisplayName("잘못된 인증코드로 연락처 인증코드 확인 요청시 예외가 발생한다")
     void givenInvalidVerificationCode_whenVerifyContact_thenThrow() {
         // given
         ContactVerifyRequest request = createValidContactVerifyRequest("000001");
@@ -148,7 +148,7 @@ class ContactServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 연락처 인증 요청시 예외가 발생한다.")
+    @DisplayName("존재하지 않은 연락처 인증 요청시 예외가 발생한다")
     void givenNonExistingContact_whenVerifyContact_thenThrow() {
         // given
         ContactVerifyRequest request = createValidContactVerifyRequest("000000");
