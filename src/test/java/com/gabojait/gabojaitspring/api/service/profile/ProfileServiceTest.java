@@ -1,8 +1,9 @@
 package com.gabojait.gabojaitspring.api.service.profile;
 
-import com.gabojait.gabojaitspring.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.profile.request.*;
 import com.gabojait.gabojaitspring.api.dto.profile.response.*;
+import com.gabojait.gabojaitspring.common.exception.CustomException;
+import com.gabojait.gabojaitspring.common.response.PageData;
 import com.gabojait.gabojaitspring.common.util.FileUtility;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
 import com.gabojait.gabojaitspring.domain.offer.OfferedBy;
@@ -10,8 +11,10 @@ import com.gabojait.gabojaitspring.domain.profile.*;
 import com.gabojait.gabojaitspring.domain.review.Review;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
-import com.gabojait.gabojaitspring.domain.user.*;
-import com.gabojait.gabojaitspring.common.exception.CustomException;
+import com.gabojait.gabojaitspring.domain.user.Contact;
+import com.gabojait.gabojaitspring.domain.user.Gender;
+import com.gabojait.gabojaitspring.domain.user.Position;
+import com.gabojait.gabojaitspring.domain.user.User;
 import com.gabojait.gabojaitspring.repository.offer.OfferRepository;
 import com.gabojait.gabojaitspring.repository.profile.EducationRepository;
 import com.gabojait.gabojaitspring.repository.profile.PortfolioRepository;
@@ -35,13 +38,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -62,7 +64,7 @@ class ProfileServiceTest {
     @Autowired private FileUtility fileUtility;
 
     @Test
-    @DisplayName("내 프로필 조회를 한다.")
+    @DisplayName("내 프로필 조회가 정상 작동한다")
     void givenMyUserId_whenMyFindProfile_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com","tester1", "테스터일");
@@ -111,87 +113,80 @@ class ProfileServiceTest {
         ProfileFindMyselfResponse response = profileService.findMyProfile(user2.getId());
 
         // then
-        assertThat(userRepository.findById(user2.getId()).get().getVisitedCnt())
-                .isEqualTo(0L);
-
-        assertThat(response)
-                .extracting("userId", "nickname", "position", "reviewCnt", "rating", "createdAt", "updatedAt",
-                        "profileDescription", "imageUrl", "isLeader", "isSeekingTeam")
-                .containsExactly(user2.getId(), user2.getNickname(), user2.getPosition(), user2.getReviewCnt(),
-                        user2.getRating(), user2.getCreatedAt(), user2.getUpdatedAt(), user2.getProfileDescription(),
-                        user2.getImageUrl(), currentTeamMember.getIsLeader(), user2.getIsSeekingTeam()
-                );
-
-        assertThat(response.getEducations())
-                .extracting("educationId", "institutionName", "startedAt", "endedAt", "isCurrent", "createdAt",
-                        "updatedAt")
-                .containsExactly(
-                        tuple(education2.getId(), education2.getInstitutionName(), education2.getStartedAt(),
-                                education2.getEndedAt(), education2.getIsCurrent(), education2.getCreatedAt(),
-                                education2.getUpdatedAt()),
-                        tuple(education1.getId(), education1.getInstitutionName(), education1.getStartedAt(),
-                                education1.getEndedAt(), education1.getIsCurrent(), education1.getCreatedAt(),
-                                education1.getUpdatedAt())
-                );
-
-        assertThat(response.getPortfolios())
-                .extracting("portfolioId", "portfolioName", "portfolioUrl", "media", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(portfolio2.getId(), portfolio2.getPortfolioName(), portfolio2.getPortfolioUrl(),
-                                portfolio2.getMedia(), portfolio2.getCreatedAt(), portfolio2.getUpdatedAt()),
-                        tuple(portfolio1.getId(), portfolio1.getPortfolioName(), portfolio1.getPortfolioUrl(),
-                                portfolio1.getMedia(), portfolio1.getCreatedAt(), portfolio1.getUpdatedAt())
-                        );
-
-        assertThat(response.getSkills())
-                .extracting("skillId", "skillName", "isExperienced", "level", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(skill2.getId(), skill2.getSkillName(), skill2.getIsExperienced(), skill2.getLevel(),
-                                skill2.getCreatedAt(), skill2.getUpdatedAt()),
-                        tuple(skill1.getId(), skill1.getSkillName(), skill1.getIsExperienced(), skill1.getLevel(),
-                                skill1.getCreatedAt(), skill1.getUpdatedAt())
-                );
-
-        assertThat(response.getWorks())
-                .extracting("workId", "corporationName", "workDescription", "startedAt", "endedAt", "isCurrent",
-                        "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(work2.getId(), work2.getCorporationName(), work2.getWorkDescription(),
-                                work2.getStartedAt(), work2.getEndedAt(), work2.getIsCurrent(), work2.getCreatedAt(),
-                                work2.getUpdatedAt()),
-                        tuple(work1.getId(), work1.getCorporationName(), work1.getWorkDescription(),
-                                work1.getStartedAt(), work1.getEndedAt(), work1.getIsCurrent(), work1.getCreatedAt(),
-                                work1.getUpdatedAt())
-                );
-
-        assertThat(response.getCompletedTeams())
-                .extracting("teamId", "projectName", "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt",
-                        "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt",
-                        "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(completedTeam.getId(), completedTeam.getProjectName(),
-                                completedTeam.getDesignerCurrentCnt(), completedTeam.getBackendCurrentCnt(),
-                                completedTeam.getFrontendCurrentCnt(), completedTeam.getManagerCurrentCnt(),
-                                completedTeam.getDesignerMaxCnt(), completedTeam.getBackendMaxCnt(),
-                                completedTeam.getFrontendMaxCnt(), completedTeam.getManagerMaxCnt(),
-                                completedTeam.getCreatedAt(), completedTeam.getUpdatedAt()));
-
-        assertThat(response.getCurrentTeam())
-                .extracting("teamId", "projectName", "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt",
-                        "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt",
-                        "createdAt", "updatedAt")
-                .containsExactly(currentTeam.getId(), currentTeam.getProjectName(), currentTeam.getDesignerCurrentCnt(),
-                        currentTeam.getBackendCurrentCnt(), currentTeam.getFrontendCurrentCnt(),
-                        currentTeam.getManagerCurrentCnt(), currentTeam.getDesignerMaxCnt(),
-                        currentTeam.getBackendMaxCnt(), currentTeam.getFrontendMaxCnt(), currentTeam.getManagerMaxCnt(),
-                        currentTeam.getCreatedAt(), currentTeam.getUpdatedAt());
-
-                assertThat(response.getReviews())
-                .extracting("reviewId", "reviewer", "rating", "post", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(review.getId(), "익명1", review.getRating(), review.getPost(), review.getCreatedAt(),
-                                review.getUpdatedAt())
-                );
+        assertAll(
+                () -> assertThat(userRepository.findById(user2.getId()).get().getVisitedCnt()).isEqualTo(0L),
+                () -> assertThat(response)
+                        .extracting("userId", "nickname", "position", "reviewCnt", "rating", "createdAt", "updatedAt",
+                                "profileDescription", "imageUrl", "isLeader", "isSeekingTeam")
+                        .containsExactly(user2.getId(), user2.getNickname(), user2.getPosition(), user2.getReviewCnt(),
+                                user2.getRating(), user2.getCreatedAt(), user2.getUpdatedAt(), user2.getProfileDescription(),
+                                user2.getImageUrl(), currentTeamMember.getIsLeader(), user2.getIsSeekingTeam()),
+                () -> assertThat(response.getEducations())
+                        .extracting("educationId", "institutionName", "startedAt", "endedAt", "isCurrent", "createdAt",
+                                "updatedAt")
+                        .containsExactly(
+                                tuple(education2.getId(), education2.getInstitutionName(), education2.getStartedAt(),
+                                        education2.getEndedAt(), education2.getIsCurrent(), education2.getCreatedAt(),
+                                        education2.getUpdatedAt()),
+                                tuple(education1.getId(), education1.getInstitutionName(), education1.getStartedAt(),
+                                        education1.getEndedAt(), education1.getIsCurrent(), education1.getCreatedAt(),
+                                        education1.getUpdatedAt())
+                        ),
+                () -> assertThat(response.getPortfolios())
+                        .extracting("portfolioId", "portfolioName", "portfolioUrl", "media", "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(portfolio2.getId(), portfolio2.getPortfolioName(), portfolio2.getPortfolioUrl(),
+                                        portfolio2.getMedia(), portfolio2.getCreatedAt(), portfolio2.getUpdatedAt()),
+                                tuple(portfolio1.getId(), portfolio1.getPortfolioName(), portfolio1.getPortfolioUrl(),
+                                        portfolio1.getMedia(), portfolio1.getCreatedAt(), portfolio1.getUpdatedAt())
+                        ),
+                () -> assertThat(response.getSkills())
+                        .extracting("skillId", "skillName", "isExperienced", "level", "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(skill2.getId(), skill2.getSkillName(), skill2.getIsExperienced(), skill2.getLevel(),
+                                        skill2.getCreatedAt(), skill2.getUpdatedAt()),
+                                tuple(skill1.getId(), skill1.getSkillName(), skill1.getIsExperienced(), skill1.getLevel(),
+                                        skill1.getCreatedAt(), skill1.getUpdatedAt())
+                        ),
+                () -> assertThat(response.getWorks())
+                        .extracting("workId", "corporationName", "workDescription", "startedAt", "endedAt", "isCurrent",
+                                "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(work2.getId(), work2.getCorporationName(), work2.getWorkDescription(),
+                                        work2.getStartedAt(), work2.getEndedAt(), work2.getIsCurrent(), work2.getCreatedAt(),
+                                        work2.getUpdatedAt()),
+                                tuple(work1.getId(), work1.getCorporationName(), work1.getWorkDescription(),
+                                        work1.getStartedAt(), work1.getEndedAt(), work1.getIsCurrent(), work1.getCreatedAt(),
+                                        work1.getUpdatedAt())
+                        ),
+                () -> assertThat(response.getCompletedTeams())
+                        .extracting("teamId", "projectName", "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt",
+                                "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt",
+                                "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(completedTeam.getId(), completedTeam.getProjectName(),
+                                        completedTeam.getDesignerCurrentCnt(), completedTeam.getBackendCurrentCnt(),
+                                        completedTeam.getFrontendCurrentCnt(), completedTeam.getManagerCurrentCnt(),
+                                        completedTeam.getDesignerMaxCnt(), completedTeam.getBackendMaxCnt(),
+                                        completedTeam.getFrontendMaxCnt(), completedTeam.getManagerMaxCnt(),
+                                        completedTeam.getCreatedAt(), completedTeam.getUpdatedAt())
+                        ),
+                () -> assertThat(response.getCurrentTeam())
+                        .extracting("teamId", "projectName", "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt",
+                                "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt",
+                                "createdAt", "updatedAt")
+                        .containsExactly(currentTeam.getId(), currentTeam.getProjectName(), currentTeam.getDesignerCurrentCnt(),
+                                currentTeam.getBackendCurrentCnt(), currentTeam.getFrontendCurrentCnt(),
+                                currentTeam.getManagerCurrentCnt(), currentTeam.getDesignerMaxCnt(),
+                                currentTeam.getBackendMaxCnt(), currentTeam.getFrontendMaxCnt(), currentTeam.getManagerMaxCnt(),
+                                currentTeam.getCreatedAt(), currentTeam.getUpdatedAt()),
+                () -> assertThat(response.getReviews())
+                        .extracting("reviewId", "reviewer", "rating", "post", "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(review.getId(), "익명1", review.getRating(), review.getPost(), review.getCreatedAt(),
+                                        review.getUpdatedAt())
+                        )
+        );
     }
 
     @Test
@@ -208,7 +203,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("다른 회원 식별자로 다른 프로필 조회를 한다.")
+    @DisplayName("다른 회원 식별자로 다른 프로필 조회가 정상 작동한다")
     void givenOtherUserId_whenFindOtherProfile_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com","tester1", "테스터일");
@@ -257,107 +252,128 @@ class ProfileServiceTest {
         ProfileFindOtherResponse response = profileService.findOtherProfile(user1.getId(), user2.getId());
 
         // then
-        assertThat(userRepository.findById(user2.getId()).get().getVisitedCnt())
-                .isEqualTo(1L);
-
-        assertThat(response)
-                .extracting("userId", "nickname", "position", "reviewCnt",
-                        "rating", "createdAt", "updatedAt", "profileDescription",
-                        "imageUrl", "isLeader", "isSeekingTeam")
-                .containsExactly(user2.getId(), user2.getNickname(), user2.getPosition(), user2.getReviewCnt(),
-                        user2.getRating(), user2.getCreatedAt(), user2.getUpdatedAt(), user2.getProfileDescription(),
-                        user2.getImageUrl(), currentTeamMember.getIsLeader(), user2.getIsSeekingTeam()
-                );
-
-        assertThat(response.getEducations())
-                .extracting("educationId", "institutionName",
-                        "startedAt", "endedAt", "isCurrent",
-                        "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(education2.getId(), education2.getInstitutionName(),
-                                education2.getStartedAt(), education2.getEndedAt(), education2.getIsCurrent(),
-                                education2.getCreatedAt(), education2.getUpdatedAt()),
-                        tuple(education1.getId(), education1.getInstitutionName(),
-                                education1.getStartedAt(), education1.getEndedAt(), education1.getIsCurrent(),
-                                education1.getCreatedAt(), education1.getUpdatedAt())
-                );
-
-        assertThat(response.getPortfolios())
-                .extracting("portfolioId", "portfolioName",
-                        "portfolioUrl", "media", "createdAt",
-                        "updatedAt")
-                .containsExactly(
-                        tuple(portfolio2.getId(), portfolio2.getPortfolioName(),
-                                portfolio2.getPortfolioUrl(), portfolio2.getMedia(), portfolio2.getCreatedAt(),
-                                portfolio2.getUpdatedAt()),
-                        tuple(portfolio1.getId(), portfolio1.getPortfolioName(),
-                                portfolio1.getPortfolioUrl(), portfolio1.getMedia(), portfolio1.getCreatedAt(),
-                                portfolio1.getUpdatedAt())
-                );
-
-        assertThat(response.getSkills())
-                .extracting("skillId", "skillName", "isExperienced",
-                        "level", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(skill2.getId(), skill2.getSkillName(), skill2.getIsExperienced(),
-                                skill2.getLevel(), skill2.getCreatedAt(), skill2.getUpdatedAt()),
-                        tuple(skill1.getId(), skill1.getSkillName(), skill1.getIsExperienced(),
-                                skill1.getLevel(), skill1.getCreatedAt(), skill1.getUpdatedAt())
-                );
-
-        assertThat(response.getWorks())
-                .extracting("workId", "corporationName", "workDescription",
-                        "startedAt", "endedAt", "isCurrent", "createdAt",
-                        "updatedAt")
-                .containsExactly(
-                        tuple(work2.getId(), work2.getCorporationName(), work2.getWorkDescription(),
-                                work2.getStartedAt(), work2.getEndedAt(), work2.getIsCurrent(), work2.getCreatedAt(),
-                                work2.getUpdatedAt()),
-                        tuple(work1.getId(), work1.getCorporationName(), work1.getWorkDescription(),
-                                work1.getStartedAt(), work1.getEndedAt(), work1.getIsCurrent(), work1.getCreatedAt(),
-                                work1.getUpdatedAt())
-                );
-
-        assertThat(response.getCompletedTeams())
-                .extracting("teamId", "projectName",
-                        "designerCurrentCnt", "backendCurrentCnt",
-                        "frontendCurrentCnt", "managerCurrentCnt",
-                        "designerMaxCnt", "backendMaxCnt",
-                        "frontendMaxCnt", "managerMaxCnt",
-                        "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(completedTeam.getId(), completedTeam.getProjectName(),
-                                completedTeam.getDesignerCurrentCnt(), completedTeam.getBackendCurrentCnt(),
-                                completedTeam.getFrontendCurrentCnt(), completedTeam.getManagerCurrentCnt(),
-                                completedTeam.getDesignerMaxCnt(), completedTeam.getBackendMaxCnt(),
-                                completedTeam.getFrontendMaxCnt(), completedTeam.getManagerMaxCnt(),
-                                completedTeam.getCreatedAt(), completedTeam.getUpdatedAt()));
-
-        assertThat(response.getCurrentTeam())
-                .extracting("teamId", "projectName", "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt",
-                        "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt",
-                        "createdAt", "updatedAt")
-                .containsExactly(currentTeam.getId(), currentTeam.getProjectName(),
-                        currentTeam.getDesignerCurrentCnt(), currentTeam.getBackendCurrentCnt(),
-                        currentTeam.getFrontendCurrentCnt(), currentTeam.getManagerCurrentCnt(),
-                        currentTeam.getDesignerMaxCnt(), currentTeam.getBackendMaxCnt(),
-                        currentTeam.getFrontendMaxCnt(), currentTeam.getManagerMaxCnt(),
-                        currentTeam.getCreatedAt(), currentTeam.getUpdatedAt());
-
-        assertThat(response.getReviews())
-                .extracting("reviewId", "reviewer", "rating", "post", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(review.getId(), "익명1", review.getRating(), review.getPost(),
-                                review.getCreatedAt(), review.getUpdatedAt())
-                );
-
-        assertThat(response.getOffers()).isEmpty();
-
-        assertThat(response.getIsFavorite()).isFalse();
+        assertAll(
+                () -> assertThat(userRepository.findById(user2.getId()).get().getVisitedCnt()).isEqualTo(1L),
+                () -> assertThat(response)
+                        .extracting("userId", "nickname", "position", "reviewCnt",
+                                "rating", "createdAt", "updatedAt", "profileDescription",
+                                "imageUrl", "isLeader", "isSeekingTeam")
+                        .containsExactly(user2.getId(), user2.getNickname(), user2.getPosition(), user2.getReviewCnt(),
+                                user2.getRating(), user2.getCreatedAt(), user2.getUpdatedAt(), user2.getProfileDescription(),
+                                user2.getImageUrl(), currentTeamMember.getIsLeader(), user2.getIsSeekingTeam()),
+                () -> assertThat(response.getEducations())
+                        .extracting("educationId", "institutionName",
+                                "startedAt", "endedAt", "isCurrent",
+                                "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(education2.getId(), education2.getInstitutionName(),
+                                        education2.getStartedAt(), education2.getEndedAt(), education2.getIsCurrent(),
+                                        education2.getCreatedAt(), education2.getUpdatedAt()),
+                                tuple(education1.getId(), education1.getInstitutionName(),
+                                        education1.getStartedAt(), education1.getEndedAt(), education1.getIsCurrent(),
+                                        education1.getCreatedAt(), education1.getUpdatedAt())
+                        ),
+                () -> assertThat(response.getPortfolios())
+                        .extracting("portfolioId", "portfolioName",
+                                "portfolioUrl", "media", "createdAt",
+                                "updatedAt")
+                        .containsExactly(
+                                tuple(portfolio2.getId(), portfolio2.getPortfolioName(),
+                                        portfolio2.getPortfolioUrl(), portfolio2.getMedia(), portfolio2.getCreatedAt(),
+                                        portfolio2.getUpdatedAt()),
+                                tuple(portfolio1.getId(), portfolio1.getPortfolioName(),
+                                        portfolio1.getPortfolioUrl(), portfolio1.getMedia(), portfolio1.getCreatedAt(),
+                                        portfolio1.getUpdatedAt())
+                        ),
+                () -> assertThat(response.getSkills())
+                        .extracting("skillId", "skillName", "isExperienced",
+                                "level", "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(skill2.getId(), skill2.getSkillName(), skill2.getIsExperienced(),
+                                        skill2.getLevel(), skill2.getCreatedAt(), skill2.getUpdatedAt()),
+                                tuple(skill1.getId(), skill1.getSkillName(), skill1.getIsExperienced(),
+                                        skill1.getLevel(), skill1.getCreatedAt(), skill1.getUpdatedAt())
+                        ),
+                () -> assertThat(response.getWorks())
+                        .extracting("workId", "corporationName", "workDescription",
+                                "startedAt", "endedAt", "isCurrent", "createdAt",
+                                "updatedAt")
+                        .containsExactly(
+                                tuple(work2.getId(), work2.getCorporationName(), work2.getWorkDescription(),
+                                        work2.getStartedAt(), work2.getEndedAt(), work2.getIsCurrent(), work2.getCreatedAt(),
+                                        work2.getUpdatedAt()),
+                                tuple(work1.getId(), work1.getCorporationName(), work1.getWorkDescription(),
+                                        work1.getStartedAt(), work1.getEndedAt(), work1.getIsCurrent(), work1.getCreatedAt(),
+                                        work1.getUpdatedAt())
+                        ),
+                () -> assertThat(response.getCompletedTeams())
+                        .extracting("teamId", "projectName",
+                                "designerCurrentCnt", "backendCurrentCnt",
+                                "frontendCurrentCnt", "managerCurrentCnt",
+                                "designerMaxCnt", "backendMaxCnt",
+                                "frontendMaxCnt", "managerMaxCnt",
+                                "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(completedTeam.getId(), completedTeam.getProjectName(),
+                                        completedTeam.getDesignerCurrentCnt(), completedTeam.getBackendCurrentCnt(),
+                                        completedTeam.getFrontendCurrentCnt(), completedTeam.getManagerCurrentCnt(),
+                                        completedTeam.getDesignerMaxCnt(), completedTeam.getBackendMaxCnt(),
+                                        completedTeam.getFrontendMaxCnt(), completedTeam.getManagerMaxCnt(),
+                                        completedTeam.getCreatedAt(), completedTeam.getUpdatedAt())),
+                () -> assertThat(response.getCurrentTeam())
+                        .extracting("teamId", "projectName", "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt",
+                                "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt",
+                                "createdAt", "updatedAt")
+                        .containsExactly(currentTeam.getId(), currentTeam.getProjectName(),
+                                currentTeam.getDesignerCurrentCnt(), currentTeam.getBackendCurrentCnt(),
+                                currentTeam.getFrontendCurrentCnt(), currentTeam.getManagerCurrentCnt(),
+                                currentTeam.getDesignerMaxCnt(), currentTeam.getBackendMaxCnt(),
+                                currentTeam.getFrontendMaxCnt(), currentTeam.getManagerMaxCnt(),
+                                currentTeam.getCreatedAt(), currentTeam.getUpdatedAt()),
+                () -> assertThat(response.getReviews())
+                        .extracting("reviewId", "reviewer", "rating", "post", "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(review.getId(), "익명1", review.getRating(), review.getPost(),
+                                        review.getCreatedAt(), review.getUpdatedAt())
+                        ),
+                () -> assertThat(response.getCompletedTeams())
+                        .extracting("teamId", "projectName",
+                                "designerCurrentCnt", "backendCurrentCnt",
+                                "frontendCurrentCnt", "managerCurrentCnt",
+                                "designerMaxCnt", "backendMaxCnt",
+                                "frontendMaxCnt", "managerMaxCnt",
+                                "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(completedTeam.getId(), completedTeam.getProjectName(),
+                                        completedTeam.getDesignerCurrentCnt(), completedTeam.getBackendCurrentCnt(),
+                                        completedTeam.getFrontendCurrentCnt(), completedTeam.getManagerCurrentCnt(),
+                                        completedTeam.getDesignerMaxCnt(), completedTeam.getBackendMaxCnt(),
+                                        completedTeam.getFrontendMaxCnt(), completedTeam.getManagerMaxCnt(),
+                                        completedTeam.getCreatedAt(), completedTeam.getUpdatedAt())
+                        ),
+                () -> assertThat(response.getCurrentTeam())
+                        .extracting("teamId", "projectName", "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt",
+                                "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt",
+                                "createdAt", "updatedAt")
+                        .containsExactly(currentTeam.getId(), currentTeam.getProjectName(),
+                                currentTeam.getDesignerCurrentCnt(), currentTeam.getBackendCurrentCnt(),
+                                currentTeam.getFrontendCurrentCnt(), currentTeam.getManagerCurrentCnt(),
+                                currentTeam.getDesignerMaxCnt(), currentTeam.getBackendMaxCnt(),
+                                currentTeam.getFrontendMaxCnt(), currentTeam.getManagerMaxCnt(),
+                                currentTeam.getCreatedAt(), currentTeam.getUpdatedAt()),
+                () -> assertThat(response.getReviews())
+                        .extracting("reviewId", "reviewer", "rating", "post", "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(review.getId(), "익명1", review.getRating(), review.getPost(),
+                                        review.getCreatedAt(), review.getUpdatedAt())
+                        ),
+                () -> assertThat(response.getOffers()).isEmpty(),
+                () -> assertThat(response.getIsFavorite()).isFalse()
+        );
     }
 
     @Test
-    @DisplayName("내 회원 식별자로 다른 프로필 조회를 한다.")
+    @DisplayName("내 회원 식별자로 다른 프로필 조회가 정상 작동한다")
     void givenMyUserId_whenFindOtherProfile_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com","tester1", "테스터일");
@@ -406,132 +422,109 @@ class ProfileServiceTest {
         ProfileFindOtherResponse response = profileService.findOtherProfile(user2.getId(), user2.getId());
 
         // then
-        assertThat(userRepository.findById(user2.getId()).get().getVisitedCnt())
-                .isEqualTo(0L);
-
-        assertThat(response)
-                .extracting("userId", "nickname", "position", "reviewCnt",
-                        "rating", "createdAt", "updatedAt", "profileDescription",
-                        "imageUrl", "isLeader", "isSeekingTeam")
-                .containsExactly(user2.getId(), user2.getNickname(), user2.getPosition(), user2.getReviewCnt(),
-                        user2.getRating(), user2.getCreatedAt(), user2.getUpdatedAt(), user2.getProfileDescription(),
-                        user2.getImageUrl(), currentTeamMember.getIsLeader(), user2.getIsSeekingTeam()
-                );
-
-        assertThat(response.getEducations())
-                .extracting("educationId", "institutionName",
-                        "startedAt", "endedAt", "isCurrent",
-                        "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(education2.getId(), education2.getInstitutionName(),
-                                education2.getStartedAt(), education2.getEndedAt(), education2.getIsCurrent(),
-                                education2.getCreatedAt(), education2.getUpdatedAt()),
-                        tuple(education1.getId(), education1.getInstitutionName(),
-                                education1.getStartedAt(), education1.getEndedAt(), education1.getIsCurrent(),
-                                education1.getCreatedAt(), education1.getUpdatedAt())
-                );
-
-        assertThat(response.getPortfolios())
-                .extracting("portfolioId", "portfolioName",
-                        "portfolioUrl", "media", "createdAt",
-                        "updatedAt")
-                .containsExactly(
-                        tuple(portfolio2.getId(), portfolio2.getPortfolioName(),
-                                portfolio2.getPortfolioUrl(), portfolio2.getMedia(), portfolio2.getCreatedAt(),
-                                portfolio2.getUpdatedAt()),
-                        tuple(portfolio1.getId(), portfolio1.getPortfolioName(),
-                                portfolio1.getPortfolioUrl(), portfolio1.getMedia(), portfolio1.getCreatedAt(),
-                                portfolio1.getUpdatedAt())
-                );
-
-        assertThat(response.getSkills())
-                .extracting("skillId", "skillName", "isExperienced",
-                        "level", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(skill2.getId(), skill2.getSkillName(), skill2.getIsExperienced(),
-                                skill2.getLevel(), skill2.getCreatedAt(), skill2.getUpdatedAt()),
-                        tuple(skill1.getId(), skill1.getSkillName(), skill1.getIsExperienced(),
-                                skill1.getLevel(), skill1.getCreatedAt(), skill1.getUpdatedAt())
-                );
-
-        assertThat(response.getWorks())
-                .extracting("workId", "corporationName", "workDescription",
-                        "startedAt", "endedAt", "isCurrent", "createdAt",
-                        "updatedAt")
-                .containsExactly(
-                        tuple(work2.getId(), work2.getCorporationName(), work2.getWorkDescription(),
-                                work2.getStartedAt(), work2.getEndedAt(), work2.getIsCurrent(), work2.getCreatedAt(),
-                                work2.getUpdatedAt()),
-                        tuple(work1.getId(), work1.getCorporationName(), work1.getWorkDescription(),
-                                work1.getStartedAt(), work1.getEndedAt(), work1.getIsCurrent(), work1.getCreatedAt(),
-                                work1.getUpdatedAt())
-                );
-
-        assertThat(response.getCompletedTeams())
-                .extracting("teamId", "projectName",
-                        "designerCurrentCnt", "backendCurrentCnt",
-                        "frontendCurrentCnt", "managerCurrentCnt",
-                        "designerMaxCnt", "backendMaxCnt",
-                        "frontendMaxCnt", "managerMaxCnt",
-                        "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(completedTeam.getId(), completedTeam.getProjectName(),
-                                completedTeam.getDesignerCurrentCnt(), completedTeam.getBackendCurrentCnt(),
-                                completedTeam.getFrontendCurrentCnt(), completedTeam.getManagerCurrentCnt(),
-                                completedTeam.getDesignerMaxCnt(), completedTeam.getBackendMaxCnt(),
-                                completedTeam.getFrontendMaxCnt(), completedTeam.getManagerMaxCnt(),
-                                completedTeam.getCreatedAt(), completedTeam.getUpdatedAt()));
-
-        assertThat(response.getCurrentTeam())
-                .extracting("teamId", "projectName",
-                        "designerCurrentCnt", "backendCurrentCnt",
-                        "frontendCurrentCnt", "managerCurrentCnt",
-                        "designerMaxCnt", "backendMaxCnt",
-                        "frontendMaxCnt", "managerMaxCnt",
-                        "createdAt", "updatedAt")
-                .containsExactly(currentTeam.getId(), currentTeam.getProjectName(),
-                        currentTeam.getDesignerCurrentCnt(), currentTeam.getBackendCurrentCnt(),
-                        currentTeam.getFrontendCurrentCnt(), currentTeam.getManagerCurrentCnt(),
-                        currentTeam.getDesignerMaxCnt(), currentTeam.getBackendMaxCnt(),
-                        currentTeam.getFrontendMaxCnt(), currentTeam.getManagerMaxCnt(),
-                        currentTeam.getCreatedAt(), currentTeam.getUpdatedAt());
-
-        assertThat(response.getReviews())
-                .extracting("reviewId", "reviewer", "rating", "post",
-                        "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(review.getId(), "익명1", review.getRating(), review.getPost(),
-                                review.getCreatedAt(), review.getUpdatedAt())
-                );
-
-        assertThat(response.getOffers()).isEmpty();
-
-        assertThat(response.getIsFavorite()).isNull();
+        assertAll(
+                () -> assertThat(userRepository.findById(user2.getId()).get().getVisitedCnt()).isEqualTo(0L),
+                () -> assertThat(response)
+                        .extracting("userId", "nickname", "position", "reviewCnt",
+                                "rating", "createdAt", "updatedAt", "profileDescription",
+                                "imageUrl", "isLeader", "isSeekingTeam")
+                        .containsExactly(user2.getId(), user2.getNickname(), user2.getPosition(), user2.getReviewCnt(),
+                                user2.getRating(), user2.getCreatedAt(), user2.getUpdatedAt(), user2.getProfileDescription(),
+                                user2.getImageUrl(), currentTeamMember.getIsLeader(), user2.getIsSeekingTeam()),
+                () -> assertThat(response.getEducations())
+                        .extracting("educationId", "institutionName",
+                                "startedAt", "endedAt", "isCurrent",
+                                "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(education2.getId(), education2.getInstitutionName(),
+                                        education2.getStartedAt(), education2.getEndedAt(), education2.getIsCurrent(),
+                                        education2.getCreatedAt(), education2.getUpdatedAt()),
+                                tuple(education1.getId(), education1.getInstitutionName(),
+                                        education1.getStartedAt(), education1.getEndedAt(), education1.getIsCurrent(),
+                                        education1.getCreatedAt(), education1.getUpdatedAt())
+                        ),
+                () -> assertThat(response.getPortfolios())
+                        .extracting("portfolioId", "portfolioName",
+                                "portfolioUrl", "media", "createdAt",
+                                "updatedAt")
+                        .containsExactly(
+                                tuple(portfolio2.getId(), portfolio2.getPortfolioName(),
+                                        portfolio2.getPortfolioUrl(), portfolio2.getMedia(), portfolio2.getCreatedAt(),
+                                        portfolio2.getUpdatedAt()),
+                                tuple(portfolio1.getId(), portfolio1.getPortfolioName(),
+                                        portfolio1.getPortfolioUrl(), portfolio1.getMedia(), portfolio1.getCreatedAt(),
+                                        portfolio1.getUpdatedAt())
+                        ),
+                () -> assertThat(response.getSkills())
+                        .extracting("skillId", "skillName", "isExperienced",
+                                "level", "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(skill2.getId(), skill2.getSkillName(), skill2.getIsExperienced(),
+                                        skill2.getLevel(), skill2.getCreatedAt(), skill2.getUpdatedAt()),
+                                tuple(skill1.getId(), skill1.getSkillName(), skill1.getIsExperienced(),
+                                        skill1.getLevel(), skill1.getCreatedAt(), skill1.getUpdatedAt())
+                        ),
+                () -> assertThat(response.getWorks())
+                        .extracting("workId", "corporationName", "workDescription",
+                                "startedAt", "endedAt", "isCurrent", "createdAt",
+                                "updatedAt")
+                        .containsExactly(
+                                tuple(work2.getId(), work2.getCorporationName(), work2.getWorkDescription(),
+                                        work2.getStartedAt(), work2.getEndedAt(), work2.getIsCurrent(), work2.getCreatedAt(),
+                                        work2.getUpdatedAt()),
+                                tuple(work1.getId(), work1.getCorporationName(), work1.getWorkDescription(),
+                                        work1.getStartedAt(), work1.getEndedAt(), work1.getIsCurrent(), work1.getCreatedAt(),
+                                        work1.getUpdatedAt())
+                        ),
+                () -> assertThat(response.getCompletedTeams())
+                        .extracting("teamId", "projectName",
+                                "designerCurrentCnt", "backendCurrentCnt",
+                                "frontendCurrentCnt", "managerCurrentCnt",
+                                "designerMaxCnt", "backendMaxCnt",
+                                "frontendMaxCnt", "managerMaxCnt",
+                                "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(completedTeam.getId(), completedTeam.getProjectName(),
+                                        completedTeam.getDesignerCurrentCnt(), completedTeam.getBackendCurrentCnt(),
+                                        completedTeam.getFrontendCurrentCnt(), completedTeam.getManagerCurrentCnt(),
+                                        completedTeam.getDesignerMaxCnt(), completedTeam.getBackendMaxCnt(),
+                                        completedTeam.getFrontendMaxCnt(), completedTeam.getManagerMaxCnt(),
+                                        completedTeam.getCreatedAt(), completedTeam.getUpdatedAt())
+                        ),
+                () -> assertThat(response.getCurrentTeam())
+                        .extracting("teamId", "projectName",
+                                "designerCurrentCnt", "backendCurrentCnt",
+                                "frontendCurrentCnt", "managerCurrentCnt",
+                                "designerMaxCnt", "backendMaxCnt",
+                                "frontendMaxCnt", "managerMaxCnt",
+                                "createdAt", "updatedAt")
+                        .containsExactly(currentTeam.getId(), currentTeam.getProjectName(),
+                                currentTeam.getDesignerCurrentCnt(), currentTeam.getBackendCurrentCnt(),
+                                currentTeam.getFrontendCurrentCnt(), currentTeam.getManagerCurrentCnt(),
+                                currentTeam.getDesignerMaxCnt(), currentTeam.getBackendMaxCnt(),
+                                currentTeam.getFrontendMaxCnt(), currentTeam.getManagerMaxCnt(),
+                                currentTeam.getCreatedAt(), currentTeam.getUpdatedAt()),
+                () -> assertThat(response.getReviews())
+                        .extracting("reviewId", "reviewer", "rating", "post",
+                                "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(review.getId(), "익명1", review.getRating(), review.getPost(),
+                                        review.getCreatedAt(), review.getUpdatedAt())
+                        ),
+                () -> assertThat(response.getOffers()).isEmpty(),
+                () -> assertThat(response.getIsFavorite()).isNull()
+        );
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 식별자로 다른 프로필 조회시 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원 식별자로 다른 프로필 조회시 예외가 발생한다")
     void givenNonExistingUserId_whenFindOtherProfile_thenThrow() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com","tester", "테스터");
-        long userId = 2L;
+        long userId1 = 1L;
+        long userId2 = 2L;
 
         // when & then
-        assertThatThrownBy(() -> profileService.findOtherProfile(user.getId(), userId))
-                .isInstanceOf(CustomException.class)
-                .extracting("errorCode")
-                .isEqualTo(USER_NOT_FOUND);
-    }
-
-    @Test
-    @DisplayName("존재하지 않은 회원 식별자로 다른 프로필 조회시 예외가 발생한다.")
-    void givenNonExistingUsername_whenFindOtherProfile_thenThrow() {
-        // given
-        User user = createSavedDefaultUser("tester@gabojait.com","tester", "테스터일");
-        long userId = 2L;
-
-        // when & then
-        assertThatThrownBy(() -> profileService.findOtherProfile(userId, user.getId()))
+        assertThatThrownBy(() -> profileService.findOtherProfile(userId1, userId2))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(USER_NOT_FOUND);
@@ -553,7 +546,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("파일이 없이 프로필 이미지 업로드시 예외가 발생한다.")
+    @DisplayName("파일이 없이 프로필 이미지 업로드시 예외가 발생한다")
     void givenBlankImage_whenUploadProfileImage_thenThrow() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -568,7 +561,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 식별자로 프로필 이미지 업로드시 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원 식별자로 프로필 이미지 업로드시 예외가 발생한다")
     void givenNonExistingUser_whenUploadProfileImage_thenThrow() {
         // given
         long userId = 1L;
@@ -583,7 +576,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("올바르지 않은 이미지 타입으로 프로필 이미지 업로드시 예외가 발생한다.")
+    @DisplayName("올바르지 않은 이미지 타입으로 프로필 이미지 업로드시 예외가 발생한다")
     void givenUnsupportedImageType_whenUploadProfileImage_thenThrow() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -598,7 +591,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("프로필 이미지를 삭제한다.")
+    @DisplayName("프로필 이미지를 삭제가 정상 작동한다")
     void givenUserId_whenDeleteProfileImage_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -611,7 +604,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 식별자로 프로필 이미지를 삭제시 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원 식별자로 프로필 이미지를 삭제시 예외가 발생한다")
     void givenNonExistingUser_whenDeleteProfileImage_thenThrow() {
         // given
         long userId = 1L;
@@ -624,7 +617,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("팀 찾기 여부 업데이트를 한다.")
+    @DisplayName("팀 찾기 여부 업데이트가 정상 작동한다")
     void givenValid_whenUpdateIsSeekingTeam_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -634,13 +627,12 @@ class ProfileServiceTest {
         profileService.updateIsSeekingTeam(user.getId(), isSeekingTeam);
 
         // then
-        Optional<User> foundUser = userRepository.findByUsername(user.getUsername());
-
-        assertThat(foundUser.get().getIsSeekingTeam()).isFalse();
+        User foundUser = userRepository.findByUsername(user.getUsername()).get();
+        assertThat(foundUser.getIsSeekingTeam()).isFalse();
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 식별자로 팀 찾기 여부 업데이트시 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원 식별자로 팀 찾기 여부 업데이트시 예외가 발생한다")
     void givenNonExistingUser_whenUpdateIsSeekingTeam_thenThrow() {
         // given
         long userId = 1L;
@@ -654,7 +646,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("프로필 자기소개 업데이트를 한다.")
+    @DisplayName("프로필 자기소개 업데이트가 정상 작동한다")
     void givenValid_whenUpdateProfileDescription_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -664,13 +656,12 @@ class ProfileServiceTest {
         profileService.updateProfileDescription(user.getId(), profileDescription);
 
         // then
-        Optional<User> foundUser = userRepository.findByUsername(user.getUsername());
-
-        assertEquals(profileDescription, foundUser.get().getProfileDescription());
+        User foundUser = userRepository.findByUsername(user.getUsername()).get();
+        assertThat(foundUser.getProfileDescription()).isEqualTo(profileDescription);
     }
 
     @Test
-    @DisplayName("존재하지 않은 아이디로 프로필 자기소개 업데이트시 예외가 발생한다.")
+    @DisplayName("존재하지 않은 아이디로 프로필 자기소개 업데이트시 예외가 발생한다")
     void givenNonExistingUser_whenUpdateProfileDescription_thenThrow() {
         // given
         long userId = 1L;
@@ -684,7 +675,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("학력들을 생성 수정 및 삭제를 한다.")
+    @DisplayName("학력들을 생성 수정 및 삭제가 정상 작동한다")
     void givenValid_whenUpdateEducations_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -723,7 +714,29 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("포트폴리오들을 생성 수정 및 삭제를 한다.")
+    @DisplayName("빈 학력으로 학력들을 생성 수정 및 삭제가 정상 작동한다")
+    void givenEmpty_whenUpdateEducations_thenReturn() {
+        // given
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
+
+        Education education1 = createEducation("가보자잇중", LocalDate.of(2000, 1, 1), user);
+        Education education2 = createEducation("가보자잇고", LocalDate.of(2001, 1, 1), user);
+        Education education3 = createEducation("가보자잇대", LocalDate.of(2002, 1, 1), user);
+        educationRepository.saveAll(List.of(education1, education2, education3));
+
+        List<EducationUpdateRequest> requests = List.of();
+
+        // when
+        profileService.updateEducations(user, requests);
+
+        // then
+        List<Education> educations = educationRepository.findAll(user.getId());
+
+        assertThat(educations).isEmpty();
+    }
+
+    @Test
+    @DisplayName("포트폴리오들을 생성 수정 및 삭제가 정상 작동한다")
     void givenValid_whenUpdatePortfolios_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -758,7 +771,29 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("기술들을 생성 수정 및 삭제를 한다.")
+    @DisplayName("빈 포트폴리오로 포트폴리오들을 생성 수정 및 삭제가 정상 작동한다")
+    void givenEmpty_whenUpdatePortfolios_thenReturn() {
+        // given
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
+
+        Portfolio portfolio1 = createPortfolio("포트폴리오1", user);
+        Portfolio portfolio2 = createPortfolio("포트폴리오2", user);
+        Portfolio portfolio3 = createPortfolio("포트폴리오3", user);
+        portfolioRepository.saveAll(List.of(portfolio1, portfolio2, portfolio3));
+
+        List<PortfolioUpdateRequest> requests = List.of();
+
+        // when
+        profileService.updatePortfolios(user, requests);
+
+        // then
+        List<Portfolio> portfolios = portfolioRepository.findAll(user.getId());
+
+        assertThat(portfolios).isEmpty();
+    }
+
+    @Test
+    @DisplayName("기술들을 생성 수정 및 삭제가 정상 작동한다")
     void givenValid_whenUpdateSkills_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -791,7 +826,29 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("경력들을 생성 수정 및 삭제를 한다.")
+    @DisplayName("빈 기술로 기술들을 생성 수정 및 삭제가 정상 작동한다")
+    void givenEmpty_whenUpdateSkills_thenReturn() {
+        // given
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
+
+        Skill skill1 = createSkill("스킬1", user);
+        Skill skill2 = createSkill("스킬2", user);
+        Skill skill3 = createSkill("스킬3", user);
+        skillRepository.saveAll(List.of(skill1, skill2, skill3));
+
+        List<SkillUpdateRequest> requests = List.of();
+
+        // when
+        profileService.updateSkills(user, requests);
+
+        // then
+        List<Skill> skills = skillRepository.findAll(user.getId());
+
+        assertThat(skills).isEmpty();
+    }
+
+    @Test
+    @DisplayName("경력들을 생성 수정 및 삭제가 정상 작동한다")
     void givenValid_whenUpdateWorks_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -829,7 +886,29 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("프로필 업데이틀를 한다.")
+    @DisplayName("빈 경력으로 경력들을 생성 수정 및 삭제가 정상 작동한다")
+    void givenEmpty_whenUpdateWorks_thenReturn() {
+        // given
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
+
+        Work work1 = createWork("경력1", LocalDate.of(2000, 1, 1), user);
+        Work work2 = createWork("경력2", LocalDate.of(2001, 1, 1), user);
+        Work work3 = createWork("경력3", LocalDate.of(2002, 1, 1), user);
+        workRepository.saveAll(List.of(work1, work2, work3));
+
+        List<WorkUpdateRequest> requests = List.of();
+
+        // when
+        profileService.updateWorks(user, requests);
+
+        // then
+        List<Work> works = workRepository.findAll(user.getId());
+
+        assertThat(works).isEmpty();
+    }
+
+    @Test
+    @DisplayName("프로필 업데이트가 정상 작동한다")
     void givenValid_whenUpdateProfile_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -840,46 +919,44 @@ class ProfileServiceTest {
         ProfileUpdateResponse response = profileService.updateProfile(user.getId(), request);
 
         // then
-        assertThat(response.getPosition().toString()).isEqualTo(request.getPosition());
-
-        assertThat(response.getEducations())
-                .extracting("institutionName", "startedAt", "endedAt", "isCurrent")
-                .containsExactly(
-                        tuple(request.getEducations().get(0).getInstitutionName(),
-                                request.getEducations().get(0).getStartedAt(),
-                                request.getEducations().get(0).getEndedAt(),
-                                request.getEducations().get(0).getIsCurrent())
-                );
-
-        assertThat(response.getPortfolios())
-                .extracting("portfolioName", "portfolioUrl", "media")
-                .containsExactly(
-                        tuple(request.getPortfolios().get(0).getPortfolioName(),
-                                request.getPortfolios().get(0).getPortfolioUrl(),
-                                Media.valueOf(request.getPortfolios().get(0).getMedia()))
-                );
-
-        assertThat(response.getSkills())
-                .extracting("skillName", "isExperienced", "level")
-                .containsExactly(
-                        tuple(request.getSkills().get(0).getSkillName(),
-                                request.getSkills().get(0).getIsExperienced(),
-                                Level.valueOf(request.getSkills().get(0).getLevel()))
-                );
-
-        assertThat(response.getWorks())
-                .extracting("corporationName", "workDescription", "startedAt", "endedAt", "isCurrent")
-                .containsExactly(
-                        tuple(request.getWorks().get(0).getCorporationName(),
-                                request.getWorks().get(0).getWorkDescription(),
-                                request.getWorks().get(0).getStartedAt(),
-                                request.getWorks().get(0).getEndedAt(),
-                                request.getWorks().get(0).getIsCurrent())
-                );
+        assertAll(
+                () -> assertThat(response.getPosition().toString()).isEqualTo(request.getPosition()),
+                () -> assertThat(response.getEducations())
+                        .extracting("institutionName", "startedAt", "endedAt", "isCurrent")
+                        .containsExactly(
+                                tuple(request.getEducations().get(0).getInstitutionName(),
+                                        request.getEducations().get(0).getStartedAt(),
+                                        request.getEducations().get(0).getEndedAt(),
+                                        request.getEducations().get(0).getIsCurrent())
+                        ),
+                () -> assertThat(response.getPortfolios())
+                        .extracting("portfolioName", "portfolioUrl", "media")
+                        .containsExactly(
+                                tuple(request.getPortfolios().get(0).getPortfolioName(),
+                                        request.getPortfolios().get(0).getPortfolioUrl(),
+                                        Media.valueOf(request.getPortfolios().get(0).getMedia()))
+                        ),
+                () -> assertThat(response.getSkills())
+                        .extracting("skillName", "isExperienced", "level")
+                        .containsExactly(
+                                tuple(request.getSkills().get(0).getSkillName(),
+                                        request.getSkills().get(0).getIsExperienced(),
+                                        Level.valueOf(request.getSkills().get(0).getLevel()))
+                        ),
+                () -> assertThat(response.getWorks())
+                        .extracting("corporationName", "workDescription", "startedAt", "endedAt", "isCurrent")
+                        .containsExactly(
+                                tuple(request.getWorks().get(0).getCorporationName(),
+                                        request.getWorks().get(0).getWorkDescription(),
+                                        request.getWorks().get(0).getStartedAt(),
+                                        request.getWorks().get(0).getEndedAt(),
+                                        request.getWorks().get(0).getIsCurrent())
+                        )
+        );
     }
 
     @Test
-    @DisplayName("올바르지 않은 학력 날짜로 프로필 업데이트시 예외가 발생한다.")
+    @DisplayName("올바르지 않은 학력 날짜로 프로필 업데이트시 예외가 발생한다")
     void givenInvalidEducationDate_whenUpdateProfile_thenThrow() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -897,7 +974,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("미입력된 학력 종료일로 프로필 업데이트시 예외가 발생한다.")
+    @DisplayName("미입력된 학력 종료일로 프로필 업데이트시 예외가 발생한다")
     void givenBlankEducationEndedAt_whenUpdateProfile_thenThrow() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -915,7 +992,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("올바르지 않은 경력 날짜로 프로필 업데이트시 예외가 발생한다.")
+    @DisplayName("올바르지 않은 경력 날짜로 프로필 업데이트시 예외가 발생한다")
     void givenInvalidWorkDate_whenUpdateProfile_thenThrow() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -933,7 +1010,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("미입력된 경력 종료일로 프로필 업데이트시 예외가 발생한다.")
+    @DisplayName("미입력된 경력 종료일로 프로필 업데이트시 예외가 발생한다")
     void givenBlankWorkEndedAt_whenUpdateProfile_thenThrow() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -951,7 +1028,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 식별자로 프로필 업데이트시 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원 식별자로 프로필 업데이트시 예외가 발생한다")
     void givenNonExistingUserId_whenUpdateProfile_thenThrow() {
         // given
         long userId = 1L;
@@ -966,7 +1043,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("포트폴리오 파일을 업로드한다.")
+    @DisplayName("포트폴리오 파일을 업로드가 정상 작동한다")
     void givenValid_whenUploadPortfolioFile_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -981,7 +1058,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("파일이 없이 포트폴리오 파일 업로드시 예외가 발생한다.")
+    @DisplayName("파일이 없이 포트폴리오 파일 업로드시 예외가 발생한다")
     void givenBlankFile_whenUploadPortfolioFile_thenThrow() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -996,7 +1073,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 식별자로 포트폴리오 파일 업로드시 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원 식별자로 포트폴리오 파일 업로드시 예외가 발생한다")
     void givenNonExistingUser_whenUploadPortfolioFile_thenThrow() {
         // given
         long userId = 1L;
@@ -1011,7 +1088,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("올바르지 않은 파일 타입으로 포트폴리오 파일 업로드시 예외가 발생한다.")
+    @DisplayName("올바르지 않은 파일 타입으로 포트폴리오 파일 업로드시 예외가 발생한다")
     void givenUnsupportedFileType_whenUploadPortfolioFile_thenThrow() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
@@ -1026,7 +1103,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("프로필 페이징 조회를 한다.")
+    @DisplayName("프로필 페이징 조회가 정상 작동한다")
     void givenValid_whenFindPageUser_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테서티일");
@@ -1053,32 +1130,32 @@ class ProfileServiceTest {
                 pageFrom, pageSize);
 
         // then
-        assertThat(users.getData())
-                .extracting("userId", "nickname", "position")
-                .containsExactly(
-                        tuple(user4.getId(), user4.getNickname(), user4.getPosition()),
-                        tuple(user3.getId(), user3.getNickname(), user3.getPosition())
-                );
-
-        assertThat(users.getData().get(0).getOffers())
-                .extracting("offerId", "position", "isAccepted", "offeredBy", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(offer3.getId(), offer3.getPosition(), offer3.getIsAccepted(), offer3.getOfferedBy(),
-                                offer3.getCreatedAt(), offer3.getUpdatedAt())
-                );
-        assertThat(users.getData().get(1).getOffers())
-                .extracting("offerId", "position", "isAccepted", "offeredBy", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(offer2.getId(), offer2.getPosition(), offer2.getIsAccepted(), offer2.getOfferedBy(),
-                                offer2.getCreatedAt(), offer2.getUpdatedAt())
-                );
-
-        assertEquals(pageSize, users.getData().size());
-        assertEquals(3, users.getTotal());
+        assertAll(
+                () -> assertThat(users.getData())
+                        .extracting("userId", "nickname", "position")
+                        .containsExactly(
+                                tuple(user4.getId(), user4.getNickname(), user4.getPosition()),
+                                tuple(user3.getId(), user3.getNickname(), user3.getPosition())
+                        ),
+                () -> assertThat(users.getData().get(0).getOffers())
+                        .extracting("offerId", "position", "isAccepted", "offeredBy", "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(offer3.getId(), offer3.getPosition(), offer3.getIsAccepted(), offer3.getOfferedBy(),
+                                        offer3.getCreatedAt(), offer3.getUpdatedAt())
+                        ),
+                () -> assertThat(users.getData().get(1).getOffers())
+                        .extracting("offerId", "position", "isAccepted", "offeredBy", "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(offer2.getId(), offer2.getPosition(), offer2.getIsAccepted(), offer2.getOfferedBy(),
+                                        offer2.getCreatedAt(), offer2.getUpdatedAt())
+                        ),
+                () -> assertThat(users.getData().size()).isEqualTo(pageSize),
+                () -> assertThat(users.getTotal()).isEqualTo(3)
+        );
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원 식별자로 프로필 페이징 조회시 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원 식별자로 프로필 페이징 조회시 예외가 발생한다")
     void givenNonExistingUser_whenFindPageUser_thenThrow() {
         // given
         long userId = 1L;

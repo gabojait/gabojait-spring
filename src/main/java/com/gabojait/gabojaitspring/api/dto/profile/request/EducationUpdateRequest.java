@@ -63,18 +63,6 @@ public class EducationUpdateRequest {
         this.isCurrent = isCurrent;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        EducationUpdateRequest that = (EducationUpdateRequest) o;
-        return Objects.equals(educationId, that.educationId)
-                && Objects.equals(institutionName, that.institutionName)
-                && Objects.equals(startedAt, that.startedAt)
-                && Objects.equals(endedAt, that.endedAt)
-                && Objects.equals(isCurrent, that.isCurrent);
-    }
-
     public int hashCode(User user) {
         return Objects.hash(educationId, user, institutionName, startedAt, endedAt, isCurrent);
     }

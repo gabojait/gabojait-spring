@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.Objects;
@@ -49,17 +48,6 @@ public class PortfolioUpdateRequest {
         this.portfolioName = portfolioName;
         this.portfolioUrl = portfolioUrl;
         this.media = media;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PortfolioUpdateRequest that = (PortfolioUpdateRequest) o;
-        return Objects.equals(portfolioId, that.portfolioId)
-                && Objects.equals(portfolioName, that.portfolioName)
-                && Objects.equals(portfolioUrl, that.portfolioUrl)
-                && media == that.media;
     }
 
     public int hashCode(User user) {

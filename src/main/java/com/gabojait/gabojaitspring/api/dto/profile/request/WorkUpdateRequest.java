@@ -17,7 +17,7 @@ import java.util.Objects;
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ApiModel(value = "경력 업데이트 요청")
-public class WorkUpdateRequest {
+public class WorkUpdateRequest{
 
     @ApiModelProperty(position = 1, required = true, value = "경력 식별자")
     private Long workId;
@@ -68,19 +68,6 @@ public class WorkUpdateRequest {
         this.startedAt = startedAt;
         this.endedAt = endedAt;
         this.isCurrent = isCurrent;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        WorkUpdateRequest that = (WorkUpdateRequest) o;
-        return Objects.equals(workId, that.workId)
-                && Objects.equals(corporationName, that.corporationName)
-                && Objects.equals(workDescription, that.workDescription)
-                && Objects.equals(startedAt, that.startedAt)
-                && Objects.equals(endedAt, that.endedAt)
-                && Objects.equals(isCurrent, that.isCurrent);
     }
 
     public int hashCode(User user) {

@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -51,17 +50,6 @@ public class SkillUpdateRequest {
         this.skillName = skillName;
         this.isExperienced = isExperienced;
         this.level = level;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        SkillUpdateRequest that = (SkillUpdateRequest) o;
-        return Objects.equals(skillId, that.skillId)
-                && Objects.equals(skillName, that.skillName)
-                && level == that.level
-                && Objects.equals(isExperienced, that.isExperienced);
     }
 
     public int hashCode(User user) {

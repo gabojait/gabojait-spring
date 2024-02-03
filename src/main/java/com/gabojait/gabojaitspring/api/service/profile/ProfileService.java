@@ -1,9 +1,10 @@
 package com.gabojait.gabojaitspring.api.service.profile;
 
-import com.gabojait.gabojaitspring.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.profile.request.*;
 import com.gabojait.gabojaitspring.api.dto.profile.response.*;
 import com.gabojait.gabojaitspring.api.vo.profile.ProfileVO;
+import com.gabojait.gabojaitspring.common.exception.CustomException;
+import com.gabojait.gabojaitspring.common.response.PageData;
 import com.gabojait.gabojaitspring.common.util.FileUtility;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
 import com.gabojait.gabojaitspring.domain.profile.*;
@@ -11,7 +12,6 @@ import com.gabojait.gabojaitspring.domain.review.Review;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
 import com.gabojait.gabojaitspring.domain.user.Position;
 import com.gabojait.gabojaitspring.domain.user.User;
-import com.gabojait.gabojaitspring.common.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.favorite.FavoriteRepository;
 import com.gabojait.gabojaitspring.repository.offer.OfferRepository;
 import com.gabojait.gabojaitspring.repository.profile.EducationRepository;
@@ -85,8 +85,6 @@ public class ProfileService {
         Boolean isFavorite = null;
 
         if (myUserId != otherUserId) {
-            User myUser = findUser(myUserId);
-
             offers = offerRepository.findAllByUserId(otherUserId, myUserId);
             isFavorite = favoriteRepository.existsUser(myUserId, otherUserId);
 
@@ -197,7 +195,7 @@ public class ProfileService {
                 educationRepository.save(request.toEntity(user));
             else
                 currentEducations.stream()
-                        .filter(currentEducation -> request.getEducationId().equals(currentEducation.getId()))
+                        .filter(currentEducation -> currentEducation.getId().equals(request.getEducationId()))
                         .findFirst()
                         .ifPresent(currentEducation -> {
                             currentEducations.remove(currentEducation);
@@ -427,19 +425,6 @@ public class ProfileService {
      */
     private User findUser(long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    throw new CustomException(USER_NOT_FOUND);
-                });
-    }
-
-    /**
-     * 회원 단건 조회 |
-     * 404(USER_NOT_FOUND)
-     * @param username 회원 아이디
-     * @return 회원
-     */
-    private User findUser(String username) {
-        return userRepository.findByUsername(username)
                 .orElseThrow(() -> {
                     throw new CustomException(USER_NOT_FOUND);
                 });
