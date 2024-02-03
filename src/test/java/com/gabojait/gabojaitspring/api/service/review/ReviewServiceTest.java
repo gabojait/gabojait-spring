@@ -1,6 +1,6 @@
 package com.gabojait.gabojaitspring.api.service.review;
 
-import com.gabojait.gabojaitspring.common.dto.response.PageData;
+import com.gabojait.gabojaitspring.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.review.request.ReviewCreateManyRequest;
 import com.gabojait.gabojaitspring.api.dto.review.request.ReviewCreateOneRequest;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindAllTeamResponse;

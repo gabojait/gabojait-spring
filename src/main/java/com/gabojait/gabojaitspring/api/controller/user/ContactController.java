@@ -1,6 +1,6 @@
 package com.gabojait.gabojaitspring.api.controller.user;
 
-import com.gabojait.gabojaitspring.common.dto.response.DefaultNoResponse;
+import com.gabojait.gabojaitspring.common.response.DefaultNoResponse;
 import com.gabojait.gabojaitspring.api.dto.user.request.ContactCreateRequest;
 import com.gabojait.gabojaitspring.api.dto.user.request.ContactVerifyRequest;
 import com.gabojait.gabojaitspring.api.service.user.ContactService;

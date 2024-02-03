@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.common.exception;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.gabojait.gabojaitspring.common.dto.response.ExceptionResponse;
+import com.gabojait.gabojaitspring.common.response.ExceptionResponse;
 import io.sentry.Sentry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;

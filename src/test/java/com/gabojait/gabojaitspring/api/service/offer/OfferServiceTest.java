@@ -1,6 +1,6 @@
 package com.gabojait.gabojaitspring.api.service.offer;
 
-import com.gabojait.gabojaitspring.common.dto.response.PageData;
+import com.gabojait.gabojaitspring.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.offer.request.OfferCreateRequest;
 import com.gabojait.gabojaitspring.api.dto.offer.request.OfferDecideRequest;
 import com.gabojait.gabojaitspring.api.dto.offer.response.OfferPageResponse;

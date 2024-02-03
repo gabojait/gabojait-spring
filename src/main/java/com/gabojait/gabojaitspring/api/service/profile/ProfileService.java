@@ -1,6 +1,6 @@
 package com.gabojait.gabojaitspring.api.service.profile;
 
-import com.gabojait.gabojaitspring.common.dto.response.PageData;
+import com.gabojait.gabojaitspring.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.profile.request.*;
 import com.gabojait.gabojaitspring.api.dto.profile.response.*;
 import com.gabojait.gabojaitspring.api.vo.profile.ProfileVO;

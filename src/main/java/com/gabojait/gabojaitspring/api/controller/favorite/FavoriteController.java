@@ -1,8 +1,8 @@
 package com.gabojait.gabojaitspring.api.controller.favorite;
 
-import com.gabojait.gabojaitspring.common.dto.response.DefaultMultiResponse;
-import com.gabojait.gabojaitspring.common.dto.response.DefaultNoResponse;
-import com.gabojait.gabojaitspring.common.dto.response.PageData;
+import com.gabojait.gabojaitspring.common.response.DefaultMultiResponse;
+import com.gabojait.gabojaitspring.common.response.DefaultNoResponse;
+import com.gabojait.gabojaitspring.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.favorite.request.FavoriteUpdateRequest;
 import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteTeamPageResponse;
 import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteUserPageResponse;

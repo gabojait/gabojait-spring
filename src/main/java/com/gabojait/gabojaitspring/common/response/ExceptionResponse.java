@@ -1,4 +1,4 @@
-package com.gabojait.gabojaitspring.common.dto.response;
+package com.gabojait.gabojaitspring.common.response;
 
 
 import com.gabojait.gabojaitspring.common.code.ErrorCode;

@@ -1,9 +1,9 @@
 package com.gabojait.gabojaitspring.api.controller.profile;
 
-import com.gabojait.gabojaitspring.common.dto.response.DefaultMultiResponse;
-import com.gabojait.gabojaitspring.common.dto.response.DefaultNoResponse;
-import com.gabojait.gabojaitspring.common.dto.response.DefaultSingleResponse;
-import com.gabojait.gabojaitspring.common.dto.response.PageData;
+import com.gabojait.gabojaitspring.common.response.DefaultMultiResponse;
+import com.gabojait.gabojaitspring.common.response.DefaultNoResponse;
+import com.gabojait.gabojaitspring.common.response.DefaultSingleResponse;
+import com.gabojait.gabojaitspring.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.profile.request.ProfileDescriptionRequest;
 import com.gabojait.gabojaitspring.api.dto.profile.request.ProfileIsSeekRequest;
 import com.gabojait.gabojaitspring.api.dto.profile.request.ProfileUpdateRequest;

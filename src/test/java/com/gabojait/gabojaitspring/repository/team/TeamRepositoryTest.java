@@ -1,6 +1,6 @@
 package com.gabojait.gabojaitspring.repository.team;
 
-import com.gabojait.gabojaitspring.common.dto.response.PageData;
+import com.gabojait.gabojaitspring.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.user.Position;
 import org.junit.jupiter.api.DisplayName;

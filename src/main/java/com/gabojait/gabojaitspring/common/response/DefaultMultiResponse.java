@@ -1,4 +1,4 @@
-package com.gabojait.gabojaitspring.common.dto.response;
+package com.gabojait.gabojaitspring.common.response;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;

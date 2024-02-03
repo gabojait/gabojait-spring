@@ -1,9 +1,9 @@
 package com.gabojait.gabojaitspring.api.controller.review;
 
-import com.gabojait.gabojaitspring.common.dto.response.DefaultMultiResponse;
-import com.gabojait.gabojaitspring.common.dto.response.DefaultNoResponse;
-import com.gabojait.gabojaitspring.common.dto.response.DefaultSingleResponse;
-import com.gabojait.gabojaitspring.common.dto.response.PageData;
+import com.gabojait.gabojaitspring.common.response.DefaultMultiResponse;
+import com.gabojait.gabojaitspring.common.response.DefaultNoResponse;
+import com.gabojait.gabojaitspring.common.response.DefaultSingleResponse;
+import com.gabojait.gabojaitspring.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.review.request.ReviewCreateManyRequest;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindAllTeamResponse;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindTeamResponse;

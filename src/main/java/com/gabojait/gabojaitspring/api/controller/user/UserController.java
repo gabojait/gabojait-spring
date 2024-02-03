@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.api.controller.user;
 
-import com.gabojait.gabojaitspring.common.dto.response.DefaultNoResponse;
-import com.gabojait.gabojaitspring.common.dto.response.DefaultSingleResponse;
+import com.gabojait.gabojaitspring.common.response.DefaultNoResponse;
+import com.gabojait.gabojaitspring.common.response.DefaultSingleResponse;
 import com.gabojait.gabojaitspring.api.dto.user.request.*;
 import com.gabojait.gabojaitspring.api.dto.user.response.UserFindMyselfResponse;
 import com.gabojait.gabojaitspring.api.dto.user.response.UserLoginResponse;
