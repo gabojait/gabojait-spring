@@ -2,7 +2,7 @@ package com.gabojait.gabojaitspring.api.service.user;
 
 import com.gabojait.gabojaitspring.common.util.PasswordUtility;
 import com.gabojait.gabojaitspring.domain.user.*;
-import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.common.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.user.ContactRepository;
 import com.gabojait.gabojaitspring.repository.user.UserRepository;
 import com.gabojait.gabojaitspring.repository.user.UserRoleRepository;

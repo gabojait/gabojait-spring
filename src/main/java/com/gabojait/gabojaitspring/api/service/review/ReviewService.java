@@ -8,7 +8,7 @@ import com.gabojait.gabojaitspring.api.dto.review.response.ReviewPageResponse;
 import com.gabojait.gabojaitspring.domain.review.Review;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
 import com.gabojait.gabojaitspring.domain.team.TeamMemberStatus;
-import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.common.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.review.ReviewRepository;
 import com.gabojait.gabojaitspring.repository.team.TeamMemberRepository;
 import lombok.RequiredArgsConstructor;

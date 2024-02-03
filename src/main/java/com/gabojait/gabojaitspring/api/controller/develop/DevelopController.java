@@ -3,7 +3,7 @@ package com.gabojait.gabojaitspring.api.controller.develop;
 import com.gabojait.gabojaitspring.common.dto.response.DefaultNoResponse;
 import com.gabojait.gabojaitspring.api.service.develop.DevelopService;
 import com.gabojait.gabojaitspring.config.auth.JwtProvider;
-import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.common.exception.CustomException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Content;

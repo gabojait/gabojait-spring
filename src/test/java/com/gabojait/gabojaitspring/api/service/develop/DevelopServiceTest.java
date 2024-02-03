@@ -6,7 +6,7 @@ import com.gabojait.gabojaitspring.domain.review.Review;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
 import com.gabojait.gabojaitspring.domain.team.TeamMemberStatus;
 import com.gabojait.gabojaitspring.domain.user.*;
-import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.common.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.profile.EducationRepository;
 import com.gabojait.gabojaitspring.repository.profile.PortfolioRepository;
 import com.gabojait.gabojaitspring.repository.profile.SkillRepository;

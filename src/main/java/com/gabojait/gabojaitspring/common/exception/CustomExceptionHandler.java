@@ -1,4 +1,4 @@
-package com.gabojait.gabojaitspring.exception;
+package com.gabojait.gabojaitspring.common.exception;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.gabojait.gabojaitspring.common.dto.response.ExceptionResponse;

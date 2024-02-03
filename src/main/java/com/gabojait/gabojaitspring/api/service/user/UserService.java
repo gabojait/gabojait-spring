@@ -14,7 +14,7 @@ import com.gabojait.gabojaitspring.domain.user.Contact;
 import com.gabojait.gabojaitspring.domain.user.Role;
 import com.gabojait.gabojaitspring.domain.user.User;
 import com.gabojait.gabojaitspring.domain.user.UserRole;
-import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.common.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.notification.FcmRepository;
 import com.gabojait.gabojaitspring.repository.notification.NotificationRepository;
 import com.gabojait.gabojaitspring.repository.profile.EducationRepository;

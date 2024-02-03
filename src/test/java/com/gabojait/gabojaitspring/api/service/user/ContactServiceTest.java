@@ -5,7 +5,7 @@ import com.gabojait.gabojaitspring.api.dto.user.request.ContactVerifyRequest;
 import com.gabojait.gabojaitspring.domain.user.Contact;
 import com.gabojait.gabojaitspring.domain.user.Gender;
 import com.gabojait.gabojaitspring.domain.user.User;
-import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.common.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.user.ContactRepository;
 import com.gabojait.gabojaitspring.repository.user.UserRepository;
 import org.junit.jupiter.api.DisplayName;

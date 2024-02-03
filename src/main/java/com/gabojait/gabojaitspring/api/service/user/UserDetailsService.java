@@ -2,7 +2,7 @@ package com.gabojait.gabojaitspring.api.service.user;
 
 import com.gabojait.gabojaitspring.domain.user.User;
 import com.gabojait.gabojaitspring.domain.user.UserRole;
-import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.common.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.user.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;

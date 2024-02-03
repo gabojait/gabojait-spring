@@ -3,7 +3,7 @@ package com.gabojait.gabojaitspring.domain.team;
 import com.gabojait.gabojaitspring.domain.base.BasePermanentEntity;
 import com.gabojait.gabojaitspring.domain.user.Position;
 import com.gabojait.gabojaitspring.domain.user.User;
-import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.common.exception.CustomException;
 import lombok.*;
 
 import javax.persistence.*;

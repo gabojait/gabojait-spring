@@ -8,7 +8,7 @@ import com.gabojait.gabojaitspring.domain.favorite.Favorite;
 import com.gabojait.gabojaitspring.domain.profile.Skill;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.user.User;
-import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.common.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.favorite.FavoriteRepository;
 import com.gabojait.gabojaitspring.repository.profile.SkillRepository;
 import com.gabojait.gabojaitspring.repository.team.TeamRepository;

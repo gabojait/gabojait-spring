@@ -4,7 +4,7 @@ import com.gabojait.gabojaitspring.domain.user.Contact;
 import com.gabojait.gabojaitspring.domain.user.Gender;
 import com.gabojait.gabojaitspring.domain.user.Position;
 import com.gabojait.gabojaitspring.domain.user.User;
-import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.common.exception.CustomException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

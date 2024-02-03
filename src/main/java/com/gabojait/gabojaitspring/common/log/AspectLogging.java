@@ -1,6 +1,6 @@
 package com.gabojait.gabojaitspring.common.log;
 
-import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.common.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
@@ -21,7 +21,7 @@ public class AspectLogging {
             "|| execution(public * com.gabojait.gabojaitspring.api..*(..))")
     private void global() {}
 
-    @Pointcut("execution(protected * com.gabojait.gabojaitspring.exception.CustomExceptionHandler..*(..))")
+    @Pointcut("execution(protected * com.gabojait.gabojaitspring.common.exception.CustomExceptionHandler..*(..))")
     private void exception() {}
 
     @Before("global()")

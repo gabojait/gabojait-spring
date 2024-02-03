@@ -5,7 +5,7 @@ import com.gabojait.gabojaitspring.api.dto.user.request.ContactVerifyRequest;
 import com.gabojait.gabojaitspring.common.util.EmailUtility;
 import com.gabojait.gabojaitspring.common.util.PasswordUtility;
 import com.gabojait.gabojaitspring.domain.user.Contact;
-import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.common.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.user.ContactRepository;
 import com.gabojait.gabojaitspring.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;

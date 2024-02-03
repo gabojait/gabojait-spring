@@ -10,7 +10,7 @@ import com.gabojait.gabojaitspring.common.util.PasswordUtility;
 import com.gabojait.gabojaitspring.domain.notification.Fcm;
 import com.gabojait.gabojaitspring.domain.profile.*;
 import com.gabojait.gabojaitspring.domain.user.*;
-import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.common.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.notification.FcmRepository;
 import com.gabojait.gabojaitspring.repository.notification.NotificationRepository;
 import com.gabojait.gabojaitspring.repository.profile.EducationRepository;

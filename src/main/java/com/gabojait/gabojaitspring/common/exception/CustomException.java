@@ -1,4 +1,4 @@
-package com.gabojait.gabojaitspring.exception;
+package com.gabojait.gabojaitspring.common.exception;
 
 import com.gabojait.gabojaitspring.common.code.ErrorCode;
 import lombok.Getter;

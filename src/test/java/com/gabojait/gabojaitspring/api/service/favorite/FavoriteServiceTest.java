@@ -10,7 +10,7 @@ import com.gabojait.gabojaitspring.domain.user.Contact;
 import com.gabojait.gabojaitspring.domain.user.Gender;
 import com.gabojait.gabojaitspring.domain.user.Position;
 import com.gabojait.gabojaitspring.domain.user.User;
-import com.gabojait.gabojaitspring.exception.CustomException;
+import com.gabojait.gabojaitspring.common.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.favorite.FavoriteRepository;
 import com.gabojait.gabojaitspring.repository.team.TeamRepository;
 import com.gabojait.gabojaitspring.repository.user.ContactRepository;
