@@ -1,7 +1,6 @@
 package com.gabojait.gabojaitspring.config;
 
 import com.fasterxml.classmate.TypeResolver;
-import com.gabojait.gabojaitspring.api.dto.common.response.*;
 import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteSkillResponse;
 import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteTeamPageResponse;
 import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteUserPageResponse;
@@ -17,7 +16,6 @@ import com.gabojait.gabojaitspring.api.dto.user.response.UserFindMyselfResponse;
 import com.gabojait.gabojaitspring.api.dto.user.response.UserLoginResponse;
 import com.gabojait.gabojaitspring.api.dto.user.response.UserRegisterResponse;
 import com.gabojait.gabojaitspring.common.dto.response.*;
-import com.gabojait.gabojaitspring.response.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RestController;
