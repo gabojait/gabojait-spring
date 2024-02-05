@@ -1,11 +1,12 @@
 package com.gabojait.gabojaitspring.api.service.review;
 
-import com.gabojait.gabojaitspring.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.review.request.ReviewCreateManyRequest;
 import com.gabojait.gabojaitspring.api.dto.review.request.ReviewCreateOneRequest;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindAllTeamResponse;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewFindTeamResponse;
 import com.gabojait.gabojaitspring.api.dto.review.response.ReviewPageResponse;
+import com.gabojait.gabojaitspring.common.exception.CustomException;
+import com.gabojait.gabojaitspring.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.review.Review;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
@@ -13,7 +14,6 @@ import com.gabojait.gabojaitspring.domain.user.Contact;
 import com.gabojait.gabojaitspring.domain.user.Gender;
 import com.gabojait.gabojaitspring.domain.user.Position;
 import com.gabojait.gabojaitspring.domain.user.User;
-import com.gabojait.gabojaitspring.common.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.review.ReviewRepository;
 import com.gabojait.gabojaitspring.repository.team.TeamMemberRepository;
 import com.gabojait.gabojaitspring.repository.team.TeamRepository;
@@ -31,11 +31,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
+import static com.gabojait.gabojaitspring.common.code.ErrorCode.TEAM_MEMBER_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -50,7 +50,7 @@ class ReviewServiceTest {
     @Autowired private TeamRepository teamRepository;
 
     @Test
-    @DisplayName("리뷰 가능한 팀 전체 조회를 한다.")
+    @DisplayName("리뷰 가능한 팀 전체 조회가 정상 작동한다")
     void givenValid_whenFindAllReviewableTeams_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.MANAGER);
@@ -59,7 +59,6 @@ class ReviewServiceTest {
         Team team1 = createSavedTeam("가보자잇1");
         Team team2 = createSavedTeam("가보자잇2");
         Team team3 = createSavedTeam("가보자잇3");
-        teamRepository.saveAll(List.of(team1, team2));
 
         TeamMember teamMember1 = createSavedTeamMember(true, user, team1);
         teamMember1.complete("github.com/gabojait1", now.minusWeeks(4).minusSeconds(1));
@@ -73,23 +72,24 @@ class ReviewServiceTest {
         PageData<List<ReviewFindAllTeamResponse>> responses = reviewService.findAllReviewableTeams(user.getId(), now);
 
         // then
-        assertThat(responses.getData())
-                .extracting("teamId", "projectName", "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt",
-                        "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt",
-                        "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(team2.getId(), team2.getProjectName(), team2.getDesignerCurrentCnt(),
-                                team2.getBackendCurrentCnt(), team2.getFrontendCurrentCnt(),
-                                team2.getManagerCurrentCnt(), team2.getDesignerMaxCnt(), team2.getBackendMaxCnt(),
-                                team2.getFrontendMaxCnt(), team2.getManagerMaxCnt(), team2.getCreatedAt(),
-                                team2.getUpdatedAt())
-                );
-
-        assertEquals(1L, responses.getTotal());
+        assertAll(
+                () -> assertThat(responses.getData())
+                        .extracting("teamId", "projectName", "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt",
+                                "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt",
+                                "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(team2.getId(), team2.getProjectName(), team2.getDesignerCurrentCnt(),
+                                        team2.getBackendCurrentCnt(), team2.getFrontendCurrentCnt(),
+                                        team2.getManagerCurrentCnt(), team2.getDesignerMaxCnt(), team2.getBackendMaxCnt(),
+                                        team2.getFrontendMaxCnt(), team2.getManagerMaxCnt(), team2.getCreatedAt(),
+                                        team2.getUpdatedAt())
+                        ),
+                () -> assertThat(responses.getTotal()).isEqualTo(1)
+        );
     }
 
     @Test
-    @DisplayName("리뷰 가능한 팀 조회를 한다.")
+    @DisplayName("리뷰 가능한 팀 조회가 정상 작동한다")
     void givenValid_whenFindReviewableTeam_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일", Position.MANAGER);
@@ -98,7 +98,6 @@ class ReviewServiceTest {
         LocalDateTime now = LocalDateTime.now();
 
         Team team = createSavedTeam("가보자잇");
-        teamRepository.save(team);
         TeamMember teamMember1 = createSavedTeamMember(true, user1, team);
         TeamMember teamMember2 = createSavedTeamMember(false, user2, team);
         TeamMember teamMember3 = createSavedTeamMember(false, user3, team);
@@ -111,7 +110,8 @@ class ReviewServiceTest {
         ReviewFindTeamResponse response = reviewService.findReviewableTeam(user1.getId(), team.getId(), now);
 
         // then
-        assertAll(() -> assertThat(response)
+        assertAll(
+                () -> assertThat(response)
                         .extracting("teamId", "projectName")
                         .containsExactly(team.getId(), team.getProjectName()),
                 () -> assertThat(response.getTeamMembers())
@@ -126,7 +126,24 @@ class ReviewServiceTest {
     }
 
     @Test
-    @DisplayName("리뷰 생성을 한다.")
+    @DisplayName("완료하지 않은 팀 식별자로 리뷰 가능한 팀 조회시 예외가 발생한다")
+    void givenNonCompleteTeam_whenFindReviewableTeam_thenThrow() {
+        // given
+        User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일", Position.MANAGER);
+        LocalDateTime now = LocalDateTime.now();
+
+        Team team = createSavedTeam("가보자잇");
+        createSavedTeamMember(true, user1, team);
+
+        // when
+        assertThatThrownBy(() -> reviewService.findReviewableTeam(user1.getId(), team.getId(), now))
+                .isInstanceOf(CustomException.class)
+                .extracting("errorCode")
+                .isEqualTo(TEAM_MEMBER_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("리뷰 생성이 정상 작동한다")
     void givenValid_whenCreateReview_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일", Position.MANAGER);
@@ -135,7 +152,6 @@ class ReviewServiceTest {
         LocalDateTime now = LocalDateTime.now();
 
         Team team = createSavedTeam("가보자잇");
-        teamRepository.save(team);
         TeamMember teamMember1 = createSavedTeamMember(true, user1, team);
         teamMember1.complete("github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
         TeamMember teamMember2 = createSavedTeamMember(false, user2, team);
@@ -145,7 +161,7 @@ class ReviewServiceTest {
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3));
 
         ReviewCreateManyRequest request = createValidReviewCreateManyRequest(
-                List.of(teamMember1.getId(), teamMember2.getId(), teamMember3.getId())
+                List.of(teamMember2.getId(), teamMember3.getId())
         );
 
         // when
@@ -153,11 +169,44 @@ class ReviewServiceTest {
 
         // then
         boolean exists = reviewRepository.exists(user1.getId(), team.getId());
-        assertTrue(exists);
+        assertThat(exists).isTrue();
     }
 
     @Test
-    @DisplayName("존재하지 않은 팀원으로 리뷰 생성을 하면 예외가 발생한다.")
+    @DisplayName("존재하는 리뷰 생성이 정상 작동한다")
+    void givenExistingReview_whenCreateReview_thenReturn() {
+        // given
+        User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일", Position.MANAGER);
+        User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이", Position.BACKEND);
+        User user3 = createSavedDefaultUser("tester3@gabojait.com", "tester3", "테스터삼", Position.FRONTEND);
+        LocalDateTime now = LocalDateTime.now();
+
+        Team team = createSavedTeam("가보자잇");
+        TeamMember teamMember1 = createSavedTeamMember(true, user1, team);
+        teamMember1.complete("github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
+        TeamMember teamMember2 = createSavedTeamMember(false, user2, team);
+        teamMember2.complete("github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
+        TeamMember teamMember3 = createSavedTeamMember(false, user3, team);
+        teamMember3.complete("github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
+        teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3));
+
+        createSavedReview(teamMember1, teamMember2);
+        createSavedReview(teamMember1, teamMember3);
+
+        ReviewCreateManyRequest request = createValidReviewCreateManyRequest(
+                List.of(teamMember2.getId(), teamMember3.getId())
+        );
+
+        // when
+        reviewService.createReview(user1.getId(), team.getId(), request);
+
+        // then
+        boolean exists = reviewRepository.exists(user1.getId(), team.getId());
+        assertThat(exists).isTrue();
+    }
+
+    @Test
+    @DisplayName("존재하지 않은 팀원으로 리뷰 생성을 하면 예외가 발생한다")
     void givenNonExistingTeamMember_whenCreateReview_thenThrow() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.MANAGER);
@@ -172,7 +221,7 @@ class ReviewServiceTest {
     }
 
     @Test
-    @DisplayName("회원 리뷰 페이징 조회를 한다.")
+    @DisplayName("회원 리뷰 페이징 조회가 정상 작동한다")
     void givenValid_whenFindPageReviews_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일", Position.MANAGER);
@@ -183,7 +232,6 @@ class ReviewServiceTest {
         LocalDateTime now = LocalDateTime.now();
 
         Team team = createSavedTeam("가보자잇");
-        teamRepository.save(team);
         TeamMember teamMember1 = createSavedTeamMember(true, user1, team);
         teamMember1.complete("github.com/gabojait", now);
         TeamMember teamMember2 = createSavedTeamMember(false, user2, team);
@@ -205,16 +253,17 @@ class ReviewServiceTest {
         PageData<List<ReviewPageResponse>> responses = reviewService.findPageReviews(user1.getId(), pageFrom, pageSize);
 
         // then
-        assertThat(responses.getData())
-                .extracting("reviewId", "reviewer", "rating", "post", "createdAt", "updatedAt")
-                .containsExactly(
-                        tuple(review2.getId(), "익명2", review2.getRating(), review2.getPost(), review2.getCreatedAt(),
-                                review2.getUpdatedAt()),
-                        tuple(review1.getId(), "익명1", review1.getRating(), review1.getPost(), review1.getCreatedAt(),
-                                review1.getUpdatedAt())
-                );
-
-        assertEquals(3L, responses.getTotal());
+        assertAll(
+                () -> assertThat(responses.getData())
+                        .extracting("reviewId", "reviewer", "rating", "post", "createdAt", "updatedAt")
+                        .containsExactly(
+                                tuple(review2.getId(), "익명2", review2.getRating(), review2.getPost(), review2.getCreatedAt(),
+                                        review2.getUpdatedAt()),
+                                tuple(review1.getId(), "익명1", review1.getRating(), review1.getPost(), review1.getCreatedAt(),
+                                        review1.getUpdatedAt())
+                        ),
+                () -> assertThat(responses.getTotal()).isEqualTo(3)
+        );
     }
 
     private ReviewCreateManyRequest createValidReviewCreateManyRequest(List<Long> revieweeMemberIds) {
@@ -257,9 +306,7 @@ class ReviewServiceTest {
         return teamRepository.save(team);
     }
 
-    private TeamMember createSavedTeamMember(boolean isLeader,
-                                             User user,
-                                             Team team) {
+    private TeamMember createSavedTeamMember(boolean isLeader, User user, Team team) {
         TeamMember teamMember = TeamMember.builder()
                 .position(user.getPosition())
                 .isLeader(isLeader)
