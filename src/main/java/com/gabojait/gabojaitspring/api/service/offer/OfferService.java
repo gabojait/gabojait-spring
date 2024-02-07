@@ -1,10 +1,11 @@
 package com.gabojait.gabojaitspring.api.service.offer;
 
-import com.gabojait.gabojaitspring.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.offer.request.OfferCreateRequest;
 import com.gabojait.gabojaitspring.api.dto.offer.request.OfferDecideRequest;
 import com.gabojait.gabojaitspring.api.dto.offer.response.OfferPageResponse;
 import com.gabojait.gabojaitspring.api.service.notification.NotificationService;
+import com.gabojait.gabojaitspring.common.exception.CustomException;
+import com.gabojait.gabojaitspring.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
 import com.gabojait.gabojaitspring.domain.offer.OfferedBy;
 import com.gabojait.gabojaitspring.domain.profile.Skill;
@@ -12,7 +13,6 @@ import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
 import com.gabojait.gabojaitspring.domain.user.Position;
 import com.gabojait.gabojaitspring.domain.user.User;
-import com.gabojait.gabojaitspring.common.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.offer.OfferRepository;
 import com.gabojait.gabojaitspring.repository.profile.SkillRepository;
 import com.gabojait.gabojaitspring.repository.team.TeamMemberRepository;
@@ -281,19 +281,6 @@ public class OfferService {
         return teamMemberRepository.findCurrentFetchTeam(userId)
                 .orElseThrow(() -> {
                     throw new CustomException(CURRENT_TEAM_NOT_FOUND);
-                });
-    }
-
-    /**
-     * 회원 단건 조회 |
-     * 404(USER_NOT_FOUND)
-     * @param username 회원 아이디
-     * @return 회원
-     */
-    private User findUser(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> {
-                    throw new CustomException(USER_NOT_FOUND);
                 });
     }
 
