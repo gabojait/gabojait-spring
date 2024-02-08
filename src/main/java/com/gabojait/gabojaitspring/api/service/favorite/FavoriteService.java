@@ -1,14 +1,14 @@
 package com.gabojait.gabojaitspring.api.service.favorite;
 
-import com.gabojait.gabojaitspring.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.favorite.request.FavoriteUpdateRequest;
 import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteTeamPageResponse;
 import com.gabojait.gabojaitspring.api.dto.favorite.response.FavoriteUserPageResponse;
+import com.gabojait.gabojaitspring.common.exception.CustomException;
+import com.gabojait.gabojaitspring.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.favorite.Favorite;
 import com.gabojait.gabojaitspring.domain.profile.Skill;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.user.User;
-import com.gabojait.gabojaitspring.common.exception.CustomException;
 import com.gabojait.gabojaitspring.repository.favorite.FavoriteRepository;
 import com.gabojait.gabojaitspring.repository.profile.SkillRepository;
 import com.gabojait.gabojaitspring.repository.team.TeamRepository;
@@ -132,19 +132,6 @@ public class FavoriteService {
                 .collect(Collectors.toList());
 
         return new PageData<>(responses, favorites.getTotal());
-    }
-
-    /**
-     * 회원 단건 조회 |
-     * 404(USER_NOT_FOUND)
-     * @param username 회원 아이디
-     * @return 회원
-     */
-    private User findUser(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> {
-                    throw new CustomException(USER_NOT_FOUND);
-                });
     }
 
     /**
