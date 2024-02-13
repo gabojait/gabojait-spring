@@ -5,6 +5,7 @@ import com.gabojait.gabojaitspring.api.dto.team.request.*;
 import com.gabojait.gabojaitspring.api.service.team.TeamService;
 import com.gabojait.gabojaitspring.config.auth.CustomAuthenticationEntryPoint;
 import com.gabojait.gabojaitspring.config.auth.JwtProvider;
+import com.gabojait.gabojaitspring.domain.user.Position;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,98 +55,6 @@ class TeamControllerTest {
                         .value(TEAM_CREATED.name()))
                 .andExpect(jsonPath("$.responseMessage")
                         .value(TEAM_CREATED.getMessage()));
-    }
-
-    @Test
-    @DisplayName("디자이너 최대 수 미입력시 팀 생성을 하면 400을 반환한다.")
-    void givenBlankDesignerMaxCnt_whenCreateTeam_thenReturn400() throws Exception {
-        // given
-        TeamCreateRequest request = createValidTeamCreateRequest();
-        request.setDesignerMaxCnt(null);
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                post("/api/v1/team")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(DESIGNER_MAX_CNT_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(DESIGNER_MAX_CNT_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
-    @DisplayName("백엔드 최대 수 미입력시 팀 생성을 하면 400을 반환한다.")
-    void givenBlankBackendMaxCnt_whenCreateTeam_thenReturn400() throws Exception {
-        // given
-        TeamCreateRequest request = createValidTeamCreateRequest();
-        request.setBackendMaxCnt(null);
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                post("/api/v1/team")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(BACKEND_MAX_CNT_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(BACKEND_MAX_CNT_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
-    @DisplayName("프런트 최대 수 미입력시 팀 생성을 하면 400을 반환한다.")
-    void givenBlankFrontendMaxCnt_whenCreateTeam_thenReturn400() throws Exception {
-        // given
-        TeamCreateRequest request = createValidTeamCreateRequest();
-        request.setFrontendMaxCnt(null);
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                post("/api/v1/team")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(FRONTEND_MAX_CNT_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(FRONTEND_MAX_CNT_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
-    @DisplayName("매니저 최대 수 미입력시 팀 생성을 하면 400을 반환한다.")
-    void givenBlankManagerMaxCnt_whenCreateTeam_thenReturn400() throws Exception {
-        // given
-        TeamCreateRequest request = createValidTeamCreateRequest();
-        request.setManagerMaxCnt(null);
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                post("/api/v1/team")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(MANAGER_MAX_CNT_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(MANAGER_MAX_CNT_FIELD_REQUIRED.getMessage()));
     }
 
     @Test
@@ -264,6 +173,52 @@ class TeamControllerTest {
     }
 
     @Test
+    @DisplayName("포지션 미입력시 팀 생성을 하면 400을 반환한다")
+    void givenBlankPosition_whenCreateTeam_thenReturn400() throws Exception {
+        // given
+        TeamCreateRequest request = createValidTeamCreateRequest();
+        request.setPosition("");
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                post("/api/v1/team")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(POSITION_TYPE_INVALID.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(POSITION_TYPE_INVALID.getMessage()));
+    }
+
+    @Test
+    @DisplayName("디자이너 최대 수 미입력시 팀 생성을 하면 400을 반환한다.")
+    void givenBlankDesignerMaxCnt_whenCreateTeam_thenReturn400() throws Exception {
+        // given
+        TeamCreateRequest request = createValidTeamCreateRequest();
+        request.setDesignerMaxCnt(null);
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                post("/api/v1/team")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(DESIGNER_MAX_CNT_FIELD_REQUIRED.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(DESIGNER_MAX_CNT_FIELD_REQUIRED.getMessage()));
+    }
+
+    @Test
     @DisplayName("디자이너 최대 수가 음수일시 팀 생성을 하면 400을 반환한다.")
     void givenNegativeDesignerMaxCnt_whenCreateTeam_thenReturn400() throws Exception {
         // given
@@ -284,6 +239,29 @@ class TeamControllerTest {
                         .value(DESIGNER_MAX_CNT_POSITIVE_OR_ZERO_ONLY.name()))
                 .andExpect(jsonPath("$.responseMessage")
                         .value(DESIGNER_MAX_CNT_POSITIVE_OR_ZERO_ONLY.getMessage()));
+    }
+
+    @Test
+    @DisplayName("백엔드 최대 수 미입력시 팀 생성을 하면 400을 반환한다.")
+    void givenBlankBackendMaxCnt_whenCreateTeam_thenReturn400() throws Exception {
+        // given
+        TeamCreateRequest request = createValidTeamCreateRequest();
+        request.setBackendMaxCnt(null);
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                post("/api/v1/team")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(BACKEND_MAX_CNT_FIELD_REQUIRED.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(BACKEND_MAX_CNT_FIELD_REQUIRED.getMessage()));
     }
 
     @Test
@@ -310,6 +288,28 @@ class TeamControllerTest {
     }
 
     @Test
+    @DisplayName("프런트 최대 수 미입력시 팀 생성을 하면 400을 반환한다.")
+    void givenBlankFrontendMaxCnt_whenCreateTeam_thenReturn400() throws Exception {
+        // given
+        TeamCreateRequest request = createValidTeamCreateRequest();
+        request.setFrontendMaxCnt(null);
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                post("/api/v1/team")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(FRONTEND_MAX_CNT_FIELD_REQUIRED.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(FRONTEND_MAX_CNT_FIELD_REQUIRED.getMessage()));
+    }
+    @Test
     @DisplayName("프런트 최대 수가 음수일시 팀 생성을 하면 400을 반환한다.")
     void givenNegativeFrontendMaxCnt_whenCreateTeam_thenReturn400() throws Exception {
         // given
@@ -330,6 +330,29 @@ class TeamControllerTest {
                         .value(FRONTEND_MAX_CNT_POSITIVE_OR_ZERO_ONLY.name()))
                 .andExpect(jsonPath("$.responseMessage")
                         .value(FRONTEND_MAX_CNT_POSITIVE_OR_ZERO_ONLY.getMessage()));
+    }
+
+    @Test
+    @DisplayName("매니저 최대 수 미입력시 팀 생성을 하면 400을 반환한다.")
+    void givenBlankManagerMaxCnt_whenCreateTeam_thenReturn400() throws Exception {
+        // given
+        TeamCreateRequest request = createValidTeamCreateRequest();
+        request.setManagerMaxCnt(null);
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                post("/api/v1/team")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(MANAGER_MAX_CNT_FIELD_REQUIRED.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(MANAGER_MAX_CNT_FIELD_REQUIRED.getMessage()));
     }
 
     @Test
@@ -1016,6 +1039,7 @@ class TeamControllerTest {
                 .projectDescription("프로젝트 설명입니다.")
                 .expectation("바라는 점입니다.")
                 .openChatUrl("https://open.kakao.com/o/gabojait")
+                .position(Position.MANAGER.name())
                 .designerMaxCnt((byte) 2)
                 .backendMaxCnt((byte) 2)
                 .frontendMaxCnt((byte) 2)

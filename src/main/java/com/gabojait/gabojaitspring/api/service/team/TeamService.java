@@ -43,7 +43,7 @@ public class TeamService {
     /**
      * 팀 생성 |
      * 404(USER_NOT_FOUND)
-     * 409(EXISTING_CURRENT_TEAM / NON_EXISTING_POSITION / TEAM_LEADER_POSITION_UNAVAILABLE)
+     * 409(EXISTING_CURRENT_TEAM / TEAM_LEADER_POSITION_UNAVAILABLE)
      * @param userId 회원 식별자
      * @param request 팀 생성 요청
      * @return 팀 생성 응답
@@ -53,7 +53,6 @@ public class TeamService {
         User user = findUser(userId);
 
         validateHasNoCurrentTeam(user.getId());
-        validateHasPosition(user);
         validateLeaderPosition(request, user);
 
         Team team = request.toTeamEntity();
@@ -291,16 +290,6 @@ public class TeamService {
     }
 
     /**
-     * 현재 포지션 존재 검증 |
-     * 409(NON_EXISTING_POSITION)
-     * @param user 회원
-     */
-    private void validateHasPosition(User user) {
-        if (!user.hasPosition())
-            throw new CustomException(NON_EXISTING_POSITION);
-    }
-
-    /**
      * 현재 팀장 여부 검증 |
      * 403(REQUEST_FORBIDDEN)
      * @param teamMember 팀원
@@ -317,7 +306,7 @@ public class TeamService {
      * @param user 회원
      */
     private void validateLeaderPosition(TeamCreateRequest request, User user) {
-        switch (user.getPosition()) {
+        switch (Position.valueOf(request.getPosition())) {
             case DESIGNER:
                 if (request.getDesignerMaxCnt() <= 0)
                     throw new CustomException(TEAM_LEADER_POSITION_UNAVAILABLE);

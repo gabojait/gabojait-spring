@@ -74,9 +74,9 @@ class TeamServiceTest {
                                              byte frontendCurrentCnt,
                                              byte managerCurrentCnt) {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", position);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
-        TeamCreateRequest request = createValidTeamCreateRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest(position);
 
         // when
         TeamCreateResponse response = teamService.createTeam(user.getId(), request);
@@ -95,94 +95,7 @@ class TeamServiceTest {
                 () -> assertThat(response.getTeamMembers())
                         .extracting("userId", "username", "nickname", "position", "isLeader")
                         .containsExactly(
-                                tuple(user.getId(), user.getUsername(), user.getNickname(), user.getPosition(), true)
-                        )
-        );
-    }
-
-    @Test
-    @DisplayName("백엔드 포지션으로 팀 생성이 정상 작동한다")
-    void givenBackend_whenCreateTeam_theReturn() {
-        // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
-
-        TeamCreateRequest request = createValidTeamCreateRequest();
-
-        // when
-        TeamCreateResponse response = teamService.createTeam(user.getId(), request);
-
-        // then
-        assertAll(
-                () -> assertThat(response)
-                        .extracting("projectName", "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt",
-                                "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt",
-                                "projectDescription", "openChatUrl", "expectation")
-                        .containsExactly(request.getProjectName(), (byte) 0, (byte) 1, (byte) 0, (byte) 0,
-                                request.getDesignerMaxCnt(), request.getBackendMaxCnt(), request.getFrontendMaxCnt(),
-                                request.getManagerMaxCnt(), request.getProjectDescription(), request.getOpenChatUrl(),
-                                request.getExpectation()),
-                () -> assertThat(response.getTeamMembers())
-                        .extracting("userId", "username", "nickname", "position", "isLeader")
-                        .containsExactly(
-                                tuple(user.getId(), user.getUsername(), user.getNickname(), user.getPosition(), true)
-                        )
-        );
-    }
-
-    @Test
-    @DisplayName("프런트엔드 포지션으로 팀 생성이 정상 작동한다")
-    void givenFrontend_whenCreateTeam_theReturn() {
-        // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.FRONTEND);
-
-        TeamCreateRequest request = createValidTeamCreateRequest();
-
-        // when
-        TeamCreateResponse response = teamService.createTeam(user.getId(), request);
-
-        // then
-        assertAll(
-                () -> assertThat(response)
-                        .extracting("projectName", "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt",
-                                "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt",
-                                "projectDescription", "openChatUrl", "expectation")
-                        .containsExactly(request.getProjectName(), (byte) 0, (byte) 0, (byte) 1, (byte) 0,
-                                request.getDesignerMaxCnt(), request.getBackendMaxCnt(), request.getFrontendMaxCnt(),
-                                request.getManagerMaxCnt(), request.getProjectDescription(), request.getOpenChatUrl(),
-                                request.getExpectation()),
-                () -> assertThat(response.getTeamMembers())
-                        .extracting("userId", "username", "nickname", "position", "isLeader")
-                        .containsExactly(
-                                tuple(user.getId(), user.getUsername(), user.getNickname(), user.getPosition(), true)
-                        )
-        );
-    }
-
-    @Test
-    @DisplayName("매니저 포지션으로 팀 생성이 정상 작동한다")
-    void givenManager_whenCreateTeam_theReturn() {
-        // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.MANAGER);
-
-        TeamCreateRequest request = createValidTeamCreateRequest();
-
-        // when
-        TeamCreateResponse response = teamService.createTeam(user.getId(), request);
-
-        // then
-        assertAll(
-                () -> assertThat(response)
-                        .extracting("projectName", "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt",
-                                "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt",
-                                "projectDescription", "openChatUrl", "expectation")
-                        .containsExactly(request.getProjectName(), (byte) 0, (byte) 0, (byte) 0, (byte) 1,
-                                request.getDesignerMaxCnt(), request.getBackendMaxCnt(), request.getFrontendMaxCnt(),
-                                request.getManagerMaxCnt(), request.getProjectDescription(), request.getOpenChatUrl(),
-                                request.getExpectation()),
-                () -> assertThat(response.getTeamMembers())
-                        .extracting("userId", "username", "nickname", "position", "isLeader")
-                        .containsExactly(
-                                tuple(user.getId(), user.getUsername(), user.getNickname(), user.getPosition(), true)
+                                tuple(user.getId(), user.getUsername(), user.getNickname(), position, true)
                         )
         );
     }
@@ -193,7 +106,7 @@ class TeamServiceTest {
         // given
         long userId = 1L;
 
-        TeamCreateRequest request = createValidTeamCreateRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest(Position.MANAGER);
 
         // when & then
         assertThatThrownBy(() -> teamService.createTeam(userId, request))
@@ -206,11 +119,11 @@ class TeamServiceTest {
     @DisplayName("소속된 팀이 있는 회원으로 팀을 생성시 예외가 발생한다")
     void givenExistingCurrentTeam_whenCreateTeam_thenThrow() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
         Team team = createSavedTeam();
-        TeamMember teamMember = createdSavedTeamMember(true, user, team);
+        TeamMember teamMember = createdSavedTeamMember(true, user, team, Position.MANAGER);
 
-        TeamCreateRequest request = createValidTeamCreateRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest(Position.MANAGER);
 
         // when & then
         assertThatThrownBy(() -> teamService.createTeam(user.getId(), request))
@@ -220,27 +133,12 @@ class TeamServiceTest {
     }
 
     @Test
-    @DisplayName("포지션이 없는 회원으로 팀 생성시 예외가 발생한다")
-    void givenNonePosition_whenCreateTeam_thenThrow() {
-        // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.NONE);
-
-        TeamCreateRequest request = createValidTeamCreateRequest();
-
-        // when & then
-        assertThatThrownBy(() -> teamService.createTeam(user.getId(), request))
-                .isInstanceOf(CustomException.class)
-                .extracting("errorCode")
-                .isEqualTo(NON_EXISTING_POSITION);
-    }
-
-    @Test
     @DisplayName("디자이너 최대 인원이 0인데 디자이너 포지션으로 팀 생성시 예외가 발생한다")
     void givenUnavailableDesigner_whenCreateTeam_thenThrow() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.DESIGNER);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
-        TeamCreateRequest request = createValidTeamCreateRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest(Position.DESIGNER);
         request.setDesignerMaxCnt((byte) 0);
 
         // when & then
@@ -254,9 +152,9 @@ class TeamServiceTest {
     @DisplayName("백엔드 최대 인원이 0인데 백엔드 포지션으로 팀 생성시 예외가 발생한다")
     void givenUnavailableBackend_whenCreateTeam_thenThrow() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
-        TeamCreateRequest request = createValidTeamCreateRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest(Position.BACKEND);
         request.setBackendMaxCnt((byte) 0);
 
         // when & then
@@ -270,9 +168,9 @@ class TeamServiceTest {
     @DisplayName("프런트엔드 최대 인원이 0인데 백엔드 포지션으로 팀 생성시 예외가 발생한다")
     void givenUnavailableFrontend_whenCreateTeam_thenThrow() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.FRONTEND);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
-        TeamCreateRequest request = createValidTeamCreateRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest(Position.FRONTEND);
         request.setFrontendMaxCnt((byte) 0);
 
         // when & then
@@ -286,9 +184,9 @@ class TeamServiceTest {
     @DisplayName("매니저 최대 인원이 0인데 백엔드 포지션으로 팀 생성시 예외가 발생한다")
     void givenUnavailableManager_whenCreateTeam_thenThrow() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.MANAGER);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
-        TeamCreateRequest request = createValidTeamCreateRequest();
+        TeamCreateRequest request = createValidTeamCreateRequest(Position.MANAGER);
         request.setManagerMaxCnt((byte) 0);
 
         // when & then
@@ -302,9 +200,9 @@ class TeamServiceTest {
     @DisplayName("팀 수정이 정상 작동한다")
     void givenValid_whenUpdateTeam_thenReturn() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
         Team team = createSavedTeam();
-        TeamMember teamMember = createdSavedTeamMember(true, user, team);
+        TeamMember teamMember = createdSavedTeamMember(true, user, team, Position.MANAGER);
 
         TeamUpdateRequest request = createValidTeamUpdateRequest();
 
@@ -317,7 +215,7 @@ class TeamServiceTest {
                         .extracting("projectName", "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt",
                                 "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt",
                                 "projectDescription", "openChatUrl", "expectation")
-                        .containsExactly(request.getProjectName(), (byte) 0, (byte) 1, (byte) 0, (byte) 0,
+                        .containsExactly(request.getProjectName(), (byte) 0, (byte) 0, (byte) 0, (byte) 1,
                                 request.getDesignerMaxCnt(), request.getBackendMaxCnt(), request.getFrontendMaxCnt(),
                                 request.getManagerMaxCnt(), request.getProjectDescription(), request.getOpenChatUrl(),
                                 request.getExpectation()),
@@ -334,12 +232,12 @@ class TeamServiceTest {
     @DisplayName("팀장이 아닌 회원이 팀 수정시 예외가 발생한다")
     void givenNonLeader_whenUpdateTeam_thenThrow() {
         // given
-        User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일", Position.BACKEND);
-        User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이", Position.BACKEND);
+        User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
+        User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이");
 
         Team team = createSavedTeam();
-        createdSavedTeamMember(true, user1, team);
-        createdSavedTeamMember(false, user2, team);
+        createdSavedTeamMember(true, user1, team, Position.MANAGER);
+        createdSavedTeamMember(false, user2, team, Position.BACKEND);
 
         TeamUpdateRequest request = createValidTeamUpdateRequest();
 
@@ -354,7 +252,7 @@ class TeamServiceTest {
     @DisplayName("현재 팀이 없는 회원이 팀 수정시 예외가 발생한다")
     void givenNoCurrentTeam_whenUpdateTeam_thenThrow() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
         TeamUpdateRequest request = createValidTeamUpdateRequest();
 
@@ -369,10 +267,10 @@ class TeamServiceTest {
     @DisplayName("현재 디자이너 수보다 적은 디자이너 최대 수로 팀 수정시 예외가 발생한다")
     void givenUnavailableDesignerCnt_whenUpdateTeam_thenThrow() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.DESIGNER);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
         Team team = createSavedTeam();
-        createdSavedTeamMember(true, user, team);
+        createdSavedTeamMember(true, user, team, Position.DESIGNER);
 
         TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setDesignerMaxCnt((byte) 0);
@@ -388,10 +286,10 @@ class TeamServiceTest {
     @DisplayName("현재 백엔드 수보다 적은 백엔드 최대 수로 팀 수정시 예외가 발생한다")
     void givenUnavailableBackendCnt_whenUpdateTeam_thenThrow() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
         Team team = createSavedTeam();
-        createdSavedTeamMember(true, user, team);
+        createdSavedTeamMember(true, user, team, Position.BACKEND);
 
         TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setBackendMaxCnt((byte) 0);
@@ -407,10 +305,10 @@ class TeamServiceTest {
     @DisplayName("현재 프런트엔드 수보다 적은 프런트엔드 최대 수로 팀 수정시 예외가 발생한다")
     void givenUnavailableFrontendCnt_whenUpdateTeam_thenThrow() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.FRONTEND);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
         Team team = createSavedTeam();
-        createdSavedTeamMember(true, user, team);
+        createdSavedTeamMember(true, user, team, Position.FRONTEND);
 
         TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setFrontendMaxCnt((byte) 0);
@@ -426,10 +324,10 @@ class TeamServiceTest {
     @DisplayName("현재 매니저 수보다 적은 매니저 최대 수로 팀 수정시 예외가 발생한다")
     void givenUnavailableManagerCnt_whenUpdateTeam_thenThrow() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.MANAGER);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
         Team team = createSavedTeam();
-        createdSavedTeamMember(true, user, team);
+        createdSavedTeamMember(true, user, team, Position.MANAGER);
 
         TeamUpdateRequest request = createValidTeamUpdateRequest();
         request.setManagerMaxCnt((byte) 0);
@@ -445,10 +343,10 @@ class TeamServiceTest {
     @DisplayName("현재 본인 팀 조회가 정상 작동한다")
     void givenValid_whenFindCurrentTeam_thenReturn() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.MANAGER);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
         Team team = createSavedTeam();
-        TeamMember teamMember = createdSavedTeamMember(true, user, team);
+        TeamMember teamMember = createdSavedTeamMember(true, user, team, Position.MANAGER);
 
         // when
         TeamMyCurrentResponse response = teamService.findCurrentTeam(user.getId());
@@ -476,7 +374,7 @@ class TeamServiceTest {
     @DisplayName("현재 소속된 팀이 없는 회원 아이디로 현재 팀 조회시 예외가 발생한다")
     void givenNonExistingCurrentTeam_whenFindCurrentTeam_thenThrow() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.MANAGER);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
         // when & then
         assertThatThrownBy(() -> teamService.findCurrentTeam(user.getId()))
@@ -489,9 +387,9 @@ class TeamServiceTest {
     @DisplayName("내 팀 단건 조회가 정상 작동한다")
     void givenMyTeam_whenFindTeam_thenReturn() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
         Team team = createSavedTeam();
-        TeamMember teamMember = createdSavedTeamMember(true, user, team);
+        TeamMember teamMember = createdSavedTeamMember(true, user, team, Position.MANAGER);
 
         // when
         TeamFindResponse response = teamService.findOtherTeam(user.getId(), team.getId());
@@ -523,11 +421,11 @@ class TeamServiceTest {
     @DisplayName("내 팀이 아닌 팀 단건 조회가 정상 작동한다")
     void givenNotMyTeam_whenFindTeam_thenReturn() {
         // given
-        User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일", Position.BACKEND);
-        User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이", Position.BACKEND);
+        User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일");
+        User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터이");
 
         Team team = createSavedTeam();
-        TeamMember teamMember = createdSavedTeamMember(true, user1, team);
+        TeamMember teamMember = createdSavedTeamMember(true, user1, team, Position.MANAGER);
 
         Favorite favorite = createSavedFavorite(user2, null, team);
         Offer offer = createSavedOffer(team, user2, Position.MANAGER);
@@ -561,7 +459,7 @@ class TeamServiceTest {
     @DisplayName("존재하지 않은 팀 식별자로 다른 팀 단건 조회시 예외가 발생한다")
     void givenNonExistingTeam_whenFindTeam_thenThrow() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
         long teamId = 1L;
 
         // when & then
@@ -613,9 +511,9 @@ class TeamServiceTest {
     @DisplayName("팀원 모집 여부를 업데이트가 정상 작동한다")
     void givenValid_whenUpdateIsRecruiting_thenReturn() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
         Team team = createSavedTeam();
-        createdSavedTeamMember(true, user, team);
+        createdSavedTeamMember(true, user, team, Position.MANAGER);
 
         boolean isRecruiting = false;
 
@@ -630,9 +528,9 @@ class TeamServiceTest {
     @DisplayName("팀 리더가 아닌 회원으로 팀원 모집 여부 업데이트를 하면 예외가 발생한다")
     void givenNonLeader_whenUpdateIsRecruiting_thenThrow() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
         Team team = createSavedTeam();
-        createdSavedTeamMember(false, user, team);
+        createdSavedTeamMember(false, user, team, Position.MANAGER);
 
         boolean isRecruiting = false;
 
@@ -647,7 +545,7 @@ class TeamServiceTest {
     @DisplayName("현재 소속 팀 없이 팀원 모집 여부 업데이트를 하면 예외가 발생한다")
     void givenNonExistingCurrentTeam_whenUpdateIsRecruiting_thenThrow() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
         boolean isRecruiting = false;
 
@@ -662,10 +560,10 @@ class TeamServiceTest {
     @DisplayName("프로젝트 미완료로 프로젝트 종료가 정상 작동한다")
     void givenIncomplete_whenEndProject_thenReturn() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
         Team team = createSavedTeam();
 
-        TeamMember teamMember = createdSavedTeamMember(true, user, team);
+        TeamMember teamMember = createdSavedTeamMember(true, user, team, Position.MANAGER);
 
         LocalDateTime completeAt = LocalDateTime.now();
 
@@ -682,10 +580,10 @@ class TeamServiceTest {
     @DisplayName("프로젝트 완료로 프로젝트 종료가 정상 작동한다")
     void givenComplete_whenEndProject_thenReturn() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
         Team team = createSavedTeam();
 
-        TeamMember teamMember = createdSavedTeamMember(true, user, team);
+        TeamMember teamMember = createdSavedTeamMember(true, user, team, Position.MANAGER);
 
         String projectUrl = "github.com/gabojait";
         LocalDateTime completeAt = LocalDateTime.now();
@@ -703,12 +601,12 @@ class TeamServiceTest {
     @DisplayName("팀원 추방이 정상 작동한다")
     void givenValid_whenFire_thenReturn() {
         // given
-        User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터1", Position.BACKEND);
-        User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터2", Position.DESIGNER);
+        User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터1");
+        User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터2");
         Team team = createSavedTeam();
 
-        createdSavedTeamMember(true, user1, team);
-        createdSavedTeamMember(false, user2, team);
+        createdSavedTeamMember(true, user1, team, Position.MANAGER);
+        createdSavedTeamMember(false, user2, team, Position.BACKEND);
 
         // when
         teamService.fire(user1.getId(), user2.getId());
@@ -724,9 +622,8 @@ class TeamServiceTest {
     @DisplayName("존재하지 않은 팀장 식별자로 팀원 추방시 예외가 발생한다")
     void givenNonExistingTeamLeaderUserId_whenFire_thenThrow() {
         // given
-        User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터1", Position.BACKEND);
-        User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터2", Position.DESIGNER);
-        Team team = createSavedTeam();
+        User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터1");
+        User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터2");
 
         // when & then
         assertThatThrownBy(() -> teamService.fire(user1.getId(), user2.getId()))
@@ -739,12 +636,12 @@ class TeamServiceTest {
     @DisplayName("회원이 팀장이 아닐시 팀원 추방을 하면 예외가 발생한다")
     void givenNonLeaderUsername_whenFire_thenThrow() {
         // given
-        User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터1", Position.BACKEND);
-        User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터2", Position.DESIGNER);
+        User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터1");
+        User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터2");
         Team team = createSavedTeam();
 
-        createdSavedTeamMember(false, user1, team);
-        createdSavedTeamMember(false, user2, team);
+        createdSavedTeamMember(false, user1, team, Position.MANAGER);
+        createdSavedTeamMember(false, user2, team, Position.BACKEND);
 
         // when & then
         assertThatThrownBy(() -> teamService.fire(user1.getId(), user2.getId()))
@@ -757,11 +654,11 @@ class TeamServiceTest {
     @DisplayName("존재하지 않은 팀원 식별자로 팀원 추방시 예외가 발생한다")
     void givenNonExistingTeamMemberUserId_whenFire_thenThrow() {
         // given
-        User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터1", Position.BACKEND);
-        User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터2", Position.DESIGNER);
+        User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터1");
+        User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터2");
         Team team = createSavedTeam();
 
-        createdSavedTeamMember(true, user1, team);
+        createdSavedTeamMember(true, user1, team, Position.MANAGER);
 
         // when & then
         assertThatThrownBy(() -> teamService.fire(user1.getId(), user2.getId()))
@@ -774,8 +671,8 @@ class TeamServiceTest {
     @DisplayName("존재하지 않은 현재 팀을 가진 회원으로 팀원 추방을 하면 예외가 발생한다")
     void givenNonExistingCurrentTeam_whenFire_thenThrow() {
         // given
-        User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터1", Position.BACKEND);
-        User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터2", Position.DESIGNER);
+        User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터1");
+        User user2 = createSavedDefaultUser("tester2@gabojait.com", "tester2", "테스터2");
 
         // when & then
         assertThatThrownBy(() -> teamService.fire(user1.getId(), user2.getId()))
@@ -788,10 +685,10 @@ class TeamServiceTest {
     @DisplayName("팀을 나가면 정상 작동한다")
     void givenValid_whenLeave_thenReturn() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
         Team team = createSavedTeam();
 
-        TeamMember teamMember = createdSavedTeamMember(false, user, team);
+        TeamMember teamMember = createdSavedTeamMember(false, user, team, Position.MANAGER);
 
         // when
         teamService.leave(user.getId());
@@ -819,7 +716,7 @@ class TeamServiceTest {
     @DisplayName("현재 소속된 팀이 없는 회원으로 팀을 나가면 예외가 발생한다")
     void givenNonExistingCurrentTeam_whenLeave_thenThrow() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
         // when & then
         assertThatThrownBy(() -> teamService.leave(user.getId()))
@@ -832,10 +729,10 @@ class TeamServiceTest {
     @DisplayName("팀장인 회원으로 팀을 나가면 예외가 발생한다")
     void givenTeamLeader_whenLeave_thenThrow() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
+        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
         Team team = createSavedTeam();
 
-        createdSavedTeamMember(true, user, team);
+        createdSavedTeamMember(true, user, team, Position.MANAGER);
 
         // when & then
         assertThatThrownBy(() -> teamService.leave(user.getId()))
@@ -844,12 +741,13 @@ class TeamServiceTest {
                 .isEqualTo(TEAM_LEADER_UNAVAILABLE);
     }
 
-    private TeamCreateRequest createValidTeamCreateRequest() {
+    private TeamCreateRequest createValidTeamCreateRequest(Position position) {
         return TeamCreateRequest.builder()
                 .projectName("가볼까잇")
                 .projectDescription("가볼까잇 설명입니다.")
                 .expectation("열정적인 팀원을 구해요.")
                 .openChatUrl("kakao.com/o/gabojait")
+                .position(position.name())
                 .designerMaxCnt((byte) 5)
                 .backendMaxCnt((byte) 5)
                 .frontendMaxCnt((byte) 5)
@@ -909,10 +807,10 @@ class TeamServiceTest {
         return team;
     }
 
-    private TeamMember createdSavedTeamMember(boolean isLeader, User user, Team team) {
+    private TeamMember createdSavedTeamMember(boolean isLeader, User user, Team team, Position position) {
         TeamMember teamMember = TeamMember.builder()
                 .isLeader(isLeader)
-                .position(user.getPosition())
+                .position(position)
                 .user(user)
                 .team(team)
                 .build();
@@ -921,7 +819,7 @@ class TeamServiceTest {
         return teamMember;
     }
 
-    private User createSavedDefaultUser(String email, String username, String nickname, Position position) {
+    private User createSavedDefaultUser(String email, String username, String nickname) {
         Contact contact = Contact.builder()
                 .email(email)
                 .verificationCode("000000")
@@ -938,9 +836,6 @@ class TeamServiceTest {
                 .lastRequestAt(LocalDateTime.now())
                 .contact(contact)
                 .build();
-        user.updatePosition(position);
-        userRepository.save(user);
-
-        return user;
+        return userRepository.save(user);
     }
 }

@@ -2,12 +2,16 @@ package com.gabojait.gabojaitspring.api.dto.team.request;
 
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
+import com.gabojait.gabojaitspring.domain.user.Position;
 import com.gabojait.gabojaitspring.domain.user.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
 
 @Getter
 @Setter
@@ -33,22 +37,28 @@ public class TeamCreateRequest {
     @Pattern(regexp = "^https\\:\\/\\/open\\.kakao\\.com\\/.+$", message = "오픈 채팅 URL은 카카오 오픈 채팅 형식만 가능합니다.")
     private String openChatUrl;
 
-    @ApiModelProperty(position = 5, required = true, value = "디자이너 최대 수")
+    @ApiModelProperty(position = 5, required = true, value = "포지션", example = "MANAGER",
+            allowableValues = "DESIGNER, BACKEND, FRONTEND, MANAGER")
+    @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE)",
+            message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다.")
+    private String position;
+
+    @ApiModelProperty(position = 6, required = true, value = "디자이너 최대 수")
     @NotNull(message = "디자이너 최대 수는 필수 입력입니다.")
     @PositiveOrZero(message = "디자이너 최대 수는 0 또는 양수만 가능합니다.")
     private Byte designerMaxCnt;
 
-    @ApiModelProperty(position = 6, required = true, value = "백엔드 최대 수")
+    @ApiModelProperty(position = 7, required = true, value = "백엔드 최대 수")
     @NotNull(message = "백엔드 최대 수는 필수 입력입니다.")
     @PositiveOrZero(message = "백엔드 최대 수는 0 또는 양수만 가능합니다.")
     private Byte backendMaxCnt;
 
-    @ApiModelProperty(position = 7, required = true, value = "프런트 최대 수")
+    @ApiModelProperty(position = 8, required = true, value = "프런트 최대 수")
     @NotNull(message = "프런트 최대 수는 필수 입력입니다.")
     @PositiveOrZero(message = "프런트 최대 수는 0 또는 양수만 가능합니다.")
     private Byte frontendMaxCnt;
 
-    @ApiModelProperty(position = 8, required = true, value = "매니저 최대 수")
+    @ApiModelProperty(position = 9, required = true, value = "매니저 최대 수")
     @NotNull(message = "매니저 최대 수는 필수 입력입니다.")
     @PositiveOrZero(message = "매니저 최대 수는 0 또는 양수만 가능합니다.")
     private Byte managerMaxCnt;
@@ -68,7 +78,7 @@ public class TeamCreateRequest {
 
     public TeamMember toTeamMemberEntity(User user, Team team) {
         return TeamMember.builder()
-                .position(user.getPosition())
+                .position(Position.valueOf(this.position))
                 .isLeader(true)
                 .user(user)
                 .team(team)
@@ -80,6 +90,7 @@ public class TeamCreateRequest {
                               String projectDescription,
                               String expectation,
                               String openChatUrl,
+                              String position,
                               byte designerMaxCnt,
                               byte backendMaxCnt,
                               byte frontendMaxCnt,
@@ -88,6 +99,7 @@ public class TeamCreateRequest {
         this.projectDescription = projectDescription;
         this.expectation = expectation;
         this.openChatUrl = openChatUrl;
+        this.position = position;
         this.designerMaxCnt = designerMaxCnt;
         this.backendMaxCnt = backendMaxCnt;
         this.frontendMaxCnt = frontendMaxCnt;
