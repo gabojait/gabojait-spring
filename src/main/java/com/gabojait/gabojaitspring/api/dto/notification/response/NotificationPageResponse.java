@@ -30,6 +30,9 @@ public class NotificationPageResponse {
     @ApiModelProperty(position = 5, required = true, value = "읽음 여부")
     private Boolean isRead;
 
+    @ApiModelProperty(position = 6, required = true, value = "딥링크")
+    private DeepLinkResponse deepLink;
+
     @ApiModelProperty(position = 6, required = true, value = "생성일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;

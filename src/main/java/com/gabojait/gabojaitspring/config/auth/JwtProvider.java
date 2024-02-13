@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.TOKEN_UNAUTHENTICATED;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.TOKEN_UNAUTHENTICATED;
 
 @Component
 @RequiredArgsConstructor

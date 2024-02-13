@@ -30,7 +30,7 @@ import javax.validation.constraints.*;
 
 import java.util.List;
 
-import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
+import static com.gabojait.gabojaitspring.common.constant.code.SuccessCode.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "프로필")

@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Positive;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.SERVER_ERROR;
-import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.SERVER_ERROR;
+import static com.gabojait.gabojaitspring.common.constant.code.SuccessCode.*;
 
 @Api(tags = "개발")
 @Validated

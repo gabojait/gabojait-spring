@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.SERVER_ERROR;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.SERVER_ERROR;
 
 @Configuration
 public class FcmConfig {

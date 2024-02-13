@@ -20,7 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

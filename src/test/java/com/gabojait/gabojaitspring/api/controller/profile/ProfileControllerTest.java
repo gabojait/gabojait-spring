@@ -23,8 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.util.List;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
-import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.*;
+import static com.gabojait.gabojaitspring.common.constant.code.SuccessCode.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;

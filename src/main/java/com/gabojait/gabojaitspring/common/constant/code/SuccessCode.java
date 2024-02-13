@@ -1,4 +1,4 @@
-package com.gabojait.gabojaitspring.common.code;
+package com.gabojait.gabojaitspring.common.constant.code;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

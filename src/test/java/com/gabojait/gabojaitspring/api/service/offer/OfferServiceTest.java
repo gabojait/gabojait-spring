@@ -7,7 +7,6 @@ import com.gabojait.gabojaitspring.common.exception.CustomException;
 import com.gabojait.gabojaitspring.common.response.PageData;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
 import com.gabojait.gabojaitspring.domain.offer.OfferedBy;
-import com.gabojait.gabojaitspring.domain.profile.Skill;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
 import com.gabojait.gabojaitspring.domain.team.TeamMemberStatus;
@@ -31,7 +30,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;

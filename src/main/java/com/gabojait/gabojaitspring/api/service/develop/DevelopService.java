@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.TESTER_NOT_FOUND;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.TESTER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor

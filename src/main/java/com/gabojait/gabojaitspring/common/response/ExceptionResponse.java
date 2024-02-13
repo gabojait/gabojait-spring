@@ -1,7 +1,7 @@
 package com.gabojait.gabojaitspring.common.response;
 
 
-import com.gabojait.gabojaitspring.common.code.ErrorCode;
+import com.gabojait.gabojaitspring.common.constant.code.ErrorCode;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;

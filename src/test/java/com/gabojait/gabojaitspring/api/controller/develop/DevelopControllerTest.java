@@ -15,9 +15,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.SERVER_ERROR;
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.TESTER_ID_POSITIVE_ONLY;
-import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.SERVER_ERROR;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.TESTER_ID_POSITIVE_ONLY;
+import static com.gabojait.gabojaitspring.common.constant.code.SuccessCode.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;

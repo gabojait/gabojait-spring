@@ -10,8 +10,8 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.TEAM_LEADER_UNAVAILABLE;
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.UNREGISTER_UNAVAILABLE;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.TEAM_LEADER_UNAVAILABLE;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.UNREGISTER_UNAVAILABLE;
 
 @Getter
 @Entity

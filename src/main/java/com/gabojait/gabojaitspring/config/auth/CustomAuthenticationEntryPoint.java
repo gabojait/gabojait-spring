@@ -14,8 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.SERVER_ERROR;
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.TOKEN_UNAUTHENTICATED;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.SERVER_ERROR;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.TOKEN_UNAUTHENTICATED;
 
 @Component
 @RequiredArgsConstructor

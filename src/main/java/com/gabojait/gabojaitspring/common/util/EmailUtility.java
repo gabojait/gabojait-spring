@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.EMAIL_SEND_ERROR;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.EMAIL_SEND_ERROR;
 
 @Component
 @RequiredArgsConstructor

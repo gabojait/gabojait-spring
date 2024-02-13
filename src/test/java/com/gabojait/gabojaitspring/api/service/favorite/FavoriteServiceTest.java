@@ -27,7 +27,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.USER_NOT_FOUND;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.USER_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;

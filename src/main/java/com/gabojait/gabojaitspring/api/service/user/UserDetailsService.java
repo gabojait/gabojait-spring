@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.USER_NOT_FOUND;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.USER_NOT_FOUND;
 
 @Service
 @Transactional(readOnly = true)

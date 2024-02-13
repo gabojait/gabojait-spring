@@ -1,6 +1,6 @@
 package com.gabojait.gabojaitspring.common.exception;
 
-import com.gabojait.gabojaitspring.common.code.ErrorCode;
+import com.gabojait.gabojaitspring.common.constant.code.ErrorCode;
 import lombok.Getter;
 
 @Getter

@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.TEAM_MEMBER_NOT_FOUND;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.TEAM_MEMBER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor

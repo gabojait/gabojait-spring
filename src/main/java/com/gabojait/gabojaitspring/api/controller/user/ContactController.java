@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-import static com.gabojait.gabojaitspring.common.code.SuccessCode.EMAIL_VERIFIED;
-import static com.gabojait.gabojaitspring.common.code.SuccessCode.VERIFICATION_CODE_SENT;
+import static com.gabojait.gabojaitspring.common.constant.code.SuccessCode.EMAIL_VERIFIED;
+import static com.gabojait.gabojaitspring.common.constant.code.SuccessCode.VERIFICATION_CODE_SENT;
 
 @Api(tags = "연락처")
 @RestController

@@ -12,9 +12,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Objects;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.*;
 
 @Component
 @RequiredArgsConstructor
@@ -43,20 +44,20 @@ public class FileUtility {
 
         File file = convertMultipartToFile(multipartFile);
         String folderFileName = folderName + "/" + fileName;
-        String url;
+        URL url;
 
         try {
             amazonS3Client.putObject(new PutObjectRequest(bucketName, folderFileName, file)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
 
-            url = amazonS3Client.getUrl(bucketName, folderFileName).toString();
+            url = amazonS3Client.getUrl(bucketName, folderFileName);
         } catch (AmazonServiceException e) {
             throw new CustomException(SERVER_ERROR, e.getCause());
         }
 
         file.delete();
 
-        return url;
+        return url.toString();
     }
 
     /**

@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.TEAM_NOT_FOUND;
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.USER_NOT_FOUND;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.TEAM_NOT_FOUND;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor

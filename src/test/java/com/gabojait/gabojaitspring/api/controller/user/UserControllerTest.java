@@ -23,8 +23,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
-import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.*;
+import static com.gabojait.gabojaitspring.common.constant.code.SuccessCode.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;

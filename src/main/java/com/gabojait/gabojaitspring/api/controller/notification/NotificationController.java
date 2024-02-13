@@ -21,8 +21,8 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Positive;
 import java.util.List;
 
-import static com.gabojait.gabojaitspring.common.code.SuccessCode.NOTIFICATIONS_FOUND;
-import static com.gabojait.gabojaitspring.common.code.SuccessCode.NOTIFICATION_READ;
+import static com.gabojait.gabojaitspring.common.constant.code.SuccessCode.NOTIFICATIONS_FOUND;
+import static com.gabojait.gabojaitspring.common.constant.code.SuccessCode.NOTIFICATION_READ;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "알림")

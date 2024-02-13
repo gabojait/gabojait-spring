@@ -14,9 +14,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
-import static com.gabojait.gabojaitspring.common.code.SuccessCode.NOTIFICATIONS_FOUND;
-import static com.gabojait.gabojaitspring.common.code.SuccessCode.NOTIFICATION_READ;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.*;
+import static com.gabojait.gabojaitspring.common.constant.code.SuccessCode.NOTIFICATIONS_FOUND;
+import static com.gabojait.gabojaitspring.common.constant.code.SuccessCode.NOTIFICATION_READ;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;

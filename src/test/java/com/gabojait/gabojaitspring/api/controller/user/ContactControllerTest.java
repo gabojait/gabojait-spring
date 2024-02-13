@@ -16,9 +16,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
-import static com.gabojait.gabojaitspring.common.code.SuccessCode.EMAIL_VERIFIED;
-import static com.gabojait.gabojaitspring.common.code.SuccessCode.VERIFICATION_CODE_SENT;
+import static com.gabojait.gabojaitspring.common.constant.code.ErrorCode.*;
+import static com.gabojait.gabojaitspring.common.constant.code.SuccessCode.EMAIL_VERIFIED;
+import static com.gabojait.gabojaitspring.common.constant.code.SuccessCode.VERIFICATION_CODE_SENT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

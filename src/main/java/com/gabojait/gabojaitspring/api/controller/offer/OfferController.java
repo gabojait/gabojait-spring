@@ -29,7 +29,7 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Positive;
 import java.util.List;
 
-import static com.gabojait.gabojaitspring.common.code.SuccessCode.*;
+import static com.gabojait.gabojaitspring.common.constant.code.SuccessCode.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Api(tags = "제안")
