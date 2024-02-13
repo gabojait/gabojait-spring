@@ -8,10 +8,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.PositiveOrZero;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 
 @Getter
 @Setter
@@ -39,6 +36,7 @@ public class TeamCreateRequest {
 
     @ApiModelProperty(position = 5, required = true, value = "팀장 포지션", example = "MANAGER",
             allowableValues = "DESIGNER, BACKEND, FRONTEND, MANAGER")
+    @NotBlank(message = "팀장 포지션은 필수 입력입니다.")
     @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER)",
             message = "팀장 포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 또는 'MANAGER' 중 하나여야 됩니다.")
     private String leaderPosition;

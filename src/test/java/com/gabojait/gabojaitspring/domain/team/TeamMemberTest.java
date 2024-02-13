@@ -16,8 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.TEAM_LEADER_UNAVAILABLE;
-import static com.gabojait.gabojaitspring.common.code.ErrorCode.UNREGISTER_UNAVAILABLE;
+import static com.gabojait.gabojaitspring.common.code.ErrorCode.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
@@ -50,6 +49,60 @@ class TeamMemberTest {
     }
 
     @Test
+    @DisplayName("꽉찬 포지션으로 팀원 생성을 하면 예외가 발생한다")
+    void givenUnavailablePosition_whenBuilder_thenThrow() {
+        // given
+        User user = createDefaultUser("tester@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", (byte) 0, (byte) 0, (byte) 0, (byte) 0);
+
+        Position position = Position.BACKEND;
+        boolean isLeader = true;
+
+        // when & then
+        assertThatThrownBy(() -> createTeamMember(position, isLeader, user, team))
+                .isInstanceOf(CustomException.class)
+                .extracting("errorCode")
+                .isEqualTo(TEAM_POSITION_UNAVAILABLE);
+    }
+
+    @Test
+    @DisplayName("팀원 포지션 업데이트가 정상 작동한다")
+    void givenValid_whenUpdatePosition_thenReturn() {
+        // given
+        User user = createDefaultUser("tester@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", (byte) 2, (byte) 2, (byte) 2, (byte) 2);
+        boolean isLeader = true;
+        TeamMember teamMember = createTeamMember(Position.BACKEND, isLeader, user, team);
+
+        Position position = Position.MANAGER;
+
+        // when
+        teamMember.updatePosition(position);
+
+        // then
+        assertThat(teamMember)
+                .extracting("position", "teamMemberStatus", "isLeader", "isDeleted", "user", "team")
+                .containsExactly(position, TeamMemberStatus.PROGRESS, isLeader, false, user, team);
+    }
+
+    @Test
+    @DisplayName("꽉찬 포지션으로 팀원 포지션 업데이트를 하면 예외가 발생한다")
+    void givenUnavailablePosition_whenUpdatePosition_thenThrow() {
+        User user = createDefaultUser("tester@gabojait.com", LocalDate.of(1997, 2, 11), LocalDateTime.now());
+        Team team = createTeam("가보자잇", (byte) 0, (byte) 1, (byte) 0, (byte) 0);
+        boolean isLeader = true;
+        TeamMember teamMember = createTeamMember(Position.BACKEND, isLeader, user, team);
+
+        Position position = Position.MANAGER;
+
+        // when & then
+        assertThatThrownBy(() -> teamMember.updatePosition(position))
+                .isInstanceOf(CustomException.class)
+                .extracting("errorCode")
+                .isEqualTo(TEAM_POSITION_UNAVAILABLE);
+    }
+
+    @Test
     @DisplayName("팀장이 프로젝트 완료를 하면 정상 작동한다")
     void givenLeader_whenComplete_thenReturn() {
         // given
@@ -69,8 +122,8 @@ class TeamMemberTest {
         // then
         assertAll(
                 () -> assertThat(teamMember)
-                        .extracting("position", "isLeader", "isDeleted")
-                        .containsExactly(position, isLeader, false),
+                        .extracting("position", "teamMemberStatus", "isLeader", "isDeleted")
+                        .containsExactly(position, TeamMemberStatus.COMPLETE, isLeader, false),
                 () -> assertThat(teamMember.getTeam())
                         .extracting("projectUrl", "completedAt", "isRecruiting")
                         .containsExactly(projectUrl, completedAt, false),
@@ -98,8 +151,8 @@ class TeamMemberTest {
         // then
         assertAll(
                 () -> assertThat(teamMember)
-                        .extracting("position", "isLeader", "isDeleted")
-                        .containsExactly(position, isLeader, false),
+                        .extracting("position", "teamMemberStatus", "isLeader", "isDeleted")
+                        .containsExactly(position, TeamMemberStatus.COMPLETE, isLeader, false),
                 () -> assertThat(teamMember.getTeam())
                         .extracting("projectUrl", "completedAt", "isRecruiting")
                         .containsExactly(null, null, true),

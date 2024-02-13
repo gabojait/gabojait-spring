@@ -180,7 +180,30 @@ class TeamControllerTest {
     void givenBlankLeaderPosition_whenCreateTeam_thenReturn400() throws Exception {
         // given
         TeamCreateRequest request = createValidTeamCreateRequest();
-        request.setLeaderPosition("");
+        request.setLeaderPosition(null);
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                post("/api/v1/team")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(LEADER_POSITION_FIELD_REQUIRED.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(LEADER_POSITION_FIELD_REQUIRED.getMessage()));
+    }
+
+    @Test
+    @DisplayName("잘못된 팀장 포지션 타입으로 팀 생성을 하면 400을 반환한다")
+    void givenTypeLeaderPosition_whenCreateTeam_thenReturn400() throws Exception {
+        // given
+        TeamCreateRequest request = createValidTeamCreateRequest();
+        request.setLeaderPosition("ABC");
 
         // when
         ResultActions actions = mockMvc.perform(
@@ -404,98 +427,6 @@ class TeamControllerTest {
     }
 
     @Test
-    @DisplayName("디자이너 최대 수 미입력시 팀 수정을 하면 400을 반환한다.")
-    void givenBlankDesignerMaxCnt_whenUpdateTeam_thenReturn400() throws Exception {
-        // given
-        TeamUpdateRequest request = createValidTeamUpdateRequest();
-        request.setDesignerMaxCnt(null);
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                put("/api/v1/team")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(DESIGNER_MAX_CNT_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(DESIGNER_MAX_CNT_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
-    @DisplayName("백엔드 최대 수 미입력시 팀 수정을 하면 400을 반환한다.")
-    void givenBlankBackendMaxCnt_whenUpdateTeam_thenReturn400() throws Exception {
-        // given
-        TeamUpdateRequest request = createValidTeamUpdateRequest();
-        request.setBackendMaxCnt(null);
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                put("/api/v1/team")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(BACKEND_MAX_CNT_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(BACKEND_MAX_CNT_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
-    @DisplayName("프런트 최대 수 미입력시 팀 수정을 하면 400을 반환한다.")
-    void givenBlankFrontendMaxCnt_whenUpdateTeam_thenReturn400() throws Exception {
-        // given
-        TeamUpdateRequest request = createValidTeamUpdateRequest();
-        request.setFrontendMaxCnt(null);
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                put("/api/v1/team")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(FRONTEND_MAX_CNT_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(FRONTEND_MAX_CNT_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
-    @DisplayName("매니저 최대 수 미입력시 팀 수정을 하면 400을 반환한다.")
-    void givenBlankManagerMaxCnt_whenUpdateTeam_thenReturn400() throws Exception {
-        // given
-        TeamUpdateRequest request = createValidTeamUpdateRequest();
-        request.setManagerMaxCnt(null);
-
-        // when
-        ResultActions actions = mockMvc.perform(
-                put("/api/v1/team")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(APPLICATION_JSON)
-        );
-
-        // then
-        actions.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.responseCode")
-                        .value(MANAGER_MAX_CNT_FIELD_REQUIRED.name()))
-                .andExpect(jsonPath("$.responseMessage")
-                        .value(MANAGER_MAX_CNT_FIELD_REQUIRED.getMessage()));
-    }
-
-    @Test
     @DisplayName("프로젝트명 20자 초과일시 팀 수정을 하면 400을 반환한다.")
     void givenGreaterThan20SizeProjectName_whenUpdateTeam_thenReturn400() throws Exception {
         // given
@@ -611,6 +542,75 @@ class TeamControllerTest {
     }
 
     @Test
+    @DisplayName("팀장 포지션 미입력시 팀 수정을 하면 400을 반환한다")
+    void givenBlankLeaderPosition_whenUpdateTeam_thenReturn400() throws Exception {
+        // given
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
+        request.setLeaderPosition(null);
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                put("/api/v1/team")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(LEADER_POSITION_FIELD_REQUIRED.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(LEADER_POSITION_FIELD_REQUIRED.getMessage()));
+    }
+
+    @Test
+    @DisplayName("잘못된 팀장 포지션 타입으로 팀 수정을 하면 400을 반환한다")
+    void givenTypeLeaderPosition_whenUpdateTeam_thenReturn400() throws Exception {
+        // given
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
+        request.setLeaderPosition("ABC");
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                put("/api/v1/team")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(LEADER_POSITION_TYPE_INVALID.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(LEADER_POSITION_TYPE_INVALID.getMessage()));
+    }
+
+    @Test
+    @DisplayName("디자이너 최대 수 미입력시 팀 수정을 하면 400을 반환한다.")
+    void givenBlankDesignerMaxCnt_whenUpdateTeam_thenReturn400() throws Exception {
+        // given
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
+        request.setDesignerMaxCnt(null);
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                put("/api/v1/team")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(DESIGNER_MAX_CNT_FIELD_REQUIRED.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(DESIGNER_MAX_CNT_FIELD_REQUIRED.getMessage()));
+    }
+
+    @Test
     @DisplayName("디자이너 최대 수가 음수일시 팀 수정을 하면 400을 반환한다.")
     void givenNegativeDesignerMaxCnt_whenUpdateTeam_thenReturn400() throws Exception {
         // given
@@ -631,6 +631,29 @@ class TeamControllerTest {
                         .value(DESIGNER_MAX_CNT_POSITIVE_OR_ZERO_ONLY.name()))
                 .andExpect(jsonPath("$.responseMessage")
                         .value(DESIGNER_MAX_CNT_POSITIVE_OR_ZERO_ONLY.getMessage()));
+    }
+
+    @Test
+    @DisplayName("백엔드 최대 수 미입력시 팀 수정을 하면 400을 반환한다.")
+    void givenBlankBackendMaxCnt_whenUpdateTeam_thenReturn400() throws Exception {
+        // given
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
+        request.setBackendMaxCnt(null);
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                put("/api/v1/team")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(BACKEND_MAX_CNT_FIELD_REQUIRED.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(BACKEND_MAX_CNT_FIELD_REQUIRED.getMessage()));
     }
 
     @Test
@@ -657,6 +680,29 @@ class TeamControllerTest {
     }
 
     @Test
+    @DisplayName("프런트 최대 수 미입력시 팀 수정을 하면 400을 반환한다.")
+    void givenBlankFrontendMaxCnt_whenUpdateTeam_thenReturn400() throws Exception {
+        // given
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
+        request.setFrontendMaxCnt(null);
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                put("/api/v1/team")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(FRONTEND_MAX_CNT_FIELD_REQUIRED.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(FRONTEND_MAX_CNT_FIELD_REQUIRED.getMessage()));
+    }
+
+    @Test
     @DisplayName("프런트 최대 수가 음수일시 팀 수정을 하면 400을 반환한다.")
     void givenNegativeFrontendMaxCnt_whenUpdateTeam_thenReturn400() throws Exception {
         // given
@@ -677,6 +723,29 @@ class TeamControllerTest {
                         .value(FRONTEND_MAX_CNT_POSITIVE_OR_ZERO_ONLY.name()))
                 .andExpect(jsonPath("$.responseMessage")
                         .value(FRONTEND_MAX_CNT_POSITIVE_OR_ZERO_ONLY.getMessage()));
+    }
+
+    @Test
+    @DisplayName("매니저 최대 수 미입력시 팀 수정을 하면 400을 반환한다.")
+    void givenBlankManagerMaxCnt_whenUpdateTeam_thenReturn400() throws Exception {
+        // given
+        TeamUpdateRequest request = createValidTeamUpdateRequest();
+        request.setManagerMaxCnt(null);
+
+        // when
+        ResultActions actions = mockMvc.perform(
+                put("/api/v1/team")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+        );
+
+        // then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseCode")
+                        .value(MANAGER_MAX_CNT_FIELD_REQUIRED.name()))
+                .andExpect(jsonPath("$.responseMessage")
+                        .value(MANAGER_MAX_CNT_FIELD_REQUIRED.getMessage()));
     }
 
     @Test
@@ -1056,6 +1125,7 @@ class TeamControllerTest {
                 .projectDescription("프로젝트 설명입니다.")
                 .expectation("바라는 점입니다.")
                 .openChatUrl("https://open.kakao.com/o/gabojait")
+                .leaderPosition(Position.MANAGER.name())
                 .designerMaxCnt((byte) 2)
                 .backendMaxCnt((byte) 2)
                 .frontendMaxCnt((byte) 2)

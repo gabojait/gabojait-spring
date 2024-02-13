@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+import javax.validation.constraints.NotBlank;
+
 import static org.springframework.http.HttpStatus.*;
 
 @Getter
@@ -24,6 +26,7 @@ public enum ErrorCode {
     IS_EXPERIENCED_FIELD_REQUIRED(BAD_REQUEST, "경험 여부는 필수 입력입니다."),
     STARTED_AT_FIELD_REQUIRED(BAD_REQUEST, "시작일은 필수 입력입니다."),
     IS_CURRENT_FIELD_REQUIRED(BAD_REQUEST, "현재 여부는 필수 입력입니다."),
+    LEADER_POSITION_FIELD_REQUIRED(BAD_REQUEST, "팀장 포지션은 필수 입력입니다."),
     DESIGNER_MAX_CNT_FIELD_REQUIRED(BAD_REQUEST, "디자이너 최대 수는 필수 입력입니다."),
     BACKEND_MAX_CNT_FIELD_REQUIRED(BAD_REQUEST, "백엔드 최대 수는 필수 입력입니다."),
     FRONTEND_MAX_CNT_FIELD_REQUIRED(BAD_REQUEST, "프런트 최대 수는 필수 입력입니다."),

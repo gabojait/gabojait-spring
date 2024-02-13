@@ -78,8 +78,9 @@ public class TeamService {
     public TeamUpdateResponse updateTeam(long userId, TeamUpdateRequest request) {
         TeamMember teamMember = findCurrentTeamMemberFetchTeam(userId);
         validateLeader(teamMember);
-        Team team = teamMember.getTeam();
+        teamMember.updatePosition(Position.valueOf(request.getLeaderPosition()));
 
+        Team team = teamMember.getTeam();
         team.update(request.getProjectName(), request.getProjectDescription(), request.getExpectation(),
                 request.getDesignerMaxCnt(), request.getBackendMaxCnt(), request.getFrontendMaxCnt(),
                 request.getManagerMaxCnt());

@@ -273,6 +273,7 @@ class TeamServiceTest {
         createdSavedTeamMember(true, user, team, Position.DESIGNER);
 
         TeamUpdateRequest request = createValidTeamUpdateRequest();
+        request.setLeaderPosition(Position.DESIGNER.name());
         request.setDesignerMaxCnt((byte) 0);
 
         // when & then
@@ -292,6 +293,7 @@ class TeamServiceTest {
         createdSavedTeamMember(true, user, team, Position.BACKEND);
 
         TeamUpdateRequest request = createValidTeamUpdateRequest();
+        request.setLeaderPosition(Position.BACKEND.name());
         request.setBackendMaxCnt((byte) 0);
 
         // when & then
@@ -311,6 +313,7 @@ class TeamServiceTest {
         createdSavedTeamMember(true, user, team, Position.FRONTEND);
 
         TeamUpdateRequest request = createValidTeamUpdateRequest();
+        request.setLeaderPosition(Position.FRONTEND.name());
         request.setFrontendMaxCnt((byte) 0);
 
         // when & then
@@ -330,6 +333,7 @@ class TeamServiceTest {
         createdSavedTeamMember(true, user, team, Position.MANAGER);
 
         TeamUpdateRequest request = createValidTeamUpdateRequest();
+        request.setLeaderPosition(Position.MANAGER.name());
         request.setManagerMaxCnt((byte) 0);
 
         // when & then
@@ -761,6 +765,7 @@ class TeamServiceTest {
                 .projectDescription("가볼까잇 설명입니다.")
                 .expectation("열정적인 팀원을 구해요.")
                 .openChatUrl("kakao.com/o/gabojait")
+                .leaderPosition(Position.MANAGER.name())
                 .designerMaxCnt((byte) 5)
                 .backendMaxCnt((byte) 5)
                 .frontendMaxCnt((byte) 5)

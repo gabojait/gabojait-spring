@@ -52,6 +52,14 @@ public class TeamMember extends BasePermanentEntity {
         user.updateIsSeekingTeam(false);
     }
 
+    public void updatePosition(Position position) {
+        team.leave(this.position);
+
+        this.position = position;
+
+        team.join(position);
+    }
+
     public void complete(String projectUrl, LocalDateTime completedAt) {
         this.teamMemberStatus = TeamMemberStatus.COMPLETE;
 
