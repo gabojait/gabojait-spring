@@ -55,7 +55,6 @@ public class TeamCreateResponse {
     @ApiModelProperty(position = 13, required = true, value = "바라는 점")
     private String expectation;
 
-    // TODO change from List<TeamMemberResponse> to TeamMemberResponse
     @ApiModelProperty(position = 14, required = true, value = "팀원")
     private List<TeamMemberResponse> teamMembers;
 

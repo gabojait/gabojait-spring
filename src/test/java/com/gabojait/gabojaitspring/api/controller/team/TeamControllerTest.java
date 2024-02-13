@@ -1,7 +1,10 @@
 package com.gabojait.gabojaitspring.api.controller.team;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gabojait.gabojaitspring.api.dto.team.request.*;
+import com.gabojait.gabojaitspring.api.dto.team.request.TeamCompleteRequest;
+import com.gabojait.gabojaitspring.api.dto.team.request.TeamCreateRequest;
+import com.gabojait.gabojaitspring.api.dto.team.request.TeamIsRecruitingUpdateRequest;
+import com.gabojait.gabojaitspring.api.dto.team.request.TeamUpdateRequest;
 import com.gabojait.gabojaitspring.api.service.team.TeamService;
 import com.gabojait.gabojaitspring.config.auth.CustomAuthenticationEntryPoint;
 import com.gabojait.gabojaitspring.config.auth.JwtProvider;
@@ -173,11 +176,11 @@ class TeamControllerTest {
     }
 
     @Test
-    @DisplayName("포지션 미입력시 팀 생성을 하면 400을 반환한다")
-    void givenBlankPosition_whenCreateTeam_thenReturn400() throws Exception {
+    @DisplayName("팀장 포지션 미입력시 팀 생성을 하면 400을 반환한다")
+    void givenBlankLeaderPosition_whenCreateTeam_thenReturn400() throws Exception {
         // given
         TeamCreateRequest request = createValidTeamCreateRequest();
-        request.setPosition("");
+        request.setLeaderPosition("");
 
         // when
         ResultActions actions = mockMvc.perform(
@@ -190,9 +193,9 @@ class TeamControllerTest {
         actions.andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.responseCode")
-                        .value(POSITION_TYPE_INVALID.name()))
+                        .value(LEADER_POSITION_TYPE_INVALID.name()))
                 .andExpect(jsonPath("$.responseMessage")
-                        .value(POSITION_TYPE_INVALID.getMessage()));
+                        .value(LEADER_POSITION_TYPE_INVALID.getMessage()));
     }
 
     @Test
@@ -1039,7 +1042,7 @@ class TeamControllerTest {
                 .projectDescription("프로젝트 설명입니다.")
                 .expectation("바라는 점입니다.")
                 .openChatUrl("https://open.kakao.com/o/gabojait")
-                .position(Position.MANAGER.name())
+                .leaderPosition(Position.MANAGER.name())
                 .designerMaxCnt((byte) 2)
                 .backendMaxCnt((byte) 2)
                 .frontendMaxCnt((byte) 2)

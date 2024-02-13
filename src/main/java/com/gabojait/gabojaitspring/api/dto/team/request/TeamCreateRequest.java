@@ -37,11 +37,11 @@ public class TeamCreateRequest {
     @Pattern(regexp = "^https\\:\\/\\/open\\.kakao\\.com\\/.+$", message = "오픈 채팅 URL은 카카오 오픈 채팅 형식만 가능합니다.")
     private String openChatUrl;
 
-    @ApiModelProperty(position = 5, required = true, value = "포지션", example = "MANAGER",
+    @ApiModelProperty(position = 5, required = true, value = "팀장 포지션", example = "MANAGER",
             allowableValues = "DESIGNER, BACKEND, FRONTEND, MANAGER")
-    @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER|NONE)",
-            message = "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다.")
-    private String position;
+    @Pattern(regexp = "^(DESIGNER|BACKEND|FRONTEND|MANAGER)",
+            message = "팀장 포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 또는 'MANAGER' 중 하나여야 됩니다.")
+    private String leaderPosition;
 
     @ApiModelProperty(position = 6, required = true, value = "디자이너 최대 수")
     @NotNull(message = "디자이너 최대 수는 필수 입력입니다.")
@@ -78,7 +78,7 @@ public class TeamCreateRequest {
 
     public TeamMember toTeamMemberEntity(User user, Team team) {
         return TeamMember.builder()
-                .position(Position.valueOf(this.position))
+                .position(Position.valueOf(this.leaderPosition))
                 .isLeader(true)
                 .user(user)
                 .team(team)
@@ -90,7 +90,7 @@ public class TeamCreateRequest {
                               String projectDescription,
                               String expectation,
                               String openChatUrl,
-                              String position,
+                              String leaderPosition,
                               byte designerMaxCnt,
                               byte backendMaxCnt,
                               byte frontendMaxCnt,
@@ -99,7 +99,7 @@ public class TeamCreateRequest {
         this.projectDescription = projectDescription;
         this.expectation = expectation;
         this.openChatUrl = openChatUrl;
-        this.position = position;
+        this.leaderPosition = leaderPosition;
         this.designerMaxCnt = designerMaxCnt;
         this.backendMaxCnt = backendMaxCnt;
         this.frontendMaxCnt = frontendMaxCnt;

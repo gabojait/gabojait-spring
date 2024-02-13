@@ -306,7 +306,7 @@ public class TeamService {
      * @param user 회원
      */
     private void validateLeaderPosition(TeamCreateRequest request, User user) {
-        switch (Position.valueOf(request.getPosition())) {
+        switch (Position.valueOf(request.getLeaderPosition())) {
             case DESIGNER:
                 if (request.getDesignerMaxCnt() <= 0)
                     throw new CustomException(TEAM_LEADER_POSITION_UNAVAILABLE);

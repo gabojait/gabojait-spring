@@ -747,7 +747,7 @@ class TeamServiceTest {
                 .projectDescription("가볼까잇 설명입니다.")
                 .expectation("열정적인 팀원을 구해요.")
                 .openChatUrl("kakao.com/o/gabojait")
-                .position(position.name())
+                .leaderPosition(position.name())
                 .designerMaxCnt((byte) 5)
                 .backendMaxCnt((byte) 5)
                 .frontendMaxCnt((byte) 5)

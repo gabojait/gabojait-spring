@@ -74,6 +74,7 @@ public enum ErrorCode {
     GENDER_TYPE_INVALID(BAD_REQUEST, "성별은 'M', 'F', 또는 'N' 중 하나여야 됩니다."),
     POSITION_TYPE_INVALID(BAD_REQUEST, "포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 'MANAGER', 또는 'NONE' 중 하나여야 됩니다."),
     OFFER_POSITION_TYPE_INVALID(BAD_REQUEST, "제안할 포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 또는 'MANAGER' 중 하나여야 됩니다."),
+    LEADER_POSITION_TYPE_INVALID(BAD_REQUEST, "팀장 포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 또는 'MANAGER' 중 하나여야 됩니다."),
     LEVEL_TYPE_INVALID(BAD_REQUEST, "레벨은 'LOW', 'MID', 또는 'HIGH' 중 하나여야 됩니다."),
     MEDIA_TYPE_INVALID(BAD_REQUEST, "미디어는 'LINK' 또는 'FILE' 중 하나여야 됩니다."),
 
