@@ -23,23 +23,23 @@ public class Notification extends BasePermanentEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(nullable = false, length = 25)
-    @Enumerated(EnumType.STRING)
-    private NotificationType notificationType;
     @Column(nullable = false)
     private String title;
     @Column(nullable = false)
     private String body;
     @Column(nullable = false)
     private Boolean isRead;
+    @Column(nullable = false, length = 31)
+    @Enumerated(EnumType.STRING)
+    private DeepLinkType deepLinkType;
 
     @Builder
-    private Notification(User user, NotificationType notificationType, String title, String body) {
+    private Notification(User user, String title, String body, DeepLinkType deepLinkType) {
         this.user = user;
-        this.notificationType = notificationType;
         this.title = title;
         this.body = body;
         this.isRead = false;
+        this.deepLinkType = deepLinkType;
         this.isDeleted = false;
     }
 
@@ -54,7 +54,7 @@ public class Notification extends BasePermanentEntity {
         Notification that = (Notification) object;
         return Objects.equals(id, that.id)
                 && Objects.equals(user, that.user)
-                && notificationType == that.notificationType
+                && deepLinkType == that.deepLinkType
                 && Objects.equals(title, that.title)
                 && Objects.equals(body, that.body)
                 && Objects.equals(isRead, that.isRead);
@@ -62,6 +62,6 @@ public class Notification extends BasePermanentEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, user, notificationType, title, body, isRead);
+        return Objects.hash(id, user, deepLinkType, title, body, isRead);
     }
 }

@@ -1,11 +1,11 @@
-package com.gabojait.gabojaitspring.common.constant.deepLink;
+package com.gabojait.gabojaitspring.domain.notification;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@AllArgsConstructor
-public enum DeepLink {
+@RequiredArgsConstructor
+public enum DeepLinkType {
 
     HOME_PAGE("gabojait://home", "홈페이지"),
     TEAM_PAGE("gabojait://team", "팀 페이지"),

@@ -1,8 +1,8 @@
 package com.gabojait.gabojaitspring.repository.notification;
 
 import com.gabojait.gabojaitspring.common.response.PageData;
+import com.gabojait.gabojaitspring.domain.notification.DeepLinkType;
 import com.gabojait.gabojaitspring.domain.notification.Notification;
-import com.gabojait.gabojaitspring.domain.notification.NotificationType;
 import com.gabojait.gabojaitspring.domain.user.Contact;
 import com.gabojait.gabojaitspring.domain.user.Gender;
 import com.gabojait.gabojaitspring.domain.user.User;
@@ -36,11 +36,11 @@ class NotificationRepositoryTest {
     @DisplayName("알림이 있을시 알림 페이징 조회가 정상 작동한다")
     void givenValid_whenFindPage_thenReturn() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
+        User user = createSavedDefaultUser();
 
-        Notification notification1 = createNotification(user, NotificationType.NONE, "알림 제목1", "알림1이 왔습니다.");
-        Notification notification2 = createNotification(user, NotificationType.USER_OFFER, "알림 제목2", "알림2이 왔습니다.");
-        Notification notification3 = createNotification(user, NotificationType.TEAM_OFFER, "알림 제목3", "알림3이 왔습니다.");
+        Notification notification1 = createNotification(user, "알림 제목1", "알림1이 왔습니다.");
+        Notification notification2 = createNotification(user, "알림 제목2", "알림2이 왔습니다.");
+        Notification notification3 = createNotification(user, "알림 제목3", "알림3이 왔습니다.");
         notificationRepository.saveAll(List.of(notification1, notification2, notification3));
 
         long pageFrom = notification3.getId();
@@ -61,7 +61,7 @@ class NotificationRepositoryTest {
     @DisplayName("알림이 없을시 알림 페이징 조회가 정상 작동한다")
     void givenNoneExisting_whenFindPage_thenReturn() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
+        User user = createSavedDefaultUser();
 
         long pageFrom = Long.MAX_VALUE;
         int pageSize = 1;
@@ -80,9 +80,9 @@ class NotificationRepositoryTest {
     @DisplayName("읽지 않은 알림을 조회가 정상 작동한다")
     void givenRead_whenFindUnread_thenReturn() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
+        User user = createSavedDefaultUser();
 
-        Notification notification = createNotification(user, NotificationType.NONE, "알림 제목", "알림이 왔습니다.");
+        Notification notification = createNotification(user, "알림 제목", "알림이 왔습니다.");
         notificationRepository.save(notification);
 
         // when
@@ -96,9 +96,9 @@ class NotificationRepositoryTest {
     @DisplayName("알림은 읽은 후 읽은 알림을 조회가 정상 작동한다")
     void givenUnread_whenFindUnread_thenReturn() {
         // given
-        User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
+        User user = createSavedDefaultUser();
 
-        Notification notification = createNotification(user, NotificationType.NONE, "알림 제목", "알림이 왔습니다.");
+        Notification notification = createNotification(user, "알림 제목", "알림이 왔습니다.");
         notification.read();
         notificationRepository.save(notification);
 
@@ -109,27 +109,27 @@ class NotificationRepositoryTest {
         assertThat(foundNotification).isEmpty();
     }
 
-    private Notification createNotification(User user, NotificationType notificationType, String title, String body) {
+    private Notification createNotification(User user, String title, String body) {
         return Notification.builder()
                 .user(user)
-                .notificationType(notificationType)
                 .title(title)
                 .body(body)
+                .deepLinkType(DeepLinkType.HOME_PAGE)
                 .build();
     }
 
-    private User createSavedDefaultUser(String email, String username, String nickname) {
+    private User createSavedDefaultUser() {
         Contact contact = Contact.builder()
-                .email(email)
+                .email("tester@gabojait.com")
                 .verificationCode("000000")
                 .build();
         contact.verified();
         contactRepository.save(contact);
 
         User user = User.builder()
-                .username(username)
+                .username("tester")
                 .password("password1!")
-                .nickname(nickname)
+                .nickname("테스터")
                 .gender(Gender.M)
                 .birthdate(LocalDate.of(1997, 2, 11))
                 .lastRequestAt(LocalDateTime.now())

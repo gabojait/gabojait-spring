@@ -1,9 +1,9 @@
 package com.gabojait.gabojaitspring.api.service.notification;
 
-import com.gabojait.gabojaitspring.common.response.PageData;
 import com.gabojait.gabojaitspring.api.dto.notification.response.NotificationPageResponse;
+import com.gabojait.gabojaitspring.common.response.PageData;
+import com.gabojait.gabojaitspring.domain.notification.DeepLinkType;
 import com.gabojait.gabojaitspring.domain.notification.Notification;
-import com.gabojait.gabojaitspring.domain.notification.NotificationType;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
 import com.gabojait.gabojaitspring.domain.team.Team;
 import com.gabojait.gabojaitspring.domain.team.TeamMember;
@@ -82,11 +82,11 @@ public class NotificationService {
         String userBody = offer.getPosition().getText() + "로서 역량을 펼쳐보세요!";
         String teamTitle = "새로운 " + offer.getPosition().getText() + " 합류";
         String teamBody = user.getNickname() + "님이 " + offer.getPosition().getText() + "로 팀에 합류하였어요.";
-        NotificationType notificationType = NotificationType.NEW_TEAM_MEMBER;
+        DeepLinkType deepLinkType = DeepLinkType.TEAM_PAGE;
 
-        createAndSaveNotification(user, notificationType, userTitle, userBody);
+        createAndSaveNotification(user, userTitle, userBody, deepLinkType);
         if (!userFcms.isEmpty()) {
-            Map<String, String> data = createFcmData(userTitle, userBody, notificationType);
+            Map<String, String> data = createFcmData(userTitle, userBody, deepLinkType.getUrl());
 
             MulticastMessage message = createMulticast(userFcms, data);
             sendMulticast(message);
@@ -94,10 +94,10 @@ public class NotificationService {
 
         teamMemberRepository.findAllExceptUserFetchUser(team.getId(), user.getId())
                 .forEach(teamMember ->
-                        createAndSaveNotification(teamMember.getUser(), notificationType, teamTitle, teamBody)
+                        createAndSaveNotification(teamMember.getUser(), teamTitle, teamBody, deepLinkType)
                 );
         if (!teamFcms.isEmpty()) {
-            Map<String, String> data = createFcmData(teamTitle, teamBody, notificationType);
+            Map<String, String> data = createFcmData(teamTitle, teamBody, deepLinkType.getUrl());
 
             MulticastMessage message = createMulticast(teamFcms, data);
             sendMulticast(message);
@@ -116,13 +116,14 @@ public class NotificationService {
 
         String userTitle = team.getProjectName() + "팀에서 추방";
         String userBody = team.getProjectName() + "팀에서 추방 되었어요. 아쉽지만 새로운 팀을 찾아보세요.";
+        DeepLinkType userDeepLinkType = DeepLinkType.HOME_PAGE;
         String teamTitle = user.getNickname() + "님 팀에서 추방";
         String teamBody = user.getNickname() + "님이 팀장에 의해 추방되었어요.";
-        NotificationType notificationType = NotificationType.FIRED_TEAM_MEMBER;
+        DeepLinkType teamDeepLinkType = DeepLinkType.TEAM_PAGE;
 
-        createAndSaveNotification(user, notificationType, userTitle, userBody);
+        createAndSaveNotification(user, userTitle, userBody, userDeepLinkType);
         if (!userFcms.isEmpty()) {
-            Map<String, String> data = createFcmData(userTitle, userBody, notificationType);
+            Map<String, String> data = createFcmData(userTitle, userBody, userDeepLinkType.getUrl());
 
             MulticastMessage message = createMulticast(userFcms, data);
             sendMulticast(message);
@@ -130,10 +131,10 @@ public class NotificationService {
 
         teamMemberRepository.findAllExceptUserFetchUser(team.getId(), user.getId())
                 .forEach(teamMember ->
-                        createAndSaveNotification(teamMember.getUser(), notificationType, teamTitle, teamBody)
+                        createAndSaveNotification(teamMember.getUser(), teamTitle, teamBody, teamDeepLinkType)
                 );
         if (!teamFcms.isEmpty()) {
-            Map<String, String> data = createFcmData(teamTitle, teamBody, notificationType);
+            Map<String, String> data = createFcmData(teamTitle, teamBody, teamDeepLinkType.getUrl());
 
             MulticastMessage message = createMulticast(teamFcms, data);
             sendMulticast(message);
@@ -151,13 +152,13 @@ public class NotificationService {
 
         String title = user.getNickname() + "님 팀 탈퇴";
         String body = user.getNickname() + "님이 팀에서 탈퇴하였습니다.";
-        NotificationType notificationType = NotificationType.QUIT_TEAM_MEMBER;
+        DeepLinkType deepLinkType = DeepLinkType.TEAM_PAGE;
         teamMemberRepository.findAllExceptUserFetchUser(team.getId(), user.getId())
                 .forEach(teamMember ->
-                        createAndSaveNotification(teamMember.getUser(), notificationType, title, body)
+                        createAndSaveNotification(teamMember.getUser(), title, body, deepLinkType)
                 );
         if (!fcms.isEmpty()) {
-            Map<String, String> data = createFcmData(title, body, notificationType);
+            Map<String, String> data = createFcmData(title, body, deepLinkType.getUrl());
 
             MulticastMessage message = createMulticast(fcms, data);
             sendMulticast(message);
@@ -173,14 +174,14 @@ public class NotificationService {
     public void sendTeamIncomplete(Team team) {
         List<String> fcms = fcmRepository.findAllTeam(team.getId());
         String title = team.getProjectName() + "팀 해산";
-        String boy = "아쉽지만 팀장에 의해 " + team.getProjectName() + "팀이 해산 되었어요.";
-        NotificationType notificationType = NotificationType.TEAM_INCOMPLETE;
+        String body = "아쉽지만 팀장에 의해 " + team.getProjectName() + "팀이 해산 되었어요.";
+        DeepLinkType deepLinkType = DeepLinkType.TEAM_PAGE;
         teamMemberRepository.findAllFetchUser(team.getId())
                 .forEach(teamMember ->
-                        createAndSaveNotification(teamMember.getUser(), notificationType, title, boy)
+                        createAndSaveNotification(teamMember.getUser(), title, body, deepLinkType)
                 );
         if (!fcms.isEmpty()) {
-            Map<String, String> data = createFcmData(title, boy, notificationType);
+            Map<String, String> data = createFcmData(title, body, deepLinkType.getUrl());
 
             MulticastMessage message = createMulticast(fcms, data);
             sendMulticast(message);
@@ -196,13 +197,13 @@ public class NotificationService {
         List<String> fcms = fcmRepository.findAllTeam(team.getId());
         String title = team.getProjectName() + " 프로젝트 완료";
         String body = "수고하셨어요! 프로젝트를 완료했어요. 팀원 리뷰를 작성해보세요!";
-        NotificationType notificationType = NotificationType.TEAM_COMPLETE;
+        DeepLinkType deepLinkType = DeepLinkType.REVIEW_PAGE;
         teamMemberRepository.findAllFetchUser(team.getId())
                 .forEach(teamMember ->
-                        createAndSaveNotification(teamMember.getUser(), notificationType, title, body)
+                        createAndSaveNotification(teamMember.getUser(), title, body, deepLinkType)
                 );
         if (!fcms.isEmpty()) {
-            Map<String, String> data = createFcmData(title, body, notificationType);
+            Map<String, String> data = createFcmData(title, body, deepLinkType.getUrl());
 
             MulticastMessage message = createMulticast(fcms, data);
             sendMulticast(message);
@@ -218,14 +219,14 @@ public class NotificationService {
         List<String> fcms = fcmRepository.findAllTeam(team.getId());
         String title = team.getProjectName() + "팀 프로필 수정";
         String body = team.getProjectName() + "팀 프로필이 팀장에 의해 수정되었어요.";
-        NotificationType notificationType = NotificationType.TEAM_PROFILE_UPDATED;
+        DeepLinkType deepLinkType = DeepLinkType.TEAM_PAGE;
 
         teamMemberRepository.findAllFetchUser(team.getId())
                 .forEach(teamMember ->
-                        createAndSaveNotification(teamMember.getUser(), notificationType, title, body)
+                        createAndSaveNotification(teamMember.getUser(), title, body, deepLinkType)
                 );
         if (!fcms.isEmpty()) {
-            Map<String, String> data = createFcmData(title, body, notificationType);
+            Map<String, String> data = createFcmData(title, body, deepLinkType.getUrl());
 
             MulticastMessage message = createMulticast(fcms, data);
             sendMulticast(message);
@@ -241,10 +242,10 @@ public class NotificationService {
         List<String> fcms = fcmRepository.findAllUser(offer.getUser().getId());
         String title = offer.getPosition().toString() + " 스카웃 제의";
         String body = offer.getTeam().getProjectName() + "팀에서 " + offer.getPosition().getText() + " 스카웃 제의가 왔어요!";
-        NotificationType notificationType = NotificationType.TEAM_OFFER;
-        createAndSaveNotification(offer.getUser(), notificationType, title, body);
+        DeepLinkType deepLinkType = DeepLinkType.USER_OFFER_RECEIVE_PAGE;
+        createAndSaveNotification(offer.getUser(), title, body, deepLinkType);
         if (!fcms.isEmpty()) {
-            Map<String, String> data = createFcmData(title, body, notificationType);
+            Map<String, String> data = createFcmData(title, body, deepLinkType.getUrl());
 
             MulticastMessage message = createMulticast(fcms, data);
             sendMulticast(message);
@@ -260,13 +261,13 @@ public class NotificationService {
         Optional<TeamMember> teamLeader = teamMemberRepository.findLeaderFetchUser(offer.getTeam().getId());
         String title = offer.getPosition().getText() + " 지원";
         String body = offer.getPosition().getText() + " " + offer.getUser().getNickname() + "님이 지원을 했습니다.";
-        NotificationType notificationType = NotificationType.USER_OFFER;
+        DeepLinkType deepLinkType = DeepLinkType.TEAM_OFFER_RECEIVE_PAGE;
         if (teamLeader.isPresent()) {
-            createAndSaveNotification(teamLeader.get().getUser(), notificationType, title, body);
+            createAndSaveNotification(teamLeader.get().getUser(), title, body, deepLinkType);
 
             List<String> fcms = fcmRepository.findAllUser(teamLeader.get().getUser().getId());
             if (!fcms.isEmpty()) {
-                Map<String, String> data = createFcmData(title, body, notificationType);
+                Map<String, String> data = createFcmData(title, body, deepLinkType.getUrl());
 
                 MulticastMessage message = createMulticast(fcms, data);
                 sendMulticast(message);
@@ -274,12 +275,17 @@ public class NotificationService {
         }
     }
 
-
-    private Map<String, String> createFcmData(String title, String body, NotificationType notificationType) {
+    /**
+     * FCM 데이터 생성
+     * @param title 제목
+     * @param body 내용
+     * @param deepLinkUrl 딥링크 URL
+     */
+    private Map<String, String> createFcmData(String title, String body, String deepLinkUrl) {
         return Map.of(
                 "title", title,
                 "body", body,
-                "type", notificationType.name(),
+                "deepLink", deepLinkUrl,
                 "time", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         );
     }
@@ -324,15 +330,15 @@ public class NotificationService {
     /**
      * 알림 생성 및 저장
      * @param user 회원
-     * @param notificationType 알림 종류
      * @param title 제목
      * @param body 내용
+     * @param deepLinkType 딥링크 종류
      */
     @Transactional
-    public void createAndSaveNotification(User user, NotificationType notificationType, String title, String body) {
+    public void createAndSaveNotification(User user, String title, String body, DeepLinkType deepLinkType) {
         Notification notification = Notification.builder()
                 .user(user)
-                .notificationType(notificationType)
+                .deepLinkType(deepLinkType)
                 .title(title)
                 .body(body)
                 .build();

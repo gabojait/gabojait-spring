@@ -2,8 +2,8 @@ package com.gabojait.gabojaitspring.api.service.notification;
 
 import com.gabojait.gabojaitspring.api.dto.notification.response.NotificationPageResponse;
 import com.gabojait.gabojaitspring.common.response.PageData;
+import com.gabojait.gabojaitspring.domain.notification.DeepLinkType;
 import com.gabojait.gabojaitspring.domain.notification.Notification;
-import com.gabojait.gabojaitspring.domain.notification.NotificationType;
 import com.gabojait.gabojaitspring.domain.offer.Offer;
 import com.gabojait.gabojaitspring.domain.offer.OfferedBy;
 import com.gabojait.gabojaitspring.domain.team.Team;
@@ -55,9 +55,9 @@ class NotificationServiceTest {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
-        Notification notification1 = createSavedNotification(user, NotificationType.NONE, "알림 제목1", "알림1이 왔습니다.");
-        Notification notification2 = createSavedNotification(user, NotificationType.TEAM_OFFER, "알림 제목2", "알림1이 왔습니다.");
-        Notification notification3 = createSavedNotification(user, NotificationType.USER_OFFER, "알림 제목3", "알림1이 왔습니다.");
+        Notification notification1 = createSavedNotification(user, "알림 제목1", "알림1이 왔습니다.", DeepLinkType.HOME_PAGE);
+        Notification notification2 = createSavedNotification(user, "알림 제목2", "알림2이 왔습니다.", DeepLinkType.HOME_PAGE);
+        Notification notification3 = createSavedNotification(user, "알림 제목3", "알림3이 왔습니다.", DeepLinkType.HOME_PAGE);
 
         long pageFrom = Long.MAX_VALUE;
         int pageSize = 2;
@@ -69,16 +69,23 @@ class NotificationServiceTest {
         // then
         assertAll(
                 () -> assertThat(responses.getData())
-                        .extracting("notificationId", "notificationType", "title", "body", "isRead", "createdAt", "updatedAt")
+                        .extracting("notificationId", "title", "body", "isRead", "createdAt", "updatedAt")
                         .containsExactly(
-                                tuple(notification3.getId(), notification3.getNotificationType(), notification3.getTitle(),
-                                        notification3.getBody(), notification3.getIsRead(), notification3.getCreatedAt(),
+                                tuple(notification3.getId(), notification3.getTitle(), notification3.getBody(),
+                                        notification3.getIsRead(), notification3.getCreatedAt(),
                                         notification3.getUpdatedAt()),
-                                tuple(notification2.getId(), notification2.getNotificationType(), notification2.getTitle(),
-                                        notification2.getBody(), notification2.getIsRead(), notification2.getCreatedAt(),
+                                tuple(notification2.getId(), notification2.getTitle(), notification2.getBody(),
+                                        notification2.getIsRead(), notification2.getCreatedAt(),
                                         notification2.getUpdatedAt())
                         ),
-                () -> assertThat(responses.getData().size()).isEqualTo(pageSize),
+                () -> assertThat(responses.getData())
+                        .extracting("deepLink").extracting("url", "description")
+                        .containsExactly(
+                                tuple(notification3.getDeepLinkType().getUrl(),
+                                        notification3.getDeepLinkType().getDescription()),
+                                tuple(notification2.getDeepLinkType().getUrl(),
+                                        notification2.getDeepLinkType().getDescription())
+                        ),
                 () -> assertThat(responses.getTotal()).isEqualTo(3)
         );
     }
@@ -89,14 +96,13 @@ class NotificationServiceTest {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
-        Notification notification = createSavedNotification(user, NotificationType.NONE, "알림 제목", "알림이 왔습니다.");
+        Notification notification = createSavedNotification(user, "알림 제목", "알림이 왔습니다.", DeepLinkType.HOME_PAGE);
 
         // when
         notificationService.readNotification(user.getId(), notification.getId());
 
         // then
-        Optional<Notification> foundNotification = notificationRepository.findUnread(user.getId(),
-                notification.getId());
+        Optional<Notification> foundNotification = notificationRepository.findUnread(user.getId(), notification.getId());
 
         assertThat(foundNotification).isEmpty();
     }
@@ -107,7 +113,7 @@ class NotificationServiceTest {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
 
-        Notification notification = createSavedNotification(user, NotificationType.NONE, "알림 제목", "알림이 왔습니다.");
+        Notification notification = createSavedNotification(user, "알림 제목", "알림이 왔습니다.", DeepLinkType.HOME_PAGE);
         notification.read();
         notificationRepository.save(notification);
 
@@ -144,24 +150,25 @@ class NotificationServiceTest {
 
         assertAll(
                 () -> assertThat(notifications1)
-                        .extracting("notificationType", "title", "body", "isRead", "isDeleted")
+                        .extracting("title", "body", "isRead", "deepLinkType", "isDeleted", "user")
                         .containsExactlyInAnyOrder(
-                                tuple(NotificationType.NEW_TEAM_MEMBER, "새로운 " + offer.getPosition().getText() + " 합류",
-                                        user3.getNickname() + "님이 " + offer.getPosition().getText() + "로 팀에 합류하였어요.", false,
-                                        false)
+                                tuple("새로운 " + offer.getPosition().getText() + " 합류",
+                                        user3.getNickname() + "님이 " + offer.getPosition().getText() + "로 팀에 합류하였어요.",
+                                        false, DeepLinkType.TEAM_PAGE, false, user1)
                         ),
                 () -> assertThat(notifications2)
-                        .extracting("notificationType", "title", "body", "isRead", "isDeleted")
+                        .extracting("title", "body", "isRead", "deepLinkType", "isDeleted", "user")
                         .containsExactlyInAnyOrder(
-                                tuple(NotificationType.NEW_TEAM_MEMBER, "새로운 " + offer.getPosition().getText() + " 합류",
-                                        user3.getNickname() + "님이 " + offer.getPosition().getText() + "로 팀에 합류하였어요.", false,
-                                        false)
+                                tuple("새로운 " + offer.getPosition().getText() + " 합류",
+                                        user3.getNickname() + "님이 " + offer.getPosition().getText() + "로 팀에 합류하였어요.",
+                                        false, DeepLinkType.TEAM_PAGE, false, user2)
                         ),
                 () -> assertThat(notifications3)
-                        .extracting("notificationType", "title", "body", "isRead", "isDeleted")
+                        .extracting("title", "body", "isRead", "deepLinkType", "isDeleted", "user")
                         .containsExactlyInAnyOrder(
-                                tuple(NotificationType.NEW_TEAM_MEMBER, team.getProjectName() + "팀 합류",
-                                        offer.getPosition().getText() + "로서 역량을 펼쳐보세요!", false, false)
+                                tuple(team.getProjectName() + "팀 합류",
+                                        offer.getPosition().getText() + "로서 역량을 펼쳐보세요!",
+                                        false, DeepLinkType.TEAM_PAGE, false, user3)
                         )
         );
     }
@@ -189,22 +196,25 @@ class NotificationServiceTest {
 
         assertAll(
                 () -> assertThat(notifications1)
-                        .extracting("notificationType", "title", "body", "isRead", "isDeleted")
+                        .extracting("title", "body", "isRead", "deepLinkType", "isDeleted", "user")
                         .containsExactlyInAnyOrder(
-                                tuple(NotificationType.FIRED_TEAM_MEMBER, user3.getNickname() + "님 팀에서 추방",
-                                        user3.getNickname() + "님이 팀장에 의해 추방되었어요.", false, false)
+                                tuple(user3.getNickname() + "님 팀에서 추방",
+                                        user3.getNickname() + "님이 팀장에 의해 추방되었어요.", false, DeepLinkType.TEAM_PAGE,
+                                        false, user1)
                         ),
                 () -> assertThat(notifications2)
-                        .extracting("notificationType", "title", "body", "isRead", "isDeleted")
+                        .extracting("title", "body", "isRead", "deepLinkType", "isDeleted", "user")
                         .containsExactlyInAnyOrder(
-                                tuple(NotificationType.FIRED_TEAM_MEMBER, user3.getNickname() + "님 팀에서 추방",
-                                        user3.getNickname() + "님이 팀장에 의해 추방되었어요.", false, false)
+                                tuple(user3.getNickname() + "님 팀에서 추방",
+                                        user3.getNickname() + "님이 팀장에 의해 추방되었어요.", false, DeepLinkType.TEAM_PAGE,
+                                        false, user2)
                         ),
                 () -> assertThat(notifications3)
-                        .extracting("notificationType", "title", "body", "isRead", "isDeleted")
+                        .extracting("title", "body", "isRead", "deepLinkType", "isDeleted", "user")
                         .containsExactlyInAnyOrder(
-                                tuple(NotificationType.FIRED_TEAM_MEMBER, team.getProjectName() + "팀에서 추방",
-                                        team.getProjectName() + "팀에서 추방 되었어요. 아쉽지만 새로운 팀을 찾아보세요.", false, false)
+                                tuple(team.getProjectName() + "팀에서 추방",
+                                        team.getProjectName() + "팀에서 추방 되었어요. 아쉽지만 새로운 팀을 찾아보세요.", false,
+                                        DeepLinkType.HOME_PAGE, false, user3)
                         )
         );
     }
@@ -232,16 +242,16 @@ class NotificationServiceTest {
 
         assertAll(
                 () -> assertThat(notifications1)
-                        .extracting("notificationType", "title", "body", "isRead", "isDeleted")
+                        .extracting("title", "body", "isRead", "deepLinkType", "isDeleted", "user")
                         .containsExactlyInAnyOrder(
-                                tuple(NotificationType.QUIT_TEAM_MEMBER, user3.getNickname() + "님 팀 탈퇴",
-                                        user3.getNickname() + "님이 팀에서 탈퇴하였습니다.", false, false)
+                                tuple(user3.getNickname() + "님 팀 탈퇴", user3.getNickname() + "님이 팀에서 탈퇴하였습니다.",
+                                        false, DeepLinkType.TEAM_PAGE, false, user1)
                         ),
                 () -> assertThat(notifications2)
-                        .extracting("notificationType", "title", "body", "isRead", "isDeleted")
+                        .extracting("title", "body", "isRead", "deepLinkType", "isDeleted", "user")
                         .containsExactlyInAnyOrder(
-                                tuple(NotificationType.QUIT_TEAM_MEMBER, user3.getNickname() + "님 팀 탈퇴",
-                                        user3.getNickname() + "님이 팀에서 탈퇴하였습니다.", false, false)
+                                tuple(user3.getNickname() + "님 팀 탈퇴", user3.getNickname() + "님이 팀에서 탈퇴하였습니다.",
+                                        false, DeepLinkType.TEAM_PAGE, false, user2)
                         ),
                 () -> assertThat(notifications3).isEmpty()
         );
@@ -270,22 +280,25 @@ class NotificationServiceTest {
 
         assertAll(
                 () -> assertThat(notifications1)
-                        .extracting("notificationType", "title", "body", "isRead", "isDeleted")
+                        .extracting("title", "body", "isRead", "deepLinkType", "isDeleted", "user")
                         .containsExactlyInAnyOrder(
-                                tuple(NotificationType.TEAM_INCOMPLETE, team.getProjectName() + "팀 해산",
-                                        "아쉽지만 팀장에 의해 " + team.getProjectName() + "팀이 해산 되었어요.", false, false)
+                                tuple(team.getProjectName() + "팀 해산",
+                                        "아쉽지만 팀장에 의해 " + team.getProjectName() + "팀이 해산 되었어요.", false,
+                                        DeepLinkType.TEAM_PAGE, false, user1)
                         ),
                 () -> assertThat(notifications2)
-                        .extracting("notificationType", "title", "body", "isRead", "isDeleted")
+                        .extracting("title", "body", "isRead", "deepLinkType", "isDeleted", "user")
                         .containsExactlyInAnyOrder(
-                                tuple(NotificationType.TEAM_INCOMPLETE, team.getProjectName() + "팀 해산",
-                                        "아쉽지만 팀장에 의해 " + team.getProjectName() + "팀이 해산 되었어요.", false, false)
+                                tuple(team.getProjectName() + "팀 해산",
+                                        "아쉽지만 팀장에 의해 " + team.getProjectName() + "팀이 해산 되었어요.", false,
+                                        DeepLinkType.TEAM_PAGE, false, user2)
                         ),
                 () -> assertThat(notifications3)
-                        .extracting("notificationType", "title", "body", "isRead", "isDeleted")
+                        .extracting("title", "body", "isRead", "deepLinkType", "isDeleted", "user")
                         .containsExactlyInAnyOrder(
-                                tuple(NotificationType.TEAM_INCOMPLETE, team.getProjectName() + "팀 해산",
-                                        "아쉽지만 팀장에 의해 " + team.getProjectName() + "팀이 해산 되었어요.", false, false)
+                                tuple(team.getProjectName() + "팀 해산",
+                                        "아쉽지만 팀장에 의해 " + team.getProjectName() + "팀이 해산 되었어요.", false,
+                                        DeepLinkType.TEAM_PAGE, false, user3)
                         )
         );
     }
@@ -313,22 +326,25 @@ class NotificationServiceTest {
 
         assertAll(
                 () -> assertThat(notifications1)
-                        .extracting("notificationType", "title", "body", "isRead", "isDeleted")
+                        .extracting("title", "body", "isRead", "deepLinkType", "isDeleted", "user")
                         .containsExactlyInAnyOrder(
-                                tuple(NotificationType.TEAM_COMPLETE, team.getProjectName() + " 프로젝트 완료",
-                                        "수고하셨어요! 프로젝트를 완료했어요. 팀원 리뷰를 작성해보세요!", false, false)
+                                tuple(team.getProjectName() + " 프로젝트 완료",
+                                        "수고하셨어요! 프로젝트를 완료했어요. 팀원 리뷰를 작성해보세요!", false,
+                                        DeepLinkType.REVIEW_PAGE, false, user1)
                         ),
                 () -> assertThat(notifications2)
-                        .extracting("notificationType", "title", "body", "isRead", "isDeleted")
+                        .extracting("title", "body", "isRead", "deepLinkType", "isDeleted", "user")
                         .containsExactlyInAnyOrder(
-                                tuple(NotificationType.TEAM_COMPLETE, team.getProjectName() + " 프로젝트 완료",
-                                        "수고하셨어요! 프로젝트를 완료했어요. 팀원 리뷰를 작성해보세요!", false, false)
+                                tuple(team.getProjectName() + " 프로젝트 완료",
+                                        "수고하셨어요! 프로젝트를 완료했어요. 팀원 리뷰를 작성해보세요!", false,
+                                        DeepLinkType.REVIEW_PAGE, false, user2)
                         ),
                 () -> assertThat(notifications3)
-                        .extracting("notificationType", "title", "body", "isRead", "isDeleted")
+                        .extracting("title", "body", "isRead", "deepLinkType", "isDeleted", "user")
                         .containsExactlyInAnyOrder(
-                                tuple(NotificationType.TEAM_COMPLETE, team.getProjectName() + " 프로젝트 완료",
-                                        "수고하셨어요! 프로젝트를 완료했어요. 팀원 리뷰를 작성해보세요!", false, false)
+                                tuple(team.getProjectName() + " 프로젝트 완료",
+                                        "수고하셨어요! 프로젝트를 완료했어요. 팀원 리뷰를 작성해보세요!", false,
+                                        DeepLinkType.REVIEW_PAGE, false, user3)
                         )
         );
     }
@@ -356,22 +372,25 @@ class NotificationServiceTest {
 
         assertAll(
                 () -> assertThat(notifications1)
-                        .extracting("notificationType", "title", "body", "isRead", "isDeleted")
+                        .extracting("title", "body", "isRead", "deepLinkType", "isDeleted", "user")
                         .containsExactlyInAnyOrder(
-                                tuple(NotificationType.TEAM_PROFILE_UPDATED, team.getProjectName() + "팀 프로필 수정",
-                                        team.getProjectName() + "팀 프로필이 팀장에 의해 수정되었어요.", false, false)
+                                tuple(team.getProjectName() + "팀 프로필 수정",
+                                        team.getProjectName() + "팀 프로필이 팀장에 의해 수정되었어요.", false,
+                                        DeepLinkType.TEAM_PAGE, false, user1)
                         ),
                 () -> assertThat(notifications2)
-                        .extracting("notificationType", "title", "body", "isRead", "isDeleted")
+                        .extracting("title", "body", "isRead", "deepLinkType", "isDeleted", "user")
                         .containsExactlyInAnyOrder(
-                                tuple(NotificationType.TEAM_PROFILE_UPDATED, team.getProjectName() + "팀 프로필 수정",
-                                        team.getProjectName() + "팀 프로필이 팀장에 의해 수정되었어요.", false, false)
+                                tuple(team.getProjectName() + "팀 프로필 수정",
+                                        team.getProjectName() + "팀 프로필이 팀장에 의해 수정되었어요.", false,
+                                        DeepLinkType.TEAM_PAGE, false, user2)
                         ),
                 () -> assertThat(notifications3)
-                        .extracting("notificationType", "title", "body", "isRead", "isDeleted")
+                        .extracting("title", "body", "isRead", "deepLinkType", "isDeleted", "user")
                         .containsExactlyInAnyOrder(
-                                tuple(NotificationType.TEAM_PROFILE_UPDATED, team.getProjectName() + "팀 프로필 수정",
-                                        team.getProjectName() + "팀 프로필이 팀장에 의해 수정되었어요.", false, false)
+                                tuple(team.getProjectName() + "팀 프로필 수정",
+                                        team.getProjectName() + "팀 프로필이 팀장에 의해 수정되었어요.", false,
+                                        DeepLinkType.TEAM_PAGE, false, user3)
                         )
         );
     }
@@ -400,11 +419,11 @@ class NotificationServiceTest {
 
         assertAll(
                 () -> assertThat(notifications3)
-                        .extracting("notificationType", "title", "body", "isRead", "isDeleted")
+                        .extracting("title", "body", "isRead", "deepLinkType", "isDeleted", "user")
                         .containsExactlyInAnyOrder(
-                                tuple(NotificationType.TEAM_OFFER, offer.getPosition().toString() + " 스카웃 제의",
+                                tuple(offer.getPosition().toString() + " 스카웃 제의",
                                         offer.getTeam().getProjectName() + "팀에서 " + offer.getPosition().getText() + " 스카웃 제의가 왔어요!",
-                                        false, false)
+                                        false, DeepLinkType.USER_OFFER_RECEIVE_PAGE, false, user3)
                         ),
                 () -> assertThat(notifications1).isEmpty(),
                 () -> assertThat(notifications2).isEmpty()
@@ -435,23 +454,23 @@ class NotificationServiceTest {
 
         assertAll(
                 () -> assertThat(notifications1)
-                        .extracting("notificationType", "title", "body", "isRead", "isDeleted")
+                        .extracting("title", "body", "isRead", "deepLinkType", "isDeleted", "user")
                         .containsExactlyInAnyOrder(
-                                tuple(NotificationType.USER_OFFER, offer.getPosition().getText() + " 지원",
+                                tuple(offer.getPosition().getText() + " 지원",
                                         offer.getPosition().getText() + " " + offer.getUser().getNickname() + "님이 지원을 했습니다.",
-                                        false, false)
+                                        false, DeepLinkType.TEAM_OFFER_RECEIVE_PAGE, false, user1)
                         ),
                 () -> assertThat(notifications2).isEmpty(),
                 () -> assertThat(notifications3).isEmpty()
         );
     }
 
-    private Notification createSavedNotification(User user, NotificationType notificationType, String title, String body) {
+    private Notification createSavedNotification(User user, String title, String body, DeepLinkType deepLinkType) {
         Notification notification = Notification.builder()
                 .user(user)
-                .notificationType(notificationType)
                 .title(title)
                 .body(body)
+                .deepLinkType(deepLinkType)
                 .build();
 
         return notificationRepository.save(notification);

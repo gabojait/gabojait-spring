@@ -1,6 +1,6 @@
 package com.gabojait.gabojaitspring.api.dto.notification.response;
 
-import com.gabojait.gabojaitspring.common.constant.deepLink.DeepLink;
+import com.gabojait.gabojaitspring.domain.notification.DeepLinkType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -17,8 +17,8 @@ public class DeepLinkResponse {
     @ApiModelProperty(position = 2, required = true, value = "설명")
     private String description;
 
-    public DeepLinkResponse(DeepLink deepLink) {
-        this.url = deepLink.getUrl();
-        this.description = deepLink.getDescription();
+    public DeepLinkResponse(DeepLinkType deepLinkType) {
+        this.description = deepLinkType.getDescription();
+        this.url = deepLinkType.getUrl();
     }
 }

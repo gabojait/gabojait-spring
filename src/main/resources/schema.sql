@@ -126,7 +126,7 @@ CREATE TABLE notification
     notification_id              BIGINT AUTO_INCREMENT PRIMARY KEY,
     title                       VARCHAR(255)  NOT NULL,
     body                        VARCHAR(255)  NOT NULL,
-    notification_type            VARCHAR(25)   NOT NULL,
+    deep_link_type              VARCHAR(31)   NOT NULL,
     is_read                     BIT           NOT NULL,
     created_at                  DATETIME(6)   NOT NULL,
     updated_at                  DATETIME(6)   NOT NULL,
