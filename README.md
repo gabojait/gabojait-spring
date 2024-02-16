@@ -6,8 +6,8 @@
 
 ### 가보자IT으로 사이드 프로젝트를 함께할 팀원을 찾다.
 
-![Release-CI](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fgabojait%2Fgabojait-spring%2Fbadge%3Fref%3Dmaster%26token%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&style=flat&label=Release-CI&logo=GitHub-Actions)
-![Alpha-CI](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fgabojait%2Fgabojait-spring%2Fbadge%3Fref%3Ddevelop%26token%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&style=flat&label=Alpha-CI&logo=GitHub-Actions)
+![Release-CI](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fgabojait%2Fgabojait-spring%2Fbadge%3Fref%3Dmaster%26token%3D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&style=flat&label=Release-CI&logo=GitHub-Actions)
+![Alpha-CI](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fgabojait%2Fgabojait-spring%2Fbadge%3Fref%3Ddevelop%26token%3D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&style=flat&label=Alpha-CI&logo=GitHub-Actions)
 ![Release API-Status](https://uptime.nogamsung.com/api/badge/3/status?label=Release%20API%20Status&style=flat)
 ![Alpha API-Status](https://uptime.nogamsung.com/api/badge/2/status?label=Alpha%20API%20Status&style=flat)
 
