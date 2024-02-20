@@ -17,7 +17,7 @@ class DeepLinkTypeTest {
         return Stream.of(
                 Arguments.of(DeepLinkType.HOME_PAGE, "gabojait://MainBottomTabNavigation/Home/GroupList", "홈페이지"),
                 Arguments.of(DeepLinkType.TEAM_PAGE, "gabojait://MainBottomTabNavigation/Team", "팀 페이지"),
-                Arguments.of(DeepLinkType.REVIEW_PAGE, "gabojait://MainNavigation/TeamHistory", "리뷰 작성 페이지"),
+                Arguments.of(DeepLinkType.REVIEW_PAGE, "gabojait://MainNavigation/ApplyStatus", "리뷰 작성 페이지"),
                 Arguments.of(DeepLinkType.USER_OFFER_RECEIVE_PAGE, "gabojait://MainNavigation/OfferFromTeam", "회원 제안 페이지"),
                 Arguments.of(DeepLinkType.TEAM_OFFER_RECEIVE_PAGE, "gabojait://MainNavigation/TeamHistory", "팀 제안 페이지")
         );
