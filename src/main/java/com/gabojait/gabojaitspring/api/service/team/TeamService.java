@@ -311,15 +311,19 @@ public class TeamService {
             case DESIGNER:
                 if (request.getDesignerMaxCnt() <= 0)
                     throw new CustomException(TEAM_LEADER_POSITION_UNAVAILABLE);
+                break;
             case BACKEND:
                 if (request.getBackendMaxCnt() <= 0)
                     throw new CustomException(TEAM_LEADER_POSITION_UNAVAILABLE);
+                break;
             case FRONTEND:
                 if (request.getFrontendMaxCnt() <= 0)
                     throw new CustomException(TEAM_LEADER_POSITION_UNAVAILABLE);
+                break;
             case MANAGER:
                 if (request.getManagerMaxCnt() <= 0)
                     throw new CustomException(TEAM_LEADER_POSITION_UNAVAILABLE);
+                break;
         }
     }
 }
