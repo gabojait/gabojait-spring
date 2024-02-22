@@ -26,7 +26,8 @@ public class PortfolioUpdateRequest {
     private String portfolioName;
 
     @ApiModelProperty(position = 2, required = true, value = "포트폴리오 URL", example = "github.com/gabojait")
-    @Size(min = 1, max = 1000, message = "URL은 1~1000자만 가능합니다.")
+    @Size(min = 10, max = 1000, message = "포트폴리오 URL은 10~1000자만 가능합니다.")
+    @Pattern(regexp = "^https\\:\\/\\/.+$", message = "포트폴리오 URL은 'https://'로 시작하는 형식만 가능합니다.")
     private String portfolioUrl;
 
     @ApiModelProperty(position = 3, required = true, value = "미디어", example = "LINK")

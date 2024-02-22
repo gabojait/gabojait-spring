@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-import javax.validation.constraints.NotBlank;
-
 import static org.springframework.http.HttpStatus.*;
 
 @Getter
@@ -57,7 +55,7 @@ public enum ErrorCode {
     INSTITUTION_NAME_LENGTH_INVALID(BAD_REQUEST, "학교명은 3~20자만 가능합니다."),
     CORPORATION_NAME_LENGTH_INVALID(BAD_REQUEST, "기관명은 1~20자만 가능합니다."),
     WORK_DESCRIPTION_LENGTH_INVALID(BAD_REQUEST, "경력 설명은 0~100자만 가능합니다."),
-    PORTFOLIO_URL_LENGTH_INVALID(BAD_REQUEST, "URL은 1~1000자만 가능합니다."),
+    PORTFOLIO_URL_LENGTH_INVALID(BAD_REQUEST, "포트폴리오 URL은 10~1000자만 가능합니다."),
     PROJECT_NAME_LENGTH_INVALID(BAD_REQUEST, "프로젝트명은 1~20자만 가능합니다."),
     PROJECT_DESCRIPTION_LENGTH_INVALID(BAD_REQUEST, "프로젝트 설명은 1~500자만 가능합니다."),
     EXPECTATION_LENGTH_INVALID(BAD_REQUEST, "바라는 점은 1~200자만 가능합니다."),
@@ -80,6 +78,7 @@ public enum ErrorCode {
     LEADER_POSITION_TYPE_INVALID(BAD_REQUEST, "팀장 포지션은 'DESIGNER', 'BACKEND', 'FRONTEND', 또는 'MANAGER' 중 하나여야 됩니다."),
     LEVEL_TYPE_INVALID(BAD_REQUEST, "레벨은 'LOW', 'MID', 또는 'HIGH' 중 하나여야 됩니다."),
     MEDIA_TYPE_INVALID(BAD_REQUEST, "미디어는 'LINK' 또는 'FILE' 중 하나여야 됩니다."),
+    PORTFOLIO_URL_FORMAT_INVALID(BAD_REQUEST, "포트폴리오 URL은 'https://'로 시작하는 형식만 가능합니다."),
 
     // @Positive, @PositiveOrZero
     USER_ID_POSITIVE_ONLY(BAD_REQUEST, "회원 식별자는 양수만 가능합니다."),
@@ -122,6 +121,7 @@ public enum ErrorCode {
      */
     TOKEN_UNAUTHORIZED(FORBIDDEN, "권한이 없는 요청입니다. 로그인 후에 다시 시도 해주세요."),
     REQUEST_FORBIDDEN(FORBIDDEN, "권한이 없는 요청입니다."),
+    SUSPEND_FORBIDDEN(FORBIDDEN, "정지일: START_DATE ~ END_DATE\n사유: REASON"),
 
     /**
      * 404 Not found
