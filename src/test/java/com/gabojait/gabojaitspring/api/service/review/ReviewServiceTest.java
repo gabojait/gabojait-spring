@@ -61,9 +61,9 @@ class ReviewServiceTest {
         Team team3 = createSavedTeam("가보자잇3");
 
         TeamMember teamMember1 = createSavedTeamMember(true, user, team1);
-        teamMember1.complete("github.com/gabojait1", now.minusWeeks(4).minusSeconds(1));
+        teamMember1.complete("https://github.com/gabojait1", now.minusWeeks(4).minusSeconds(1));
         TeamMember teamMember2 = createSavedTeamMember(true, user, team2);
-        teamMember2.complete("github.com/gabojait2", now.minusWeeks(4).plusSeconds(1));
+        teamMember2.complete("https://github.com/gabojait2", now.minusWeeks(4).plusSeconds(1));
         TeamMember teamMember3 = createSavedTeamMember(false, user, team3);
         teamMember3.incomplete();
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3));
@@ -101,9 +101,9 @@ class ReviewServiceTest {
         TeamMember teamMember1 = createSavedTeamMember(true, user1, team);
         TeamMember teamMember2 = createSavedTeamMember(false, user2, team);
         TeamMember teamMember3 = createSavedTeamMember(false, user3, team);
-        teamMember1.complete("github.com/gabojait", now);
-        teamMember2.complete("github.com/gabojait", now);
-        teamMember3.complete("github.com/gabojait", now);
+        teamMember1.complete("https://github.com/gabojait", now);
+        teamMember2.complete("https://github.com/gabojait", now);
+        teamMember3.complete("https://github.com/gabojait", now);
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3));
 
         // when
@@ -153,11 +153,11 @@ class ReviewServiceTest {
 
         Team team = createSavedTeam("가보자잇");
         TeamMember teamMember1 = createSavedTeamMember(true, user1, team);
-        teamMember1.complete("github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
+        teamMember1.complete("https://github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
         TeamMember teamMember2 = createSavedTeamMember(false, user2, team);
-        teamMember2.complete("github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
+        teamMember2.complete("https://github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
         TeamMember teamMember3 = createSavedTeamMember(false, user3, team);
-        teamMember3.complete("github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
+        teamMember3.complete("https://github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3));
 
         ReviewCreateManyRequest request = createValidReviewCreateManyRequest(
@@ -183,11 +183,11 @@ class ReviewServiceTest {
 
         Team team = createSavedTeam("가보자잇");
         TeamMember teamMember1 = createSavedTeamMember(true, user1, team);
-        teamMember1.complete("github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
+        teamMember1.complete("https://github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
         TeamMember teamMember2 = createSavedTeamMember(false, user2, team);
-        teamMember2.complete("github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
+        teamMember2.complete("https://github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
         TeamMember teamMember3 = createSavedTeamMember(false, user3, team);
-        teamMember3.complete("github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
+        teamMember3.complete("https://github.com/gabojait", now.minusWeeks(4).plusSeconds(1));
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3));
 
         createSavedReview(teamMember1, teamMember2);
@@ -233,13 +233,13 @@ class ReviewServiceTest {
 
         Team team = createSavedTeam("가보자잇");
         TeamMember teamMember1 = createSavedTeamMember(true, user1, team);
-        teamMember1.complete("github.com/gabojait", now);
+        teamMember1.complete("https://github.com/gabojait", now);
         TeamMember teamMember2 = createSavedTeamMember(false, user2, team);
-        teamMember2.complete("github.com/gabojait", now);
+        teamMember2.complete("https://github.com/gabojait", now);
         TeamMember teamMember3 = createSavedTeamMember(false, user3, team);
-        teamMember3.complete("github.com/gabojait", now);
+        teamMember3.complete("https://github.com/gabojait", now);
         TeamMember teamMember4 = createSavedTeamMember(false, user4, team);
-        teamMember4.complete("github.com/gabojait", now);
+        teamMember4.complete("https://github.com/gabojait", now);
         teamMemberRepository.saveAll(List.of(teamMember1, teamMember2, teamMember3, teamMember4));
 
         Review review1 = createSavedReview(teamMember2, teamMember1);

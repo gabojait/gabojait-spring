@@ -72,7 +72,7 @@ class ProfileServiceTest {
         Team completedTeam = createTeam("가보자잇1");
         teamRepository.save(completedTeam);
         TeamMember completedTeamMember1 = createTeamMember(user1, completedTeam);
-        completedTeamMember1.complete("github.com/gabojait", LocalDateTime.now());
+        completedTeamMember1.complete("https://github.com/gabojait", LocalDateTime.now());
         teamMemberRepository.save(completedTeamMember1);
 
         User user2 = createSavedDefaultUser("tester2@gabojait.com","tester2", "테스터이");
@@ -98,7 +98,7 @@ class ProfileServiceTest {
         workRepository.saveAll(List.of(work1, work2));
 
         TeamMember completedTeamMember2 = createTeamMember(user2, completedTeam);
-        completedTeamMember2.complete("github.com/gabojait", LocalDateTime.now());
+        completedTeamMember2.complete("https://github.com/gabojait", LocalDateTime.now());
         teamMemberRepository.save(completedTeamMember2);
 
         Review review = createReview(completedTeamMember1, completedTeamMember2);
@@ -211,7 +211,7 @@ class ProfileServiceTest {
         Team completedTeam = createTeam("가보자잇1");
         teamRepository.save(completedTeam);
         TeamMember completedTeamMember1 = createTeamMember(user1, completedTeam);
-        completedTeamMember1.complete("github.com/gabojait", LocalDateTime.now());
+        completedTeamMember1.complete("https://github.com/gabojait", LocalDateTime.now());
         teamMemberRepository.save(completedTeamMember1);
 
         User user2 = createSavedDefaultUser("tester2@gabojait.com","tester2", "테스터이");
@@ -237,7 +237,7 @@ class ProfileServiceTest {
         workRepository.saveAll(List.of(work1, work2));
 
         TeamMember completedTeamMember2 = createTeamMember(user2, completedTeam);
-        completedTeamMember2.complete("github.com/gabojait", LocalDateTime.now());
+        completedTeamMember2.complete("https://github.com/gabojait", LocalDateTime.now());
         teamMemberRepository.save(completedTeamMember2);
 
         Review review = createReview(completedTeamMember1, completedTeamMember2);
@@ -381,7 +381,7 @@ class ProfileServiceTest {
         Team completedTeam = createTeam("가보자잇1");
         teamRepository.save(completedTeam);
         TeamMember completedTeamMember1 = createTeamMember(user1, completedTeam);
-        completedTeamMember1.complete("github.com/gabojait", LocalDateTime.now());
+        completedTeamMember1.complete("https://github.com/gabojait", LocalDateTime.now());
         teamMemberRepository.save(completedTeamMember1);
 
         User user2 = createSavedDefaultUser("tester2@gabojait.com","tester2", "테스터이");
@@ -407,7 +407,7 @@ class ProfileServiceTest {
         workRepository.saveAll(List.of(work1, work2));
 
         TeamMember completedTeamMember2 = createTeamMember(user2, completedTeam);
-        completedTeamMember2.complete("github.com/gabojait", LocalDateTime.now());
+        completedTeamMember2.complete("https://github.com/gabojait", LocalDateTime.now());
         teamMemberRepository.save(completedTeamMember2);
 
         Review review = createReview(completedTeamMember1, completedTeamMember2);
@@ -749,9 +749,9 @@ class ProfileServiceTest {
         PortfolioUpdateRequest request1 = createPortfolioUpdateRequest(portfolio2.getId(),
                 portfolio2.getPortfolioName(), portfolio2.getPortfolioUrl(), portfolio2.getMedia().toString());
         PortfolioUpdateRequest request2 = createPortfolioUpdateRequest(portfolio3.getId(), "포트폴리오4",
-                "github.com/gabojait1", Media.FILE.toString());
+                "https://github.com/gabojait1", Media.FILE.toString());
         PortfolioUpdateRequest request3 = createPortfolioUpdateRequest(null, "포트폴리오5",
-                "github.com/gabojait2", Media.LINK.toString());
+                "https://github.com/gabojait2", Media.LINK.toString());
 
         List<PortfolioUpdateRequest> requests = new ArrayList<>(List.of(request1, request2, request3));
 
@@ -1174,7 +1174,7 @@ class ProfileServiceTest {
         EducationUpdateRequest educationRequest = createEducationUpdateRequest(null, "가보자잇대",
                 LocalDate.of(2004, 1, 1), null, true);
         PortfolioUpdateRequest portfolioRequest = createPortfolioUpdateRequest(null, "포트폴리오",
-                "github.com/gabojait", Media.LINK.toString());
+                "https://github.com/gabojait", Media.LINK.toString());
         SkillUpdateRequest skillRequest = createSkillUpdateRequest(null, "스킬", true, Level.HIGH.toString());
         WorkUpdateRequest workRequest = createWorkUpdateRequest(null, "경력", "경력", LocalDate.of(2004, 1, 1),
                 LocalDate.of(2005, 1, 1), false);
@@ -1264,7 +1264,7 @@ class ProfileServiceTest {
     private Portfolio createPortfolio(String portfolioName, User user) {
         return Portfolio.builder()
                 .portfolioName(portfolioName)
-                .portfolioUrl("github.com/gabojait")
+                .portfolioUrl("https://github.com/gabojait")
                 .media(Media.LINK)
                 .user(user)
                 .build();

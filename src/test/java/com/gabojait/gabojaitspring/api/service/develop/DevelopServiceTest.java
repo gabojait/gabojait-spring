@@ -168,7 +168,7 @@ class DevelopServiceTest {
                 () -> assertThat(portfolios)
                         .extracting("portfolioName", "portfolioUrl", "media")
                         .containsExactly(
-                                tuple("깃허브", "github.com/gabojait", Media.LINK)
+                                tuple("깃허브", "https://github.com/gabojait", Media.LINK)
                         ),
                 () -> assertThat(skills)
                         .extracting("skillName", "level", "isExperienced")
@@ -211,7 +211,7 @@ class DevelopServiceTest {
                                 "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt", "projectUrl", "visitedCnt", "isRecruiting",
                                 "isDeleted")
                         .containsExactly("가볼까잇1", "가볼까잇 프로젝트 설명입니다.", "열정적인 팀원을 구합니다.",
-                                "https://open.kakao.com/o/test", (byte) 5, (byte) 5, (byte) 5, (byte) 5, "github.com/gabojait",
+                                "https://open.kakao.com/o/test", (byte) 5, (byte) 5, (byte) 5, (byte) 5, "https://github.com/gabojait",
                                 0L, false, false),
                 () -> assertThat(reviews.getData())
                         .extracting("post")

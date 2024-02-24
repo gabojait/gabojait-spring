@@ -942,7 +942,7 @@ class UserServiceTest {
     private Portfolio createPortfolio(User user) {
         return Portfolio.builder()
                 .portfolioName("깃허브")
-                .portfolioUrl("github.com/gabojait")
+                .portfolioUrl("https://github.com/gabojait")
                 .media(Media.LINK)
                 .user(user)
                 .build();

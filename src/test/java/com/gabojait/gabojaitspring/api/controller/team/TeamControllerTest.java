@@ -1095,7 +1095,7 @@ class TeamControllerTest {
 
     private TeamCompleteRequest createValidTeamCompleteRequest() {
         return TeamCompleteRequest.builder()
-                .projectUrl("github.com/gabojait")
+                .projectUrl("https://github.com/gabojait")
                 .build();
     }
 

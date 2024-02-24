@@ -368,7 +368,7 @@ class TeamTest {
         Team team = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2, (byte) 2,
                 (byte) 2, (byte) 2);
 
-        String projectUrl = "github.com/gabojait";
+        String projectUrl = "https://github.com/gabojait";
         LocalDateTime completedAt = LocalDateTime.now();
 
         // when
@@ -407,17 +407,17 @@ class TeamTest {
         LocalDateTime completedAt = LocalDateTime.now();
         Team projectUrlTeam1 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
                 (byte) 2, (byte) 2, (byte) 2);
-        projectUrlTeam1.complete("github.com/gabojait1", completedAt);
+        projectUrlTeam1.complete("https://github.com/gabojait1", completedAt);
         Team projectUrlTeam2 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
                 (byte) 2, (byte) 2, (byte) 2);
-        projectUrlTeam2.complete("github.com/gabojait2", completedAt);
+        projectUrlTeam2.complete("https://github.com/gabojait2", completedAt);
 
         Team completedAtTeam1 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
                 (byte) 2, (byte) 2, (byte) 2);
-        completedAtTeam1.complete("github.com/gabojait", completedAt);
+        completedAtTeam1.complete("https://github.com/gabojait", completedAt);
         Team completedAtTeam2 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait", (byte) 2,
                 (byte) 2, (byte) 2, (byte) 2);
-        completedAtTeam2.complete("github.com/gabojait", completedAt.plusSeconds(1));
+        completedAtTeam2.complete("https://github.com/gabojait", completedAt.plusSeconds(1));
 
         Team designerCurrentCntTeam1 = createTeam("가보자잇", "가보자잇입니다", "열정적인 사람을 구합니다.", "kakao.com/o/gabojait",
                 (byte) 2, (byte) 2, (byte) 2, (byte) 2);

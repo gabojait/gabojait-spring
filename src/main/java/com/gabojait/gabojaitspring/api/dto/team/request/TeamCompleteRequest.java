@@ -13,7 +13,7 @@ import javax.validation.constraints.NotBlank;
 @ApiModel(value = "프로젝트 완료 요청")
 public class TeamCompleteRequest {
 
-    @ApiModelProperty(position = 1, required = true, value = "완료한 프로젝트 URL", example = "github.com/gabojait")
+    @ApiModelProperty(position = 1, required = true, value = "완료한 프로젝트 URL", example = "https://github.com/gabojait")
     @NotBlank(message = "완료된 프로젝트 URL은 필수 입력입니다.")
     private String projectUrl;
 

@@ -121,7 +121,7 @@ public enum ErrorCode {
      */
     TOKEN_UNAUTHORIZED(FORBIDDEN, "권한이 없는 요청입니다. 로그인 후에 다시 시도 해주세요."),
     REQUEST_FORBIDDEN(FORBIDDEN, "권한이 없는 요청입니다."),
-    SUSPEND_FORBIDDEN(FORBIDDEN, "정지일: START_DATE ~ END_DATE\n사유: REASON"),
+    SUSPEND_FORBIDDEN(FORBIDDEN, "일시 정지된 계정입니다."),
 
     /**
      * 404 Not found

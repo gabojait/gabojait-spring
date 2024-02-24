@@ -113,7 +113,7 @@ class TeamMemberTest {
         boolean isLeader = true;
         TeamMember teamMember = createTeamMember(position, isLeader, user, team);
 
-        String projectUrl = "github.com/gabojait";
+        String projectUrl = "https://github.com/gabojait";
         LocalDateTime completedAt = LocalDateTime.now();
 
         // when
@@ -142,7 +142,7 @@ class TeamMemberTest {
         boolean isLeader = false;
         TeamMember teamMember = createTeamMember(position, isLeader, user, team);
 
-        String projectUrl = "github.com/gabojait";
+        String projectUrl = "https://github.com/gabojait";
         LocalDateTime completedAt = LocalDateTime.now();
 
         // when
@@ -318,7 +318,7 @@ class TeamMemberTest {
         Team team = createTeam("가보자잇", (byte) 2, (byte) 2, (byte) 2, (byte) 2);
 
         Position position = Position.BACKEND;
-        String projectUrl = "github.com/gabojait";
+        String projectUrl = "https://github.com/gabojait";
         LocalDateTime completedAt = LocalDateTime.now();
 
         TeamMember teamMember = createTeamMember(position, isLeader, user, team);

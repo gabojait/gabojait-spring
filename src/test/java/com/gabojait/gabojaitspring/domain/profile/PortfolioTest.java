@@ -24,7 +24,7 @@ class PortfolioTest {
         User user = createDefaultUser("tester", LocalDate.of(1997, 2, 11), LocalDateTime.now());
 
         String portfolioName = "깃허브";
-        String portfolioUrl = "github.com/gabojait";
+        String portfolioUrl = "https://github.com/gabojait";
         Media media = Media.LINK;
 
         // when
@@ -41,7 +41,7 @@ class PortfolioTest {
     void givenValid_whenUpdate_thenReturn() {
         // given
         User user = createDefaultUser("tester", LocalDate.of(1997, 2, 11), LocalDateTime.now());
-        Portfolio portfolio = createPortfolio("깃허브", "github.com/gabojait", Media.LINK, user);
+        Portfolio portfolio = createPortfolio("깃허브", "https://github.com/gabojait", Media.LINK, user);
 
         String portfolioName = "노션";
         String portfolioUrl = "nogamsung.notion.io";
@@ -60,35 +60,35 @@ class PortfolioTest {
         LocalDateTime now = LocalDateTime.now();
 
         User user = createDefaultUser("tester", LocalDate.of(1997, 2, 11), now);
-        Portfolio portfolio = createPortfolio("깃허브", "github.com/gabojait", Media.LINK, user);
+        Portfolio portfolio = createPortfolio("깃허브", "https://github.com/gabojait", Media.LINK, user);
 
         User user1 = createDefaultUser("tester1", LocalDate.of(1997, 2, 11), now);
         User user2 = createDefaultUser("tester2", LocalDate.of(1997, 2, 11), now);
-        Portfolio userPortfolio1 = createPortfolio("깃허브", "github.com/gabojait", Media.LINK, user1);
-        Portfolio userPortfolio2 = createPortfolio("깃허브", "github.com/gabojait", Media.LINK, user2);
+        Portfolio userPortfolio1 = createPortfolio("깃허브", "https://github.com/gabojait", Media.LINK, user1);
+        Portfolio userPortfolio2 = createPortfolio("깃허브", "https://github.com/gabojait", Media.LINK, user2);
 
         return Stream.of(
                 Arguments.of(portfolio, portfolio, true),
                 Arguments.of(portfolio, new Object(), false),
                 Arguments.of(
-                        createPortfolio("깃허브", "github.com/gabojait", Media.LINK, user),
-                        createPortfolio("깃허브", "github.com/gabojait", Media.LINK, user),
+                        createPortfolio("깃허브", "https://github.com/gabojait", Media.LINK, user),
+                        createPortfolio("깃허브", "https://github.com/gabojait", Media.LINK, user),
                         true
                 ),
                 Arguments.of(userPortfolio1, userPortfolio2, false),
                 Arguments.of(
-                        createPortfolio("깃허브1", "github.com/gabojait", Media.LINK, user),
-                        createPortfolio("깃허브2", "github.com/gabojait", Media.LINK, user),
+                        createPortfolio("깃허브1", "https://github.com/gabojait", Media.LINK, user),
+                        createPortfolio("깃허브2", "https://github.com/gabojait", Media.LINK, user),
                         false
                 ),
                 Arguments.of(
-                        createPortfolio("깃허브", "github.com/gabojait1", Media.LINK, user),
-                        createPortfolio("깃허브", "github.com/gabojait2", Media.LINK, user),
+                        createPortfolio("깃허브", "https://github.com/gabojait1", Media.LINK, user),
+                        createPortfolio("깃허브", "https://github.com/gabojait2", Media.LINK, user),
                         false
                 ),
                 Arguments.of(
-                        createPortfolio("깃허브", "github.com/gabojait", Media.LINK, user),
-                        createPortfolio("깃허브", "github.com/gabojait", Media.FILE, user),
+                        createPortfolio("깃허브", "https://github.com/gabojait", Media.LINK, user),
+                        createPortfolio("깃허브", "https://github.com/gabojait", Media.FILE, user),
                         false
                 )
         );
@@ -109,13 +109,13 @@ class PortfolioTest {
 
         return Stream.of(
                 Arguments.of(
-                        createPortfolio("깃허브", "github.com/gabojait", Media.LINK, user),
-                        createPortfolio("깃허브", "github.com/gabojait", Media.LINK, user),
+                        createPortfolio("깃허브", "https://github.com/gabojait", Media.LINK, user),
+                        createPortfolio("깃허브", "https://github.com/gabojait", Media.LINK, user),
                         true
                 ),
                 Arguments.of(
-                        createPortfolio("깃허브1", "github.com/gabojait", Media.LINK, user),
-                        createPortfolio("깃허브2", "github.com/gabojait", Media.LINK, user),
+                        createPortfolio("깃허브1", "https://github.com/gabojait", Media.LINK, user),
+                        createPortfolio("깃허브2", "https://github.com/gabojait", Media.LINK, user),
                         false
                 )
         );

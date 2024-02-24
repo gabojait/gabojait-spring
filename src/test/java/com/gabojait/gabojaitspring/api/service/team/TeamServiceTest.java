@@ -589,7 +589,7 @@ class TeamServiceTest {
 
         TeamMember teamMember = createdSavedTeamMember(true, user, team, Position.MANAGER);
 
-        String projectUrl = "github.com/gabojait";
+        String projectUrl = "https://github.com/gabojait";
         LocalDateTime completeAt = LocalDateTime.now();
 
         // when
