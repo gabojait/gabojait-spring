@@ -169,7 +169,7 @@ public class DevelopService {
         for (int i = 0; i < users.size(); i++) {
             Position position = Position.NONE;
 
-            if (i < 50)
+            if (i < 100)
                 switch (i % 4) {
                     case 0:
                         position = Position.DESIGNER;
@@ -198,7 +198,7 @@ public class DevelopService {
             educationRepository.save(education);
             Portfolio portfolio = Portfolio.builder()
                     .portfolioName("깃허브")
-                    .portfolioUrl("github.com/gabojait")
+                    .portfolioUrl("https://github.com/gabojait")
                     .media(Media.LINK)
                     .user(users.get(i))
                     .build();
@@ -251,7 +251,7 @@ public class DevelopService {
                         .team(team)
                         .build();
 
-                teamMember.complete("github.com/gabojait", LocalDateTime.now());
+                teamMember.complete("https://github.com/gabojait", LocalDateTime.now());
                 teamMemberRepository.save(teamMember);
                 teamMembers.add(teamMember);
             }
