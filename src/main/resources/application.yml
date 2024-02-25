@@ -206,7 +206,7 @@ api:
 spring:
   config:
     activate:
-      on-profile: alpha
+      on-profile: dev
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -288,7 +288,7 @@ s3:
   region: ${S3_REGION}
 
 api:
-  name: "Gabojait Alpha"
+  name: "Gabojait Dev"
   master:
     id: gabojait
   jwt:
@@ -307,7 +307,7 @@ api:
 spring:
   config:
     activate:
-      on-profile: release
+      on-profile: prod
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
