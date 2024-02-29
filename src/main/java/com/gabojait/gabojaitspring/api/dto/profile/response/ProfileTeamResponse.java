@@ -2,6 +2,8 @@ package com.gabojait.gabojaitspring.api.dto.profile.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.gabojait.gabojaitspring.domain.team.Team;
+import com.gabojait.gabojaitspring.domain.team.TeamMember;
+import com.gabojait.gabojaitspring.domain.user.Position;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -44,15 +46,20 @@ public class ProfileTeamResponse {
     @ApiModelProperty(position = 10, required = true, value = "매니저 최대 수")
     private Byte managerMaxCnt;
 
-    @ApiModelProperty(position = 11, required = true, value = "생성일")
+    @ApiModelProperty(position = 11, required = true, value = "포지션")
+    private Position position;
+
+    @ApiModelProperty(position = 12, required = true, value = "생성일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
-    @ApiModelProperty(position = 12, required = true, value = "수정일")
+    @ApiModelProperty(position = 13, required = true, value = "수정일")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    public ProfileTeamResponse(Team team) {
+    public ProfileTeamResponse(TeamMember teamMember) {
+        Team team = teamMember.getTeam();
+
         this.teamId = team.getId();
         this.projectName = team.getProjectName();
         this.designerCurrentCnt = team.getDesignerCurrentCnt();
@@ -63,6 +70,7 @@ public class ProfileTeamResponse {
         this.backendMaxCnt = team.getBackendMaxCnt();
         this.frontendMaxCnt = team.getFrontendMaxCnt();
         this.managerMaxCnt = team.getManagerMaxCnt();
+        this.position = teamMember.getPosition();
         this.createdAt = team.getCreatedAt();
         this.updatedAt = team.getUpdatedAt();
     }

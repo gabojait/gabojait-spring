@@ -113,14 +113,14 @@ public class ProfileFindOtherResponse {
 
         this.completedTeams = profile.getTeamMembers().stream()
                 .filter(tm -> tm.getTeam().getCompletedAt() != null)
-                .map(tm -> new ProfileTeamResponse(tm.getTeam()))
+                .map(ProfileTeamResponse::new)
                 .collect(Collectors.toList());
         this.isLeader = false;
         profile.getTeamMembers().stream()
                 .filter(tm -> tm.getTeam().getCompletedAt() == null)
                 .findFirst()
                 .ifPresent(tm -> {
-                    this.currentTeam = new ProfileTeamResponse(tm.getTeam());
+                    this.currentTeam = new ProfileTeamResponse(tm);
                     this.isLeader = tm.getIsLeader();
                 });
 

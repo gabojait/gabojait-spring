@@ -160,26 +160,40 @@ class ProfileServiceTest {
                                         work1.getUpdatedAt())
                         ),
                 () -> assertThat(response.getCompletedTeams())
-                        .extracting("teamId", "projectName", "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt",
-                                "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt",
-                                "createdAt", "updatedAt")
+                        .extracting("teamId", "projectName", "designerCurrentCnt", "backendCurrentCnt",
+                                "frontendCurrentCnt", "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt",
+                                "frontendMaxCnt", "managerMaxCnt", "position", "createdAt", "updatedAt")
                         .containsExactly(
-                                tuple(completedTeam.getId(), completedTeam.getProjectName(),
-                                        completedTeam.getDesignerCurrentCnt(), completedTeam.getBackendCurrentCnt(),
-                                        completedTeam.getFrontendCurrentCnt(), completedTeam.getManagerCurrentCnt(),
-                                        completedTeam.getDesignerMaxCnt(), completedTeam.getBackendMaxCnt(),
-                                        completedTeam.getFrontendMaxCnt(), completedTeam.getManagerMaxCnt(),
-                                        completedTeam.getCreatedAt(), completedTeam.getUpdatedAt())
+                                tuple(completedTeamMember1.getTeam().getId(),
+                                        completedTeamMember1.getTeam().getProjectName(),
+                                        completedTeamMember1.getTeam().getDesignerCurrentCnt(),
+                                        completedTeamMember1.getTeam().getBackendCurrentCnt(),
+                                        completedTeamMember1.getTeam().getFrontendCurrentCnt(),
+                                        completedTeamMember1.getTeam().getManagerCurrentCnt(),
+                                        completedTeamMember1.getTeam().getDesignerMaxCnt(),
+                                        completedTeamMember1.getTeam().getBackendMaxCnt(),
+                                        completedTeamMember1.getTeam().getFrontendMaxCnt(),
+                                        completedTeamMember1.getTeam().getManagerMaxCnt(),
+                                        completedTeamMember1.getPosition(),
+                                        completedTeamMember1.getTeam().getCreatedAt(),
+                                        completedTeamMember1.getTeam().getUpdatedAt())
                         ),
                 () -> assertThat(response.getCurrentTeam())
-                        .extracting("teamId", "projectName", "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt",
-                                "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt",
-                                "createdAt", "updatedAt")
-                        .containsExactly(currentTeam.getId(), currentTeam.getProjectName(), currentTeam.getDesignerCurrentCnt(),
-                                currentTeam.getBackendCurrentCnt(), currentTeam.getFrontendCurrentCnt(),
-                                currentTeam.getManagerCurrentCnt(), currentTeam.getDesignerMaxCnt(),
-                                currentTeam.getBackendMaxCnt(), currentTeam.getFrontendMaxCnt(), currentTeam.getManagerMaxCnt(),
-                                currentTeam.getCreatedAt(), currentTeam.getUpdatedAt()),
+                        .extracting("teamId", "projectName", "designerCurrentCnt", "backendCurrentCnt",
+                                "frontendCurrentCnt", "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt",
+                                "frontendMaxCnt", "managerMaxCnt", "position", "createdAt", "updatedAt")
+                        .containsExactly(currentTeamMember.getTeam().getId(),
+                                currentTeamMember.getTeam().getProjectName(),
+                                currentTeamMember.getTeam().getDesignerCurrentCnt(),
+                                currentTeamMember.getTeam().getBackendCurrentCnt(),
+                                currentTeamMember.getTeam().getFrontendCurrentCnt(),
+                                currentTeamMember.getTeam().getManagerCurrentCnt(),
+                                currentTeamMember.getTeam().getDesignerMaxCnt(),
+                                currentTeamMember.getTeam().getBackendMaxCnt(),
+                                currentTeamMember.getTeam().getFrontendMaxCnt(),
+                                currentTeamMember.getTeam().getManagerMaxCnt(),
+                                currentTeamMember.getPosition(), currentTeamMember.getTeam().getCreatedAt(),
+                                currentTeamMember.getTeam().getUpdatedAt()),
                 () -> assertThat(response.getReviews())
                         .extracting("reviewId", "reviewer", "rating", "post", "createdAt", "updatedAt")
                         .containsExactly(
@@ -190,7 +204,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원으로 프로필 조회시 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원으로 프로필 조회시 예외가 발생한다")
     void givenNonExistingUser_whenMyFindProfile_thenThrow() {
         // given
         long userId = 1L;
@@ -337,30 +351,40 @@ class ProfileServiceTest {
                                         review.getCreatedAt(), review.getUpdatedAt())
                         ),
                 () -> assertThat(response.getCompletedTeams())
-                        .extracting("teamId", "projectName",
-                                "designerCurrentCnt", "backendCurrentCnt",
-                                "frontendCurrentCnt", "managerCurrentCnt",
-                                "designerMaxCnt", "backendMaxCnt",
-                                "frontendMaxCnt", "managerMaxCnt",
-                                "createdAt", "updatedAt")
+                        .extracting("teamId", "projectName", "designerCurrentCnt", "backendCurrentCnt",
+                                "frontendCurrentCnt", "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt",
+                                "frontendMaxCnt", "managerMaxCnt", "position", "createdAt", "updatedAt")
                         .containsExactly(
-                                tuple(completedTeam.getId(), completedTeam.getProjectName(),
-                                        completedTeam.getDesignerCurrentCnt(), completedTeam.getBackendCurrentCnt(),
-                                        completedTeam.getFrontendCurrentCnt(), completedTeam.getManagerCurrentCnt(),
-                                        completedTeam.getDesignerMaxCnt(), completedTeam.getBackendMaxCnt(),
-                                        completedTeam.getFrontendMaxCnt(), completedTeam.getManagerMaxCnt(),
-                                        completedTeam.getCreatedAt(), completedTeam.getUpdatedAt())
+                                tuple(completedTeamMember1.getTeam().getId(),
+                                        completedTeamMember1.getTeam().getProjectName(),
+                                        completedTeamMember1.getTeam().getDesignerCurrentCnt(),
+                                        completedTeamMember1.getTeam().getBackendCurrentCnt(),
+                                        completedTeamMember1.getTeam().getFrontendCurrentCnt(),
+                                        completedTeamMember1.getTeam().getManagerCurrentCnt(),
+                                        completedTeamMember1.getTeam().getDesignerMaxCnt(),
+                                        completedTeamMember1.getTeam().getBackendMaxCnt(),
+                                        completedTeamMember1.getTeam().getFrontendMaxCnt(),
+                                        completedTeamMember1.getTeam().getManagerMaxCnt(),
+                                        completedTeamMember1.getPosition(),
+                                        completedTeamMember1.getTeam().getCreatedAt(),
+                                        completedTeamMember1.getTeam().getUpdatedAt())
                         ),
                 () -> assertThat(response.getCurrentTeam())
-                        .extracting("teamId", "projectName", "designerCurrentCnt", "backendCurrentCnt", "frontendCurrentCnt",
-                                "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt", "frontendMaxCnt", "managerMaxCnt",
-                                "createdAt", "updatedAt")
-                        .containsExactly(currentTeam.getId(), currentTeam.getProjectName(),
-                                currentTeam.getDesignerCurrentCnt(), currentTeam.getBackendCurrentCnt(),
-                                currentTeam.getFrontendCurrentCnt(), currentTeam.getManagerCurrentCnt(),
-                                currentTeam.getDesignerMaxCnt(), currentTeam.getBackendMaxCnt(),
-                                currentTeam.getFrontendMaxCnt(), currentTeam.getManagerMaxCnt(),
-                                currentTeam.getCreatedAt(), currentTeam.getUpdatedAt()),
+                        .extracting("teamId", "projectName", "designerCurrentCnt", "backendCurrentCnt",
+                                "frontendCurrentCnt", "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt",
+                                "frontendMaxCnt", "managerMaxCnt", "position", "createdAt", "updatedAt")
+                        .containsExactly(currentTeamMember.getTeam().getId(),
+                                currentTeamMember.getTeam().getProjectName(),
+                                currentTeamMember.getTeam().getDesignerCurrentCnt(),
+                                currentTeamMember.getTeam().getBackendCurrentCnt(),
+                                currentTeamMember.getTeam().getFrontendCurrentCnt(),
+                                currentTeamMember.getTeam().getManagerCurrentCnt(),
+                                currentTeamMember.getTeam().getDesignerMaxCnt(),
+                                currentTeamMember.getTeam().getBackendMaxCnt(),
+                                currentTeamMember.getTeam().getFrontendMaxCnt(),
+                                currentTeamMember.getTeam().getManagerMaxCnt(),
+                                currentTeamMember.getPosition(), currentTeamMember.getTeam().getCreatedAt(),
+                                currentTeamMember.getTeam().getUpdatedAt()),
                 () -> assertThat(response.getReviews())
                         .extracting("reviewId", "reviewer", "rating", "post", "createdAt", "updatedAt")
                         .containsExactly(
@@ -477,33 +501,40 @@ class ProfileServiceTest {
                                         work1.getUpdatedAt())
                         ),
                 () -> assertThat(response.getCompletedTeams())
-                        .extracting("teamId", "projectName",
-                                "designerCurrentCnt", "backendCurrentCnt",
-                                "frontendCurrentCnt", "managerCurrentCnt",
-                                "designerMaxCnt", "backendMaxCnt",
-                                "frontendMaxCnt", "managerMaxCnt",
-                                "createdAt", "updatedAt")
+                        .extracting("teamId", "projectName", "designerCurrentCnt", "backendCurrentCnt",
+                                "frontendCurrentCnt", "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt",
+                                "frontendMaxCnt", "managerMaxCnt", "position", "createdAt", "updatedAt")
                         .containsExactly(
-                                tuple(completedTeam.getId(), completedTeam.getProjectName(),
-                                        completedTeam.getDesignerCurrentCnt(), completedTeam.getBackendCurrentCnt(),
-                                        completedTeam.getFrontendCurrentCnt(), completedTeam.getManagerCurrentCnt(),
-                                        completedTeam.getDesignerMaxCnt(), completedTeam.getBackendMaxCnt(),
-                                        completedTeam.getFrontendMaxCnt(), completedTeam.getManagerMaxCnt(),
-                                        completedTeam.getCreatedAt(), completedTeam.getUpdatedAt())
+                                tuple(completedTeamMember1.getTeam().getId(),
+                                        completedTeamMember1.getTeam().getProjectName(),
+                                        completedTeamMember1.getTeam().getDesignerCurrentCnt(),
+                                        completedTeamMember1.getTeam().getBackendCurrentCnt(),
+                                        completedTeamMember1.getTeam().getFrontendCurrentCnt(),
+                                        completedTeamMember1.getTeam().getManagerCurrentCnt(),
+                                        completedTeamMember1.getTeam().getDesignerMaxCnt(),
+                                        completedTeamMember1.getTeam().getBackendMaxCnt(),
+                                        completedTeamMember1.getTeam().getFrontendMaxCnt(),
+                                        completedTeamMember1.getTeam().getManagerMaxCnt(),
+                                        completedTeamMember1.getPosition(),
+                                        completedTeamMember1.getTeam().getCreatedAt(),
+                                        completedTeamMember1.getTeam().getUpdatedAt())
                         ),
                 () -> assertThat(response.getCurrentTeam())
-                        .extracting("teamId", "projectName",
-                                "designerCurrentCnt", "backendCurrentCnt",
-                                "frontendCurrentCnt", "managerCurrentCnt",
-                                "designerMaxCnt", "backendMaxCnt",
-                                "frontendMaxCnt", "managerMaxCnt",
-                                "createdAt", "updatedAt")
-                        .containsExactly(currentTeam.getId(), currentTeam.getProjectName(),
-                                currentTeam.getDesignerCurrentCnt(), currentTeam.getBackendCurrentCnt(),
-                                currentTeam.getFrontendCurrentCnt(), currentTeam.getManagerCurrentCnt(),
-                                currentTeam.getDesignerMaxCnt(), currentTeam.getBackendMaxCnt(),
-                                currentTeam.getFrontendMaxCnt(), currentTeam.getManagerMaxCnt(),
-                                currentTeam.getCreatedAt(), currentTeam.getUpdatedAt()),
+                        .extracting("teamId", "projectName", "designerCurrentCnt", "backendCurrentCnt",
+                                "frontendCurrentCnt", "managerCurrentCnt", "designerMaxCnt", "backendMaxCnt",
+                                "frontendMaxCnt", "managerMaxCnt", "position", "createdAt", "updatedAt")
+                        .containsExactly(currentTeamMember.getTeam().getId(),
+                                currentTeamMember.getTeam().getProjectName(),
+                                currentTeamMember.getTeam().getDesignerCurrentCnt(),
+                                currentTeamMember.getTeam().getBackendCurrentCnt(),
+                                currentTeamMember.getTeam().getFrontendCurrentCnt(),
+                                currentTeamMember.getTeam().getManagerCurrentCnt(),
+                                currentTeamMember.getTeam().getDesignerMaxCnt(),
+                                currentTeamMember.getTeam().getBackendMaxCnt(),
+                                currentTeamMember.getTeam().getFrontendMaxCnt(),
+                                currentTeamMember.getTeam().getManagerMaxCnt(),
+                                currentTeamMember.getPosition(), currentTeamMember.getTeam().getCreatedAt(),
+                                currentTeamMember.getTeam().getUpdatedAt()),
                 () -> assertThat(response.getReviews())
                         .extracting("reviewId", "reviewer", "rating", "post",
                                 "createdAt", "updatedAt")
@@ -531,7 +562,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("프로필 이미지 업로드를 한다.")
+    @DisplayName("프로필 이미지 업로드를 한다")
     void givenValid_whenUploadProfileImage_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터");
