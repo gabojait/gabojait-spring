@@ -118,7 +118,7 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("가보자IT Alpha API")
+                .title("가보자IT Dev API")
                 .version("V1.0.0")
                 .description("\t<API 테스트를 위한 테스트 계정 Token 발급 방법>\n" +
                         "1. 개발\n" +
