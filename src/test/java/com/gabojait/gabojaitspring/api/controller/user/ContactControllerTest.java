@@ -38,8 +38,8 @@ class ContactControllerTest {
     @MockBean private ContactService contactService;
 
     @Test
-    @DisplayName("인증코드 전송 요청을 하면 201을 반환한다.")
-    void givenContactCreateRequest_whenSendVerificationCode_thenReturn201() throws Exception {
+    @DisplayName("인증코드 전송 요청을 하면 201을 반환한다")
+    void givenValid_whenSendVerificationCode_thenReturn201() throws Exception {
         // given
         ContactCreateRequest request = createValidContactCreateRequest();
 
@@ -60,7 +60,7 @@ class ContactControllerTest {
     }
 
     @Test
-    @DisplayName("이메일 미입력시 인증코드 전송 요청을 하면 400을 반환한다.")
+    @DisplayName("이메일 미입력시 인증코드 전송 요청을 하면 400을 반환한다")
     void givenBlankEmail_whenSendVerificationCode_thenReturn400() throws Exception {
         // given
         ContactCreateRequest request = createValidContactCreateRequest();
@@ -83,7 +83,7 @@ class ContactControllerTest {
     }
 
     @Test
-    @DisplayName("잘못된 이메일 포맷시 인증코드 전송 요청을 하면 400을 반환한다.")
+    @DisplayName("잘못된 이메일 포맷시 인증코드 전송 요청을 하면 400을 반환한다")
     void givenFormatEmail_whenSendVerificationCode_thenReturn400() throws Exception {
         // given
         ContactCreateRequest request = createValidContactCreateRequest();
@@ -106,8 +106,8 @@ class ContactControllerTest {
     }
 
     @Test
-    @DisplayName("인증코드 확인 요청을 하면 200을 반환한다.")
-    void givenContactVerifyRequest_whenVerifyCode_thenReturn200() throws Exception {
+    @DisplayName("인증코드 확인 요청을 하면 200을 반환한다")
+    void givenValid_whenVerifyCode_thenReturn200() throws Exception {
         // given
         ContactVerifyRequest request = createContactVerifyRequest();
 
@@ -128,7 +128,7 @@ class ContactControllerTest {
     }
 
     @Test
-    @DisplayName("이메일 미입력시 인증코드 확인 요청을 하면 400을 반환한다.")
+    @DisplayName("이메일 미입력시 인증코드 확인 요청을 하면 400을 반환한다")
     void givenBlankEmail_whenVerifyCode_thenReturn400() throws Exception {
         // given
         ContactVerifyRequest request = createContactVerifyRequest();
@@ -151,7 +151,7 @@ class ContactControllerTest {
     }
 
     @Test
-    @DisplayName("인증코드 인증코드 확인 요청을 하면 400을 반환한다.")
+    @DisplayName("인증코드 인증코드 확인 요청을 하면 400을 반환한다")
     void givenBlankVerificationCode_whenVerifyCode_thenReturn400() throws Exception {
         // given
         ContactVerifyRequest request = createContactVerifyRequest();
@@ -174,7 +174,7 @@ class ContactControllerTest {
     }
 
     @Test
-    @DisplayName("잘못된 이메일 포맷시 인증코드 확인 요청을 하면 400을 반환한다.")
+    @DisplayName("잘못된 이메일 포맷시 인증코드 확인 요청을 하면 400을 반환한다")
     void givenFormatEmail_whenVerifyCode_thenReturn400() throws Exception {
         // given
         ContactVerifyRequest request = createContactVerifyRequest();
