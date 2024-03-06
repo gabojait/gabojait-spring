@@ -45,7 +45,7 @@ class FavoriteServiceTest {
     @Autowired private TeamRepository teamRepository;
 
     @Test
-    @DisplayName("회원을 찜한다.")
+    @DisplayName("회원 찜 추가가 정상 작동한다")
     void givenAdd_whenUpdateFavoriteUser_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일", Position.BACKEND);
@@ -63,7 +63,7 @@ class FavoriteServiceTest {
     }
 
     @Test
-    @DisplayName("이미 존재하는 찜한 회원을 추가한다.")
+    @DisplayName("이미 존재하는 회원 찜 추가가 정상 작동한다")
     void givenAddExisting_whenUpdateFavoriteUser_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일", Position.BACKEND);
@@ -82,7 +82,7 @@ class FavoriteServiceTest {
     }
 
     @Test
-    @DisplayName("찜한 회원을 제거한다.")
+    @DisplayName("회원 찜 제거가 정상 작동한다")
     void givenDelete_whenUpdateFavoriteUser_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일", Position.BACKEND);
@@ -101,7 +101,7 @@ class FavoriteServiceTest {
     }
 
     @Test
-    @DisplayName("이미 존재하지 않은 찜한 회원을 제거한다.")
+    @DisplayName("이미 존재하지 않은 회원 찜 제거가 정상 작동한다")
     void givenDeleteNonExisting_whenUpdateFavoriteUser_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일", Position.BACKEND);
@@ -120,7 +120,7 @@ class FavoriteServiceTest {
     }
 
     @Test
-    @DisplayName("팀을 찜한다.")
+    @DisplayName("팀 찜 추가가 정상 작동한다")
     void givenAdd_whenUpdateFavoriteTeam_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
@@ -138,7 +138,7 @@ class FavoriteServiceTest {
     }
 
     @Test
-    @DisplayName("이미 존재하는 찜한 팀을 추가한다.")
+    @DisplayName("이미 존재하는 팀 찜 추가가 정상 작동한다")
     void givenAddExisting_whenUpdateFavoriteTeam_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
@@ -157,7 +157,7 @@ class FavoriteServiceTest {
     }
 
     @Test
-    @DisplayName("찜한 팀을 제거한다.")
+    @DisplayName("팀 찜 제거가 정상 작동한다")
     void givenDelete_whenUpdateFavoriteTeam_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
@@ -176,7 +176,7 @@ class FavoriteServiceTest {
     }
 
     @Test
-    @DisplayName("이미 존재하지 않은 찜한 팀을 제거한다.")
+    @DisplayName("이미 존재하지 않은 팀 찜을 제거한다")
     void givenDeleteNonExisting_whenUpdateFavoriteTeam_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
@@ -194,7 +194,7 @@ class FavoriteServiceTest {
     }
 
     @Test
-    @DisplayName("찜한 회원 페이징 조회를 한다.")
+    @DisplayName("찜한 회원 페이징 조회가 정상 작동한다")
     void givenValid_whenFindPageFavoriteUser_thenReturn() {
         // given
         User user1 = createSavedDefaultUser("tester1@gabojait.com", "tester1", "테스터일", Position.BACKEND);
@@ -229,7 +229,7 @@ class FavoriteServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 회원으로 찜한 회원 페이징 조회를 하면 예외가 발생한다.")
+    @DisplayName("존재하지 않은 회원으로 찜한 회원 페이징 조회를 하면 예외가 발생한다")
     void givenNonExistingUser_whenFindPageFavoriteUser_thenThrow() {
         // given
         long userId = 1L;
@@ -245,7 +245,7 @@ class FavoriteServiceTest {
     }
 
     @Test
-    @DisplayName("찜한 팀 페이징 조회를 한다.")
+    @DisplayName("찜한 팀 페이징 조회가 정상 작동한다")
     void givenValid_whenFindPageFavoriteTeam_thenReturn() {
         // given
         User user = createSavedDefaultUser("tester@gabojait.com", "tester", "테스터", Position.BACKEND);
